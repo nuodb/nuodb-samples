@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<jboss-web>
+   <resource-ref>
+       <res-ref-name>jdbc/NuoDBHockey</res-ref-name>
+       <res-type>javax.sql.DataSource</res-type>
+       <jndi-name>java:/NuoDBHockey</jndi-name>
+   </resource-ref>
+</jboss-web>

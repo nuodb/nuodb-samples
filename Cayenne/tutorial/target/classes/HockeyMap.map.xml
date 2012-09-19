@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-map xmlns="http://cayenne.apache.org/schema/3.0/modelMap"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://cayenne.apache.org/schema/3.0/modelMap http://cayenne.apache.org/schema/3.0/modelMap.xsd"
+  project-version="3.0.0.1">
+	<property name="defaultPackage" value="org.example.cayenne.persistent"/>
+	<db-entity name="HOCKEY" schema="HOCKEY">
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isGenerated="true" isMandatory="true" length="10"/>
+		<db-attribute name="NAME" type="VARCHAR" length="255"/>
+		<db-attribute name="NUMBER" type="INTEGER"/>
+		<db-attribute name="POSITION" type="VARCHAR" length="255"/>
+		<db-attribute name="TEAM" type="VARCHAR" length="255"/>
+	</db-entity>
+	<obj-entity name="Hockey" className="org.example.cayenne.persistent.Hockey" dbEntityName="HOCKEY">
+		<obj-attribute name="name" type="java.lang.String" db-attribute-path="NAME"/>
+		<obj-attribute name="number" type="java.lang.Integer" db-attribute-path="NUMBER"/>
+		<obj-attribute name="position" type="java.lang.String" db-attribute-path="POSITION"/>
+		<obj-attribute name="team" type="java.lang.String" db-attribute-path="TEAM"/>
+	</obj-entity>
+</data-map>
