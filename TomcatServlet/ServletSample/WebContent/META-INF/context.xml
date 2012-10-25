@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!-- The contents of this file will be loaded for each web application -->
+  <Context crossContext="true">
+ 
+    <!-- Default set of monitored resources -->
+    <WatchedResource>WEB-INF/web.xml</WatchedResource>
+ 
+ <!-- the resource providing the high availability functionality is available after Beta 9 -->
+<!--  
+ <Resource name="jdbc/nuoDB" auth="Container"
+        type="javax.sql.DataSource"
+        factory="com.nuodb.jdbc.DataSourceConnectionFactory"
+        initialSize="2" maxActive="100" maxIdle="30" 
+        maxWait="10000" maxAge="60000"
+        
+        username="dba"
+        password="goalie"
+        defaultSchema="hockey"
+        
+        defaultReadOnly="false"
+        defaultAutoCommit="true"
+        
+        testOnReturn="false"
+        testOnBorrow="false"
+        testWhileIdle="false"
+        validationQuery="SELECT 1"
+        validationInterval="30000"
+        timeBetweenEvictionRunsMillis="5000"
+        
+        url-delimiter="|"
+        url="jdbc:com.nuodb://localhost/test|jdbc:com.nuodb://backuphost/test"/>
+   -->
+   <Resource name="jdbc/nuoDB" auth="Container"
+        type="javax.sql.DataSource"
+        driverClassName="com.nuodb.jdbc.Driver"
+        initialSize="2" maxActive="100" maxIdle="30" 
+        maxWait="10000" maxAge="60000"
+        username="dba"
+        password="goalie"
+        url="jdbc:com.nuodb://localhost/test?schema=hockey"/>
+</Context>
