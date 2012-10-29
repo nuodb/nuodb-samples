@@ -1,6 +1,10 @@
 *.class
+*~
 
 # Package Files #
 *.jar
 *.war
 *.ear
+
+# Node.js
+node_modules/
