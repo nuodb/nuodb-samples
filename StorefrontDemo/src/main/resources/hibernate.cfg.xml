@@ -1,0 +1,44 @@
+<!DOCTYPE hibernate-configuration SYSTEM "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+	<session-factory>
+		<property name="dialect">com.nuodb.hibernate.NuoDBDialect</property>
+		<property name="connection.driver_class">com.nuodb.jdbc.Driver</property>
+		<property name="connection.url">jdbc:com.nuodb://localhost:48004/Storefront</property>
+		<property name="connection.username">StorefrontUser</property>
+		<property name="connection.password">StorefrontUser</property>
+		<property name="hibernate.connection.schema">Storefront</property>
+
+		<!-- Use the Hibernate built-in pool for tests. -->
+		<property name="connection.pool_size">3</property>
+
+		<!-- Disable the second-level cache -->
+		<property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+		<property name="cache.use_query_cache">false</property>
+		<property name="cache.use_minimal_puts">false</property>
+
+		<!-- In eager fetching, only join three tables deep if joins are used -->
+		<property name="max_fetch_depth">3</property>
+
+		<!-- Print SQL to stdout, format it nicely -->
+		<property name="show_sql">true</property>
+		<property name="format_sql">true</property>
+		<property name="use_sql_comments">true</property>
+
+		<!-- Drop and then re-create schema on SessionFactory build, for testing -->
+		<property name="hbm2ddl.auto">update</property>
+
+		<!-- Use thread-bound persistence context propagation, scoped to the transaction -->
+		<property name="current_session_context_class">thread</property>
+
+		<!-- Add mappings (using annotations) -->
+		<mapping class="com.nuodb.storefront.model.CartSelection"/>
+		<mapping class="com.nuodb.storefront.model.Customer"/>
+		<mapping class="com.nuodb.storefront.model.Product"/>
+		<mapping class="com.nuodb.storefront.model.ProductReview"/>
+		<mapping class="com.nuodb.storefront.model.Transaction"/>
+		<mapping class="com.nuodb.storefront.model.TransactionSelection"/>
+
+	</session-factory>
+
+</hibernate-configuration>

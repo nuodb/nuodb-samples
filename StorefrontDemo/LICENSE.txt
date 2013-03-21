@@ -1,0 +1,47 @@
+Storefront Demo
+Copyright (c) 2013 NuoDB
+
+MIT License (MIT)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+The Storefront Demo uses these open source libraries:
+
+jQuery
+http://jquery.com/
+MIT and GPLv2
+
+Twitter Bootstrap
+http://twitter.github.com/bootstrap/
+http://www.apache.org/licenses/LICENSE-2.0
+
+RateIt (jQuery plugin)
+http://rateit.codeplex.com/
+Microsoft Public License (Ms-PL)
+
+Green shopping bag icons from PetalArt
+http://www.iconarchive.com/show/free-shopping-icons-by-petalart.html
+http://creativecommons.org/licenses/by-nc-nd/3.0/
+
+Handlebars
+http://handlebarsjs.com/
+MIT License
+
+Jersey
+
+Hibernate
+
+GoogleCode Generic DAO
