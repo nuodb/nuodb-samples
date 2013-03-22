@@ -5,6 +5,11 @@
 
     <display-name>Storefront Demo</display-name>
 
+    <welcome-file-list>
+        <welcome-file>products</welcome-file>
+    </welcome-file-list>
+
+    <!-- Servlets -->
     <servlet>
         <servlet-name>jersey-serlvet</servlet-name>
         <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
@@ -18,10 +23,35 @@
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
+    <servlet>
+        <servlet-name>storefront-products</servlet-name>
+        <servlet-class>com.nuodb.storefront.servlet.ProductsServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>storefront-product</servlet-name>
+        <servlet-class>com.nuodb.storefront.servlet.ProductServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>storefront-cart</servlet-name>
+        <servlet-class>com.nuodb.storefront.servlet.CartServlet</servlet-class>
+    </servlet>
 
+    <!-- URL mappings -->
     <servlet-mapping>
         <servlet-name>jersey-serlvet</servlet-name>
         <url-pattern>/api/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>storefront-products</servlet-name>
+        <url-pattern>/products</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>storefront-product</servlet-name>
+        <url-pattern>/product</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>storefront-cart</servlet-name>
+        <url-pattern>/cart</url-pattern>
     </servlet-mapping>
 
 </web-app>

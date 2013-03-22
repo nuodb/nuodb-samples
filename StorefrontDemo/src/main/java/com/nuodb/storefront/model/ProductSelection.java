@@ -11,9 +11,8 @@ import javax.validation.constraints.NotNull;
 
 @MappedSuperclass
 public abstract class ProductSelection {
-    @ManyToOne
-    @NotNull
     @Id
+    @ManyToOne
     private Product product;
 
     private int quantity;

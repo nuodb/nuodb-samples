@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -20,6 +21,7 @@ import com.nuodb.storefront.model.CartSelection;
 import com.nuodb.storefront.model.Category;
 import com.nuodb.storefront.model.Customer;
 import com.nuodb.storefront.model.Product;
+import com.nuodb.storefront.model.ProductFilter;
 import com.nuodb.storefront.model.ProductReview;
 import com.nuodb.storefront.model.Transaction;
 import com.nuodb.storefront.model.TransactionSelection;
@@ -45,12 +47,11 @@ public class StorefrontService implements IStorefrontService {
     }
 
     @Override
-    public SearchResult<Product> getProducts(final String matchText, final Collection<String> categories, final Integer page, final Integer pageSize,
-            final ProductSort sort) {
+    public SearchResult<Product> getProducts(final ProductFilter filter) {
         return dao.runTransaction(TransactionType.READ_ONLY, new Callable<SearchResult<Product>>() {
             @Override
             public SearchResult<Product> call() throws Exception {
-                SearchResult<Product> result = dao.getProducts(matchText, categories, page, pageSize, sort);
+                SearchResult<Product> result = dao.getProducts(filter);
 
                 for (Product product : result.getResult()) {
                     dao.evict(product);
@@ -130,7 +131,7 @@ public class StorefrontService implements IStorefrontService {
     public ProductReview addProductReview(final int customerId, final int productId, final String title, final String comments,
             final String emailAddress, final int rating) {
         if (rating < 1 || rating > 5) {
-            throw new IllegalArgumentException("quantity");
+            throw new IllegalArgumentException("rating");
         }
 
         return dao.runTransaction(TransactionType.READ_WRITE, new Callable<ProductReview>() {
@@ -158,12 +159,19 @@ public class StorefrontService implements IStorefrontService {
                 product.addReview(review);
                 dao.save(product);
 
-                if (emailAddress != null && emailAddress.isEmpty()) {
+                if (emailAddress != null && !emailAddress.isEmpty()) {
                     customer.setEmailAddress(emailAddress);
                     dao.save(customer);
                 }
 
-                return review;
+                ProductReview standaloneRev = new ProductReview();
+                standaloneRev.setId(review.getId());
+                standaloneRev.setRating(review.getRating());
+                standaloneRev.setComments(review.getComments());
+                standaloneRev.setDateAdded(review.getDateAdded());
+                standaloneRev.setTitle(review.getTitle());
+
+                return standaloneRev;
             }
         });
     }
@@ -181,6 +189,8 @@ public class StorefrontService implements IStorefrontService {
                     customer.setDateAdded(now);
                 }
                 customer.setDateLastActive(now);
+                countCartItems(customer);
+
                 dao.save(customer);
                 dao.evict(customer);
                 customer.clearCartSelections();
@@ -209,7 +219,7 @@ public class StorefrontService implements IStorefrontService {
                 BigDecimal totalPrice = new BigDecimal(0);
                 for (CartSelection selection : customer.getCartSelections()) {
                     selection.clearCustomer();
-                    
+
                     Product product = selection.getProduct();
                     dao.evict(product);
                     product.clearCategories();
@@ -228,7 +238,7 @@ public class StorefrontService implements IStorefrontService {
 
     @Override
     public int addToCart(final int customerId, final int productId, final int quantity) {
-        if (quantity < 0) {
+        if (quantity <= 0) {
             throw new IllegalArgumentException("quantity");
         }
 
@@ -245,37 +255,51 @@ public class StorefrontService implements IStorefrontService {
                     throw new ProductNotFoundException();
                 }
 
-                Calendar now = Calendar.getInstance();
-                List<CartSelection> cart = customer.getCartSelections();
-                CartSelection selection = null;
-                int totalItems = 0;
-                for (int i = cart.size() - 1; i >= 0; i--) {
-                    selection = customer.getCartSelections().get(i);
-
-                    if (selection.getProduct().getId() == productId) {
-                        if (quantity == 0) {
-                            cart.remove(i);
-                        }
-                        selection.setQuantity(quantity);
-                    }
-
-                    totalItems += selection.getQuantity();
-                    selection = null;
-                }
-
-                if (selection == null) {
-                    selection = new CartSelection();
-                    selection.setDateAdded(now);
-                    selection.setProduct(product);
-                    selection.setQuantity(quantity);
-                    totalItems += quantity;
-                    customer.addCartSelection(selection);
-                }
-
-                selection.setUnitPrice(product.getUnitPrice());
-                selection.setDateModified(now);
+                addOrUpdateCartItem(customer, product, quantity, true);
                 dao.save(customer);
-                return totalItems;
+                return countCartItems(customer);
+            }
+        });
+    }
+
+    @Override
+    public int updateCart(final int customerId, final Map<Integer, Integer> productQuantityMap) throws IllegalArgumentException, CustomerNotFoundException,
+            ProductNotFoundException {
+        return dao.runTransaction(TransactionType.READ_WRITE, new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                Customer customer = dao.find(Customer.class, customerId);
+                if (customer == null) {
+                    throw new CustomerNotFoundException();
+                }
+                
+                List<CartSelection> cart = customer.getCartSelections();
+                if (productQuantityMap == null || productQuantityMap.isEmpty()) {
+                    // There's nothing in the map so remove all items
+                    cart.clear();
+                } else {
+                    // Add/update items described in the map
+                    Set<CartSelection> referencedItems = new HashSet<CartSelection>();
+                    for (Map.Entry<Integer, Integer> productQuantity : productQuantityMap.entrySet()) {
+                        int productId = productQuantity.getKey();
+                        int quantity = productQuantity.getValue();
+                        Product product = dao.find(Product.class, productId);
+                        if (product == null) {
+                            throw new ProductNotFoundException();
+                        }
+                        
+                        referencedItems.add(addOrUpdateCartItem(customer, product, quantity, false));                       
+                    }
+                    
+                    // Remove items not described in the map
+                    for (int i = cart.size() - 1; i >= 0; i--) {
+                        if (!referencedItems.contains(cart.get(i))) {
+                            cart.remove(i);                            
+                        }
+                    }
+                }
+                dao.save(customer);
+                return countCartItems(customer);
             }
         });
     }
@@ -285,7 +309,6 @@ public class StorefrontService implements IStorefrontService {
         return dao.runTransaction(TransactionType.READ_WRITE, new Callable<Transaction>() {
             @Override
             public Transaction call() throws Exception {
-
                 Customer customer = dao.find(Customer.class, customerId);
                 if (customer == null) {
                     throw new CustomerNotFoundException();
@@ -296,16 +319,67 @@ public class StorefrontService implements IStorefrontService {
                     throw new CartEmptyException();
                 }
 
+                // Initialize transaction
+                Calendar now = Calendar.getInstance();
                 Transaction transaction = new Transaction();
+                transaction.setDatePurchased(now);
+                customer.addTransaction(transaction);
+                
+                // Move items from cart to transaction
                 for (CartSelection cartSelection : cart) {
                     TransactionSelection selection = new TransactionSelection(cartSelection);
                     transaction.addTransactionSelection(selection);
                     selection.setUnitPrice(selection.getProduct().getUnitPrice());
                 }
+                customer.getCartSelections().clear();
 
                 dao.save(customer);
                 return transaction;
             }
         });
+    }
+    
+    protected int countCartItems(Customer customer) {
+        int cartItemCount = 0;
+        for (CartSelection selection : customer.getCartSelections()) {
+            cartItemCount += selection.getQuantity();
+        }
+        customer.setCartItemCount(cartItemCount);
+        return cartItemCount;
+    }
+    
+    protected CartSelection addOrUpdateCartItem(Customer customer, Product product, int quantity, boolean incrementQty) {
+        Calendar now = Calendar.getInstance();
+        int productId = product.getId();
+        
+        List<CartSelection> cart = customer.getCartSelections();
+        CartSelection modifiedItem = null;
+        for (int i = cart.size() - 1; i >= 0; i--) {
+            CartSelection selection = cart.get(i);
+
+            if (selection.getProduct().getId() == productId) {
+                modifiedItem = selection;
+                if (incrementQty) {
+                    modifiedItem.setQuantity(selection.getQuantity() + quantity);
+                } else {
+                    modifiedItem.setQuantity(quantity);
+                }
+                if (modifiedItem.getQuantity() <= 0) {
+                    cart.remove(i);
+                }
+            }
+        }
+
+        if (modifiedItem == null && quantity >= 0) {
+            modifiedItem = new CartSelection();
+            modifiedItem.setDateAdded(now);
+            modifiedItem.setProduct(product);
+            modifiedItem.setQuantity(quantity);
+            customer.addCartSelection(modifiedItem);
+        }
+
+        modifiedItem.setUnitPrice(product.getUnitPrice());
+        modifiedItem.setDateModified(now);
+        return modifiedItem;
     }
 }

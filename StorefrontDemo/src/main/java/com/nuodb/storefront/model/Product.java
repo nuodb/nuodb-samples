@@ -43,7 +43,7 @@ public class Product extends Model {
     @NotNull
     private BigDecimal unitPrice;
 
-    @OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY)
+    @OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "product_id")
     @OrderBy("dateAdded")
     private List<ProductReview> reviews = new ArrayList<ProductReview>();
@@ -97,7 +97,7 @@ public class Product extends Model {
     public Float getRating() {
         return rating;
     }
-    
+
     public Integer getReviewCount() {
         return reviewCount;
     }
@@ -121,7 +121,7 @@ public class Product extends Model {
     public List<ProductReview> getReviews() {
         return reviews;
     }
-    
+
     public void clearReviews() {
         reviews = null;
     }
@@ -134,7 +134,7 @@ public class Product extends Model {
     public Set<String> getCategories() {
         return categories;
     }
-    
+
     public void clearCategories() {
         categories = null;
     }

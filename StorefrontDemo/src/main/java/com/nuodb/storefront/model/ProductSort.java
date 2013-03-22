@@ -1,4 +1,4 @@
-package com.nuodb.storefront.service;
+package com.nuodb.storefront.model;
 
 public enum ProductSort {
     RELEVANCE,

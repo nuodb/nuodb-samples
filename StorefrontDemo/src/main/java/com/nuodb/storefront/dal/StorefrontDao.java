@@ -16,13 +16,12 @@ import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.model.Category;
 import com.nuodb.storefront.model.Model;
 import com.nuodb.storefront.model.Product;
-import com.nuodb.storefront.service.ProductSort;
+import com.nuodb.storefront.model.ProductFilter;
+import com.nuodb.storefront.model.ProductSort;
 
 /**
- * Data access object designed for storefront operations, built on top of a
- * general-purpose DAO. The caller is responsible for wrapping DAO calls in
- * transactions, typically by using the {@link #runTransaction(Callable)} or
- * {@link #runTransaction(Runnable)} method.
+ * Data access object designed for storefront operations, built on top of a general-purpose DAO. The caller is responsible for wrapping DAO calls in
+ * transactions, typically by using the {@link #runTransaction(Callable)} or {@link #runTransaction(Runnable)} method.
  */
 public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
     public StorefrontDao() {
@@ -85,30 +84,42 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
 
     @Override
     @SuppressWarnings("unchecked")
-    public SearchResult<Product> getProducts(String matchText, Collection<String> categories, Integer page, Integer pageSize, ProductSort sort) {
+    public SearchResult<Product> getProducts(ProductFilter filter) {
         /*
          * if (sort == ProductSort.AVG_CUSTOMER_REVIEW) { String sql =
-         * "select product_id from product_review group by product_id order by avg(cast(rating as float)) desc"
-         * ; if (pageSize != null) { if (page != null) { sql += " offset " +
-         * (page * pageSize); } sql += " fetch " + pageSize; }
-         * getSession().createSQLQuery(sql).list(); }
+         * "select product_id from product_review group by product_id order by avg(cast(rating as float)) desc" ; if (pageSize != null) { if (page !=
+         * null) { sql += " offset " + (page * pageSize); } sql += " fetch " + pageSize; } getSession().createSQLQuery(sql).list(); }
          */
 
         final Search search = new Search(Product.class);
 
+        String matchText = filter.getMatchText();
         if (matchText != null && !matchText.isEmpty()) {
             matchText = "%" + matchText.trim() + "%";
-            search.addFilterOr(Filter.ilike("name", matchText), Filter.ilike("description", matchText));
-        }
+                search.addFilterOr(Filter.ilike("name", matchText), Filter.ilike("description", matchText));
+            }
+
+        Collection<String> categories = filter.getCategories();
         if (categories != null && !categories.isEmpty()) {
-            search.addFilterSome("categories", Filter.in(Filter.ROOT_ENTITY, categories));
+            Filter[] categoryFilters = new Filter[categories.size()];
+            int idx = 0;
+            for (String category : categories) {
+                categoryFilters[idx++] = Filter.custom("?1 in elements({categories})", category);
+            }
+            search.addFilterOr(categoryFilters);
         }
+
+        Integer page = filter.getPage();
         if (page != null) {
             search.setPage(page - 1);
         }
+
+        Integer pageSize = filter.getPageSize();
         if (pageSize != null) {
             search.setMaxResults(pageSize);
         }
+
+        ProductSort sort = filter.getSort();
         if (sort != null) {
             switch (sort) {
                 case AVG_CUSTOMER_REVIEW:
@@ -156,15 +167,15 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
         switch (transactionType) {
             case READ_ONLY:
                 Session session = getSession();
-                
-                // FIXME:  Can't mark transaction as read-only with NuoDB right now, or SQL exceptions get thrown even with select statements 
-//                session.doWork(new Work() {
-//                    @Override
-//                    public void execute(Connection connection) throws SQLException {
-//                        connection.setReadOnly(true);
-//                    }
-//                });
-                
+
+                // FIXME: Can't mark transaction as read-only with NuoDB right now, or SQL exceptions get thrown even with select statements
+                // session.doWork(new Work() {
+                // @Override
+                // public void execute(Connection connection) throws SQLException {
+                // connection.setReadOnly(true);
+                // }
+                // });
+
                 session.setFlushMode(FlushMode.MANUAL);
                 break;
 

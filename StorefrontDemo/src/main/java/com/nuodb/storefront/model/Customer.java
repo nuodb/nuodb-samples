@@ -6,30 +6,29 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.validation.constraints.NotNull;
 
 @Entity
 public class Customer extends Model {
-    @OneToMany(cascade = { CascadeType.ALL })
-    @JoinColumn(name = "customer_id")
+    @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true, mappedBy="customer")
     @OrderBy("dateAdded")
     private List<CartSelection> cartSelections = new ArrayList<CartSelection>();
 
-    @OneToMany(cascade = { CascadeType.ALL })
-    @JoinColumn(name = "customer_id")
+    @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true, mappedBy="customer")
     @OrderBy("datePurchased")
     private List<Transaction> transactions = new ArrayList<Transaction>();
 
-    public String emailAddress;
+    private String emailAddress;
 
     @NotNull
     private Calendar dateAdded;
 
     @NotNull
     private Calendar dateLastActive;
+
+    private transient int cartItemCount;
 
     public Customer() {
     }
@@ -65,22 +64,37 @@ public class Customer extends Model {
     public void setDateLastActive(Calendar dateLastActive) {
         this.dateLastActive = dateLastActive;
     }
-    
+
     public void addCartSelection(CartSelection selection) {
         selection.setCustomer(this);
         cartSelections.add(selection);
     }
-    
+
     public void addTransaction(Transaction transaction) {
         transaction.setCustomer(this);
         transactions.add(transaction);
-    }
-    
+    }    
+
     public void clearTransactions() {
         transactions = null;
     }
-    
+
     public void clearCartSelections() {
         cartSelections = null;
+    }
+
+    public int getCartItemCount() {
+        return cartItemCount;
+    }
+
+    public void setCartItemCount(int cartItemCount) {
+        this.cartItemCount = cartItemCount;
+    }
+
+    public String getDisplayName() {
+        if (emailAddress != null && !emailAddress.isEmpty()) {
+            return emailAddress;
+        }
+        return "Customer " + getId();
     }
 }

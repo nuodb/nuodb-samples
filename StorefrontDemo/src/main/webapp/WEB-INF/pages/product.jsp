@@ -4,6 +4,7 @@
 <t:page>
     <section id="product"></section>
     <script id="tpl-product" type="text/template">
+	{{#result}}
         <!-- Product info  -->
         <div id="product-info" class="row">
             <div class="span3">
@@ -48,10 +49,11 @@
             <div class="span12">
                 <h3>Customer Reviews</h3>
 
+			{{#if reviews}}
 				{{#reviews}}
                 <div class="media media-review">
                     <div class="pull-left">
-                        <img class="media-object img-polaroid img-rounded" src="http://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d51?s=64&d=mm" />
+                        <img class="media-object img-polaroid img-rounded img-gravitar" src="http://www.gravatar.com/avatar/{{gravitarHash}}?s=64&d=mm" />
                     </div>
                     <div class="media-body">
                         <h4 class="media-heading">
@@ -60,18 +62,21 @@
                         </h4>
                         <div class="date">{{dateFormat dateAdded}}</div>
                         <div class="byline">
-                            By <b>Customer {{id}}</b>
+                            By <b>{{customer.displayName}}</b>
                         </div>
                         <p class="comment">{{comments}}</p>
                     </div>
                 </div>
 				{{/reviews}}
-
+			{{else}}
+				<div class="alert alert-info">There are no reviews of this product yet.</div>
+			{{/if}}
                 <p>
                     Do you have this product? <a href="#dlg-add-review" data-toggle="modal">Submit your review</a>.
                 </p>
             </div>
         </div>
+	{{/result}}
     </script>
 
     <!--  "Review this Product" dialog -->

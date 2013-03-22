@@ -3,7 +3,7 @@ package com.nuodb.storefront.api;
 import java.math.BigDecimal;
 import java.util.List;
 
-import javax.ws.rs.CookieParam;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -11,8 +11,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -20,8 +20,10 @@ import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.exception.ProductNotFoundException;
 import com.nuodb.storefront.model.Customer;
 import com.nuodb.storefront.model.Product;
+import com.nuodb.storefront.model.ProductFilter;
 import com.nuodb.storefront.model.ProductReview;
-import com.nuodb.storefront.service.ProductSort;
+import com.nuodb.storefront.model.ProductSort;
+import com.nuodb.storefront.servlet.BaseServlet;
 
 @Path("/products")
 public class ProductsApi extends BaseApi {
@@ -30,9 +32,11 @@ public class ProductsApi extends BaseApi {
     
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public SearchResult<Product> search(@QueryParam("matchText") String matchText, @QueryParam("category") List<String> categories,
+    public SearchResult<Product> search(@Context HttpServletRequest req, @QueryParam("matchText") String matchText, @QueryParam("categories") List<String> categories,
             @QueryParam("page") Integer page, @QueryParam("pageSize") Integer pageSize, @QueryParam("sort") ProductSort sort) {
-        return getService().getProducts(matchText, categories, page, pageSize, sort);
+        ProductFilter filter = new ProductFilter(matchText, categories, page, pageSize, sort);
+        req.getSession().setAttribute(BaseServlet.SESSION_PRODUCT_FILTER, filter);
+        return getService().getProducts(filter);
     }
 
     @GET
@@ -57,10 +61,9 @@ public class ProductsApi extends BaseApi {
     @POST
     @Path("/{productId}/reviews")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addReview(@CookieParam("customerId") String customerId, @PathParam("productId") int productId, @FormParam("title") String title,
+    public ProductReview addReview(@Context HttpServletRequest req, @PathParam("productId") int productId, @FormParam("title") String title,
             @FormParam("comments") String comments, @FormParam("emailAddress") String emailAddress, @FormParam("rating") int rating) {
-        Customer customer = getOrCreateCustomer(customerId);
-        ProductReview review = getService().addProductReview(customer.getId(), productId, title, comments, emailAddress, rating);
-        return Response.ok(review).cookie(new NewCookie("customerId", String.valueOf(customer.getId()))).build();
+        Customer customer = getOrCreateCustomer(req);
+        return getService().addProductReview(customer.getId(), productId, title, comments, emailAddress, rating);
     }
 }

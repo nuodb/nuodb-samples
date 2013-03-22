@@ -1,23 +1,17 @@
 package com.nuodb.storefront.api;
 
-import com.nuodb.storefront.StorefrontFactory;
+import javax.servlet.http.HttpServletRequest;
+
 import com.nuodb.storefront.model.Customer;
 import com.nuodb.storefront.service.IStorefrontService;
+import com.nuodb.storefront.servlet.BaseServlet;
 
 public abstract class BaseApi {
-    private final IStorefrontService svc = StorefrontFactory.createStorefrontService();
-
     public IStorefrontService getService() {
-        return svc;
+        return BaseServlet.getService();
     }
 
-    public Customer getOrCreateCustomer(String customerIdStr) {
-        int customerId;
-        try {
-            customerId = Integer.valueOf(customerIdStr);
-        } catch (NumberFormatException e) {
-            customerId = 0;
-        }
-        return getService().getOrCreateCustomer(customerId);
+    public Customer getOrCreateCustomer(HttpServletRequest req) {
+        return BaseServlet.getOrCreateCustomer(req);
     }
 }

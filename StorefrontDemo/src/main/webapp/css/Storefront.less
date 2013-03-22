@@ -7,10 +7,18 @@ body {
 	padding-top: 20px;
 }
 
-th, td {
-	+ .text-right {
-		text-align: right;
-	}
+.loading {
+	background: transparent url(../img/loading.gif) no-repeat 50% 50%;
+	width: 100%;
+	height: 100px;
+}
+
+.hidden {
+	display: none;
+}
+
+th.text-right, td.text-right {
+	text-align: right;
 }
 
 #top-bar {
@@ -40,7 +48,7 @@ th, td {
 		}
 	}
 	
-	.navbar-search {
+	.search {
 		position: relative;
 		
 		.search-query {
@@ -48,18 +56,76 @@ th, td {
 			padding-right: 29px;
 		}
 		
-		 .icon-search {
-		 	background: transparent url(../img/search.png) no-repeat 0 0;
+		.search-icon {
 		    position: absolute;
 		    top: 6px;
 		    right: 11px;
 		    width: 16px;
 		    height: 16px;
+		    
+		    a, i {
+		    	width: 16px;
+		    	height: 16px;
+		 		position: absolute;
+		 		top: 0;
+		 		left: 0;		    
+		    }
+		    
+		    .search-glass {
+		 		background: transparent url(../img/search.png) no-repeat 0 0;
+		    }
+		    
+		    .search-clear {
+		    	display: none;
+		 		font-size: 18px;
+		 		color: #000;
+		 		cursor: pointer;
+				text-decoration: none;	    
+		    }
+		}
+		
+		.search-icon-clear {
+			.search-glass {
+				display: none;
+			}
+			
+			.search-clear {
+				display: block;
+			}
 		}
 	}
 	
+	
 	.navbar-text {
 		padding-right: 15px;
+	}
+}
+
+#category-nav {
+	li .close {
+		color: #fff;
+		display: none;
+		opacity: 1;
+		font-weight: normal;
+		text-shadow: rgb(0,0,0) 0px 1px 0px;
+	}
+	
+	li.active {
+	    .close {
+	    	display: block; 
+	    }
+	    
+	    a {
+	        background-color: #005580;
+	        color: #fff;
+	        cursor: pointer;
+	    }
+	}
+}
+
+#col-content {
+	.navbar {
+		min-height: 35px;
 	}
 }
 
@@ -143,6 +209,10 @@ th, td {
 	
 }
 
+#reviews {
+	margin-top: 20px;
+}
+
 #dlg-add-review {
 	.rateit {
 		margin-top: 5px;
@@ -159,6 +229,12 @@ th, td {
 	.form-inline {
 		padding: 20px 0 20px 35px;
 	}
+}
+
+.img-gravitar {
+	background: #fff url(../img/gravitar.jpg) no-repeat 50% 50%;
+	width: 64px;
+	height: 64px;
 }
 
 .footer {

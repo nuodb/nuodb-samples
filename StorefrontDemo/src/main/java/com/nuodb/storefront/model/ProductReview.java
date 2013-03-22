@@ -8,6 +8,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import com.nuodb.storefront.util.MD5Util;
+
 @Entity
 @Table(name = "Product_Review")
 public class ProductReview extends Model {
@@ -84,5 +86,16 @@ public class ProductReview extends Model {
 
     public void setCustomer(Customer customer) {
         this.customer = customer;
+    }
+    
+    public String getGravitarHash() {
+        if (customer == null) {
+            return null;
+        }
+        String email = customer.getEmailAddress();
+        if (email == null || email.isEmpty()) {
+            return null;
+        }
+        return MD5Util.md5Hex(email);
     }
 }

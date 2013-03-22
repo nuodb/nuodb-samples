@@ -1,6 +1,5 @@
 package com.nuodb.storefront.dal;
 
-import java.util.Collection;
 import java.util.concurrent.Callable;
 
 import com.googlecode.genericdao.dao.hibernate.GeneralDAO;
@@ -8,8 +7,8 @@ import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.model.Category;
 import com.nuodb.storefront.model.Model;
 import com.nuodb.storefront.model.Product;
+import com.nuodb.storefront.model.ProductFilter;
 import com.nuodb.storefront.service.IStorefrontService;
-import com.nuodb.storefront.service.ProductSort;
 
 /**
  * General-purpose DAO with a few specialized methods to interact with the
@@ -51,8 +50,7 @@ public interface IStorefrontDao extends GeneralDAO {
     public SearchResult<Category> getCategories();
 
     /**
-     * @see IStorefrontService#getProducts(String, Collection, Integer, Integer,
-     *      ProductSort)
+     * @see IStorefrontService#getProducts(filter)
      */
-    public SearchResult<Product> getProducts(String matchText, Collection<String> categories, Integer page, Integer pageSize, ProductSort sort);
+    public SearchResult<Product> getProducts(ProductFilter filter);
 }
