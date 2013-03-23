@@ -1,4 +1,4 @@
-package com.nuodb.storefront.service;
+package com.nuodb.storefront.service.datagen;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -11,6 +11,7 @@ import com.nuodb.storefront.dal.TransactionType;
 import com.nuodb.storefront.model.Customer;
 import com.nuodb.storefront.model.Product;
 import com.nuodb.storefront.model.ProductReview;
+import com.nuodb.storefront.service.IDataGeneratorService;
 
 public class DataGeneratorService implements IDataGeneratorService {
     private final Random rnd = new Random();

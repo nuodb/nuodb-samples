@@ -1,4 +1,4 @@
-package com.nuodb.storefront.service;
+package com.nuodb.storefront.service.storefront;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -25,6 +25,7 @@ import com.nuodb.storefront.model.ProductFilter;
 import com.nuodb.storefront.model.ProductReview;
 import com.nuodb.storefront.model.Transaction;
 import com.nuodb.storefront.model.TransactionSelection;
+import com.nuodb.storefront.service.IStorefrontService;
 
 /**
  * Basic implementation of the storefront service interface. Each service method invocation runs in its own transaction.

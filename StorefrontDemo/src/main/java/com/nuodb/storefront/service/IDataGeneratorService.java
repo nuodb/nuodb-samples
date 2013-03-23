@@ -2,22 +2,22 @@ package com.nuodb.storefront.service;
 
 public interface IDataGeneratorService {
 
-    public abstract int getNumCustomers();
+    public int getNumCustomers();
 
-    public abstract void setNumCustomers(int numCustomers);
+    public void setNumCustomers(int numCustomers);
 
-    public abstract int getNumProducts();
+    public int getNumProducts();
 
-    public abstract void setNumProducts(int numProducts);
+    public void setNumProducts(int numProducts);
 
-    public abstract int getMaxCategories();
+    public int getMaxCategories();
 
-    public abstract void setMaxCategories(int maxCategories);
+    public void setMaxCategories(int maxCategories);
 
-    public abstract int getMaxReviewsPerProduct();
+    public int getMaxReviewsPerProduct();
 
-    public abstract void setMaxReviewsPerProduct(int maxReviewsPerProduct);
+    public void setMaxReviewsPerProduct(int maxReviewsPerProduct);
 
-    public abstract void generate();
+    public void generate();
 
 }

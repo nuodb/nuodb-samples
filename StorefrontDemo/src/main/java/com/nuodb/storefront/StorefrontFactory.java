@@ -6,10 +6,12 @@ import org.hibernate.tool.hbm2ddl.SchemaExport;
 
 import com.nuodb.storefront.dal.IStorefrontDao;
 import com.nuodb.storefront.dal.StorefrontDao;
-import com.nuodb.storefront.service.DataGeneratorService;
+import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IDataGeneratorService;
 import com.nuodb.storefront.service.IStorefrontService;
-import com.nuodb.storefront.service.StorefrontService;
+import com.nuodb.storefront.service.datagen.DataGeneratorService;
+import com.nuodb.storefront.service.simulator.SimulatorService;
+import com.nuodb.storefront.service.storefront.StorefrontService;
 
 /**
  * Factory for creating Storefront services and schema managers. To keep code in
@@ -39,6 +41,10 @@ public class StorefrontFactory {
 
     public static IDataGeneratorService createDataGeneratorService() {
         return new DataGeneratorService(createStorefrontDao());
+    }
+    
+    public static ISimulatorService createSimulatorService() {
+        return new SimulatorService(createStorefrontService());
     }
 
     private static IStorefrontDao createStorefrontDao() {

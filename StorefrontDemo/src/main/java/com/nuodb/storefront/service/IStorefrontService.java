@@ -124,7 +124,7 @@ public interface IStorefrontService {
      * @param productId
      *            The ID of the product to add to the cart.
      * @param quantity
-     *            The quantity to add. Use 0 to remove the product from the cart entirely.
+     *            The quantity to add. 
      * @return The total number of items in the cart; this accounts for products with quantities greater than 1.
      * @throws IllegalArgumentException
      *             The quantity specified was 0 or negative.
@@ -145,7 +145,7 @@ public interface IStorefrontService {
      *            Map of product IDs to quantities
      * @return The total number of items in the cart; this accounts for products with quantities greater than 1.
      * @throws IllegalArgumentException
-     *             The quantity specified was 0 or negative.
+     *             The quantity specified was negative.
      * @throws CustomerNotFoundException
      *             No customer exists with the specified customerId.
      * @throws ProductNotFoundException
