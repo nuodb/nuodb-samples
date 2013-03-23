@@ -9,6 +9,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.nuodb.storefront.model.WorkloadFlow;
 import com.nuodb.storefront.model.WorkloadStats;
 import com.nuodb.storefront.model.WorkloadStep;
 import com.nuodb.storefront.model.WorkloadType;
@@ -26,8 +27,14 @@ public class SimulatorService implements ISimulator, ISimulatorService {
         this.threadPool = new ScheduledThreadPoolExecutor(Runtime.getRuntime().availableProcessors() * 10);
         this.svc = svc;
 
-        for (WorkloadStep step : WorkloadStep.values()) {
-            stepCounts.put(step, new AtomicInteger(0));
+        try {
+            for (WorkloadStep step : WorkloadStep.values()) {
+                if (step.getClass().getField(step.name()).getAnnotation(WorkloadFlow.class) == null) {
+                    stepCounts.put(step, new AtomicInteger(0));
+                }
+            }
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -74,8 +81,8 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     @Override
     public Map<WorkloadStep, Integer> getExecutionCounts() {
         Map<WorkloadStep, Integer> map = new TreeMap<WorkloadStep, Integer>();
-        for (WorkloadStep step : WorkloadStep.values()) {
-            map.put(step, stepCounts.get(step).get());
+        for (Map.Entry<WorkloadStep, AtomicInteger> stepStats : stepCounts.entrySet()) {
+            map.put(stepStats.getKey(), stepStats.getValue().get());
         }
         return map;
     }

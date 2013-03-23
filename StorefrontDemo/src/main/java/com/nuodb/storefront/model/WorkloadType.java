@@ -67,7 +67,7 @@ public enum WorkloadType {
             for (int i = 0; i < steps.length; i++) {
                 WorkloadStep step = steps[i];
                 WorkloadFlow subStepsAnnotation = step.getClass().getField(step.name()).getAnnotation(WorkloadFlow.class);
-                if (subStepsAnnotation != null && subStepsAnnotation.steps().length > 0) {
+                if (subStepsAnnotation != null) {
                     addSteps(subStepsAnnotation, accumulator);
                 } else {
                     accumulator.add(step);
