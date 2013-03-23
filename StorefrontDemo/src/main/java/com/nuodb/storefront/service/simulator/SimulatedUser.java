@@ -113,6 +113,8 @@ public class SimulatedUser implements IWorker {
             default:
                 throw new UnsupportedStepException();
         }
+        
+        simulator.incrementStepCount(step);
     }
 
     protected void doBrowse() {

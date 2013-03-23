@@ -1,6 +1,8 @@
 package com.nuodb.storefront.model;
 
-public class WorkloadStats {
+import org.hibernate.util.EqualsHelper;
+
+public class WorkloadStats implements Comparable<WorkloadStats> {
     private WorkloadType workloadType;
     private int activeUserCount;
     private int totalActionCount;
@@ -8,9 +10,9 @@ public class WorkloadStats {
     private long totalActionTimeMs;
 
     public WorkloadStats() {
-        
+
     }
-    
+
     public WorkloadStats(WorkloadStats stats) {
         this.workloadType = stats.workloadType;
         this.activeUserCount = stats.activeUserCount;
@@ -58,8 +60,28 @@ public class WorkloadStats {
     public void setTotalActionTimeMs(long totalActionTimeMs) {
         this.totalActionTimeMs = totalActionTimeMs;
     }
-    
+
     public float getAvgActionTimeMs() {
-        return totalActionTimeMs / (float)totalActionCount;
+        return totalActionTimeMs / (float) totalActionCount;
+    }
+    
+    @Override
+    public int compareTo(WorkloadStats o) {
+        if (workloadType == null) {
+            return (o.workloadType == null) ? 0 : -1;
+        } else if (o.workloadType == null) {
+            return 1;
+        }
+        return workloadType.compareTo(o.workloadType);
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        return (obj instanceof WorkloadStats) && EqualsHelper.equals(((WorkloadStats)obj).workloadType, workloadType);
+    }
+    
+    @Override
+    public int hashCode() {
+        return (workloadType == null) ? 0 : workloadType.hashCode();
     }
 }

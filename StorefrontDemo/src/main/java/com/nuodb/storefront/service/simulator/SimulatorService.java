@@ -1,14 +1,16 @@
 package com.nuodb.storefront.service.simulator;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.nuodb.storefront.model.WorkloadStats;
+import com.nuodb.storefront.model.WorkloadStep;
 import com.nuodb.storefront.model.WorkloadType;
 import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
@@ -18,10 +20,15 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     private final IStorefrontService svc;
     private final Map<WorkloadType, WorkloadStatsEx> workloadStatsMap = new HashMap<WorkloadType, WorkloadStatsEx>();
     private final Object workloadStatsLock = new Object();
+    private final Map<WorkloadStep, AtomicInteger> stepCounts = new TreeMap<WorkloadStep, AtomicInteger>();
 
     public SimulatorService(IStorefrontService svc) {
         this.threadPool = new ScheduledThreadPoolExecutor(Runtime.getRuntime().availableProcessors() * 10);
         this.svc = svc;
+
+        for (WorkloadStep step : WorkloadStep.values()) {
+            stepCounts.put(step, new AtomicInteger(0));
+        }
     }
 
     @Override
@@ -35,7 +42,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
         if (newLimit < 0) {
             throw new IllegalArgumentException("newLimit");
         }
-        
+
         synchronized (workloadStatsLock) {
             WorkloadStatsEx stats = getOrCreateWorkloadStats(workload);
             stats.setLimit(newLimit);
@@ -45,7 +52,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     @Override
     public void removeAll() {
         threadPool.getQueue().clear();
-        
+
         synchronized (workloadStatsLock) {
             for (WorkloadStatsEx stats : workloadStatsMap.values()) {
                 stats.setLimit(0);
@@ -55,13 +62,22 @@ public class SimulatorService implements ISimulator, ISimulatorService {
 
     @Override
     public Collection<WorkloadStats> getWorkloadStats() {
-        List<WorkloadStats> statsList = new ArrayList<WorkloadStats>();
+        Collection<WorkloadStats> statsList = new TreeSet<WorkloadStats>();
         synchronized (workloadStatsLock) {
             for (WorkloadStatsEx stats : workloadStatsMap.values()) {
                 statsList.add(new WorkloadStats(stats));
             }
         }
         return statsList;
+    }
+
+    @Override
+    public Map<WorkloadStep, Integer> getExecutionCounts() {
+        Map<WorkloadStep, Integer> map = new TreeMap<WorkloadStep, Integer>();
+        for (WorkloadStep step : WorkloadStep.values()) {
+            map.put(step, stepCounts.get(step).get());
+        }
+        return map;
     }
 
     @Override
@@ -87,6 +103,11 @@ public class SimulatorService implements ISimulator, ISimulatorService {
         return svc;
     }
 
+    @Override
+    public void incrementStepCount(WorkloadStep step) {
+        stepCounts.get(step).incrementAndGet();
+    }
+
     protected void addWorker(RunnableWorker worker, long startDelayMs) {
         threadPool.schedule(worker, startDelayMs, TimeUnit.MILLISECONDS);
     }
@@ -94,11 +115,12 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     /**
      * You must have a lock on workloadStatsLock to call this method.
      */
-    protected WorkloadStatsEx getOrCreateWorkloadStats(WorkloadType workload) {
-        WorkloadStatsEx stats = workloadStatsMap.get(workload);
+    protected WorkloadStatsEx getOrCreateWorkloadStats(WorkloadType workloadType) {
+        WorkloadStatsEx stats = workloadStatsMap.get(workloadType);
         if (stats == null) {
             stats = new WorkloadStatsEx();
-            workloadStatsMap.put(workload, stats);
+            stats.setWorkloadType(workloadType);
+            workloadStatsMap.put(workloadType, stats);
         }
         return stats;
     }
@@ -113,7 +135,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
         public boolean canAddWorker() {
             return limit == NO_LIMIT || getActiveUserCount() < limit;
         }
-        
+
         public int getLimit() {
             return limit;
         }
@@ -137,17 +159,17 @@ public class SimulatorService implements ISimulator, ISimulatorService {
         @Override
         public void run() {
             WorkloadType workload = worker.getWorkloadType();
-            
+
             // Verify this worker can still run
             synchronized (workloadStatsLock) {
                 WorkloadStatsEx stats = getOrCreateWorkloadStats(workload);
                 if (stats.exceedsWorkerLimit()) {
-                    // Don't run this worker.  We're over the limit
+                    // Don't run this worker. We're over the limit
                     stats.setActiveUserCount(stats.getActiveUserCount() - 1);
                     return;
                 }
             }
-            
+
             // Run the worker
             long startTimeMs = System.currentTimeMillis();
             long delay;
@@ -157,14 +179,17 @@ public class SimulatorService implements ISimulator, ISimulatorService {
                 delay = IWorker.DONE;
             }
             long endTimeMs = System.currentTimeMillis();
-            
+
             // Update stats
             synchronized (workloadStatsLock) {
                 WorkloadStatsEx stats = getOrCreateWorkloadStats(workload);
                 stats.setTotalActionCount(stats.getTotalActionCount() + 1);
                 stats.setTotalActionTimeMs(stats.getTotalActionTimeMs() + endTimeMs - startTimeMs);
+                if (delay < 0) {
+                    stats.setActiveUserCount(stats.getActiveUserCount() - 1);
+                }
             }
-          
+
             // Queue up next run
             if (delay >= 0) {
                 addWorker(this, delay);

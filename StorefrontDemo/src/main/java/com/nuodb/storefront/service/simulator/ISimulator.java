@@ -1,5 +1,6 @@
 package com.nuodb.storefront.service.simulator;
 
+import com.nuodb.storefront.model.WorkloadStep;
 import com.nuodb.storefront.service.IStorefrontService;
 
 /**
@@ -22,4 +23,6 @@ public interface ISimulator {
      * Gets the Storefront service associated with this simulator. This is for convenience so workers need not manage their own service instances.
      */
     public IStorefrontService getService();
+    
+    public void incrementStepCount(WorkloadStep step);
 }

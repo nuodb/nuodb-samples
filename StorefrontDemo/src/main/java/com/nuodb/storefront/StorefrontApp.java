@@ -1,8 +1,10 @@
 package com.nuodb.storefront;
 
 import java.io.PrintStream;
+import java.util.Map;
 
 import com.nuodb.storefront.model.WorkloadStats;
+import com.nuodb.storefront.model.WorkloadStep;
 import com.nuodb.storefront.model.WorkloadType;
 import com.nuodb.storefront.service.ISimulatorService;
 
@@ -56,9 +58,15 @@ public class StorefrontApp {
             Thread.sleep(5 * 1000);
 
             out.println();
-            out.println(String.format("%10s %20s %20s %20s", "Workload:", "# Active users:", "# Actions:", "Avg time (ms):"));
+            out.println(String.format("%25s %20s %20s %20s", "Workload:", "# Active users:", "# Actions:", "Avg time (sec):"));
             for (WorkloadStats stats : simulator.getWorkloadStats()) {
-                out.println(String.format("%10s %20d %20d %20f", stats.getWorkloadType(), stats.getActiveUserCount(), stats.getTotalActionCount(), stats.getAvgActionTimeMs()));
+                out.println(String.format("%25s %20d %20d %20.3f", stats.getWorkloadType(), stats.getActiveUserCount(), stats.getTotalActionCount(), stats.getAvgActionTimeMs() / 1000f));
+            }
+            
+            out.println();
+            out.println(String.format("%25s %20s", "Step:", "# Executions:"));
+            for (Map.Entry<WorkloadStep, Integer> stepCount : simulator.getExecutionCounts().entrySet()) {
+                out.println(String.format("%25s %20d", stepCount.getKey(), stepCount.getValue()));
             }
         }
         simulator.shutdown();

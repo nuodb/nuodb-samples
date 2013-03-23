@@ -8,7 +8,7 @@ import com.nuodb.storefront.model.WorkloadType;
  * A worker typically performs work in a series of steps or busts. Each step is performed within the {@link #doWork()} method. The simulator will call
  * this method repeatedly, with a worker-specified delay between each step, until the work has been completed or is forced to stop.
  * 
- * A worker need not be thread-safe.  While successive calls to {@link #doWork()} may occur on different threads, no two calls will overlap.
+ * A worker need not be thread-safe. While successive calls to {@link #doWork()} may occur on different threads, no two calls will overlap.
  */
 public interface IWorker {
     /**
@@ -26,7 +26,8 @@ public interface IWorker {
      * Performs the next action.
      * 
      * @return The number of milliseconds that must pass until the next step can be taken, or {@link #DONE} to indicate the actor has no more steps.
-     *         Note that this is the <b>minimum</b> time that must transpire before the method is called again, not a guarantee.
+     *         Note that this is the <b>minimum</b> time that must transpire before the method is called again, not a guarantee. Note that any
+     *         negative number is interpreted as {@link #DONE}.
      */
     public long doWork();
 }

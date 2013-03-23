@@ -58,18 +58,20 @@ public enum WorkloadType {
     }
 
     public long calcNextThinkTimeMs() {
-        return Math.round(rnd.nextGaussian(avgThinkTimeMs, thinkTimeVariance));
+        return Math.max(0L, Math.round(rnd.nextGaussian(avgThinkTimeMs, thinkTimeVariance)));
     }
 
     private static void addSteps(WorkloadFlow annotation, List<WorkloadStep> accumulator) throws NoSuchFieldException {
-        WorkloadStep[] steps = annotation.steps();
-        for (int i = 0; i < steps.length; i++) {
-            WorkloadStep step = steps[i];
-            WorkloadFlow subStepsAnnotation = step.getClass().getField(step.name()).getAnnotation(WorkloadFlow.class);
-            if (subStepsAnnotation != null && subStepsAnnotation.steps().length > 0) {
-                addSteps(subStepsAnnotation, accumulator);
-            } else {
-                accumulator.add(step);
+        if (annotation != null) {
+            WorkloadStep[] steps = annotation.steps();
+            for (int i = 0; i < steps.length; i++) {
+                WorkloadStep step = steps[i];
+                WorkloadFlow subStepsAnnotation = step.getClass().getField(step.name()).getAnnotation(WorkloadFlow.class);
+                if (subStepsAnnotation != null && subStepsAnnotation.steps().length > 0) {
+                    addSteps(subStepsAnnotation, accumulator);
+                } else {
+                    accumulator.add(step);
+                }
             }
         }
     }
