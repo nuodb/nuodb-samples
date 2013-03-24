@@ -15,8 +15,8 @@ public class StorefrontApp {
      * <ul>
      * <li>create -- create schema</li>
      * <li>drop -- drop schema</li>
-     * <li>datagen -- generate dummy storefront data</li>
-     * <li>simulator -- simulate customer activity</li>
+     * <li>generate -- generate dummy storefront data</li>
+     * <li>simulate -- simulate customer activity</li>
      * </ul>
      */
     public static void main(String[] args) throws Exception {
@@ -26,9 +26,9 @@ public class StorefrontApp {
                 createSchema();
             } else if ("drop".equalsIgnoreCase(action)) {
                 dropSchema();
-            } else if ("datagen".equalsIgnoreCase(action)) {
+            } else if ("generate".equalsIgnoreCase(action)) {
                 generateData();
-            } else if ("simulator".equalsIgnoreCase(action)) {
+            } else if ("simulate".equalsIgnoreCase(action)) {
                 simulateActivity();
             } else {
                 throw new IllegalArgumentException("Unknown action:  " + action);
@@ -50,25 +50,38 @@ public class StorefrontApp {
 
     public static void simulateActivity() throws InterruptedException {
         ISimulatorService simulator = StorefrontFactory.createSimulatorService();
-        simulator.addWorkload(WorkloadType.SIMILATED_BROWSER, 10, 500);
-        simulator.addWorkload(WorkloadType.SIMILATED_SHOPPER_FAST, 10, 500);
-        
-        PrintStream out = System.out;
-        for (int i = 0; i < 20; i++) {            
-            Thread.sleep(5 * 1000);
+        simulator.addWorkload(WorkloadType.SIMILATED_BROWSER, 20, 250);
+        simulator.addWorkload(WorkloadType.SIMILATED_SHOPPER_FAST, 20, 250);
 
-            out.println();
-            out.println(String.format("%25s %20s %20s %20s", "Workload:", "# Active users:", "# Actions:", "Avg time (sec):"));
-            for (WorkloadStats stats : simulator.getWorkloadStats()) {
-                out.println(String.format("%25s %20d %20d %20.3f", stats.getWorkloadType(), stats.getActiveUserCount(), stats.getTotalActionCount(), stats.getAvgActionTimeMs() / 1000f));
-            }
-            
-            out.println();
-            out.println(String.format("%25s %20s", "Step:", "# Executions:"));
-            for (Map.Entry<WorkloadStep, Integer> stepCount : simulator.getExecutionCounts().entrySet()) {
-                out.println(String.format("%25s %20d", stepCount.getKey(), stepCount.getValue()));
-            }
+        for (int i = 0; i < 20; i++) {
+            printSimulatorStats(simulator, System.out);
+            Thread.sleep(5 * 1000);
         }
+        printSimulatorStats(simulator, System.out);
         simulator.shutdown();
+    }
+
+    private static void printSimulatorStats(ISimulatorService simulator, PrintStream out) {
+        out.println();
+        out.println(String.format("%-25s %8s %8s %8s %8s | %7s %9s %7s %9s", "Workload", "Active", "Failed", "Killed", "Complete", "Steps",
+                "Avg (s)", "Work", "Avg (s)"));
+        for (WorkloadStats stats : simulator.getWorkloadStats()) {
+            out.println(String.format("%-25s %8d %8d %8d %8d | %7d %9.3f %7d %9.3f",
+                    stats.getWorkloadType(),
+                    stats.getActiveWorkerCount(),
+                    stats.getFailedWorkerCount(),
+                    stats.getKilledWorkerCount(),
+                    stats.getCompletedWorkerCount(),
+                    stats.getWorkInvocationCount(),
+                    stats.getAvgWorkTimeMs() / 1000f,
+                    stats.getWorkCompletionCount(),
+                    stats.getAvgWorkCompletionTimeMs() / 1000f));
+        }
+
+        out.println();
+        out.println(String.format("%-25s %20s", "Step:", "# Completions:"));
+        for (Map.Entry<WorkloadStep, Integer> stepCount : simulator.getWorkloadStepCompletionCounts().entrySet()) {
+            out.println(String.format("%-25s %20d", stepCount.getKey(), stepCount.getValue()));
+        }
     }
 }

@@ -50,17 +50,15 @@ public class SimulatedUser implements IWorker {
         WorkloadStep[] steps = workloadType.getSteps();
 
         if (steps.length == 0) {
-            return IWorker.DONE;
+            return IWorker.COMPLETE_NO_REPEAT;
         }
-
+        
         doWork(steps[stepIdx]);
         stepIdx++;
 
         if (stepIdx >= steps.length) {
-            if (!workloadType.isAutoRepeating()) {
-                return IWorker.DONE;
-            }
             stepIdx = 0;
+            return IWorker.COMPLETE;
         }
 
         return workloadType.calcNextThinkTimeMs();
@@ -114,7 +112,7 @@ public class SimulatedUser implements IWorker {
                 throw new UnsupportedStepException();
         }
         
-        simulator.incrementStepCount(step);
+        simulator.incrementStepCompletionCount(step);
     }
 
     protected void doBrowse() {

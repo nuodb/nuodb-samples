@@ -24,5 +24,5 @@ public interface ISimulator {
      */
     public IStorefrontService getService();
     
-    public void incrementStepCount(WorkloadStep step);
+    public void incrementStepCompletionCount(WorkloadStep step);    
 }

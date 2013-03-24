@@ -41,6 +41,10 @@ public class SimulatedUserFactory implements IWorker {
             } while (--userCount > 0 && entryDelayMs == 0);
         }
 
-        return (userCount <= 0) ? IWorker.DONE : entryDelayMs;
+        if (userCount <= 0) {
+            return IWorker.COMPLETE_NO_REPEAT;
+        }
+        
+        return entryDelayMs;
     }
 }

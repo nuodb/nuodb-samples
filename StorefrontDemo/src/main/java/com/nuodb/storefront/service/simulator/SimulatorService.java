@@ -21,7 +21,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     private final IStorefrontService svc;
     private final Map<WorkloadType, WorkloadStatsEx> workloadStatsMap = new HashMap<WorkloadType, WorkloadStatsEx>();
     private final Object workloadStatsLock = new Object();
-    private final Map<WorkloadStep, AtomicInteger> stepCounts = new TreeMap<WorkloadStep, AtomicInteger>();
+    private final Map<WorkloadStep, AtomicInteger> stepCompletionCounts = new TreeMap<WorkloadStep, AtomicInteger>();
 
     public SimulatorService(IStorefrontService svc) {
         this.threadPool = new ScheduledThreadPoolExecutor(Runtime.getRuntime().availableProcessors() * 10);
@@ -30,7 +30,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
         try {
             for (WorkloadStep step : WorkloadStep.values()) {
                 if (step.getClass().getField(step.name()).getAnnotation(WorkloadFlow.class) == null) {
-                    stepCounts.put(step, new AtomicInteger(0));
+                    stepCompletionCounts.put(step, new AtomicInteger(0));
                 }
             }
         } catch (NoSuchFieldException e) {
@@ -39,20 +39,20 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     }
 
     @Override
-    public void addWorkload(WorkloadType workload, int numUsers, int entryDelayMs) {
-        addWorker(new SimulatedUserFactory(this, workload, numUsers, entryDelayMs), 0);
+    public void addWorkload(WorkloadType workload, int numWorkers, int entryDelayMs) {
+        addWorker(new SimulatedUserFactory(this, workload, numWorkers, entryDelayMs), 0);
 
     }
 
     @Override
-    public void downsizeWorkload(WorkloadType workload, int newLimit) {
-        if (newLimit < 0) {
-            throw new IllegalArgumentException("newLimit");
+    public void downsizeWorkload(WorkloadType workload, int newWorkerLimit) {
+        if (newWorkerLimit < 0) {
+            throw new IllegalArgumentException("newWorkerLimit");
         }
 
         synchronized (workloadStatsLock) {
             WorkloadStatsEx stats = getOrCreateWorkloadStats(workload);
-            stats.setLimit(newLimit);
+            stats.setLimit(newWorkerLimit);
         }
     }
 
@@ -79,9 +79,9 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     }
 
     @Override
-    public Map<WorkloadStep, Integer> getExecutionCounts() {
+    public Map<WorkloadStep, Integer> getWorkloadStepCompletionCounts() {
         Map<WorkloadStep, Integer> map = new TreeMap<WorkloadStep, Integer>();
-        for (Map.Entry<WorkloadStep, AtomicInteger> stepStats : stepCounts.entrySet()) {
+        for (Map.Entry<WorkloadStep, AtomicInteger> stepStats : stepCompletionCounts.entrySet()) {
             map.put(stepStats.getKey(), stepStats.getValue().get());
         }
         return map;
@@ -97,9 +97,10 @@ public class SimulatorService implements ISimulator, ISimulatorService {
         synchronized (workloadStatsLock) {
             WorkloadStatsEx info = getOrCreateWorkloadStats(worker.getWorkloadType());
             if (!info.canAddWorker()) {
+                info.setKilledWorkerCount(info.getKilledWorkerCount() + 1);
                 return false;
             }
-            info.setActiveUserCount(info.getActiveUserCount() + 1);
+            info.setActiveWorkerCount(info.getActiveWorkerCount() + 1);
             addWorker(new RunnableWorker(worker), startDelayMs);
             return true;
         }
@@ -111,8 +112,8 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     }
 
     @Override
-    public void incrementStepCount(WorkloadStep step) {
-        stepCounts.get(step).incrementAndGet();
+    public void incrementStepCompletionCount(WorkloadStep step) {
+        stepCompletionCounts.get(step).incrementAndGet();
     }
 
     protected void addWorker(RunnableWorker worker, long startDelayMs) {
@@ -140,7 +141,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
         }
 
         public boolean canAddWorker() {
-            return limit == NO_LIMIT || getActiveUserCount() < limit;
+            return limit == NO_LIMIT || getActiveWorkerCount() < limit;
         }
 
         public int getLimit() {
@@ -152,12 +153,13 @@ public class SimulatorService implements ISimulator, ISimulatorService {
         }
 
         public boolean exceedsWorkerLimit() {
-            return limit != NO_LIMIT && getActiveUserCount() > limit;
+            return limit != NO_LIMIT && getActiveWorkerCount() > limit;
         }
     }
 
     protected class RunnableWorker implements Runnable {
         private final IWorker worker;
+        private long completionWorkTimeMs;
 
         public RunnableWorker(IWorker worker) {
             this.worker = worker;
@@ -172,7 +174,8 @@ public class SimulatorService implements ISimulator, ISimulatorService {
                 WorkloadStatsEx stats = getOrCreateWorkloadStats(workload);
                 if (stats.exceedsWorkerLimit()) {
                     // Don't run this worker. We're over the limit
-                    stats.setActiveUserCount(stats.getActiveUserCount() - 1);
+                    stats.setActiveWorkerCount(stats.getActiveWorkerCount() - 1);
+                    stats.setKilledWorkerCount(stats.getKilledWorkerCount() + 1);
                     return;
                 }
             }
@@ -180,20 +183,41 @@ public class SimulatorService implements ISimulator, ISimulatorService {
             // Run the worker
             long startTimeMs = System.currentTimeMillis();
             long delay;
+            boolean workerFailed = false;
             try {
                 delay = worker.doWork();
             } catch (Exception e) {
-                delay = IWorker.DONE;
+                delay = IWorker.COMPLETE_NO_REPEAT;
+                workerFailed = true;
             }
             long endTimeMs = System.currentTimeMillis();
+            completionWorkTimeMs += (endTimeMs - startTimeMs);
 
             // Update stats
             synchronized (workloadStatsLock) {
                 WorkloadStatsEx stats = getOrCreateWorkloadStats(workload);
-                stats.setTotalActionCount(stats.getTotalActionCount() + 1);
-                stats.setTotalActionTimeMs(stats.getTotalActionTimeMs() + endTimeMs - startTimeMs);
+                stats.setWorkInvocationCount(stats.getWorkInvocationCount() + 1);
+                stats.setTotalWorkTimeMs(stats.getTotalWorkTimeMs() + endTimeMs - startTimeMs);
                 if (delay < 0) {
-                    stats.setActiveUserCount(stats.getActiveUserCount() - 1);
+                    if (!workerFailed) {
+                        stats.setWorkCompletionCount(stats.getWorkCompletionCount() + 1);
+                        stats.setTotalWorkCompletionTimeMs(completionWorkTimeMs);
+                        completionWorkTimeMs = 0;
+                    }
+                    
+                    // Determine whether this worker should run again
+                    if (delay != IWorker.COMPLETE_NO_REPEAT && workload.isAutoRepeating()) {
+                        delay = workload.calcNextThinkTimeMs();
+                    }
+                    if (delay < 0) {
+                        stats.setActiveWorkerCount(stats.getActiveWorkerCount() - 1);
+                        if (!workerFailed) {
+                            stats.setCompletedWorkerCount(stats.getCompletedWorkerCount() + 1);
+                        }
+                    }
+                }
+                if (workerFailed) {
+                    stats.setFailedWorkerCount(stats.getFailedWorkerCount() + 1);
                 }
             }
 

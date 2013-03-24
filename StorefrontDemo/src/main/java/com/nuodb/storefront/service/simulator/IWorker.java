@@ -12,22 +12,30 @@ import com.nuodb.storefront.model.WorkloadType;
  */
 public interface IWorker {
     /**
-     * Magic constant used with the {@link #doWork()} method to indicate this worker has no additional work to perform.
+     * Magic constant used with the {@link #doWork()} method to indicate this worker has no additional work to perform. If the work may auto-repeat,
+     * the simulator may re-engage the worker to start the work again by calling {@link #doWork()}.
      */
-    public static final long DONE = -1;
+    public static final long COMPLETE = -1;
+
+    /**
+     * Magic constant used with the {@link #doWork()} method to indicate this worker has no additional work to perform, and no work can be repeated.
+     * Subsequent calls to {@link #doWork()} should not be made.
+     */
+    public static final long COMPLETE_NO_REPEAT = -2;
 
     /**
      * Indicates the type of workload this worker is executing. The type may be used by the simulator to manage workers as a group, such as reporting
-     * statistics on workloads, as well as pausing, and canceling workloads.
+     * statistics on workloads, as well as pausing, and canceling workloads. For a given worker, this value should remain fixed and not vary across
+     * calls.
      */
     public WorkloadType getWorkloadType();
 
     /**
      * Performs the next action.
      * 
-     * @return The number of milliseconds that must pass until the next step can be taken, or {@link #DONE} to indicate the actor has no more steps.
-     *         Note that this is the <b>minimum</b> time that must transpire before the method is called again, not a guarantee. Note that any
-     *         negative number is interpreted as {@link #DONE}.
+     * @return The number of milliseconds that must pass until the next step can be taken, or {@link #COMPLETE} to indicate the actor has no more
+     *         steps. Note that this is the <b>minimum</b> time that must transpire before the method is called again, not a guarantee. Note that any
+     *         negative number is interpreted as {@link #COMPLETE}.
      */
     public long doWork();
 }

@@ -8,15 +8,15 @@ import com.nuodb.storefront.model.WorkloadStep;
 import com.nuodb.storefront.model.WorkloadType;
 
 public interface ISimulatorService {
-    public void addWorkload(WorkloadType workload, int numUsers, int entryDelayMs);
+    public void addWorkload(WorkloadType workload, int numWorkers, int entryDelayMs);
     
-    public void downsizeWorkload(WorkloadType workload, int newLimit);
+    public void downsizeWorkload(WorkloadType workload, int newWorkerLimit);
     
     public void removeAll();
     
     public Collection<WorkloadStats> getWorkloadStats();
     
-    public Map<WorkloadStep, Integer> getExecutionCounts();
+    public Map<WorkloadStep, Integer> getWorkloadStepCompletionCounts();
     
     /**
      * Blocking call to stop all simulator threads, running work, and queued work.
