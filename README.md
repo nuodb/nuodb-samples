@@ -1,9 +1,11 @@
 NuoDB Storefront Demo
 =====================
 
-This web application implements a mock storefront to highlight some of NuoDB's great features.  You can browse products, add items to you cart, write reviews, and checkout.  You can also simulate thousands of concurrent (simulated) shoppers with customizable workload characteristics.  While the store itself is not really open for business, the queries being run under the hood are quite real!
+This web application implements a mock storefront to highlight some of NuoDB's great features.  You can browse products, add items to you cart, write reviews, and checkout.  You can also simulate thousands of concurrent (simulated) shoppers with customizable workload characteristics.  
 
 ![ScreenShot](https://raw.github.com/nuodb/nuodb-samples/master/StorefrontDemo/doc/home.png)
+
+While the store itself is not really open for business, the queries being run under the hood are quite real!
 
 Getting started
 ---------------
