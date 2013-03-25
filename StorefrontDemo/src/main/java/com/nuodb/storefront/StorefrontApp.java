@@ -28,7 +28,7 @@ public class StorefrontApp {
      * <li>drop -- drop schema</li>
      * <li>showddl -- display drop and create DDL</li>
      * <li>generate -- generate dummy storefront data</li>
-     * <li>load -- load storefront data from products.json file</li>
+     * <li>load -- load storefront data from src/main/resources/sample-products.json file</li>
      * <li>simulate -- simulate customer activity</li>
      * </ul>
      */
