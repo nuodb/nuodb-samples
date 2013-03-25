@@ -7,11 +7,14 @@ import com.nuodb.storefront.service.IStorefrontService;
 import com.nuodb.storefront.servlet.BaseServlet;
 
 public abstract class BaseApi {
-    public IStorefrontService getService() {
+    protected BaseApi() {
+    }
+
+    protected IStorefrontService getService() {
         return BaseServlet.getService();
     }
 
-    public Customer getOrCreateCustomer(HttpServletRequest req) {
+    protected Customer getOrCreateCustomer(HttpServletRequest req) {
         return BaseServlet.getOrCreateCustomer(req);
     }
 }
