@@ -1,11 +1,11 @@
 NuoDB Storefront Demo
----------------------
+=====================
 
 This web application implements a mock storefront to highlight some of NuoDB's great features.  You can browse products, add items to you cart, write reviews, and checkout.  You can also simulate thousands of concurrent (simulated) shoppers with customizable workload characteristics.
 
 ![ScreenShot](https://raw.github.com/nuodb/nuodb-samples/master/StorefrontDemo/doc/home.png)
 
-Getting Started
+Getting started
 ---------------
 
 1. Build the project using Maven within the Eclipse IDE.
@@ -16,17 +16,17 @@ Getting Started
    - Using an application server such as Tomcat and/or
    - Using the load simulator action from StorefrontApp
 
-StorefrontApp
--------------
+StorefrontApp command line utility
+-----------------------------------
 
-StorefrontApp supports the following actions via command line arguments.  If you specify multiple actions, they are executed in sequence.
+`com.nuodb.storefront.StorefrontApp` supports the following actions via command line arguments.  If you specify multiple actions, they are executed in sequence.
 
-- *create* -- create schema
-- *drop* -- drop schema
-- *showddl* -- display drop and create DDL
-- *generate* -- generate dummy storefront data
-- *load* -- load storefront data from src/main/resources/sample-products.json file
-- *simulate* -- simulate customer activity
+- `create` -- create schema
+- `drop` -- drop schema
+- `showddl` -- display drop and create DDL
+- `generate` -- generate dummy storefront data
+- `load` -- load storefront data from src/main/resources/sample-products.json file
+- `simulate` -- simulate customer activity
 
 For example, to recreate the schema,  initialize it with about 1,000 products, and then stress test the app with simulated load for 1 minute, specify the command line "drop create load simulate".
 
@@ -50,8 +50,8 @@ You can edit the workload definitions, mixes, and timings.  If you use default v
     CART_CHECKOUT                                4
 
 
-Storefront Pages
-----------------
+Storefront web pages
+--------------------
 The storefront features 3 pages:
 
 1. Product listing page (as shown above)
@@ -62,16 +62,16 @@ The storefront features 3 pages:
 4. Cart contents and checkout page
    ![ScreenShot](https://raw.github.com/nuodb/nuodb-samples/master/StorefrontDemo/doc/cart.png)
 
-Key Libraries Used by this Project
+Key libraries used by this project
 ----------------------------------
 Server side librares:
-- *Jersey* -- JSON-based RESTful API
-- *Hibernate* -- ORM mapping
-- *NuoDB Hiberante dialect*
-- *GoogleCode Generic DAO* -- thin data access wrapper on Hibernate for searching, saving, etc.
+- **Jersey** -- JSON-based RESTful API
+- **Hibernate** -- ORM mapping
+- **NuoDB Hiberante dialect**
+- **GoogleCode Generic DAO** -- thin data access wrapper on Hibernate for searching, saving, etc.
 
 Client-side libraries:
-- *Twitter Bootstrap* -- look & feel
-- *Handlebars* -- HTML templating
-- *jQuery*
-- *RateIt jQuery plug-in* -- star ratings
+- **Twitter Bootstrap** -- look & feel
+- **Handlebars** -- HTML templating
+- **jQuery**
+- **RateIt jQuery plug-in** -- star ratings
