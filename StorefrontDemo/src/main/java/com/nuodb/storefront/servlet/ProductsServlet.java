@@ -1,6 +1,7 @@
 package com.nuodb.storefront.servlet;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,6 +23,13 @@ public class ProductsServlet extends BaseServlet {
         ProductFilter filter = getOrCreateProductFilter(req);
         filter.setMatchText(req.getParameter("search"));
         filter.setPage(1);
+        String[] categories = req.getParameterValues("categories");
+        if (categories != null) {
+            filter.setCategories(new ArrayList<String>());
+            for (String category : categories) {
+                filter.getCategories().add(category);
+            }
+        }
 
         // Fetch initial products
         Map<String, Object> pageData = new HashMap<String, Object>();

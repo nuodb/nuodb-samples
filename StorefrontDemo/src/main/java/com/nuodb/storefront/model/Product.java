@@ -19,6 +19,7 @@ import javax.persistence.OrderBy;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Formula;
+import org.hibernate.validator.constraints.Length;
 
 /**
  *
@@ -29,6 +30,7 @@ public class Product extends Model {
     private String name;
 
     @NotNull
+    @Length(max = 1000)
     private String description;
 
     private String imageUrl;

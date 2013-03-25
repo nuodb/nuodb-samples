@@ -13,18 +13,27 @@ Number.prototype.format = function (digits) {
     return s + (j ? i.substr(0, j) + t : '') + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : '');
 }
 
-Handlebars.registerHelper('priceFormat', function(price) {
-    return (price.format) ? '$' + price.format(2) : price;
-});
-
 Handlebars.registerHelper('dateFormat', function(date) {
     return dateFormat(date, 'dddd, mmmm dS, yyyy "at" h:MM tt');
+});
+
+Handlebars.registerHelper('lowerCaseFormat', function(str) {
+    return (str || '').toLowerCase();
 });
 
 Handlebars.registerHelper('numberFormat', function(number) {
     return (number.format) ? number.format(0) : number;
 });
 
-Handlebars.registerHelper('lowerCaseFormat', function(str) {
-    return (str || '').toLowerCase();
+Handlebars.registerHelper('priceFormat', function(price) {
+    return (price.format) ? '$' + price.format(2) : price;
 });
+
+Handlebars.registerHelper('productImage', function(value) {
+    return value || 'img/product.png';
+});
+
+Handlebars.registerHelper('urlEncode', function(value) {
+    return encodeURIComponent(value);
+});
+

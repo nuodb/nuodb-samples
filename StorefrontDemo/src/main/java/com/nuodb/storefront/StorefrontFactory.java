@@ -6,8 +6,8 @@ import org.hibernate.tool.hbm2ddl.SchemaExport;
 
 import com.nuodb.storefront.dal.IStorefrontDao;
 import com.nuodb.storefront.dal.StorefrontDao;
-import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IDataGeneratorService;
+import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
 import com.nuodb.storefront.service.datagen.DataGeneratorService;
 import com.nuodb.storefront.service.simulator.SimulatorService;
@@ -27,6 +27,11 @@ public class StorefrontFactory {
         configuration.configure();
         sessionFactory = configuration.buildSessionFactory();
     }
+    
+    private static class SimulatorSingletonHolder {
+        // IODH-based lazy loading singleton
+        public static ISimulatorService simulator = new SimulatorService(createStorefrontService());
+    }
 
     private StorefrontFactory() {
     }
@@ -43,8 +48,8 @@ public class StorefrontFactory {
         return new DataGeneratorService(createStorefrontDao());
     }
     
-    public static ISimulatorService createSimulatorService() {
-        return new SimulatorService(createStorefrontService());
+    public static ISimulatorService getSimulatorService() {
+        return SimulatorSingletonHolder.simulator;
     }
 
     private static IStorefrontDao createStorefrontDao() {

@@ -87,6 +87,7 @@ var Storefront = {
                 //categories.push(category);
                 categories = [category];
             }
+            me.filter.page = 1;
             me.filter.categories = categories;
 
             me.updateProductList();
@@ -185,6 +186,9 @@ var Storefront = {
     updateProductList: function(append) {
         var me = this;
         if (me.updateRequest) {
+            if (append) {
+                return;
+            }
             me.updateRequest.abort();
         }
         me.updateRequest = me.TemplateMgr.autoFillTemplate('product-list', 'api/products', me.filter, $.proxy(me.syncProductsPage, me), append);

@@ -142,7 +142,9 @@ th.text-right, td.text-right {
 	}
 	
 	img {
-		width: 154px;
+		height: 210px;
+		max-width: 210px;
+		width: auto;
 	}
 }
 
@@ -167,6 +169,9 @@ th.text-right, td.text-right {
 
 	.name {
 		font-weight: bold;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 	
 	.desc {
