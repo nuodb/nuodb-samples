@@ -57,7 +57,7 @@ var Storefront = {
         // Handle infinite scrolling
         me.paginator = $('#paginator');
         $(window).scroll(function() {
-            if ($(window).scrollTop() + $(window).height() >= $('#product-list').offset().top + $('#product-list').height()) {
+            if ($(window).scrollTop() + $(window).height() >= $('#product-list').offset().top + $('#product-list').height() - 500) {
                 if (!me.paginator.is(':visible') && me.paginator.hasClass('loading')) {
                     me.paginator.show();
                     me.filter.page++;
@@ -69,6 +69,7 @@ var Storefront = {
         // Handle sort events
         $('#product-sort').on('click', 'a', function(event) {
             event.preventDefault();
+            me.filter.page = 1;
             me.filter.sort = $(this).attr('data-sort');
             $('#product-sort-label').html($(this).html());
             me.updateProductList();

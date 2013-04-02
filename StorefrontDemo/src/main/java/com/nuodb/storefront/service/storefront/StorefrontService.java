@@ -157,6 +157,7 @@ public class StorefrontService implements IStorefrontService {
                 review.setRating(rating);
                 review.setDateAdded(now);
 
+                // Update and save product (cascading save to review)
                 product.addReview(review);
                 dao.save(product);
 
@@ -331,6 +332,13 @@ public class StorefrontService implements IStorefrontService {
                     TransactionSelection selection = new TransactionSelection(cartSelection);
                     transaction.addTransactionSelection(selection);
                     selection.setUnitPrice(selection.getProduct().getUnitPrice());
+                    
+                    // Increment purchase count.  This is denormalized, non-synchronized data so it may not be 100% accurate.
+                    // But that's ok -- it's just use to roughly gauge populatory and can be reconstructed exactly later
+                    // by looking at the transaction table.
+                    Product product = selection.getProduct();
+                    product.setPurchaseCount(product.getPurchaseCount() + selection.getQuantity());
+                    dao.save(product);
                 }
                 customer.getCartSelections().clear();
 

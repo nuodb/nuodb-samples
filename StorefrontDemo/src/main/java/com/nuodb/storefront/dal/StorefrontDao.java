@@ -1,17 +1,18 @@
 package com.nuodb.storefront.dal;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.hibernate.FlushMode;
 import org.hibernate.Hibernate;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import com.googlecode.genericdao.dao.hibernate.GeneralDAOImpl;
-import com.googlecode.genericdao.search.Filter;
-import com.googlecode.genericdao.search.Search;
 import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.model.Category;
 import com.nuodb.storefront.model.Model;
@@ -70,7 +71,10 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public SearchResult<Category> getCategories() {
-        List categories = getSession().createQuery("select c, count(*) from Product p inner join p.categories c group by c order by c").list();
+        // This query got category usage counts, but was slower, and we currently don't need the counts for anything:
+        // "select c, count(*) from Product p inner join p.categories c group by c order by c"
+
+        List categories = getSession().createSQLQuery("select distinct category, 0 from product_category order by category").list();
         for (int i = categories.size() - 1; i >= 0; i--) {
             Object[] data = (Object[]) categories.get(i);
             categories.set(i, new Category((String) data[0], ((Number) data[1]).intValue()));
@@ -85,82 +89,113 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
     @Override
     @SuppressWarnings("unchecked")
     public SearchResult<Product> getProducts(ProductFilter filter) {
-        /*
-         * if (sort == ProductSort.AVG_CUSTOMER_REVIEW) { String sql =
-         * "select product_id from product_review group by product_id order by avg(cast(rating as float)) desc" ; if (pageSize != null) { if (page !=
-         * null) { sql += " offset " + (page * pageSize); } sql += " fetch " + pageSize; } getSession().createSQLQuery(sql).list(); }
-         */
-
-        final Search search = new Search(Product.class);
-
-        String matchText = filter.getMatchText();
-        if (matchText != null && !matchText.isEmpty()) {
-            matchText = "%" + matchText.trim() + "%";
-                search.addFilterOr(Filter.ilike("name", matchText), Filter.ilike("description", matchText));
-            }
-
-        Collection<String> categories = filter.getCategories();
-        if (categories != null && !categories.isEmpty()) {
-            Filter[] categoryFilters = new Filter[categories.size()];
-            int idx = 0;
-            for (String category : categories) {
-                categoryFilters[idx++] = Filter.custom("?1 in elements({categories})", category);
-            }
-            search.addFilterOr(categoryFilters);
-        }
-
-        Integer page = filter.getPage();
-        if (page != null) {
-            search.setPage(page - 1);
-        }
-
-        Integer pageSize = filter.getPageSize();
-        if (pageSize != null) {
-            search.setMaxResults(pageSize);
-        }
-
-        ProductSort sort = filter.getSort();
-        if (sort != null) {
-            switch (sort) {
-                case AVG_CUSTOMER_REVIEW:
-                    // TODO
-                    // search.addSortDesc("rating");
-                    break;
-
-                case DATE_CREATED:
-                    search.addSortDesc("dateAdded");
-                    break;
-
-                case NEW_AND_POPULAR:
-                    // TODO
-                    // search.addSortDesc("rating");
-                    search.addSortDesc("dateAdded");
-                    break;
-
-                case PRICE_HIGH_TO_LOW:
-                    search.addSortDesc("unitPrice");
-                    break;
-
-                case PRICE_LOW_TO_HIGH:
-                    search.addSortAsc("unitPrice");
-                    break;
-
-                case RELEVANCE:
-                    // TODO
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
         Session session = getSession();
-        SearchResult<Product> result = searchAndCount(search);
+
+        SearchResult<Product> result = new SearchResult<Product>();
+        result.setResult(buildProductQuery(filter, false).list());
+        result.setTotalCount(((Number)buildProductQuery(filter, true).uniqueResult()).intValue());
+        
         for (Product p : result.getResult()) {
             session.evict(p);
             p.clearReviews();
         }
         return result;
+    }
+    
+    protected SQLQuery buildProductQuery(ProductFilter filter, boolean countOnly) {
+        StringBuilder sql = new StringBuilder();
+        Map<String, Object> params = new HashMap<String, Object>();
+        
+        if (countOnly) {
+            sql.append("select count(*) from product where 1=1");
+        } else {
+            sql.append("select * from product where 1=1");
+        }
+
+        // Set match text
+        String matchText = filter.getMatchText();
+        if (matchText != null && !matchText.isEmpty()) {
+            matchText = "%" + matchText.trim().toLowerCase() + "%";
+            sql.append(" and lower(name) like :matchText or lower(description) like :matchText");
+            params.put("matchText", matchText);
+        }
+
+        // Set categories
+        Collection<String> categories = filter.getCategories();
+        if (categories != null && !categories.isEmpty()) {
+            StringBuilder categoryParamList = new StringBuilder();
+            int categoryIdx = 0;
+            for (String category : categories) {
+                if (categoryIdx > 0) {
+                    categoryParamList.append(", ");
+                }
+                String catParamName = "cat" + ++categoryIdx;
+                params.put(catParamName, category);
+                categoryParamList.append(":" + catParamName);
+            }
+            sql.append(" and id in (select product_id from product_category where category in (" + categoryParamList + "))");
+        }
+
+        // Set sort
+        ProductSort sort = filter.getSort();
+        if (sort != null) {
+            switch (sort) {
+                case AVG_CUSTOMER_REVIEW:
+                    sql.append(" order by coalesce(rating, -1) desc");
+                    break;
+
+                case DATE_CREATED:
+                    sql.append(" order by dateadded desc");
+                    break;
+
+                case NEW_AND_POPULAR:
+                    sql.append(" order by purchasecount desc, dateadded desc");
+                    break;
+
+                case PRICE_HIGH_TO_LOW:
+                    sql.append(" order by unitprice desc");
+                    break;
+
+                case PRICE_LOW_TO_HIGH:
+                    sql.append(" order by unitprice");
+                    break;
+
+                case RELEVANCE:
+                    if (matchText != null && !matchText.isEmpty()) {
+                        sql.append(" order by case when lower(name) like :matchText then 1 else 0 end desc, dateadded desc");
+                    } else {
+                        sql.append(" order by dateadded");
+                    }
+                    break;
+
+                default:
+                    sql.append(" order by id");
+                    break;
+            }
+        }
+
+        // Build SQL
+        SQLQuery query = getSession().createSQLQuery(sql.toString());
+        if (!countOnly) {
+            query.addEntity(Product.class);
+        }
+        for (Map.Entry<String, Object> param : params.entrySet()) {
+            query.setParameter(param.getKey(), param.getValue());
+        }
+
+        // Set pagination params (limit and offset)
+        if (!countOnly) {
+            Integer pageSize = filter.getPageSize();
+            if (pageSize != null && pageSize > 0) {
+                Integer page = filter.getPage();
+                if (page != null) {
+                    query.setFirstResult(pageSize * (page - 1));
+                }
+                query.setMaxResults(pageSize);
+            }
+        }
+        
+        return query;
     }
 
     protected void prepareSession(TransactionType transactionType) {

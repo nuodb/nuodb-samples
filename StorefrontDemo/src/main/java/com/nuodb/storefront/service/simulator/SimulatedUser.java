@@ -13,6 +13,7 @@ import com.nuodb.storefront.model.Category;
 import com.nuodb.storefront.model.Customer;
 import com.nuodb.storefront.model.Product;
 import com.nuodb.storefront.model.ProductFilter;
+import com.nuodb.storefront.model.ProductSort;
 import com.nuodb.storefront.model.WorkloadStep;
 import com.nuodb.storefront.model.WorkloadType;
 
@@ -52,7 +53,7 @@ public class SimulatedUser implements IWorker {
         if (steps.length == 0) {
             return IWorker.COMPLETE_NO_REPEAT;
         }
-        
+
         doWork(steps[stepIdx]);
         stepIdx++;
 
@@ -84,6 +85,10 @@ public class SimulatedUser implements IWorker {
                 doBrowseCategory();
                 break;
 
+            case BROWSE_SORT:
+                doBrowseCategory();
+                break;
+
             case PRODUCT_VIEW_DETAILS:
                 doProdutViewDetails();
                 break;
@@ -111,7 +116,7 @@ public class SimulatedUser implements IWorker {
             default:
                 throw new UnsupportedStepException();
         }
-        
+
         simulator.incrementStepCompletionCount(step);
     }
 
@@ -125,7 +130,6 @@ public class SimulatedUser implements IWorker {
         getOrFetchProductList();
         filter.setPage(filter.getPage() + 1);
         products = simulator.getService().getProducts(filter);
-        categories = simulator.getService().getCategories();
     }
 
     protected void doBrowseSearch() {
@@ -148,9 +152,14 @@ public class SimulatedUser implements IWorker {
         } else {
             filter.getCategories().add("DNE category");
         }
-
         products = simulator.getService().getProducts(filter);
         categories = simulator.getService().getCategories();
+    }
+
+    protected void doBrowseSort() {
+        filter = new ProductFilter();
+        filter.setSort(ProductSort.values()[rnd.nextInt(ProductSort.values().length)]);
+        products = simulator.getService().getProducts(filter);
     }
 
     protected void doProdutViewDetails() {
@@ -232,6 +241,9 @@ public class SimulatedUser implements IWorker {
     }
 
     protected Category pickRandomCategory() {
+        if (categories == null) {
+            categories = simulator.getService().getCategories();
+        }
         return (categories == null || categories.getResult().isEmpty()) ? null :
                 categories.getResult().get(rnd.nextInt(categories.getResult().size()));
     }

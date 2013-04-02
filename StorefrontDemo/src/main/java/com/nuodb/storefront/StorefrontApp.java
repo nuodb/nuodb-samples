@@ -29,7 +29,7 @@ public class StorefrontApp {
      * <li>showddl -- display drop and create DDL</li>
      * <li>generate -- generate dummy storefront data</li>
      * <li>load -- load storefront data from src/main/resources/sample-products.json file</li>
-     * <li>simulate -- simulate customer activity</li>
+     * <li>stress -- simulate customer activity</li>
      * </ul>
      */
     public static void main(String[] args) throws Exception {
@@ -44,9 +44,11 @@ public class StorefrontApp {
             } else if ("showddl".equalsIgnoreCase(action)) {
                 showDdl();
             } else if ("generate".equalsIgnoreCase(action)) {
+                System.out.println("Generating data...");
                 generateData();
                 System.out.println("Data generated successfully.  " + getProductStats());
             } else if ("load".equalsIgnoreCase(action)) {
+                System.out.println("Loading data...");
                 loadData();
                 System.out.println("Data loaded successfully.  " + getProductStats());
             } else if ("simulate".equalsIgnoreCase(action)) {
@@ -58,11 +60,11 @@ public class StorefrontApp {
     }
     protected static String getProductStats() {
         ProductFilter filter = new ProductFilter();
-        filter.setPageSize(0);
+        filter.setPageSize(null);
         IStorefrontService svc = StorefrontFactory.createStorefrontService();
         int numProducts = svc.getProducts(filter).getTotalCount();
         int numCategories = svc.getCategories().getTotalCount();
-        return "There are " + numProducts + " products across " + numCategories + " categories.";
+        return "There are now " + numProducts + " products across " + numCategories + " categories.";
     }
 
     public static void createSchema() {
@@ -94,6 +96,7 @@ public class StorefrontApp {
         ISimulatorService simulator = StorefrontFactory.getSimulatorService();
         simulator.addWorkload(WorkloadType.SIMILATED_BROWSER, 20, 250);
         simulator.addWorkload(WorkloadType.SIMILATED_SHOPPER_FAST, 20, 250);
+        simulator.addWorkload(WorkloadType.SIMILATED_REVIEWER, 20, 250);
 
         for (int i = 0; i < 20; i++) {
             printSimulatorStats(simulator, System.out);

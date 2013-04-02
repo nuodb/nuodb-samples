@@ -59,13 +59,13 @@ public class DataGenerator {
         product.setDescription("This is the description for this product.");
         product.setUnitPrice(BigDecimal.valueOf(rnd.nextInt(10000), 2));
 
-        // Add reviews
-        addProductReviews(product, maxReviewsPerProduct);
-
         // Add categories
         for (int i = 0; i < rnd.nextInt(maxCategoriesPerProduct) + 1; i++) {
             product.getCategories().add("Category " + (char) ('A' + rnd.nextInt(26)));
         }
+        
+        // Add reviews
+        addProductReviews(product, maxReviewsPerProduct);
 
         dao.save(product);
         return product;

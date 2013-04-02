@@ -27,7 +27,9 @@ public class ProductsServlet extends BaseServlet {
         if (categories != null) {
             filter.setCategories(new ArrayList<String>());
             for (String category : categories) {
-                filter.getCategories().add(category);
+                if (category != null && !category.isEmpty()) {
+                    filter.getCategories().add(category);
+                }
             }
         }
 

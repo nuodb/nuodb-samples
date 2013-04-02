@@ -1,9 +1,9 @@
 package com.nuodb.storefront.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import com.googlecode.genericdao.search.SearchResult;
+import com.nuodb.storefront.util.CollectionUtil;
 
 public class ProductFilter {
     private String matchText = null;
@@ -17,7 +17,7 @@ public class ProductFilter {
     
     public ProductFilter(String matchText, Collection<String> categories, Integer page, Integer pageSize, ProductSort sort) {
         this.matchText = matchText;
-        this.categories = (categories == null) ? null : new ArrayList<String>(categories);
+        this.categories = CollectionUtil.createCollectionWithNonEmptyItems(categories);
         this.page = page;
         this.pageSize = pageSize;
         this.sort = sort;

@@ -8,6 +8,8 @@ public enum WorkloadStep {
     BROWSE_SEARCH,
 
     BROWSE_CATEGORY,
+    
+    BROWSE_SORT,
 
     PRODUCT_VIEW_DETAILS,
 
@@ -23,6 +25,7 @@ public enum WorkloadStep {
 
     @WorkloadFlow(steps = {
             WorkloadStep.BROWSE,
+            WorkloadStep.BROWSE_SORT,
             WorkloadStep.BROWSE_NEXT_PAGE,
             WorkloadStep.BROWSE_SEARCH,
             WorkloadStep.BROWSE_CATEGORY,
