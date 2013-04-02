@@ -23,8 +23,10 @@ import com.nuodb.storefront.model.Customer;
 import com.nuodb.storefront.model.Product;
 import com.nuodb.storefront.model.ProductFilter;
 import com.nuodb.storefront.model.ProductReview;
-import com.nuodb.storefront.model.Transaction;
-import com.nuodb.storefront.model.TransactionSelection;
+import com.nuodb.storefront.model.StorefrontStats;
+import com.nuodb.storefront.model.Purchase;
+import com.nuodb.storefront.model.PurchaseSelection;
+import com.nuodb.storefront.model.TransactionStats;
 import com.nuodb.storefront.service.IStorefrontService;
 
 /**
@@ -39,7 +41,7 @@ public class StorefrontService implements IStorefrontService {
 
     @Override
     public SearchResult<Category> getCategories() {
-        return dao.runTransaction(TransactionType.READ_ONLY, new Callable<SearchResult<Category>>() {
+        return dao.runTransaction(TransactionType.READ_ONLY, "getCategories", new Callable<SearchResult<Category>>() {
             @Override
             public SearchResult<Category> call() throws Exception {
                 return dao.getCategories();
@@ -49,7 +51,7 @@ public class StorefrontService implements IStorefrontService {
 
     @Override
     public SearchResult<Product> getProducts(final ProductFilter filter) {
-        return dao.runTransaction(TransactionType.READ_ONLY, new Callable<SearchResult<Product>>() {
+        return dao.runTransaction(TransactionType.READ_ONLY, "getProducts", new Callable<SearchResult<Product>>() {
             @Override
             public SearchResult<Product> call() throws Exception {
                 SearchResult<Product> result = dao.getProducts(filter);
@@ -66,7 +68,7 @@ public class StorefrontService implements IStorefrontService {
 
     @Override
     public Product getProductDetails(final int productId) {
-        return dao.runTransaction(TransactionType.READ_ONLY, new Callable<Product>() {
+        return dao.runTransaction(TransactionType.READ_ONLY, "getProductDetails", new Callable<Product>() {
             @Override
             public Product call() throws Exception {
                 Search search = new Search(Product.class);
@@ -109,7 +111,7 @@ public class StorefrontService implements IStorefrontService {
             throw new IllegalArgumentException("unitPrice");
         }
 
-        return dao.runTransaction(TransactionType.READ_WRITE, new Callable<Product>() {
+        return dao.runTransaction(TransactionType.READ_WRITE, "addProduct", new Callable<Product>() {
             @Override
             public Product call() throws Exception {
                 Calendar now = Calendar.getInstance();
@@ -135,7 +137,7 @@ public class StorefrontService implements IStorefrontService {
             throw new IllegalArgumentException("rating");
         }
 
-        return dao.runTransaction(TransactionType.READ_WRITE, new Callable<ProductReview>() {
+        return dao.runTransaction(TransactionType.READ_WRITE, "addProductReview", new Callable<ProductReview>() {
             @Override
             public ProductReview call() throws Exception {
 
@@ -180,7 +182,7 @@ public class StorefrontService implements IStorefrontService {
 
     @Override
     public Customer getOrCreateCustomer(final int customerId) {
-        return dao.runTransaction(TransactionType.READ_WRITE, new Callable<Customer>() {
+        return dao.runTransaction(TransactionType.READ_WRITE, "getOrCreateCustomer", new Callable<Customer>() {
             @Override
             public Customer call() throws Exception {
 
@@ -204,7 +206,7 @@ public class StorefrontService implements IStorefrontService {
 
     @Override
     public Cart getCustomerCart(final int customerId) {
-        return dao.runTransaction(TransactionType.READ_ONLY, new Callable<Cart>() {
+        return dao.runTransaction(TransactionType.READ_ONLY, "getCustomerCart", new Callable<Cart>() {
             @Override
             public Cart call() throws Exception {
                 Search search = new Search(Customer.class);
@@ -244,7 +246,7 @@ public class StorefrontService implements IStorefrontService {
             throw new IllegalArgumentException("quantity");
         }
 
-        return dao.runTransaction(TransactionType.READ_WRITE, new Callable<Integer>() {
+        return dao.runTransaction(TransactionType.READ_WRITE, "addToCart", new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
                 Customer customer = dao.find(Customer.class, customerId);
@@ -265,16 +267,16 @@ public class StorefrontService implements IStorefrontService {
     }
 
     @Override
-    public int updateCart(final int customerId, final Map<Integer, Integer> productQuantityMap) throws IllegalArgumentException, CustomerNotFoundException,
-            ProductNotFoundException {
-        return dao.runTransaction(TransactionType.READ_WRITE, new Callable<Integer>() {
+    public int updateCart(final int customerId, final Map<Integer, Integer> productQuantityMap)
+            throws IllegalArgumentException, CustomerNotFoundException, ProductNotFoundException {
+        return dao.runTransaction(TransactionType.READ_WRITE, "updateCart", new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
                 Customer customer = dao.find(Customer.class, customerId);
                 if (customer == null) {
                     throw new CustomerNotFoundException();
                 }
-                
+
                 List<CartSelection> cart = customer.getCartSelections();
                 if (productQuantityMap == null || productQuantityMap.isEmpty()) {
                     // There's nothing in the map so remove all items
@@ -289,14 +291,14 @@ public class StorefrontService implements IStorefrontService {
                         if (product == null) {
                             throw new ProductNotFoundException();
                         }
-                        
-                        referencedItems.add(addOrUpdateCartItem(customer, product, quantity, false));                       
+
+                        referencedItems.add(addOrUpdateCartItem(customer, product, quantity, false));
                     }
-                    
+
                     // Remove items not described in the map
                     for (int i = cart.size() - 1; i >= 0; i--) {
                         if (!referencedItems.contains(cart.get(i))) {
-                            cart.remove(i);                            
+                            cart.remove(i);
                         }
                     }
                 }
@@ -307,10 +309,10 @@ public class StorefrontService implements IStorefrontService {
     }
 
     @Override
-    public Transaction checkout(final int customerId) {
-        return dao.runTransaction(TransactionType.READ_WRITE, new Callable<Transaction>() {
+    public Purchase checkout(final int customerId) {
+        return dao.runTransaction(TransactionType.READ_WRITE, "checkout", new Callable<Purchase>() {
             @Override
-            public Transaction call() throws Exception {
+            public Purchase call() throws Exception {
                 Customer customer = dao.find(Customer.class, customerId);
                 if (customer == null) {
                     throw new CustomerNotFoundException();
@@ -323,17 +325,17 @@ public class StorefrontService implements IStorefrontService {
 
                 // Initialize transaction
                 Calendar now = Calendar.getInstance();
-                Transaction transaction = new Transaction();
+                Purchase transaction = new Purchase();
                 transaction.setDatePurchased(now);
                 customer.addTransaction(transaction);
-                
+
                 // Move items from cart to transaction
                 for (CartSelection cartSelection : cart) {
-                    TransactionSelection selection = new TransactionSelection(cartSelection);
+                    PurchaseSelection selection = new PurchaseSelection(cartSelection);
                     transaction.addTransactionSelection(selection);
                     selection.setUnitPrice(selection.getProduct().getUnitPrice());
-                    
-                    // Increment purchase count.  This is denormalized, non-synchronized data so it may not be 100% accurate.
+
+                    // Increment purchase count. This is denormalized, non-synchronized data so it may not be 100% accurate.
                     // But that's ok -- it's just use to roughly gauge populatory and can be reconstructed exactly later
                     // by looking at the transaction table.
                     Product product = selection.getProduct();
@@ -348,6 +350,21 @@ public class StorefrontService implements IStorefrontService {
         });
     }
     
+    @Override
+    public Map<String, TransactionStats> getTransactionStats() {
+        return dao.getTransactionStats();
+    }
+    
+    @Override
+    public StorefrontStats getStorefrontStats(final int maxCustomerIdleTimeSec) {
+        return dao.runTransaction(TransactionType.READ_ONLY, "storefrontStats", new Callable<StorefrontStats>() {
+            @Override
+            public StorefrontStats call() {
+                return dao.getStorefrontStats(maxCustomerIdleTimeSec);
+            }
+        });
+    }
+
     protected int countCartItems(Customer customer) {
         int cartItemCount = 0;
         for (CartSelection selection : customer.getCartSelections()) {
@@ -356,11 +373,11 @@ public class StorefrontService implements IStorefrontService {
         customer.setCartItemCount(cartItemCount);
         return cartItemCount;
     }
-    
+
     protected CartSelection addOrUpdateCartItem(Customer customer, Product product, int quantity, boolean incrementQty) {
         Calendar now = Calendar.getInstance();
         int productId = product.getId();
-        
+
         List<CartSelection> cart = customer.getCartSelections();
         CartSelection modifiedItem = null;
         for (int i = cart.size() - 1; i >= 0; i--) {

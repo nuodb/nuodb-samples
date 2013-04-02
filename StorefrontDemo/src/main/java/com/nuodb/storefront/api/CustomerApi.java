@@ -15,7 +15,7 @@ import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.model.Cart;
 import com.nuodb.storefront.model.CartSelection;
 import com.nuodb.storefront.model.Customer;
-import com.nuodb.storefront.model.Transaction;
+import com.nuodb.storefront.model.Purchase;
 
 @Path("/customer")
 public class CustomerApi extends BaseApi {
@@ -46,7 +46,7 @@ public class CustomerApi extends BaseApi {
     @POST
     @Path("/checkout")
     @Produces(MediaType.APPLICATION_JSON)
-    public Transaction purchase(@Context HttpServletRequest req , @Context HttpServletResponse resp) {
+    public Purchase purchase(@Context HttpServletRequest req , @Context HttpServletResponse resp) {
         Customer customer = getOrCreateCustomer(req, resp);
         return getService().checkout(customer.getId());
     }

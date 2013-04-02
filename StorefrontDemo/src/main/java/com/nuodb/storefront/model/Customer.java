@@ -18,7 +18,7 @@ public class Customer extends Model {
 
     @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true, mappedBy="customer")
     @OrderBy("datePurchased")
-    private List<Transaction> transactions = new ArrayList<Transaction>();
+    private List<Purchase> transactions = new ArrayList<Purchase>();
 
     private String emailAddress;
 
@@ -37,7 +37,7 @@ public class Customer extends Model {
         return cartSelections;
     }
 
-    public List<Transaction> getTransactions() {
+    public List<Purchase> getTransactions() {
         return transactions;
     }
 
@@ -70,7 +70,7 @@ public class Customer extends Model {
         cartSelections.add(selection);
     }
 
-    public void addTransaction(Transaction transaction) {
+    public void addTransaction(Purchase transaction) {
         transaction.setCustomer(this);
         transactions.add(transaction);
     }    

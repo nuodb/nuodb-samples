@@ -13,7 +13,7 @@ import javax.persistence.OrderBy;
 import javax.validation.constraints.NotNull;
 
 @Entity
-public class Transaction extends Model {
+public class Purchase extends Model {
     @ManyToOne
     @NotNull
     private Customer customer;
@@ -21,11 +21,11 @@ public class Transaction extends Model {
     @NotNull
     private Calendar datePurchased;
 
-    @OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER, orphanRemoval = true, mappedBy="transaction")
+    @OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER, orphanRemoval = true, mappedBy="purchase")
     @OrderBy("dateAdded")
-    private List<TransactionSelection> selections = new ArrayList<TransactionSelection>();
+    private List<PurchaseSelection> selections = new ArrayList<PurchaseSelection>();
 
-    public Transaction() {
+    public Purchase() {
     }
 
     public Customer getCustomer() {
@@ -44,12 +44,12 @@ public class Transaction extends Model {
         this.datePurchased = datePurchased;
     }
 
-    public List<TransactionSelection> getSelections() {
+    public List<PurchaseSelection> getSelections() {
         return selections;
     }
 
-    public void addTransactionSelection(TransactionSelection selection) {
-        selection.setTransaction(this);
+    public void addTransactionSelection(PurchaseSelection selection) {
+        selection.setPurchase(this);
         selections.add(selection);
     }
 }

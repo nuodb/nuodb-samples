@@ -36,8 +36,8 @@
 		<mapping class="com.nuodb.storefront.model.Customer"/>
 		<mapping class="com.nuodb.storefront.model.Product"/>
 		<mapping class="com.nuodb.storefront.model.ProductReview"/>
-		<mapping class="com.nuodb.storefront.model.Transaction"/>
-		<mapping class="com.nuodb.storefront.model.TransactionSelection"/>
+		<mapping class="com.nuodb.storefront.model.Purchase"/>
+		<mapping class="com.nuodb.storefront.model.PurchaseSelection"/>
 
 	</session-factory>
 

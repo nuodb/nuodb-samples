@@ -43,16 +43,16 @@ public class SimulatorApi {
     @Path("/workloads/{workload}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response addWorkload(
-            @PathParam("workload") Workload workload, @FormParam("numWorkers") int numWorkers, @FormParam("entryDelayMs") int entryDelayMs) {
-        getService().addWorkload(workload, numWorkers, entryDelayMs);
+            @PathParam("workload") String workload, @FormParam("numWorkers") int numWorkers, @FormParam("entryDelayMs") int entryDelayMs) {
+        getService().addWorkload(lookupWorkloadByName(workload), numWorkers, entryDelayMs);
         return Response.ok().build();
     }
 
     @DELETE
     @Path("/workloads/{workload}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response downsizeWorkload(@PathParam("workload") Workload workload, @FormParam("newWorkerLimit") int newWorkerLimit) {
-        getService().downsizeWorkload(workload, newWorkerLimit);
+    public Response downsizeWorkload(@PathParam("workload") String workload, @FormParam("newWorkerLimit") int newWorkerLimit) {
+        getService().downsizeWorkload(lookupWorkloadByName(workload), newWorkerLimit);
         return Response.ok().build();
     }
 
@@ -65,5 +65,13 @@ public class SimulatorApi {
 
     protected ISimulatorService getService() {
         return StorefrontFactory.getSimulatorService();
+    }
+    
+    protected Workload lookupWorkloadByName(String name) {
+        try {
+            return (Workload)Workload.class.getField(name).get(null);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

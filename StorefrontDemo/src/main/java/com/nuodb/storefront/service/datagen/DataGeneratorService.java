@@ -16,9 +16,9 @@ public class DataGeneratorService implements IDataGeneratorService {
     }
 
     @Override
-    public void generate(final int numCustomers, final int numProducts, final int maxCategoriesPerProduct, final int maxReviewsPerProduct) {
+    public void generateAll(final int numCustomers, final int numProducts, final int maxCategoriesPerProduct, final int maxReviewsPerProduct) {
         final DataGenerator gen = new DataGenerator(dao);
-        dao.runTransaction(TransactionType.READ_WRITE, new Runnable() {
+        dao.runTransaction(TransactionType.READ_WRITE, "generateAll", new Runnable() {
             @Override
             public void run() {
                 gen.createCustomers(numCustomers);
@@ -28,9 +28,9 @@ public class DataGeneratorService implements IDataGeneratorService {
     }
 
     @Override
-    public void generate(final int numCustomers, final List<Product> products, final int maxReviewsPerProduct) {
+    public void generateProductReviews(final int numCustomers, final List<Product> products, final int maxReviewsPerProduct) {
         final DataGenerator gen = new DataGenerator(dao);
-        dao.runTransaction(TransactionType.READ_WRITE, new Runnable() {
+        dao.runTransaction(TransactionType.READ_WRITE, "generateProductReviews", new Runnable() {
             @Override
             public void run() {
                 gen.createCustomers(numCustomers);

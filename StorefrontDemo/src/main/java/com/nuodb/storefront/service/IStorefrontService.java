@@ -14,7 +14,9 @@ import com.nuodb.storefront.model.Customer;
 import com.nuodb.storefront.model.Product;
 import com.nuodb.storefront.model.ProductFilter;
 import com.nuodb.storefront.model.ProductReview;
-import com.nuodb.storefront.model.Transaction;
+import com.nuodb.storefront.model.StorefrontStats;
+import com.nuodb.storefront.model.Purchase;
+import com.nuodb.storefront.model.TransactionStats;
 
 public interface IStorefrontService {
     /**
@@ -93,7 +95,7 @@ public interface IStorefrontService {
 
     /**
      * Gets a customer with the given ID, creating the customer if no customer yet exists with that ID. Collections within this object (cart contents
-     * and transactions) are not fetched.
+     * and purchases) are not fetched.
      * 
      * If a new customer is created, the specified customerId is ignored and a new one is auto-generated instead.
      * 
@@ -124,7 +126,7 @@ public interface IStorefrontService {
      * @param productId
      *            The ID of the product to add to the cart.
      * @param quantity
-     *            The quantity to add. 
+     *            The quantity to add.
      * @return The total number of items in the cart; this accounts for products with quantities greater than 1.
      * @throws IllegalArgumentException
      *             The quantity specified was 0 or negative.
@@ -133,8 +135,8 @@ public interface IStorefrontService {
      * @throws ProductNotFoundException
      *             No product exists with the specified productId.
      */
-    public int addToCart(int customerId, int productId, int quantity) throws IllegalArgumentException, CustomerNotFoundException,
-            ProductNotFoundException;
+    public int addToCart(int customerId, int productId, int quantity)
+            throws IllegalArgumentException, CustomerNotFoundException, ProductNotFoundException;
 
     /**
      * Updates the cart to contain exactly the items specified with the quantities specified.
@@ -151,19 +153,29 @@ public interface IStorefrontService {
      * @throws ProductNotFoundException
      *             No product exists with the specified productId.
      */
-    public int updateCart(int customerId, Map<Integer, Integer> productQuantityMap) throws IllegalArgumentException, CustomerNotFoundException,
-            ProductNotFoundException;
+    public int updateCart(int customerId, Map<Integer, Integer> productQuantityMap)
+            throws IllegalArgumentException, CustomerNotFoundException, ProductNotFoundException;
 
     /**
-     * Converts the contents of a customer's cart to a transaction, and clears the cart.
+     * Converts the contents of a customer's cart to a purchase, and clears the cart.
      * 
      * @param customerId
-     *            The ID of the customer completing the transaction.
-     * @return The transaction object describing the transaction, including a generated transaction ID.
+     *            The ID of the customer completing the purchase.
+     * @return The purchase object describing the purchase, including a generated purchase ID.
      * @throws CustomerNotFoundException
      *             No customer exists with the specified customerId.
      * @throws CartEmptyException
      *             No items were in the customer's shopping cart.
      */
-    public Transaction checkout(int customerId) throws CustomerNotFoundException, CartEmptyException;
+    public Purchase checkout(int customerId) throws CustomerNotFoundException, CartEmptyException;
+    
+    /**
+     * Gets statistics on all database transactions run by this service.
+     */
+    public Map<String, TransactionStats> getTransactionStats();
+    
+    /**
+     * Gets statistics on the store, including information about its products, reviews, and customers.
+     */
+    public StorefrontStats getStorefrontStats(int maxCustomerIdleTimeSec);
 }

@@ -1,5 +1,7 @@
 package com.nuodb.storefront.dal;
 
+import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -19,12 +21,16 @@ import com.nuodb.storefront.model.Model;
 import com.nuodb.storefront.model.Product;
 import com.nuodb.storefront.model.ProductFilter;
 import com.nuodb.storefront.model.ProductSort;
+import com.nuodb.storefront.model.StorefrontStats;
+import com.nuodb.storefront.model.TransactionStats;
 
 /**
  * Data access object designed for storefront operations, built on top of a general-purpose DAO. The caller is responsible for wrapping DAO calls in
  * transactions, typically by using the {@link #runTransaction(Callable)} or {@link #runTransaction(Runnable)} method.
  */
 public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
+    private static final Map<String, TransactionStats> s_transactionStatsMap = new HashMap<String, TransactionStats>();
+
     public StorefrontDao() {
     }
 
@@ -39,28 +45,30 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
     }
 
     @Override
-    public void runTransaction(TransactionType transactionType, Runnable r) {
-        Transaction t = this.getSession().beginTransaction();
-        prepareSession(transactionType);
-        try {
-            r.run();
-            t.commit();
-        } catch (RuntimeException e) {
-            t.rollback();
-            throw e;
-        }
+    public void runTransaction(TransactionType transactionType, String name, final Runnable r) {
+        runTransaction(transactionType, name, new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                r.run();
+                return null;
+            }
+        });
     }
 
     @Override
-    public <T> T runTransaction(TransactionType transactionType, Callable<T> c) {
+    public <T> T runTransaction(TransactionType transactionType, String name, Callable<T> c) {
+        long startTime = System.currentTimeMillis();
+
         Transaction t = this.getSession().beginTransaction();
         prepareSession(transactionType);
         try {
             T result = c.call();
             t.commit();
+            updateTransactionStats(name, startTime, true);
             return result;
         } catch (Exception e) {
             t.rollback();
+            updateTransactionStats(name, startTime, false);
             if (e instanceof RuntimeException) {
                 throw (RuntimeException) e;
             }
@@ -93,19 +101,70 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
 
         SearchResult<Product> result = new SearchResult<Product>();
         result.setResult(buildProductQuery(filter, false).list());
-        result.setTotalCount(((Number)buildProductQuery(filter, true).uniqueResult()).intValue());
-        
+        result.setTotalCount(((Number) buildProductQuery(filter, true).uniqueResult()).intValue());
+
         for (Product p : result.getResult()) {
             session.evict(p);
             p.clearReviews();
         }
         return result;
     }
-    
+
+    @Override
+    public Map<String, TransactionStats> getTransactionStats() {
+        Map<String, TransactionStats> mapCopy = new HashMap<String, TransactionStats>();
+        synchronized (s_transactionStatsMap) {
+            for (Map.Entry<String, TransactionStats> entry : s_transactionStatsMap.entrySet()) {
+                mapCopy.put(entry.getKey(), new TransactionStats(entry.getValue()));
+            }
+        }
+        return mapCopy;
+    }
+
+    public StorefrontStats getStorefrontStats(int maxCustomerIdleTimeSec) {
+        SQLQuery query = getSession().createSQLQuery("select"
+                + " (select count(*) from product) as productCount,"
+                + " (select count(*) from (select distinct category from product_category)) as categoryCount,"
+                + " (select count(*) from product_review) as productReviewCount,"
+                + " (select count(*) from customer) as customerCount,"
+                + " (select count(*) from customer where datelastactive >= :minActiveTime) as activeCustomerCount,"
+                + " (select count(*) from (select distinct customer_id from cart_selection)) as cartCount,"
+                + " (select sum(quantity) from cart_selection) as cartItemCount,"
+                + " (select sum(cast(quantity as decimal(8,2)) * unitprice) from cart_selection) as cartValue,"
+                + " (select count(*) from purchase) as purchaseCount,"
+                + " (select sum(quantity) from purchase_selection) as purchaseItemCount,"
+                + " (select sum(cast(quantity as decimal(8,2)) * unitprice) from purchase_selection) as purchaseValue"
+                + " from dual;");
+
+        // Calc minActiveTime
+        Calendar minActiveTime = Calendar.getInstance();
+        minActiveTime.add(Calendar.SECOND, -maxCustomerIdleTimeSec);
+        query.setParameter("minActiveTime", minActiveTime);
+        
+        // Run query
+        Object[] result = (Object[])query.uniqueResult();
+        
+        // Fill stats
+        StorefrontStats stats = new StorefrontStats();
+        stats.setProductCount(Integer.valueOf(result[0].toString()));
+        stats.setCategoryCount(Integer.valueOf(result[1].toString()));
+        stats.setProductReviewCount(Integer.valueOf(result[2].toString()));
+        stats.setCustomerCount(Integer.valueOf(result[3].toString()));
+        stats.setActiveCustomerCount(Integer.valueOf(result[4].toString()));
+        stats.setCartCount(Integer.valueOf(result[5].toString()));
+        stats.setCartItemCount(Integer.valueOf(result[6].toString()));
+        stats.setCartValue(new BigDecimal(result[7].toString()));
+        stats.setPurchaseCount(Integer.valueOf(result[8].toString()));
+        stats.setPurchaseItemCount(Integer.valueOf(result[9].toString()));
+        stats.setPurchaseValue(new BigDecimal(result[10].toString()));
+        
+        return stats;
+    }
+
     protected SQLQuery buildProductQuery(ProductFilter filter, boolean countOnly) {
         StringBuilder sql = new StringBuilder();
         Map<String, Object> params = new HashMap<String, Object>();
-        
+
         if (countOnly) {
             sql.append("select count(*) from product where 1=1");
         } else {
@@ -194,7 +253,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
                 query.setMaxResults(pageSize);
             }
         }
-        
+
         return query;
     }
 
@@ -216,6 +275,17 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
 
             default:
                 break;
+        }
+    }
+
+    protected void updateTransactionStats(String transactionName, long startTimeMs, boolean success) {
+        synchronized (s_transactionStatsMap) {
+            TransactionStats stats = s_transactionStatsMap.get(transactionName);
+            if (stats == null) {
+                stats = new TransactionStats();
+                s_transactionStatsMap.put(transactionName, stats);
+            }
+            stats.incrementCount(transactionName, System.currentTimeMillis() - startTimeMs, success);
         }
     }
 }

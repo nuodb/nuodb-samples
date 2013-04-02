@@ -82,7 +82,7 @@ public class StorefrontApp {
     }
 
     public static void generateData() {
-        StorefrontFactory.createDataGeneratorService().generate(100, 1000, 2, 10);
+        StorefrontFactory.createDataGeneratorService().generateAll(100, 1000, 2, 10);
     }
 
     public static void loadData() throws IOException {
@@ -90,7 +90,7 @@ public class StorefrontApp {
         ObjectMapper mapper = new ObjectMapper();
         List<Product> products = mapper.readValue(stream, new TypeReference<ArrayList<Product>>() {
         });
-        StorefrontFactory.createDataGeneratorService().generate(100, products, 10);
+        StorefrontFactory.createDataGeneratorService().generateProductReviews(100, products, 10);
     }
     
     public static void simulateActivity() throws InterruptedException {
