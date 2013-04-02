@@ -20,7 +20,7 @@ public class CartServlet extends BaseServlet {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        int customerId = getOrCreateCustomer(req).getId();
+        int customerId = getOrCreateCustomer(req, resp).getId();
         Cart cart = getService().getCustomerCart(customerId);
         showPage(req, resp, "cart", cart);
     }
@@ -32,7 +32,7 @@ public class CartServlet extends BaseServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            Customer customer = getOrCreateCustomer(req);
+            Customer customer = getOrCreateCustomer(req, resp);
             String action = req.getParameter("action");
 
             if ("update".equals(action)) {

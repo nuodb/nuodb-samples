@@ -1,19 +1,20 @@
 package com.nuodb.storefront.service.simulator;
 
-import com.nuodb.storefront.model.WorkloadType;
+import com.nuodb.storefront.model.Workload;
 
 public class SimulatedUserFactory implements IWorker {
+    private static final Workload factoryWorkloadType = new Workload("User factory");
     private final ISimulator simulator;
-    private final WorkloadType workloadType;
+    private final Workload workerWorkloadType;
     private final int entryDelayMs;
     private int userCount;
 
-    public SimulatedUserFactory(ISimulator simulator, WorkloadType workloadType, int userCount, int entryDelayMs) {
+    public SimulatedUserFactory(ISimulator simulator, Workload workerWorkloadType, int userCount, int entryDelayMs) {
         if (simulator == null) {
-            throw new IllegalArgumentException("simulator"); 
+            throw new IllegalArgumentException("simulator");
         }
-        if (workloadType.getSteps() == null || workloadType.getSteps().length == 0) {
-            throw new IllegalArgumentException("workerType has no steps associated with it");
+        if (workerWorkloadType.getSteps() == null || workerWorkloadType.getSteps().length == 0) {
+            throw new IllegalArgumentException("workerWorkloadType has no steps associated with it");
         }
         if (userCount < 0) {
             throw new IllegalArgumentException("userCount");
@@ -23,28 +24,28 @@ public class SimulatedUserFactory implements IWorker {
         }
 
         this.simulator = simulator;
-        this.workloadType = workloadType;
+        this.workerWorkloadType = workerWorkloadType;
         this.userCount = userCount;
         this.entryDelayMs = entryDelayMs;
     }
 
     @Override
-    public WorkloadType getWorkloadType() {
-        return WorkloadType.SIMULATED_USER_FACTORY;
+    public Workload getWorkload() {
+        return factoryWorkloadType;
     }
 
     @Override
     public long doWork() {
         if (userCount > 0) {
             do {
-                simulator.addWorker(new SimulatedUser(simulator, workloadType), 0);
+                simulator.addWorker(new SimulatedUser(simulator, workerWorkloadType), 0);
             } while (--userCount > 0 && entryDelayMs == 0);
         }
 
         if (userCount <= 0) {
             return IWorker.COMPLETE_NO_REPEAT;
         }
-        
+
         return entryDelayMs;
     }
 }

@@ -1,6 +1,7 @@
 package com.nuodb.storefront.api;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -24,16 +25,17 @@ public class CustomerApi extends BaseApi {
     @GET
     @Path("/cart")
     @Produces(MediaType.APPLICATION_JSON)
-    public Cart getCartSelections(@Context HttpServletRequest req) {
-        Customer customer = getOrCreateCustomer(req);
+    public Cart getCartSelections(@Context HttpServletRequest req, @Context HttpServletResponse resp) {
+        Customer customer = getOrCreateCustomer(req, resp);
         return getService().getCustomerCart(customer.getId());
     }
 
     @PUT
     @Path("/cart")
     @Produces(MediaType.APPLICATION_JSON)
-    public SearchResult<CartSelection> addToCart(@Context HttpServletRequest req, @FormParam("productId") int productId, @FormParam("quantity") int quantity) {
-        Customer customer = getOrCreateCustomer(req);
+    public SearchResult<CartSelection> addToCart(@Context HttpServletRequest req, @Context HttpServletResponse resp,
+            @FormParam("productId") int productId, @FormParam("quantity") int quantity) {
+        Customer customer = getOrCreateCustomer(req, resp);
         int itemCount = getService().addToCart(customer.getId(), productId, quantity);
 
         SearchResult<CartSelection> result = new SearchResult<CartSelection>();
@@ -44,8 +46,8 @@ public class CustomerApi extends BaseApi {
     @POST
     @Path("/checkout")
     @Produces(MediaType.APPLICATION_JSON)
-    public Transaction purchase(@Context HttpServletRequest req) {
-        Customer customer = getOrCreateCustomer(req);
+    public Transaction purchase(@Context HttpServletRequest req , @Context HttpServletResponse resp) {
+        Customer customer = getOrCreateCustomer(req, resp);
         return getService().checkout(customer.getId());
     }
 }

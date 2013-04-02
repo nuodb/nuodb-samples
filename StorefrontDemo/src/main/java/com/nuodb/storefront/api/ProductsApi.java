@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -32,7 +33,8 @@ public class ProductsApi extends BaseApi {
     
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public SearchResult<Product> search(@Context HttpServletRequest req, @QueryParam("matchText") String matchText, @QueryParam("categories") List<String> categories,
+    public SearchResult<Product> search(@Context HttpServletRequest req,
+            @QueryParam("matchText") String matchText, @QueryParam("categories") List<String> categories,
             @QueryParam("page") Integer page, @QueryParam("pageSize") Integer pageSize, @QueryParam("sort") ProductSort sort) {
         ProductFilter filter = new ProductFilter(matchText, categories, page, pageSize, sort);
         req.getSession().setAttribute(BaseServlet.SESSION_PRODUCT_FILTER, filter);
@@ -61,9 +63,10 @@ public class ProductsApi extends BaseApi {
     @POST
     @Path("/{productId}/reviews")
     @Produces(MediaType.APPLICATION_JSON)
-    public ProductReview addReview(@Context HttpServletRequest req, @PathParam("productId") int productId, @FormParam("title") String title,
+    public ProductReview addReview(@Context HttpServletRequest req, @Context HttpServletResponse resp,
+            @PathParam("productId") int productId, @FormParam("title") String title,
             @FormParam("comments") String comments, @FormParam("emailAddress") String emailAddress, @FormParam("rating") int rating) {
-        Customer customer = getOrCreateCustomer(req);
+        Customer customer = getOrCreateCustomer(req, resp);
         return getService().addProductReview(customer.getId(), productId, title, comments, emailAddress, rating);
     }
 }

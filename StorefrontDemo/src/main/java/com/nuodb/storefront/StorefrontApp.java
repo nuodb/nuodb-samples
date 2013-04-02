@@ -12,9 +12,10 @@ import org.codehaus.jackson.type.TypeReference;
 
 import com.nuodb.storefront.model.Product;
 import com.nuodb.storefront.model.ProductFilter;
+import com.nuodb.storefront.model.Workload;
 import com.nuodb.storefront.model.WorkloadStats;
 import com.nuodb.storefront.model.WorkloadStep;
-import com.nuodb.storefront.model.WorkloadType;
+import com.nuodb.storefront.model.WorkloadStepStats;
 import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
 
@@ -94,9 +95,9 @@ public class StorefrontApp {
     
     public static void simulateActivity() throws InterruptedException {
         ISimulatorService simulator = StorefrontFactory.getSimulatorService();
-        simulator.addWorkload(WorkloadType.SIMILATED_BROWSER, 20, 250);
-        simulator.addWorkload(WorkloadType.SIMILATED_SHOPPER_FAST, 20, 250);
-        simulator.addWorkload(WorkloadType.SIMILATED_REVIEWER, 20, 250);
+        simulator.addWorkload(Workload.BROWSER, 20, 250);
+        simulator.addWorkload(Workload.SHOPPER_FAST, 20, 250);
+        simulator.addWorkload(Workload.REVIEWER, 20, 250);
 
         for (int i = 0; i < 20; i++) {
             printSimulatorStats(simulator, System.out);
@@ -110,9 +111,12 @@ public class StorefrontApp {
         out.println();
         out.println(String.format("%-25s %8s %8s %8s %8s | %7s %9s %7s %9s", "Workload", "Active", "Failed", "Killed", "Complete", "Steps",
                 "Avg (s)", "Work", "Avg (s)"));
-        for (WorkloadStats stats : simulator.getWorkloadStats()) {
+        for (Map.Entry<Workload, WorkloadStats> statsEntry : simulator.getWorkloadStats().entrySet()) {
+            Workload workload = statsEntry.getKey();
+            WorkloadStats stats = statsEntry.getValue();
+            
             out.println(String.format("%-25s %8d %8d %8d %8d | %7d %9.3f %7d %9.3f",
-                    stats.getWorkloadType(),
+                    workload.getName(),
                     stats.getActiveWorkerCount(),
                     stats.getFailedWorkerCount(),
                     stats.getKilledWorkerCount(),
@@ -125,8 +129,10 @@ public class StorefrontApp {
 
         out.println();
         out.println(String.format("%-25s %20s", "Step:", "# Completions:"));
-        for (Map.Entry<WorkloadStep, Integer> stepCount : simulator.getWorkloadStepCompletionCounts().entrySet()) {
-            out.println(String.format("%-25s %20d", stepCount.getKey(), stepCount.getValue()));
+        for (Map.Entry<WorkloadStep, WorkloadStepStats> statsEntry : simulator.getWorkloadStepStats().entrySet()) {
+            WorkloadStep step = statsEntry.getKey();
+            WorkloadStepStats stats = statsEntry.getValue();
+            out.println(String.format("%-25s %20d", step.name(), stats.getCompletionCount()));
         }
     }
 }

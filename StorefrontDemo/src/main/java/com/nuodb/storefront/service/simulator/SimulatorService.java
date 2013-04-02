@@ -1,25 +1,24 @@
 package com.nuodb.storefront.service.simulator;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.nuodb.storefront.model.Workload;
 import com.nuodb.storefront.model.WorkloadFlow;
 import com.nuodb.storefront.model.WorkloadStats;
 import com.nuodb.storefront.model.WorkloadStep;
-import com.nuodb.storefront.model.WorkloadType;
+import com.nuodb.storefront.model.WorkloadStepStats;
 import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
 
 public class SimulatorService implements ISimulator, ISimulatorService {
     private final ScheduledThreadPoolExecutor threadPool;
     private final IStorefrontService svc;
-    private final Map<WorkloadType, WorkloadStatsEx> workloadStatsMap = new HashMap<WorkloadType, WorkloadStatsEx>();
+    private final Map<Workload, WorkloadStats> workloadStatsMap = new HashMap<Workload, WorkloadStats>();
     private final Object workloadStatsLock = new Object();
     private final Map<WorkloadStep, AtomicInteger> stepCompletionCounts = new TreeMap<WorkloadStep, AtomicInteger>();
 
@@ -39,19 +38,19 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     }
 
     @Override
-    public void addWorkload(WorkloadType workload, int numWorkers, int entryDelayMs) {
+    public void addWorkload(Workload workload, int numWorkers, int entryDelayMs) {
         addWorker(new SimulatedUserFactory(this, workload, numWorkers, entryDelayMs), 0);
 
     }
 
     @Override
-    public void downsizeWorkload(WorkloadType workload, int newWorkerLimit) {
+    public void downsizeWorkload(Workload workload, int newWorkerLimit) {
         if (newWorkerLimit < 0) {
             throw new IllegalArgumentException("newWorkerLimit");
         }
 
         synchronized (workloadStatsLock) {
-            WorkloadStatsEx stats = getOrCreateWorkloadStats(workload);
+            WorkloadStats stats = getOrCreateWorkloadStats(workload);
             stats.setLimit(newWorkerLimit);
         }
     }
@@ -61,28 +60,31 @@ public class SimulatorService implements ISimulator, ISimulatorService {
         threadPool.getQueue().clear();
 
         synchronized (workloadStatsLock) {
-            for (WorkloadStatsEx stats : workloadStatsMap.values()) {
+            for (WorkloadStats stats : workloadStatsMap.values()) {
                 stats.setLimit(0);
             }
         }
     }
 
     @Override
-    public Collection<WorkloadStats> getWorkloadStats() {
-        Collection<WorkloadStats> statsList = new TreeSet<WorkloadStats>();
+    public Map<Workload, WorkloadStats> getWorkloadStats() {
+        Map<Workload, WorkloadStats> mapCopy = new TreeMap<Workload, WorkloadStats>();
         synchronized (workloadStatsLock) {
-            for (WorkloadStatsEx stats : workloadStatsMap.values()) {
-                statsList.add(new WorkloadStats(stats));
+            // Do a deep copy
+            for (Map.Entry<Workload, WorkloadStats> entry : workloadStatsMap.entrySet()) {
+                mapCopy.put(entry.getKey(), new WorkloadStats(entry.getValue()));
             }
         }
-        return statsList;
+        return mapCopy;
     }
 
     @Override
-    public Map<WorkloadStep, Integer> getWorkloadStepCompletionCounts() {
-        Map<WorkloadStep, Integer> map = new TreeMap<WorkloadStep, Integer>();
-        for (Map.Entry<WorkloadStep, AtomicInteger> stepStats : stepCompletionCounts.entrySet()) {
-            map.put(stepStats.getKey(), stepStats.getValue().get());
+    public Map<WorkloadStep, WorkloadStepStats> getWorkloadStepStats() {
+        Map<WorkloadStep, WorkloadStepStats> map = new TreeMap<WorkloadStep, WorkloadStepStats>();
+        for (Map.Entry<WorkloadStep, AtomicInteger> stepEntry : stepCompletionCounts.entrySet()) {
+            WorkloadStepStats stepStats = new WorkloadStepStats();
+            stepStats.setCompletionCount(stepEntry.getValue().get());
+            map.put(stepEntry.getKey(), stepStats);
         }
         return map;
     }
@@ -95,7 +97,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     @Override
     public boolean addWorker(final IWorker worker, int startDelayMs) {
         synchronized (workloadStatsLock) {
-            WorkloadStatsEx info = getOrCreateWorkloadStats(worker.getWorkloadType());
+            WorkloadStats info = getOrCreateWorkloadStats(worker.getWorkload());
             if (!info.canAddWorker()) {
                 info.setKilledWorkerCount(info.getKilledWorkerCount() + 1);
                 return false;
@@ -123,38 +125,13 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     /**
      * You must have a lock on workloadStatsLock to call this method.
      */
-    protected WorkloadStatsEx getOrCreateWorkloadStats(WorkloadType workloadType) {
-        WorkloadStatsEx stats = workloadStatsMap.get(workloadType);
+    protected WorkloadStats getOrCreateWorkloadStats(Workload workloadType) {
+        WorkloadStats stats = workloadStatsMap.get(workloadType);
         if (stats == null) {
-            stats = new WorkloadStatsEx();
-            stats.setWorkloadType(workloadType);
+            stats = new WorkloadStats();
             workloadStatsMap.put(workloadType, stats);
         }
         return stats;
-    }
-
-    protected class WorkloadStatsEx extends WorkloadStats {
-        public static final int NO_LIMIT = -1;
-        private int limit = NO_LIMIT;
-
-        public WorkloadStatsEx() {
-        }
-
-        public boolean canAddWorker() {
-            return limit == NO_LIMIT || getActiveWorkerCount() < limit;
-        }
-
-        public int getLimit() {
-            return limit;
-        }
-
-        public void setLimit(int limit) {
-            this.limit = limit;
-        }
-
-        public boolean exceedsWorkerLimit() {
-            return limit != NO_LIMIT && getActiveWorkerCount() > limit;
-        }
     }
 
     protected class RunnableWorker implements Runnable {
@@ -167,11 +144,11 @@ public class SimulatorService implements ISimulator, ISimulatorService {
 
         @Override
         public void run() {
-            WorkloadType workload = worker.getWorkloadType();
+            Workload workload = worker.getWorkload();
 
             // Verify this worker can still run
             synchronized (workloadStatsLock) {
-                WorkloadStatsEx stats = getOrCreateWorkloadStats(workload);
+                WorkloadStats stats = getOrCreateWorkloadStats(workload);
                 if (stats.exceedsWorkerLimit()) {
                     // Don't run this worker. We're over the limit
                     stats.setActiveWorkerCount(stats.getActiveWorkerCount() - 1);
@@ -195,7 +172,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
 
             // Update stats
             synchronized (workloadStatsLock) {
-                WorkloadStatsEx stats = getOrCreateWorkloadStats(workload);
+                WorkloadStats stats = getOrCreateWorkloadStats(workload);
                 stats.setWorkInvocationCount(stats.getWorkInvocationCount() + 1);
                 stats.setTotalWorkTimeMs(stats.getTotalWorkTimeMs() + endTimeMs - startTimeMs);
                 if (delay < 0) {

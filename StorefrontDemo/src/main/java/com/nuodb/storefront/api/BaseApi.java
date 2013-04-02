@@ -1,6 +1,7 @@
 package com.nuodb.storefront.api;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.nuodb.storefront.model.Customer;
 import com.nuodb.storefront.service.IStorefrontService;
@@ -14,7 +15,7 @@ public abstract class BaseApi {
         return BaseServlet.getService();
     }
 
-    protected Customer getOrCreateCustomer(HttpServletRequest req) {
-        return BaseServlet.getOrCreateCustomer(req);
+    protected Customer getOrCreateCustomer(HttpServletRequest req, HttpServletResponse resp) {
+        return BaseServlet.getOrCreateCustomer(req, resp);
     }
 }

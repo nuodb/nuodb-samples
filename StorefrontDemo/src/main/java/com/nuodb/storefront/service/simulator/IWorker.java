@@ -1,6 +1,6 @@
 package com.nuodb.storefront.service.simulator;
 
-import com.nuodb.storefront.model.WorkloadType;
+import com.nuodb.storefront.model.Workload;
 
 /**
  * Describes a worker that can be run by a simulator.
@@ -28,7 +28,7 @@ public interface IWorker {
      * statistics on workloads, as well as pausing, and canceling workloads. For a given worker, this value should remain fixed and not vary across
      * calls.
      */
-    public WorkloadType getWorkloadType();
+    public Workload getWorkload();
 
     /**
      * Performs the next action.
