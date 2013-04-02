@@ -27,6 +27,7 @@ var Storefront = {
     },
 
     initSearchBox: function() {
+        var me = this;
         $('.search').click(function(event) {
             var txt = $('.search-query', this);
             if ($(event.target).hasClass('search-clear')) {
@@ -69,7 +70,6 @@ var Storefront = {
         // Handle sort events
         $('#product-sort').on('click', 'a', function(event) {
             event.preventDefault();
-            me.filter.page = 1;
             me.filter.sort = $(this).attr('data-sort');
             $('#product-sort-label').html($(this).html());
             me.updateProductList();
@@ -88,15 +88,20 @@ var Storefront = {
                 //categories.push(category);
                 categories = [category];
             }
-            me.filter.page = 1;
             me.filter.categories = categories;
-
             me.updateProductList();
         });
 
-        $('#search').on('clear', function() {
-            me.filter.matchText = null;
-            me.updateProductList();
+        // Avoid POST for search on this page -- use AJAX instead
+        $('form.search').submit(function(e) {
+            return false;
+        });
+        $('.search').change(function() {
+            var txt = $('.search-query', this);
+            if (me.filter.matchText != txt.val()) {
+                me.filter.matchText = txt.val();
+                me.updateProductList();
+            }
         });
 
         // Initialize UI elements on page outside the templates
@@ -191,6 +196,9 @@ var Storefront = {
                 return;
             }
             me.updateRequest.abort();
+        }
+        if (!append) {
+            me.filter.page = 1;
         }
         me.updateRequest = me.TemplateMgr.autoFillTemplate('product-list', 'api/products', me.filter, $.proxy(me.syncProductsPage, me), append);
     }

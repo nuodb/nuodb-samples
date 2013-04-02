@@ -116,7 +116,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
         String matchText = filter.getMatchText();
         if (matchText != null && !matchText.isEmpty()) {
             matchText = "%" + matchText.trim().toLowerCase() + "%";
-            sql.append(" and lower(name) like :matchText or lower(description) like :matchText");
+            sql.append(" and (lower(name) like :matchText or lower(description) like :matchText)");
             params.put("matchText", matchText);
         }
 

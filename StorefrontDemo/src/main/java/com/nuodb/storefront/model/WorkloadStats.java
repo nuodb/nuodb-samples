@@ -1,15 +1,13 @@
 package com.nuodb.storefront.model;
 
-import org.hibernate.util.EqualsHelper;
-
 import com.nuodb.storefront.service.simulator.IWorker;
 
 /**
- * Provides statistics about a {@link WorkloadType} executing within a simulator.
+ * Provides statistics about a {@link Workload} executing within a simulator.
  * 
  */
-public class WorkloadStats implements Comparable<WorkloadStats> {
-    private WorkloadType workloadType;
+public class WorkloadStats {
+    private Integer limit;
     private int activeWorkerCount;
     private int failedWorkerCount;
     private int killedWorkerCount;
@@ -20,11 +18,10 @@ public class WorkloadStats implements Comparable<WorkloadStats> {
     private long totalWorkCompletionTimeMs;
 
     public WorkloadStats() {
-
     }
 
     public WorkloadStats(WorkloadStats stats) {
-        this.workloadType = stats.workloadType;
+        this.limit = stats.limit;
         this.activeWorkerCount = stats.activeWorkerCount;
         this.failedWorkerCount = stats.failedWorkerCount;
         this.killedWorkerCount = stats.killedWorkerCount;
@@ -35,17 +32,22 @@ public class WorkloadStats implements Comparable<WorkloadStats> {
         this.totalWorkCompletionTimeMs = stats.totalWorkCompletionTimeMs;
     }
 
-    /**
-     * Indicates the workload associated with these statistics.
-     */
-    public WorkloadType getWorkloadType() {
-        return workloadType;
+    public boolean canAddWorker() {
+        return limit == null || getActiveWorkerCount() < limit;
     }
 
-    public void setWorkloadType(WorkloadType workloadType) {
-        this.workloadType = workloadType;
+    public Integer getLimit() {
+        return limit;
     }
 
+    public void setLimit(Integer limit) {
+        this.limit = limit;
+    }
+
+    public boolean exceedsWorkerLimit() {
+        return limit != null && getActiveWorkerCount() > limit;
+    }
+    
     /**
      * Gets the number of workers the simulator is currently scheduling.
      */
@@ -142,25 +144,5 @@ public class WorkloadStats implements Comparable<WorkloadStats> {
 
     public float getAvgWorkCompletionTimeMs() {
         return totalWorkCompletionTimeMs / (float) workCompletionCount;
-    }
-
-    @Override
-    public int compareTo(WorkloadStats o) {
-        if (workloadType == null) {
-            return (o.workloadType == null) ? 0 : -1;
-        } else if (o.workloadType == null) {
-            return 1;
-        }
-        return workloadType.compareTo(o.workloadType);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return (obj instanceof WorkloadStats) && EqualsHelper.equals(((WorkloadStats) obj).workloadType, workloadType);
-    }
-
-    @Override
-    public int hashCode() {
-        return (workloadType == null) ? 0 : workloadType.hashCode();
     }
 }

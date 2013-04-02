@@ -15,14 +15,14 @@ import com.nuodb.storefront.model.Product;
 import com.nuodb.storefront.model.ProductFilter;
 import com.nuodb.storefront.model.ProductSort;
 import com.nuodb.storefront.model.WorkloadStep;
-import com.nuodb.storefront.model.WorkloadType;
+import com.nuodb.storefront.model.Workload;
 
 /**
  * Runs through the steps specified by a {@class WorkloadType} field.
  */
 public class SimulatedUser implements IWorker {
     private final ISimulator simulator;
-    private final WorkloadType workloadType;
+    private final Workload workloadType;
     private final Random rnd = new Random();
     private int stepIdx;
 
@@ -33,7 +33,7 @@ public class SimulatedUser implements IWorker {
     private Product product;
     private Cart cart;
 
-    public SimulatedUser(ISimulator simulator, WorkloadType workloadType) {
+    public SimulatedUser(ISimulator simulator, Workload workloadType) {
         if (workloadType == null) {
             throw new IllegalArgumentException("workloadType");
         }
@@ -42,7 +42,7 @@ public class SimulatedUser implements IWorker {
     }
 
     @Override
-    public WorkloadType getWorkloadType() {
+    public Workload getWorkload() {
         return workloadType;
     }
 

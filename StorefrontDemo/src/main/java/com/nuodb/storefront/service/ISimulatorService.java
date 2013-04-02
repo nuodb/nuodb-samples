@@ -1,22 +1,22 @@
 package com.nuodb.storefront.service;
 
-import java.util.Collection;
 import java.util.Map;
 
+import com.nuodb.storefront.model.Workload;
 import com.nuodb.storefront.model.WorkloadStats;
 import com.nuodb.storefront.model.WorkloadStep;
-import com.nuodb.storefront.model.WorkloadType;
+import com.nuodb.storefront.model.WorkloadStepStats;
 
 public interface ISimulatorService {
-    public void addWorkload(WorkloadType workload, int numWorkers, int entryDelayMs);
+    public void addWorkload(Workload workload, int numWorkers, int entryDelayMs);
     
-    public void downsizeWorkload(WorkloadType workload, int newWorkerLimit);
+    public void downsizeWorkload(Workload workload, int newWorkerLimit);
     
     public void removeAll();
     
-    public Collection<WorkloadStats> getWorkloadStats();
+    public Map<Workload, WorkloadStats> getWorkloadStats();
     
-    public Map<WorkloadStep, Integer> getWorkloadStepCompletionCounts();
+    public Map<WorkloadStep, WorkloadStepStats> getWorkloadStepStats();
     
     /**
      * Blocking call to stop all simulator threads, running work, and queued work.

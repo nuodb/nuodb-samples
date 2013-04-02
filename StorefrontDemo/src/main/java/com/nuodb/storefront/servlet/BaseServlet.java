@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,12 +20,14 @@ import com.nuodb.storefront.model.ProductFilter;
 import com.nuodb.storefront.service.IStorefrontService;
 
 public abstract class BaseServlet extends HttpServlet {
-    public static final String ATTR_CUSTOMER = "customer";
     public static final String ATTR_PAGE_CONFIG = "pageConfig";
-    public static final String SESSION_MESSAGES = "messages";
-    public static final String SESSION_CUSTOMER_ID = "customerId";
     public static final String SESSION_PRODUCT_FILTER = "productFilter";
 
+    private static final String ATTR_CUSTOMER = "customer";
+    private static final String COOKIE_CUSTOMER_ID = "customerId";
+    private static final String SESSION_MESSAGES = "messages";
+    private static final String SESSION_CUSTOMER_ID = "customerId";
+    private static final int COOKIE_MAX_AGE_SEC = 60 * 60 * 24 * 31; // 1 month
     private static final long serialVersionUID = 1452096145544476070L;
     private static final IStorefrontService svc = StorefrontFactory.createStorefrontService();
 
@@ -35,10 +38,23 @@ public abstract class BaseServlet extends HttpServlet {
         return svc;
     }
 
-    public static Customer getOrCreateCustomer(HttpServletRequest req) {
+    public static Customer getOrCreateCustomer(HttpServletRequest req, HttpServletResponse resp) {
+        // For simplicity in this demo, we're implicitly trusting parameters and cookies rather than authenticating users.
+
         Customer customer = (Customer) req.getAttribute(ATTR_CUSTOMER);
         if (customer == null) {
             Integer customerId = (Integer) req.getSession().getAttribute(SESSION_CUSTOMER_ID);
+            if (customerId == null && req.getCookies() != null) {
+                for (Cookie cookie : req.getCookies()) {
+                    if (COOKIE_CUSTOMER_ID.equals(cookie.getName())) {
+                        try {
+                            customerId = Integer.parseInt(cookie.getValue());
+                            break;
+                        } catch (NumberFormatException e) {
+                        }
+                    }
+                }
+            }
             if (customerId == null) {
                 customerId = 0;
             }
@@ -46,6 +62,10 @@ public abstract class BaseServlet extends HttpServlet {
             customer = getService().getOrCreateCustomer(customerId);
             req.getSession().setAttribute(SESSION_CUSTOMER_ID, customer.getId());
             req.setAttribute(ATTR_CUSTOMER, customer);
+            
+            Cookie customerCookie = new Cookie(COOKIE_CUSTOMER_ID, String.valueOf(customer.getId()));
+            customerCookie.setMaxAge(COOKIE_MAX_AGE_SEC);
+            resp.addCookie(customerCookie);
         }
         return customer;
     }
@@ -85,7 +105,7 @@ public abstract class BaseServlet extends HttpServlet {
     protected static void showPage(HttpServletRequest req, HttpServletResponse resp, String pageName, Object pageData) throws ServletException,
             IOException {
         // Share data with JSP page
-        Customer customer = getOrCreateCustomer(req);
+        Customer customer = getOrCreateCustomer(req, resp);
         PageConfig initData = new PageConfig(pageName, pageData, customer, getMessages(req));
         req.setAttribute(ATTR_PAGE_CONFIG, initData);
         req.getSession().removeAttribute(SESSION_MESSAGES);

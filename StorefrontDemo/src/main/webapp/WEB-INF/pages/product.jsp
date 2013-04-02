@@ -82,7 +82,7 @@
     <form class="add-review" method="POST" >
         <div id="dlg-add-review" class="modal hide fade">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h3>Review this Product</h3>
             </div>
             <div class="modal-body form-horizontal">
@@ -114,8 +114,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button href="#" class="btn btn-primary" id="btn-submit-review">Submit Review</button>
-                <button href="#" class="btn" data-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" id="btn-submit-review">Submit Review</button>
+                <button class="btn" data-dismiss="modal">Cancel</button>
             </div>
         </div>
     </form>
