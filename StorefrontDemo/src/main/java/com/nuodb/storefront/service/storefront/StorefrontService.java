@@ -357,7 +357,7 @@ public class StorefrontService implements IStorefrontService {
     
     @Override
     public StorefrontStats getStorefrontStats(final int maxCustomerIdleTimeSec) {
-        return dao.runTransaction(TransactionType.READ_ONLY, "storefrontStats", new Callable<StorefrontStats>() {
+        return dao.runTransaction(TransactionType.READ_ONLY, "getStorefrontStats", new Callable<StorefrontStats>() {
             @Override
             public StorefrontStats call() {
                 return dao.getStorefrontStats(maxCustomerIdleTimeSec);

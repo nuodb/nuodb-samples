@@ -1,6 +1,6 @@
 package com.nuodb.storefront.api;
 
-import java.util.Map;
+import java.util.Collection;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
@@ -12,30 +12,26 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.model.Workload;
-import com.nuodb.storefront.model.WorkloadStats;
 import com.nuodb.storefront.model.WorkloadStep;
-import com.nuodb.storefront.model.WorkloadStepStats;
-import com.nuodb.storefront.service.ISimulatorService;
 
 @Path("/simulator")
-public class SimulatorApi {
+public class SimulatorApi extends BaseApi {
     public SimulatorApi() {
     }
 
     @GET
     @Path("/workloads")
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<Workload, WorkloadStats> getWorkloadStats() {
-        return getService().getWorkloadStats();
+    public Collection<Workload> getWorkloads() {
+        return getSimulator().getWorkloadStats().keySet();
     }
 
     @DELETE
     @Path("/workloads")
     @Produces(MediaType.APPLICATION_JSON)
     public Response removeAll() {
-        getService().removeAll();
+        getSimulator().removeAll();
         return Response.ok().build();
     }
 
@@ -44,7 +40,7 @@ public class SimulatorApi {
     @Produces(MediaType.APPLICATION_JSON)
     public Response addWorkload(
             @PathParam("workload") String workload, @FormParam("numWorkers") int numWorkers, @FormParam("entryDelayMs") int entryDelayMs) {
-        getService().addWorkload(lookupWorkloadByName(workload), numWorkers, entryDelayMs);
+        getSimulator().addWorkload(lookupWorkloadByName(workload), numWorkers, entryDelayMs);
         return Response.ok().build();
     }
 
@@ -52,19 +48,15 @@ public class SimulatorApi {
     @Path("/workloads/{workload}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response downsizeWorkload(@PathParam("workload") String workload, @FormParam("newWorkerLimit") int newWorkerLimit) {
-        getService().downsizeWorkload(lookupWorkloadByName(workload), newWorkerLimit);
+        getSimulator().downsizeWorkload(lookupWorkloadByName(workload), newWorkerLimit);
         return Response.ok().build();
     }
 
     @GET
     @Path("/steps")
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<WorkloadStep, WorkloadStepStats> getWorkloadStepCompletionCounts() {
-        return getService().getWorkloadStepStats();
-    }
-
-    protected ISimulatorService getService() {
-        return StorefrontFactory.getSimulatorService();
+    public Collection<WorkloadStep> getWorkloadSteps() {
+        return getSimulator().getWorkloadStepStats().keySet();
     }
     
     protected Workload lookupWorkloadByName(String name) {

@@ -1,11 +1,14 @@
 package com.nuodb.storefront.service.simulator;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javassist.Modifier;
 
 import com.nuodb.storefront.model.Workload;
 import com.nuodb.storefront.model.WorkloadFlow;
@@ -26,6 +29,19 @@ public class SimulatorService implements ISimulator, ISimulatorService {
         this.threadPool = new ScheduledThreadPoolExecutor(Runtime.getRuntime().availableProcessors() * 10);
         this.svc = svc;
 
+        // Seed workload map with predefined workloads
+        for (Field field : Workload.class.getFields()) {
+            if (Modifier.isStatic(field.getModifiers()) && field.getType().equals(Workload.class)) {
+                try {
+                    Workload workload = (Workload) field.get(null);
+                    getOrCreateWorkloadStats(workload);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+        // Seed steps map
         try {
             for (WorkloadStep step : WorkloadStep.values()) {
                 if (step.getClass().getField(step.name()).getAnnotation(WorkloadFlow.class) == null) {
@@ -181,7 +197,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
                         stats.setTotalWorkCompletionTimeMs(completionWorkTimeMs);
                         completionWorkTimeMs = 0;
                     }
-                    
+
                     // Determine whether this worker should run again
                     if (delay != IWorker.COMPLETE_NO_REPEAT && workload.isAutoRepeating()) {
                         delay = workload.calcNextThinkTimeMs();
