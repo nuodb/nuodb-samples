@@ -4,9 +4,9 @@ import com.nuodb.storefront.service.simulator.IWorker;
 
 /**
  * Provides statistics about a {@link Workload} executing within a simulator.
- * 
  */
 public class WorkloadStats {
+    private Workload workload;
     private Integer activeWorkerLimit;
     private int activeWorkerCount;
     private int failedWorkerCount;
@@ -17,10 +17,12 @@ public class WorkloadStats {
     private long totalWorkTimeMs;
     private long totalWorkCompletionTimeMs;
 
-    public WorkloadStats() {
+    public WorkloadStats(Workload workload) {
+        this.workload = workload;
     }
 
     public WorkloadStats(WorkloadStats stats) {
+        this.workload = stats.workload;
         this.activeWorkerLimit = stats.activeWorkerLimit;
         this.activeWorkerCount = stats.activeWorkerCount;
         this.failedWorkerCount = stats.failedWorkerCount;
@@ -30,6 +32,14 @@ public class WorkloadStats {
         this.workCompletionCount = stats.workCompletionCount;
         this.totalWorkTimeMs = stats.totalWorkTimeMs;
         this.totalWorkCompletionTimeMs = stats.totalWorkCompletionTimeMs;
+    }
+
+    public Workload getWorkload() {
+        return workload;
+    }
+
+    public void setWorkload(Workload workload) {
+        this.workload = workload;
     }
 
     public boolean canAddWorker() {
@@ -47,7 +57,7 @@ public class WorkloadStats {
     public boolean exceedsWorkerLimit() {
         return activeWorkerLimit != null && getActiveWorkerCount() > activeWorkerLimit;
     }
-    
+
     /**
      * Gets the number of workers the simulator is currently scheduling.
      */

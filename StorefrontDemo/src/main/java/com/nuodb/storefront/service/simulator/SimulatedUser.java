@@ -112,6 +112,10 @@ public class SimulatedUser implements IWorker {
             case CART_CHECKOUT:
                 doCartCheckout();
                 break;
+                
+            case ADMIN_RUN_REPORT:
+                doRunReport();
+                break;
 
             default:
                 throw new UnsupportedStepException();
@@ -206,6 +210,10 @@ public class SimulatedUser implements IWorker {
         }
         simulator.getService().checkout(customer.getId());
         cart = null;
+    }
+    
+    protected void doRunReport() {
+        simulator.getService().getStorefrontStats(0);
     }
 
     protected boolean getOrFetchCategories() {

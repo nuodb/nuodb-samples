@@ -21,8 +21,7 @@ import com.nuodb.storefront.service.IStorefrontService;
 public class SimulatorService implements ISimulator, ISimulatorService {
     private final ScheduledThreadPoolExecutor threadPool;
     private final IStorefrontService svc;
-    private final Map<Workload, WorkloadStats> workloadStatsMap = new HashMap<Workload, WorkloadStats>();
-    private final Object workloadStatsLock = new Object();
+    private final Map<String, WorkloadStats> workloadStatsMap = new HashMap<String, WorkloadStats>();
     private final Map<WorkloadStep, AtomicInteger> stepCompletionCounts = new TreeMap<WorkloadStep, AtomicInteger>();
 
     public SimulatorService(IStorefrontService svc) {
@@ -54,10 +53,18 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     }
 
     @Override
+    public Workload getWorkload(String name) {
+        synchronized (workloadStatsMap) {
+            WorkloadStats stats = workloadStatsMap.get(name);
+            return (stats == null) ? null : stats.getWorkload();
+        }
+    }
+
+    @Override
     public void addWorkers(Workload workload, int numWorkers, int entryDelayMs) {
         addWorker(new SimulatedUserFactory(this, workload, numWorkers, entryDelayMs), 0);
     }
-    
+
     @Override
     public WorkloadStats adjustWorkers(Workload workload, int minActiveWorkers, Integer activeWorkerLimit) {
         if (activeWorkerLimit != null) {
@@ -71,8 +78,8 @@ public class SimulatorService implements ISimulator, ISimulatorService {
                 throw new IllegalArgumentException("minActiveWorkers cannot exceed activeWorkerLimit");
             }
         }
-        
-        synchronized (workloadStatsLock) {            
+
+        synchronized (workloadStatsMap) {
             WorkloadStats info = getOrCreateWorkloadStats(workload);
             info.setActiveWorkerLimit(activeWorkerLimit);
             while (info.getActiveWorkerCount() < minActiveWorkers) {
@@ -86,7 +93,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     public void removeAll() {
         threadPool.getQueue().clear();
 
-        synchronized (workloadStatsLock) {
+        synchronized (workloadStatsMap) {
             for (WorkloadStats stats : workloadStatsMap.values()) {
                 stats.setActiveWorkerLimit(0);
             }
@@ -94,11 +101,11 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     }
 
     @Override
-    public Map<Workload, WorkloadStats> getWorkloadStats() {
-        Map<Workload, WorkloadStats> mapCopy = new TreeMap<Workload, WorkloadStats>();
-        synchronized (workloadStatsLock) {
+    public Map<String, WorkloadStats> getWorkloadStats() {
+        Map<String, WorkloadStats> mapCopy = new TreeMap<String, WorkloadStats>();
+        synchronized (workloadStatsMap) {
             // Do a deep copy
-            for (Map.Entry<Workload, WorkloadStats> entry : workloadStatsMap.entrySet()) {
+            for (Map.Entry<String, WorkloadStats> entry : workloadStatsMap.entrySet()) {
                 mapCopy.put(entry.getKey(), new WorkloadStats(entry.getValue()));
             }
         }
@@ -123,7 +130,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
 
     @Override
     public boolean addWorker(final IWorker worker, int startDelayMs) {
-        synchronized (workloadStatsLock) {
+        synchronized (workloadStatsMap) {
             WorkloadStats info = getOrCreateWorkloadStats(worker.getWorkload());
             if (!info.canAddWorker()) {
                 info.setKilledWorkerCount(info.getKilledWorkerCount() + 1);
@@ -150,15 +157,17 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     }
 
     /**
-     * You must have a lock on workloadStatsLock to call this method.
+     * You must have a lock on workloadStatsMap to call this method.
      */
-    protected WorkloadStats getOrCreateWorkloadStats(Workload workloadType) {
-        WorkloadStats stats = workloadStatsMap.get(workloadType);
-        if (stats == null) {
-            stats = new WorkloadStats();
-            workloadStatsMap.put(workloadType, stats);
+    protected WorkloadStats getOrCreateWorkloadStats(Workload workload) {
+        synchronized (workloadStatsMap) {
+            WorkloadStats stats = workloadStatsMap.get(workload.getName());
+            if (stats == null) {
+                stats = new WorkloadStats(workload);
+                workloadStatsMap.put(workload.getName(), stats);
+            }
+            return stats;
         }
-        return stats;
     }
 
     protected class RunnableWorker implements Runnable {
@@ -174,7 +183,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
             Workload workload = worker.getWorkload();
 
             // Verify this worker can still run
-            synchronized (workloadStatsLock) {
+            synchronized (workloadStatsMap) {
                 WorkloadStats stats = getOrCreateWorkloadStats(workload);
                 if (stats.exceedsWorkerLimit()) {
                     // Don't run this worker. We're over the limit
@@ -198,7 +207,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
             completionWorkTimeMs += (endTimeMs - startTimeMs);
 
             // Update stats
-            synchronized (workloadStatsLock) {
+            synchronized (workloadStatsMap) {
                 WorkloadStats stats = getOrCreateWorkloadStats(workload);
                 stats.setWorkInvocationCount(stats.getWorkInvocationCount() + 1);
                 stats.setTotalWorkTimeMs(stats.getTotalWorkTimeMs() + endTimeMs - startTimeMs);
@@ -210,7 +219,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
                     }
 
                     // Determine whether this worker should run again
-                    if (delay != IWorker.COMPLETE_NO_REPEAT && workload.isAutoRepeating()) {
+                    if (delay != IWorker.COMPLETE_NO_REPEAT && workload.isAutoRepeat()) {
                         delay = workload.calcNextThinkTimeMs();
                     }
                     if (delay < 0) {

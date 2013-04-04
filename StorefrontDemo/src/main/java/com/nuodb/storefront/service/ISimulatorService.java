@@ -8,6 +8,9 @@ import com.nuodb.storefront.model.WorkloadStep;
 import com.nuodb.storefront.model.WorkloadStepStats;
 
 public interface ISimulatorService {
+    /** Looks up a workload by name */
+    public Workload getWorkload(String name);
+
     /**
      * Adds new workers for a give workload, staggering the arrival of each with an optional entry delay. Note that if there is a limit set on the
      * number of active workers for the workload, the workers may not be added. To adjust the limit, call
@@ -42,7 +45,7 @@ public interface ISimulatorService {
      */
     public void removeAll();
 
-    public Map<Workload, WorkloadStats> getWorkloadStats();
+    public Map<String, WorkloadStats> getWorkloadStats();
 
     public Map<WorkloadStep, WorkloadStepStats> getWorkloadStepStats();
 

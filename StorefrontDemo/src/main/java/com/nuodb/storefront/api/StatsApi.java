@@ -1,8 +1,6 @@
 package com.nuodb.storefront.api;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -13,7 +11,6 @@ import javax.ws.rs.core.MediaType;
 import com.nuodb.storefront.model.StorefrontStats;
 import com.nuodb.storefront.model.StorefrontStatsReport;
 import com.nuodb.storefront.model.TransactionStats;
-import com.nuodb.storefront.model.Workload;
 import com.nuodb.storefront.model.WorkloadStats;
 import com.nuodb.storefront.model.WorkloadStep;
 import com.nuodb.storefront.model.WorkloadStepStats;
@@ -55,11 +52,7 @@ public class StatsApi extends BaseApi {
     @Path("/workloads")
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, WorkloadStats> getWorkloadStats() {
-        Map<String, WorkloadStats> stats = new HashMap<String, WorkloadStats>();
-        for (Entry<Workload, WorkloadStats> stat : getSimulator().getWorkloadStats().entrySet()) {
-            stats.put(stat.getKey().getName(), stat.getValue());
-        }
-        return stats;
+        return getSimulator().getWorkloadStats();
     }
 
     @GET

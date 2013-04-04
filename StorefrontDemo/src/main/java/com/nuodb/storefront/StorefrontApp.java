@@ -112,12 +112,12 @@ public class StorefrontApp {
         out.println();
         out.println(String.format("%-25s %8s %8s %8s %8s | %7s %9s %7s %9s", "Workload", "Active", "Failed", "Killed", "Complete", "Steps",
                 "Avg (s)", "Work", "Avg (s)"));
-        for (Map.Entry<Workload, WorkloadStats> statsEntry : simulator.getWorkloadStats().entrySet()) {
-            Workload workload = statsEntry.getKey();
+        for (Map.Entry<String, WorkloadStats> statsEntry : simulator.getWorkloadStats().entrySet()) {
+            String workloadName = statsEntry.getKey();
             WorkloadStats stats = statsEntry.getValue();
             
             out.println(String.format("%-25s %8d %8d %8d %8d | %7d %9.3f %7d %9.3f",
-                    workload.getName(),
+                    workloadName,
                     stats.getActiveWorkerCount(),
                     stats.getFailedWorkerCount(),
                     stats.getKilledWorkerCount(),

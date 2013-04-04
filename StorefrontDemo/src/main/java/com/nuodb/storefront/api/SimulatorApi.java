@@ -25,8 +25,8 @@ public class SimulatorApi extends BaseApi {
     @GET
     @Path("/workloads")
     @Produces(MediaType.APPLICATION_JSON)
-    public Collection<Workload> getWorkloads() {
-        return getSimulator().getWorkloadStats().keySet();
+    public Collection<WorkloadStats> getWorkloads() {
+        return getSimulator().getWorkloadStats().values();
     }
 
     @DELETE
@@ -63,9 +63,12 @@ public class SimulatorApi extends BaseApi {
 
     protected Workload lookupWorkloadByName(String name) {
         try {
-            return (Workload) Workload.class.getField(name).get(null);
+            Workload workload = getSimulator().getWorkload(name);
+            if (workload != null) {
+                return workload;
+            }
         } catch (Exception e) {
-            return null;
         }
+        throw new IllegalArgumentException("Unknown workload '" + name + "'");
     }
 }

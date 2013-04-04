@@ -22,6 +22,8 @@ public enum WorkloadStep {
     CART_UPDATE,
 
     CART_CHECKOUT,
+    
+    ADMIN_RUN_REPORT,
 
     @WorkloadFlow(steps = {
             WorkloadStep.BROWSE,
