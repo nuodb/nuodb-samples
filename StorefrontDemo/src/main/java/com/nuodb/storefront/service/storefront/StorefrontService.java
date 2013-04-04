@@ -23,9 +23,9 @@ import com.nuodb.storefront.model.Customer;
 import com.nuodb.storefront.model.Product;
 import com.nuodb.storefront.model.ProductFilter;
 import com.nuodb.storefront.model.ProductReview;
-import com.nuodb.storefront.model.StorefrontStats;
 import com.nuodb.storefront.model.Purchase;
 import com.nuodb.storefront.model.PurchaseSelection;
+import com.nuodb.storefront.model.StorefrontStats;
 import com.nuodb.storefront.model.TransactionStats;
 import com.nuodb.storefront.service.IStorefrontService;
 
@@ -196,6 +196,7 @@ public class StorefrontService implements IStorefrontService {
                 countCartItems(customer);
 
                 dao.save(customer);
+                dao.flush();
                 dao.evict(customer);
                 customer.clearCartSelections();
                 customer.clearTransactions();

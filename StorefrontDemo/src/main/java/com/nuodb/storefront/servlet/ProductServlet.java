@@ -19,7 +19,7 @@ public class ProductServlet extends BaseServlet {
         try {
             int productId = Integer.valueOf(req.getParameter("productId"));
             Product product = getService().getProductDetails(productId);
-            showPage(req, resp, "product", product);
+            showPage(req, resp, product.getName(), "product", product);
         } catch (Exception e) {
             addErrorMessage(req, e);
             resp.sendRedirect("products");

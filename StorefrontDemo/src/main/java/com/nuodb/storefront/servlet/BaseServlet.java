@@ -29,13 +29,14 @@ public abstract class BaseServlet extends HttpServlet {
     private static final String SESSION_CUSTOMER_ID = "customerId";
     private static final int COOKIE_MAX_AGE_SEC = 60 * 60 * 24 * 31; // 1 month
     private static final long serialVersionUID = 1452096145544476070L;
-    private static final IStorefrontService svc = StorefrontFactory.createStorefrontService();
+    private static final IStorefrontService s_svc = StorefrontFactory.createStorefrontService();
+    private static final String s_storefrontName = getService().getStorefrontStats(0).getStorefrontName();
 
     protected BaseServlet() {
     }
 
     public static IStorefrontService getService() {
-        return svc;
+        return s_svc;
     }
 
     public static Customer getOrCreateCustomer(HttpServletRequest req, HttpServletResponse resp) {
@@ -62,7 +63,7 @@ public abstract class BaseServlet extends HttpServlet {
             customer = getService().getOrCreateCustomer(customerId);
             req.getSession().setAttribute(SESSION_CUSTOMER_ID, customer.getId());
             req.setAttribute(ATTR_CUSTOMER, customer);
-            
+
             Cookie customerCookie = new Cookie(COOKIE_CUSTOMER_ID, String.valueOf(customer.getId()));
             customerCookie.setMaxAge(COOKIE_MAX_AGE_SEC);
             resp.addCookie(customerCookie);
@@ -102,11 +103,19 @@ public abstract class BaseServlet extends HttpServlet {
         return messages;
     }
 
-    protected static void showPage(HttpServletRequest req, HttpServletResponse resp, String pageName, Object pageData) throws ServletException,
-            IOException {
+    protected static void showPage(HttpServletRequest req, HttpServletResponse resp, String pageTitle, String pageName, Object pageData)
+            throws ServletException, IOException {
+        
+        // Build full page title
+        if (pageTitle == null || pageTitle.isEmpty()) {
+            pageTitle = s_storefrontName;
+        } else {
+            pageTitle = pageTitle + " - " + s_storefrontName;
+        }
+
         // Share data with JSP page
         Customer customer = getOrCreateCustomer(req, resp);
-        PageConfig initData = new PageConfig(pageName, pageData, customer, getMessages(req));
+        PageConfig initData = new PageConfig(s_storefrontName, pageTitle, pageName, pageData, customer, getMessages(req));
         req.setAttribute(ATTR_PAGE_CONFIG, initData);
         req.getSession().removeAttribute(SESSION_MESSAGES);
 

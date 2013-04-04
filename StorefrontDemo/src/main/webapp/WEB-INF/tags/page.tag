@@ -6,7 +6,7 @@
 
 <html>
 <head>
-<title>Storefront Demo</title>
+<title><%=cfg.getPageTitle()%></title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link href="css/bootstrap.min.css" rel="stylesheet" />
 <link href="css/rateit.css" rel="stylesheet" />
@@ -18,7 +18,7 @@
         <!-- Top nav bar -->
         <div id="top-bar" class="navbar">
             <div class="navbar-inner">
-                <a class="brand" href="products"> <img data-src="holder.js/260x180" alt="Logo" src="img/shop-logo.png" /> <label>Default Storefront</label>
+                <a class="brand" href="products"> <img data-src="holder.js/260x180" alt="Logo" src="img/shop-logo.png" /> <label><%=cfg.getStorefrontName()%></label>
                 </a>
                 <form class="navbar-search search text-center" method="GET" action="products">
                     <input type="text" id="search" class="search-query" name="search" placeholder="Search" />
@@ -61,7 +61,7 @@
         <jsp:doBody />
 
         <!-- Footer  -->
-        <div class="footer">Copyright &copy; Default Storefront 2013. All rights reserved.</div>
+        <div class="footer">Copyright &copy; 2013 <%=cfg.getStorefrontName()%>. All rights reserved.</div>
     </div>
 
     <script src="js/jquery-1.9.1.min.js"></script>

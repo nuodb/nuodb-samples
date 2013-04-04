@@ -39,7 +39,7 @@ public class ProductsServlet extends BaseServlet {
         pageData.put("categories", getService().getCategories());
         pageData.put("filter", filter);
 
-        showPage(req, resp, "products", pageData);
+        showPage(req, resp, null, "products", pageData);
     }
 
     /**

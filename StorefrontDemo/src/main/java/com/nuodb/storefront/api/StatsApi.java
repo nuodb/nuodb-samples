@@ -27,7 +27,7 @@ public class StatsApi extends BaseApi {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public StorefrontStatsReport getStats(@QueryParam("sessionTimeoutSec") Integer sessionTimeoutSec) {
+    public StorefrontStatsReport getStorefrontStatsReport(@QueryParam("sessionTimeoutSec") Integer sessionTimeoutSec) {
         StorefrontStatsReport report = new StorefrontStatsReport();
         report.setStorefrontStats(getStorefrontStats(sessionTimeoutSec));
         report.setTransactionStats(getTransactionStats());
@@ -35,7 +35,7 @@ public class StatsApi extends BaseApi {
         report.setWorkloadStepStats(getWorkloadStepStats());
         return report;
     }
-    
+
     @GET
     @Path("/storefront")
     @Produces(MediaType.APPLICATION_JSON)
@@ -50,7 +50,7 @@ public class StatsApi extends BaseApi {
     public Map<String, TransactionStats> getTransactionStats() {
         return getService().getTransactionStats();
     }
-    
+
     @GET
     @Path("/workloads")
     @Produces(MediaType.APPLICATION_JSON)
@@ -61,7 +61,6 @@ public class StatsApi extends BaseApi {
         }
         return stats;
     }
-    
 
     @GET
     @Path("/workload-steps")

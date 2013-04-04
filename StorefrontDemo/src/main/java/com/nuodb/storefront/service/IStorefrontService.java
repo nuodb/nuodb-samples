@@ -14,8 +14,8 @@ import com.nuodb.storefront.model.Customer;
 import com.nuodb.storefront.model.Product;
 import com.nuodb.storefront.model.ProductFilter;
 import com.nuodb.storefront.model.ProductReview;
-import com.nuodb.storefront.model.StorefrontStats;
 import com.nuodb.storefront.model.Purchase;
+import com.nuodb.storefront.model.StorefrontStats;
 import com.nuodb.storefront.model.TransactionStats;
 
 public interface IStorefrontService {

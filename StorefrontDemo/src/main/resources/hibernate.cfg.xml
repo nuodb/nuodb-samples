@@ -9,8 +9,8 @@
 		<property name="connection.password">StorefrontUser</property>
 		<property name="hibernate.connection.schema">Storefront</property>
 
-		<!-- Use the Hibernate built-in pool for tests. -->
-		<property name="connection.pool_size">3</property>
+		<!-- Use the Hibernate built-in pool -->
+		<property name="connection.pool_size">30</property>
 
 		<!-- Disable the second-level cache -->
 		<property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>

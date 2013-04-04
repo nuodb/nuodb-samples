@@ -22,7 +22,7 @@ public class CartServlet extends BaseServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         int customerId = getOrCreateCustomer(req, resp).getId();
         Cart cart = getService().getCustomerCart(customerId);
-        showPage(req, resp, "cart", cart);
+        showPage(req, resp, "Cart", "cart", cart);
     }
 
     /**

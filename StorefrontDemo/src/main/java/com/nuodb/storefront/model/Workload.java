@@ -75,4 +75,14 @@ public class Workload implements Comparable<Workload> {
     public int compareTo(Workload o) {
         return name.compareTo(o.name);
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Workload && ((Workload)obj).name.equals(name);
+    }
+    
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
 }

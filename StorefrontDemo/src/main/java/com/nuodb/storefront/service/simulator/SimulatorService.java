@@ -54,20 +54,31 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     }
 
     @Override
-    public void addWorkload(Workload workload, int numWorkers, int entryDelayMs) {
+    public void addWorkers(Workload workload, int numWorkers, int entryDelayMs) {
         addWorker(new SimulatedUserFactory(this, workload, numWorkers, entryDelayMs), 0);
-
     }
-
+    
     @Override
-    public void downsizeWorkload(Workload workload, int newWorkerLimit) {
-        if (newWorkerLimit < 0) {
-            throw new IllegalArgumentException("newWorkerLimit");
+    public WorkloadStats adjustWorkers(Workload workload, int minActiveWorkers, Integer activeWorkerLimit) {
+        if (activeWorkerLimit != null) {
+            if (minActiveWorkers < 0) {
+                throw new IllegalArgumentException("minActiveWorkers");
+            }
+            if (activeWorkerLimit < 0) {
+                throw new IllegalArgumentException("activeWorkerLimit");
+            }
+            if (minActiveWorkers > activeWorkerLimit) {
+                throw new IllegalArgumentException("minActiveWorkers cannot exceed activeWorkerLimit");
+            }
         }
-
-        synchronized (workloadStatsLock) {
-            WorkloadStats stats = getOrCreateWorkloadStats(workload);
-            stats.setLimit(newWorkerLimit);
+        
+        synchronized (workloadStatsLock) {            
+            WorkloadStats info = getOrCreateWorkloadStats(workload);
+            info.setActiveWorkerLimit(activeWorkerLimit);
+            while (info.getActiveWorkerCount() < minActiveWorkers) {
+                addWorker(new SimulatedUser(this, workload), 0);
+            }
+            return new WorkloadStats(info);
         }
     }
 
@@ -77,7 +88,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
 
         synchronized (workloadStatsLock) {
             for (WorkloadStats stats : workloadStatsMap.values()) {
-                stats.setLimit(0);
+                stats.setActiveWorkerLimit(0);
             }
         }
     }

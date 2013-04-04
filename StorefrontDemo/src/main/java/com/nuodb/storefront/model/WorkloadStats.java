@@ -7,7 +7,7 @@ import com.nuodb.storefront.service.simulator.IWorker;
  * 
  */
 public class WorkloadStats {
-    private Integer limit;
+    private Integer activeWorkerLimit;
     private int activeWorkerCount;
     private int failedWorkerCount;
     private int killedWorkerCount;
@@ -21,7 +21,7 @@ public class WorkloadStats {
     }
 
     public WorkloadStats(WorkloadStats stats) {
-        this.limit = stats.limit;
+        this.activeWorkerLimit = stats.activeWorkerLimit;
         this.activeWorkerCount = stats.activeWorkerCount;
         this.failedWorkerCount = stats.failedWorkerCount;
         this.killedWorkerCount = stats.killedWorkerCount;
@@ -33,19 +33,19 @@ public class WorkloadStats {
     }
 
     public boolean canAddWorker() {
-        return limit == null || getActiveWorkerCount() < limit;
+        return activeWorkerLimit == null || getActiveWorkerCount() < activeWorkerLimit;
     }
 
-    public Integer getLimit() {
-        return limit;
+    public Integer getActiveWorkerLimit() {
+        return activeWorkerLimit;
     }
 
-    public void setLimit(Integer limit) {
-        this.limit = limit;
+    public void setActiveWorkerLimit(Integer limit) {
+        this.activeWorkerLimit = limit;
     }
 
     public boolean exceedsWorkerLimit() {
-        return limit != null && getActiveWorkerCount() > limit;
+        return activeWorkerLimit != null && getActiveWorkerCount() > activeWorkerLimit;
     }
     
     /**

@@ -1,8 +1,12 @@
 package com.nuodb.storefront.model;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
 
 public class StorefrontStats {
+    private Calendar timestamp;
+    private String storefrontName;
+    private long uptimeMs;
     private int productCount;
     private int categoryCount;
     private int productReviewCount;
@@ -16,6 +20,30 @@ public class StorefrontStats {
     private BigDecimal purchaseValue;
 
     public StorefrontStats() {
+    }
+
+    public Calendar getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Calendar timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public String getStorefrontName() {
+        return storefrontName;
+    }
+
+    public void setStorefrontName(String storefrontName) {
+        this.storefrontName = storefrontName;
+    }
+
+    public long getUptimeMs() {
+        return uptimeMs;
+    }
+
+    public void setUptimeMs(long uptimeMs) {
+        this.uptimeMs = uptimeMs;
     }
 
     public int getProductCount() {

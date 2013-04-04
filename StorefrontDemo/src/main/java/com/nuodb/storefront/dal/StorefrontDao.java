@@ -29,6 +29,8 @@ import com.nuodb.storefront.model.TransactionStats;
  * transactions, typically by using the {@link #runTransaction(Callable)} or {@link #runTransaction(Runnable)} method.
  */
 public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
+    private static final long s_startTimeMs = System.currentTimeMillis();
+    private static final String s_storefrontName = "Default Storefront";
     private static final Map<String, TransactionStats> s_transactionStatsMap = new HashMap<String, TransactionStats>();
 
     public StorefrontDao() {
@@ -137,7 +139,8 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
                 + " from dual;");
 
         // Calc minActiveTime
-        Calendar minActiveTime = Calendar.getInstance();
+        Calendar now = Calendar.getInstance();
+        Calendar minActiveTime = (Calendar)now.clone();
         minActiveTime.add(Calendar.SECOND, -maxCustomerIdleTimeSec);
         query.setParameter("minActiveTime", minActiveTime);
         
@@ -146,6 +149,9 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
         
         // Fill stats
         StorefrontStats stats = new StorefrontStats();
+        stats.setTimestamp(now);
+        stats.setStorefrontName(s_storefrontName);
+        stats.setUptimeMs(System.currentTimeMillis() - s_startTimeMs);
         stats.setProductCount(Integer.valueOf(result[0].toString()));
         stats.setCategoryCount(Integer.valueOf(result[1].toString()));
         stats.setProductReviewCount(Integer.valueOf(result[2].toString()));

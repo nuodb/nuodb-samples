@@ -95,9 +95,10 @@ public class StorefrontApp {
     
     public static void simulateActivity() throws InterruptedException {
         ISimulatorService simulator = StorefrontFactory.getSimulatorService();
-        simulator.addWorkload(Workload.BROWSER, 20, 250);
-        simulator.addWorkload(Workload.SHOPPER_FAST, 20, 250);
-        simulator.addWorkload(Workload.REVIEWER, 20, 250);
+        simulator.adjustWorkers(Workload.BROWSER, 20, 25);
+        simulator.addWorkers(Workload.BROWSER, 20, 250);
+        simulator.addWorkers(Workload.SHOPPER_FAST, 20, 250);
+        simulator.addWorkers(Workload.REVIEWER, 20, 250);
 
         for (int i = 0; i < 20; i++) {
             printSimulatorStats(simulator, System.out);
