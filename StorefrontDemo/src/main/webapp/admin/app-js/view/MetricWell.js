@@ -80,11 +80,14 @@ Ext.define('App.view.MetricWell', {
             });
             el.on('mouseleave', function() {
                 el.removeCls('x-btn-default-medium-over');
+                if (!me.pressed) {
+                    el.removeCls('x-btn-default-medium-pressed');
+                }
             });
             el.on('mousedown', function() {
                 el.addCls('x-btn-default-medium-pressed');
             });
-            el.on('click', function() {
+            el.on('mouseup', function() {
                 if (!me.pressed || me.allowDepress) {
                     me.toggle(!me.pressed);
                 }

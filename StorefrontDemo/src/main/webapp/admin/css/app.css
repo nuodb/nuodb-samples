@@ -3,7 +3,7 @@
 }
 
 .x-toolbar-default.nuo-header {
-    background-image: url('../img/bg-header.png');
+    background-image: url('../img/bg-header.png') !important;
     background-repeat: repeat;
     background-position: top;
     color: #e6e6e6;
@@ -12,7 +12,7 @@
 }
 
 .x-toolbar-default.nuo-footer {
-    background-image: url('../img/bg-footer.png');
+    background-image: url('../img/bg-footer.png') !important;
     background-repeat: repeat;
     background-position: top;
     color: #e6e6e6;
@@ -79,6 +79,9 @@
     box-sizing: content-box;
 }
 
+#btnShowStore-btnEl {
+    overflow: hidden;
+}
 #btnShowStore .x-btn-icon {
     width: 64px;
     height: 64px;
