@@ -32,29 +32,10 @@ StorefrontApp command line utility
 
 For example, to recreate the schema,  initialize it with about 1,000 products, and then stress test the app with simulated load for 1 minute, specify the command line "drop create load simulate".
 
-You can edit the workload definitions, mixes, and timings.  If you use default values, a simulation run will perodically show you output like this:
 
-    Workload                    Active   Failed   Killed Complete |   Steps   Avg (s)    Work   Avg (s)
-    SIMULATED_USER_FACTORY           0        0        0        2 |      40     0.000       2     0.000
-    SIMILATED_BROWSER               20        0        0        0 |      91     4.543      10     2.337
-    SIMILATED_SHOPPER_FAST          20        0        0        0 |     238     3.167       4     9.995
-    
-    Step:                           # Completions:
-    BROWSE                                      45
-    BROWSE_NEXT_PAGE                            61
-    BROWSE_SEARCH                               40
-    BROWSE_CATEGORY                             38
-    PRODUCT_VIEW_DETAILS                        71
-    PRODUCT_ADD_TO_CART                         53
-    PRODUCT_ADD_REVIEW                           0
-    CART_VIEW                                   10
-    CART_UPDATE                                  7
-    CART_CHECKOUT                                4
-
-
-Storefront web pages
---------------------
-The storefront features 3 pages:
+Web app
+-------
+The storefront web app features 3 pages:
 
 1. Product listing page (as shown above)
 2. Product details page
@@ -63,6 +44,17 @@ The storefront features 3 pages:
    ![ScreenShot](https://raw.github.com/nuodb/nuodb-samples/master/StorefrontDemo/doc/review.png)
 4. Cart contents and checkout page
    ![ScreenShot](https://raw.github.com/nuodb/nuodb-samples/master/StorefrontDemo/doc/cart.png)
+
+Admin interface
+---------------
+
+You can use the admin interface to view database, service, storefront, and simulator statistics, and access a "control panel" to adjust how many users of each simulated workload are active.
+
+The interface is accessible by browing to the web app and going to the "/admin" subdirectory.
+
+   ![ScreenShot](https://raw.github.com/nuodb/nuodb-samples/master/StorefrontDemo/doc/admin-store.png)
+
+   ![ScreenShot](https://raw.github.com/nuodb/nuodb-samples/master/StorefrontDemo/doc/admin-simulator.png)
 
 Key libraries used by this project
 ----------------------------------
@@ -76,4 +68,8 @@ Client-side libraries:
 - **Twitter Bootstrap** -- look & feel
 - **Handlebars** -- HTML templating
 - **jQuery**
-- **RateIt jQuery plug-in** -- star ratings
+- **jQuery RateIt plug-in** -- star ratings
+
+Admin client-side libraries:
+- **Sencha Ext JS** -- look & feel
+- **jQuery Sparkline plug-in** -- sparklines in the header

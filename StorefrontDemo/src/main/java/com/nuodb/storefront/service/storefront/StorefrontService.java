@@ -71,11 +71,11 @@ public class StorefrontService implements IStorefrontService {
         return dao.runTransaction(TransactionType.READ_ONLY, "getProductDetails", new Callable<Product>() {
             @Override
             public Product call() throws Exception {
-                Search search = new Search(Product.class);
-                // search.addFetches("categories");
-                search.addFilterEqual("id", productId);
-                search.addFetch("categories");
-                Product product = (Product) dao.searchUnique(search);
+                Search productSearch = new Search(Product.class);
+                productSearch.addFilterEqual("id", productId);
+                productSearch.addFetch("categories");
+                productSearch.addFetch("reviews");
+                Product product = (Product) dao.searchUnique(productSearch);
                 if (product == null) {
                     throw new ProductNotFoundException();
                 }
@@ -146,7 +146,10 @@ public class StorefrontService implements IStorefrontService {
                     throw new CustomerNotFoundException();
                 }
 
-                Product product = dao.find(Product.class, productId);
+                Search productSearch = new Search(Product.class);
+                productSearch.addFilterEqual("id", productId);
+                productSearch.addFetch("reviews");
+                Product product = (Product) dao.searchUnique(productSearch);
                 if (product == null) {
                     throw new ProductNotFoundException();
                 }
@@ -218,7 +221,6 @@ public class StorefrontService implements IStorefrontService {
                 if (customer == null) {
                     throw new CustomerNotFoundException();
                 }
-                dao.evict(customer);
                 customer.clearTransactions();
 
                 BigDecimal totalPrice = new BigDecimal(0);
@@ -226,7 +228,6 @@ public class StorefrontService implements IStorefrontService {
                     selection.clearCustomer();
 
                     Product product = selection.getProduct();
-                    dao.evict(product);
                     product.clearCategories();
                     product.clearReviews();
                     totalPrice = totalPrice.add(selection.getUnitPrice().multiply(BigDecimal.valueOf(selection.getQuantity())));

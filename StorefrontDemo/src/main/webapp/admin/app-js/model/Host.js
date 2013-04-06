@@ -1,0 +1,8 @@
+Ext.define('App.model.Host', {
+    extend: 'Ext.data.Model',
+    idProperty: 'name',
+    fields: [{
+        name: 'name',
+        type: 'string'
+    }]
+});

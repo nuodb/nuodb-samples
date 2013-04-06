@@ -7,6 +7,7 @@
 
     <welcome-file-list>
         <welcome-file>products</welcome-file>
+        <welcome-file>index.html</welcome-file>
     </welcome-file-list>
 
     <!-- Servlets -->

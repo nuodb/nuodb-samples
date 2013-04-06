@@ -1,0 +1,94 @@
+.x-body {
+    background-color: #fff;
+}
+
+.x-toolbar-default.nuo-header {
+    background-image: url('../img/bg-header.png');
+    background-repeat: repeat;
+    background-position: top;
+    color: #e6e6e6;
+    box-shadow: 0 0 10px #888;
+    z-index: 99;
+}
+
+.x-toolbar-default.nuo-footer {
+    background-image: url('../img/bg-footer.png');
+    background-repeat: repeat;
+    background-position: top;
+    color: #e6e6e6;
+    box-shadow: 0 0 10px #888;
+    z-index: 99;
+}
+
+.x-toolbar-default.nuo-footer label {
+    color: #444;
+    font-weight: bold;
+}
+
+.x-toolbar-default.nuo-footer .x-toolbar-separator {
+    border-left: 1px solid #aaa;
+    height: 20px;    
+    margin-right: 10px;
+}
+
+#app-title {
+    margin: 0 20px;
+}
+
+#app-title span {
+    letter-spacing: 0.05em;
+    font-family: Museo Sans, Arial;
+    font-size: 22px;
+    position: relative;
+    top: -2px;
+    padding: 0 5px 0 10px;
+    color: #958979;
+}
+
+.metric-well {
+    /*
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background: #dddede url('../img/bg-well.png');
+    -moz-box-shadow: inset 0 10px 10px -10px #aaa;
+    -webkit-box-shadow: inset 0 10px 10px -10px #aaa;
+    box-shadow: inset 0 10px 10px -10px #aaa;*/
+    
+}
+
+.metric-well .label-metric {
+    color: #958979;
+    font-size: 11px;
+    padding: 2px;
+}
+
+.metric-well .label-metric b {
+    text-transform: uppercase;
+    color: #444;
+}
+
+.metric-well .label-value {
+    color: #363d45;
+    font-size: 30px;
+    height: 40px;
+    text-align: right;
+    padding: 0 5px;
+}
+
+.metric-well .graph-container {
+    box-sizing: content-box;
+}
+
+#btnShowStore .x-btn-icon {
+    width: 64px;
+    height: 64px;
+}
+
+.ico-store-48 {
+    background-image: url(../img/ico-store-48.png);
+    background-position: 6px 5px;
+}
+
+.jqstooltip {
+    box-sizing: content-box;
+}

@@ -148,11 +148,11 @@ public class WorkloadStats {
         this.totalWorkCompletionTimeMs = totalWorkCompletionTimeMs;
     }
 
-    public float getAvgWorkTimeMs() {
-        return totalWorkTimeMs / (float) workInvocationCount;
+    public Float getAvgWorkTimeMs() {
+        return (workInvocationCount == 0) ? null : totalWorkTimeMs / (float) workInvocationCount;
     }
 
-    public float getAvgWorkCompletionTimeMs() {
-        return totalWorkCompletionTimeMs / (float) workCompletionCount;
+    public Float getAvgWorkCompletionTimeMs() {        
+        return (workCompletionCount == 0) ? null : totalWorkCompletionTimeMs / (float) workCompletionCount;
     }
 }

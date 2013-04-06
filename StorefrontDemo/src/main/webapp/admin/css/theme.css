@@ -1,0 +1,227 @@
+.x-body {
+    font-size: 11px;
+    color: #333;
+}
+
+/*-------------------------------------------------------------------------------*/
+/*
+ * List / Combobox
+ */
+/*-------------------------------------------------------------------------------*/
+.x-boundlist-item-over {
+    background: #E6FEE6;
+    border-color: #6BAF6B;
+}
+
+.x-boundlist-selected {
+    background: #CDFECD;
+    border-color: #6BAF6B;
+}
+
+/*-------------------------------------------------------------------------------*/
+/*
+ * Little bit of NuoDB-style theming
+ */
+/*-------------------------------------------------------------------------------*/
+.x-panel-header {
+    background-image: none;
+    background-color: #c1cc5f;
+    box-shadow: none;
+    /* TODO Incomplete - Opera and IE support needed!!! */
+    -moz-border-radius-topleft: 5px;
+    border-top-left-radius: 5px;
+    -moz-border-radius-topright: 5px;
+    border-top-right-radius: 5px;
+}
+
+/*------------------------------------------------------------------------------*/
+/* stop IE background rendering stand-in for missing CSS3LinearGradient support */
+/*------------------------------------------------------------------------------*/
+.x-nlg .x-panel-header-default-top,.x-nlg .x-panel-header-default-left,.x-strict .x-ie9 .x-panel-header-default-framed-top
+    {
+    background-image: none;
+}
+
+.x-nlg .x-tab-top {
+    background-image: none;
+}
+
+.x-nlg .x-toolbar-default {
+    background-image: none !important;
+}
+
+/*------------------------------------------------------------------------------*/
+.x-panel-header-text {
+    color: white;
+}
+
+.xpanel .x-portlet {
+    border: none;
+}
+
+/* The drag outline on the portal panel : green */
+.x-portal .x-panel-dd-spacer {
+    border: 2px dashed #c1cc5f;
+}
+
+/* The portal panel's framed border : green */
+.x-panel-default-framed {
+    border-color: #c1cc5f;
+    background: none;
+}
+
+.x-panel-header-default {
+    border-color: #c1cc5f;
+}
+
+.x-panel-header-default-framed {
+    border-color: #c1cc5f;
+}
+
+.nuo-header {
+    background-image: url('images/nuodb/nuopattern2.png');
+    background-repeat: repeat;
+    background-position: top;
+    border-bottom: 1px solid;
+    color: #e6e6e6;
+}
+
+.x-window-header {
+    background-image: url('images/nuodb/nuopattern2.png');
+    background-repeat: repeat;
+    background-position: top;
+}
+
+.x-window-header-text-default {
+    color: gray;
+}
+
+.x-window-body-default {
+    background: white;
+    border-width: 0px;
+}
+
+.x-window-header-default-top {
+    background-color: #c1cc5f;
+    border-color: #c1cc5f;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+}
+
+.x-window-default {
+    background-color: #c1cc5f;
+    border-color: #c1cc5f;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+}
+
+.x-toolbar-docked-top {
+    background: none;
+    border: none;
+}
+
+.x-grid .x-toolbar-docked-bottom {
+    background-color: white;
+    border: none;
+}
+
+.x-panel .x-toolbar-docked-bottom {
+    background-color: white;
+    border: none;
+    /* http://css-tricks.com/video-screencasts/95-a-tale-of-border-gradients */
+    /*	
+    background-image:
+   		-webkit-gradient(linear, left bottom, right bottom, from(transparent), color-stop(25%, gray), color-stop(75%, gray), to(transparent))
+   	;
+	background-image:
+		/* For Firefox 3.6 to Firefox 15 */ -moz-linear-gradient (left, transparent, gray 25%, gray 75%, transparent);
+    background-image: /* For Opera 11.1 to 12.0 */ -o-linear-gradient( left, transparent, gray 25%, gray 75%, transparent);
+    -moz-background-size: 100% 1px;
+    background-size: 100% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    */
+}
+
+.x-panel-body {
+    background: none;
+    background-color: none;
+    border: none;
+}
+
+.x-tab {
+    background: none;
+    border: none;
+}
+
+.x-tab-bar {
+    margin: 4px 0px 4px 0px;
+}
+
+.x-tab-bar-body {
+    border-top: 1px solid darkgray !important;
+    border-bottom: 1px solid darkgray !important;
+}
+
+.x-tab button {
+    color: black;
+    font-weight: normal;
+}
+
+.x-tab-active button {
+    color: #c1cc5f;
+    font-weight: bold;
+}
+
+/* remove the tab bar strip */
+.x-border-box .x-tab-bar-top .x-tab-bar-strip-default-plain {
+    height: 0px;
+}
+
+.x-tab-bar-top .x-tab-bar-strip {
+    border: none;
+}
+
+.x-tab-default-top {
+    border-bottom: none !important;
+    box-shadow: none !important;
+}
+
+/*---------------------------------------------------------------------------*/
+/*
+ * Grid
+ */
+/*---------------------------------------------------------------------------*/
+.x-grid-row-selected .x-grid-cell,.x-grid-row-selected .x-grid-rowwrap-div {
+    background-color: #e6e8a5 !important;
+}
+
+.x-grid-group-hd .x-grid-cell-inner {
+    border-color: #c1cc5f;
+}
+
+.x-grid-group-title {
+    color: #b0b753;
+}
+
+.x-panel .x-grid-body {
+    border-color: #b0b753;
+}
+
+.x-message-box .x-window-body {
+    background-color: white;
+}
+
+.x-message-box .x-toolbar-footer {
+    background: white;
+    margin-top: 0px;
+}
+
+/*---------------------------------------------------------------------------*/
+.nuo-border {
+    border-color: #c1cc5f;
+    border-width: 1px;
+    border-style: solid;
+}

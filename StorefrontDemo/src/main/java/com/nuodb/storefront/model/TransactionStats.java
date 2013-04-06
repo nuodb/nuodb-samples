@@ -62,8 +62,9 @@ public class TransactionStats {
         return successCount + failureCount;
     }
 
-    public float getAvgDurationMs() {
-        return (float) totalDurationMs / getTotalCount();
+    public Float getAvgDurationMs() {
+        int total = getTotalCount();
+        return (total == 0) ? null : (float) totalDurationMs / getTotalCount();
     }
 
     public void incrementCount(String transactionName, long durationMs, boolean success) {
