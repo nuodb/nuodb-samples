@@ -87,6 +87,12 @@ var Storefront = {
         $('.carousel').carousel({
             interval: 7000
         });
+        
+        // Handle reset button
+        $('#btn-reset').click(function() {
+            $('input[type=number]').val('0');
+            $(this).closest('form').submit();
+        });
     },
 
     initProductsPage: function(products, categories, filter) {

@@ -88,7 +88,8 @@
                         </tbody>
                     </table>
                     <p class="text-right">
-                        <button class="btn" type="submit">Update Users</button>
+                        <button class="btn btn-primary" type="submit">Update Users</button>&nbsp;
+                        <button class="btn" id="btn-reset" title="Sets the number of user to 0 across all workloads">Reset All</button>
                     </p>
                 </form>
             </div>
