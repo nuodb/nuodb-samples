@@ -16,34 +16,59 @@ Ext.define('App.view.HeaderBar', {
         var me = this;
         var clickHandler = me.onViewButtonClick.bind(me);
 
-        me.items = [{
+        me.items = ['->', {
             xtype: 'container',
-            id: 'app-title',
-            html: Ext.String.format('<a href="http://www.nuodb.com"><img alt="NuoDB website" src="img/logo.png" width="83" height="53" /></a><span>{0}</span>', App.app.title),
-        }, '->', {
+            layout: 'fit',
+            height: '100%',
+            margin: '0 8 0 8',
+            items: {
+                xtype: 'button',
+                id: 'btnWelcome',
+                itemId: 'welcome',
+                iconAlign: 'left',
+                iconCls: 'ico-nuodb',
+                scale: 'large',
+                text: App.app.title,
+                enableToggle: true,
+                allowDepress: false,
+                pressed: true,
+                handler: clickHandler
+            }
+        }, {
             xtype: 'container',
             layout: 'fit',
             height: '100%',
             margin: '0 4 0 0',
             items: {
-                xtype: 'button',
+                xtype: 'splitbutton',
                 tooltip: 'Go shopping!',
                 id: 'btnShowStore',
                 itemId: 'storefront',
                 iconAlign: 'top',
                 iconCls: 'ico-store-48',
                 scale: 'large',
-                width: 68,
+                width: 80,
                 enableToggle: true,
                 allowDepress: false,
-                handler: clickHandler
+                handler: clickHandler,
+                menu: {
+                    showSeparator: false,
+                    items: [{
+                        text: '<b>Show Default Storefront</b>',
+                        handler: clickHandler
+                    }, {
+                        text: 'Show Default Storefront in New Tab',
+                        href: '../products',
+                        hrefTarget: 'blank'
+                    }]
+                }
             }
         }, {
             xtype: 'metricwell',
             text: '<b>NuoDB</b> transactions/sec',
             graphVisible: false,
             metric: 'dbStats.tps',
-            format: ',.0',
+            format: 'TBD',
             itemId: 'metrics-db',
             listeners: {
                 click: clickHandler
@@ -62,7 +87,6 @@ Ext.define('App.view.HeaderBar', {
             text: '<b>Store</b> items in carts',
             metric: 'storefrontStats.all.cartItemCount',
             itemId: 'metrics-storefront',
-            pressed: true,
             listeners: {
                 click: clickHandler
             }
@@ -74,7 +98,7 @@ Ext.define('App.view.HeaderBar', {
             listeners: {
                 click: clickHandler
             }
-        }];
+        }, '->'];
 
         me.callParent(arguments);
         me.btnShowStore = me.down('#btnShowStore');

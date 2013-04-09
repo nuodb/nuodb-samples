@@ -1,6 +1,4 @@
-@primaryColor: #c1cd23;
-@secondaryColor: #363d45;
-@teriaryColor: #a2988a;
+@import "prefixer";
 
 body {
 	overflow-y: scroll;
@@ -38,7 +36,7 @@ th.text-right, td.text-right {
 			padding-top: 10px;
 			font-size: 20px;
 			font-weight: bold;
-			text-shadow: rgba(255, 255, 255, 0.74902) 0px 1px 1px;		
+			.text-shadow(rgba(255, 255, 255, 0.74902) 0px 1px 1px);		
 		}
 	}
 	
@@ -46,6 +44,10 @@ th.text-right, td.text-right {
 		.badge {
 			margin-left: 10px;
 		}
+	}
+	
+	#admin-link {
+		display: none;
 	}
 	
 	.search {
@@ -251,4 +253,123 @@ th.text-right, td.text-right {
 	letter-spacing: 0.1em;
 	font-size: 11px;
 	text-align: center;
+}
+
+#welcome {
+	.navbar label {
+		padding-left: 30px;
+	}
+	
+	.carousel {
+		background-image: url(../img/carousel/bg.png);
+		.border-radius(5px);
+		.box-shadow(0 2px 4px rgba(0,0,0,.2));
+
+		.item {
+			height: 347px;
+		}
+		
+		.carousel-caption {
+			background-color: transparent;
+			position: absolute;
+			bottom: 25px;
+			right: 20px;
+			text-align: right;
+			
+			img {
+				position: absolute;
+				top: 0;
+				left: 0;
+				height: 347px;
+			}
+			
+			h2 {
+				color: #fff;
+				font-size: 65px;
+				letter-spacing: -0.05em;
+				font-weight: normal;
+				line-height: 60px;
+				.text-shadow(#000 0 1px 10px);
+			}
+			
+			h3 {
+				color: #fff;
+				background: transparent url(../img/carousel/cloud.png) 50% bottom;
+				width: 214px;
+				font-size: 18px;
+				letter-spacing: 0.1em;
+				text-transform: uppercase;
+				font-weight: normal;
+				padding: 26px 0 0 0;
+				line-height: 20px;
+				text-align: center;
+				display: inline-block;
+				height: 71px;
+				.border-box();
+			}
+			
+			h4 {
+				color: rgb(88, 89, 91);
+				.text-shadow(rgba(255,255,255,.5) 0 -1px 1px);
+				font-weight: normal;
+				font-size: 26px;
+				line-height: 33px;
+			}
+			
+			p {
+				.text-shadow(rgba(255,255,255,.3) 0 -1px 1px);
+				color: rgb(115, 116, 119);
+				font-weight: normal;
+				font-size: 18px;
+				line-height: 27px;
+				margin-bottom: 5px;
+				
+				b {
+					color: rgb(88, 89, 91);
+				}		
+			}
+		}
+		
+		.carousel-indicators {
+			bottom: 20px;
+			top: auto;
+			right: 35px;
+			
+			li {
+				cursor: pointer;
+			}
+		}
+		
+		.carousel-control {
+			top: 10%;
+		}
+	}
+		
+	#workloads {
+		.steps {
+			width: 250px;
+			
+			ol {
+				margin-bottom: 0;
+				li {
+					font-size: 12px;
+					line-height: normal;
+				}
+			}
+		}
+	}
+	
+	#ddl {
+		display: none;
+		margin-bottom: 30px;
+		
+		textarea {
+			.border-box();
+			font-family: monospace;
+			width: 100%;
+			height: 300px;
+			white-space: nowrap;
+			overflow: auto;
+		}
+	}
 }

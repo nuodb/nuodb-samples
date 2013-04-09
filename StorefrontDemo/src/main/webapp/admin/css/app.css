@@ -31,29 +31,29 @@
     margin-right: 10px;
 }
 
-#app-title {
-    margin: 0 20px;
+#btnWelcome .x-btn-icon {
+    background-image: url(../img/logo.png);
+    height: 48px;
+    width: 74px;
+    margin: 2px 10px 2px 12px;
 }
 
-#app-title span {
+#btnWelcome .x-btn-inner {
     letter-spacing: 0.05em;
     font-family: Museo Sans, Arial;
-    font-size: 22px;
+    font-size: 19px;
     position: relative;
-    top: -2px;
-    padding: 0 5px 0 10px;
+    padding: 27px 14px 0 90px;
     color: #958979;
 }
 
-.metric-well {
-    /*
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    background: #dddede url('../img/bg-well.png');
-    -moz-box-shadow: inset 0 10px 10px -10px #aaa;
-    -webkit-box-shadow: inset 0 10px 10px -10px #aaa;
-    box-shadow: inset 0 10px 10px -10px #aaa;*/
-    
+#btnShowStore-btnEl {
+    overflow: hidden;
+}
+
+#btnShowStore .x-btn-icon {
+    width: 64px;
+    height: 64px;
 }
 
 .metric-well .label-metric {
@@ -77,14 +77,6 @@
 
 .metric-well .graph-container {
     box-sizing: content-box;
-}
-
-#btnShowStore-btnEl {
-    overflow: hidden;
-}
-#btnShowStore .x-btn-icon {
-    width: 64px;
-    height: 64px;
 }
 
 .ico-store-48 {

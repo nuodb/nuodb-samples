@@ -1,4 +1,6 @@
 <%@tag description="Page template" pageEncoding="UTF-8" import="com.nuodb.storefront.model.PageConfig,com.nuodb.storefront.servlet.BaseServlet"%>
+<%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
+<%@attribute name="showHeader" required="false" type="java.lang.Boolean" %>
 <%
     PageConfig cfg = (PageConfig)request.getAttribute(BaseServlet.ATTR_PAGE_CONFIG);
 %>
@@ -15,6 +17,7 @@
 </head>
 <body>
     <div class="container">
+        <% if (showHeader == null || showHeader == true) { %>
         <!-- Top nav bar -->
         <div id="top-bar" class="navbar">
             <div class="navbar-inner">
@@ -35,33 +38,21 @@
                             </p></li>
                         <li class="divider-vertical"></li>
                         <li class="cart"><a href="cart"><i class="icon icon-shopping-cart"></i> Cart <span class="badge badge-info"><%=cfg.getCustomer().getCartItemCount()%></span></a></li>
+                        <t:admin-link />
                     </ul>
                 </div>
             </div>
         </div>
-
-        <!-- Status messages -->
-        <div class="row">
-            <div class="span12" id="messages"></div>
-            <script id="tpl-messages" type="text/template">
-            	{{#if result}}
-	            	<div id="messages"></div>
-	            		{{#result}}
-	            			<div class="alert alert-block alert-{{lowerCaseFormat severity}}">
-	            		    	<button type="button" class="close" data-dismiss="alert">&times;</button>
-	            				{{message}}
-	            			</div>
-	            		{{/result}}
-	            	</div>
-	            {{/if}}
-            </script>
-        </div>
+        <t:messages />
+        <% } %>
 
         <!-- Page-specific content -->
         <jsp:doBody />
 
+        <% if (showHeader == null || showHeader == true) { %>
         <!-- Footer  -->
         <div class="footer">Copyright &copy; 2013 <%=cfg.getStorefrontName()%>. All rights reserved.</div>
+        <% } %>
     </div>
 
     <script src="js/jquery-1.9.1.min.js"></script>

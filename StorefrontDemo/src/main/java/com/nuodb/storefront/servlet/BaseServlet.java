@@ -17,6 +17,7 @@ import com.nuodb.storefront.model.Message;
 import com.nuodb.storefront.model.MessageSeverity;
 import com.nuodb.storefront.model.PageConfig;
 import com.nuodb.storefront.model.ProductFilter;
+import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
 
 public abstract class BaseServlet extends HttpServlet {
@@ -37,6 +38,10 @@ public abstract class BaseServlet extends HttpServlet {
 
     public static IStorefrontService getService() {
         return s_svc;
+    }
+
+    public static ISimulatorService getSimulator() {
+        return StorefrontFactory.getSimulatorService();
     }
 
     public static Customer getOrCreateCustomer(HttpServletRequest req, HttpServletResponse resp) {
@@ -105,7 +110,13 @@ public abstract class BaseServlet extends HttpServlet {
 
     protected static void showPage(HttpServletRequest req, HttpServletResponse resp, String pageTitle, String pageName, Object pageData)
             throws ServletException, IOException {
-        
+        showPage(req, resp, pageTitle, pageName, pageData, null);
+    }
+
+    protected static void showPage(HttpServletRequest req, HttpServletResponse resp, String pageTitle, String pageName, Object pageData,
+            Customer customer)
+            throws ServletException, IOException {
+
         // Build full page title
         if (pageTitle == null || pageTitle.isEmpty()) {
             pageTitle = s_storefrontName;
@@ -114,7 +125,9 @@ public abstract class BaseServlet extends HttpServlet {
         }
 
         // Share data with JSP page
-        Customer customer = getOrCreateCustomer(req, resp);
+        if (customer == null) {
+            customer = getOrCreateCustomer(req, resp);
+        }
         PageConfig initData = new PageConfig(s_storefrontName, pageTitle, pageName, pageData, customer, getMessages(req));
         req.setAttribute(ATTR_PAGE_CONFIG, initData);
         req.getSession().removeAttribute(SESSION_MESSAGES);

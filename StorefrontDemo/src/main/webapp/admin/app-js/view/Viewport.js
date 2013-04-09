@@ -12,6 +12,8 @@ Ext.define('App.view.Viewport', {
     initComponent: function() {
         var me = this;
 
+        me.frameMap = {};
+
         me.items = [{
             region: 'north',
             xtype: 'headerbar',
@@ -23,25 +25,10 @@ Ext.define('App.view.Viewport', {
             layout: 'card',
             itemId: 'center',
             items: [{
-                xtype: 'uxiframe',
-                itemId: 'storefrontView'
-            }, {
-                border: false,
-                padding: 20,
-                layout: 'border',
-                items: [{
-                    region: 'west',
-                    xtype: 'controlpanel',
-                    width: 320,
-                    minWidth: 250,
-                    split: true,
-                    collapsible: true,
-                    collapseMode: 'mini'
-                }, {
-                    region: 'center',
-                    layout: 'card',
-                    itemId: 'metricsView'
-                }]
+                region: 'center',
+                layout: 'card',
+                itemId: 'metricsView',
+                padding: '20'
             }]
         }, {
             region: 'south',
@@ -51,7 +38,6 @@ Ext.define('App.view.Viewport', {
         me.callParent(arguments);
 
         me.center = me.down('[itemId=center]');
-        me.storefrontView = me.down('[itemId=storefrontView]');
         me.metricsView = me.down('[itemId=metricsView]');
 
         var viewName = me.down('headerbar').getActiveViewName();
@@ -62,16 +48,23 @@ Ext.define('App.view.Viewport', {
 
     onViewChange: function(viewName) {
         var me = this;
-        var showStore = (viewName == 'storefront');
-        me.center.getLayout().setActiveItem((showStore) ? 0 : 1);
-
-        if (showStore) {
-            var frame = me.storefront;
-            if (!me.storefrontView.isStoreLoaded) {
-                me.storefrontView.load('../products');
-                me.storefrontView.isStoreLoaded = true;
+        var centerLayout = me.center.getLayout();
+        var viewUrl = me.getViewUrl(viewName);
+        
+        if (viewUrl) {
+            // Show URL of the view in an iframe
+            
+            if (!me.frameMap[viewName]) {
+                me.frameMap[viewName] = me.center.add({
+                    xtype: 'uxiframe',
+                    itemId: 'storefrontView',
+                    src: viewUrl
+                });
             }
+            centerLayout.setActiveItem(me.frameMap[viewName]);
         } else {
+            // Show metrics associated with the view
+            
             var view = me.metricsView.items.get(viewName);
             if (!view) {
                 view = {
@@ -81,7 +74,21 @@ Ext.define('App.view.Viewport', {
                 };
                 view = me.metricsView.add(view);
             }
+            centerLayout.setActiveItem(0);
             me.metricsView.getLayout().setActiveItem(view);
+        }
+    },
+
+    getViewUrl: function(viewName) {
+        switch (viewName) {
+            case 'welcome':
+                return '../welcome';
+
+            case 'storefront':
+                return '../products;'
+
+            default:
+                return null;
         }
     },
 

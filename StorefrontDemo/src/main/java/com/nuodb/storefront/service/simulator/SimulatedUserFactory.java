@@ -6,10 +6,10 @@ public class SimulatedUserFactory implements IWorker {
     private static final Workload factoryWorkloadType = new Workload("User factory");
     private final ISimulator simulator;
     private final Workload workerWorkloadType;
-    private final int entryDelayMs;
+    private final long entryDelayMs;
     private int userCount;
 
-    public SimulatedUserFactory(ISimulator simulator, Workload workerWorkloadType, int userCount, int entryDelayMs) {
+    public SimulatedUserFactory(ISimulator simulator, Workload workerWorkloadType, int userCount, long entryDelayMs) {
         if (simulator == null) {
             throw new IllegalArgumentException("simulator");
         }

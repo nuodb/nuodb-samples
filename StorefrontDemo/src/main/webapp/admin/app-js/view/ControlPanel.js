@@ -1,5 +1,7 @@
 /**
  * @class App.view.ControlPanel
+ * 
+ * This view is not currently used, but may be available in the future.
  */
 Ext.define('App.view.ControlPanel', {
     extend: 'Ext.panel.Panel',

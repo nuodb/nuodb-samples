@@ -23,7 +23,7 @@ public interface ISimulatorService {
      * @param entryDelayMs
      *            The delay period between the arrival of each worker. There is no delay before the arrival of the first worker.
      */
-    public void addWorkers(Workload workload, int numWorkers, int entryDelayMs);
+    public void addWorkers(Workload workload, int numWorkers, long entryDelayMs);
 
     /**
      * Adjusts the workers associated with a workload.

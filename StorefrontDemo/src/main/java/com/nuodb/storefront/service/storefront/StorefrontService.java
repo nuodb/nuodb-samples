@@ -12,6 +12,7 @@ import java.util.concurrent.Callable;
 import com.googlecode.genericdao.search.Search;
 import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.dal.IStorefrontDao;
+import com.nuodb.storefront.dal.StorefrontDao;
 import com.nuodb.storefront.dal.TransactionType;
 import com.nuodb.storefront.exception.CartEmptyException;
 import com.nuodb.storefront.exception.CustomerNotFoundException;
@@ -34,6 +35,11 @@ import com.nuodb.storefront.service.IStorefrontService;
  */
 public class StorefrontService implements IStorefrontService {
     private final IStorefrontDao dao;
+
+    static {
+        StorefrontDao.registerTransactionNames(new String[] { "addProduct", "addProductReview", "addToCart", "checkout", "getCategories", "getCustomerCart",
+                "getOrCreateCustomer", "getProductDetails", "getProducts", "getStorefrontStats", "updateCart" });
+    }
 
     public StorefrontService(IStorefrontDao dao) {
         this.dao = dao;
@@ -351,12 +357,12 @@ public class StorefrontService implements IStorefrontService {
             }
         });
     }
-    
+
     @Override
     public Map<String, TransactionStats> getTransactionStats() {
         return dao.getTransactionStats();
     }
-    
+
     @Override
     public StorefrontStats getStorefrontStats(final int maxCustomerIdleTimeSec) {
         return dao.runTransaction(TransactionType.READ_ONLY, "getStorefrontStats", new Callable<StorefrontStats>() {

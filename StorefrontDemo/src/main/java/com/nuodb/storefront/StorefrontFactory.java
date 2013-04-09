@@ -19,8 +19,8 @@ import com.nuodb.storefront.service.storefront.StorefrontService;
  * injection, e.g. via the Spring framework.
  */
 public class StorefrontFactory {
-    private static SessionFactory sessionFactory;
-    private static Configuration configuration;
+    private static final SessionFactory sessionFactory;
+    private static final Configuration configuration;
 
     static {
         configuration = new Configuration();

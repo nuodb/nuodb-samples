@@ -38,12 +38,13 @@ Ext.define('App.view.MetricChart', {
     showMetric: function(metric, aggregate) {
         var me = this;
         me.metric = metric;
-        //me.setTitle(metric.get('title'));
+        me.aggregate = aggregate;
 
         var store = App.app.getController('Storefront').getMetricHistoryStore(metric);
         if (store == null) {
+            // Metrics aren't available yet.  Wait for the store to become available and try again.
             App.app.on('statschange', function() {
-                me.showMetric(me.metric);
+                me.showMetric(me.metric, me.aggregate);
             }, null, {
                 single: true
             });
@@ -97,35 +98,32 @@ Ext.define('App.view.MetricChart', {
         var series = [];
         var hasMultiSeries = (seriesNames.length > 1);
         var tooltipFormat = (hasMultiSeries) ? '{0}:<br />{1} {2}' : '{1} {2}';
-        //for ( var i = 0; i < seriesNames.length; i++) {
-        //    var seriesName = seriesNames[i];
-            series.push({
-                type: 'area',
-                smooth: true,
-                showMarkers: false,
-                markerConfig: {
-                    radius: 2
-                },
-                axis: 'left',
-                xField: 'timestamp',
-                yField: seriesNames,
-                highlight: true,
-                fill: true,
-                style: {
-                    'stroke-width': 1,
-                    stroke: '#eee',
-                    opacity: 0.8
-                },
-                tips: {
-                    trackMouse: true,
-                    minWidth: 150,
-                    renderer: function(record, ctx) {
-                        var seriesName = ctx.storeField || seriesNames[0];
-                        this.setTitle(Ext.String.format(tooltipFormat, seriesName, record.get(seriesName), unitNameLcase));
-                    }
+        series.push({
+            type: 'area',
+            smooth: true,
+            showMarkers: false,
+            markerConfig: {
+                radius: 2
+            },
+            axis: 'left',
+            xField: 'timestamp',
+            yField: seriesNames,
+            highlight: true,
+            fill: true,
+            style: {
+                'stroke-width': 1,
+                stroke: '#eee',
+                opacity: 0.8
+            },
+            tips: {
+                trackMouse: true,
+                minWidth: 150,
+                renderer: function(record, ctx) {
+                    var seriesName = ctx.storeField || seriesNames[0];
+                    this.setTitle(Ext.String.format(tooltipFormat, seriesName, record.get(seriesName), unitNameLcase));
                 }
-            });
-        //}
+            }
+        });
         
         if (seriesNames.length == 1) {
             series[0].type = 'line';
@@ -178,11 +176,11 @@ Ext.define('App.view.MetricChart', {
             }],
             series: series,
             listeners: {
-                beforerefresh: function() {
+                beforerefresh: function() {                    
                     var yAxis = this.axes.getAt(1);
                     var store = this.getStore();
                     yAxis.fromDate = me.calcFromDate(store);
-                    yAxis.toDate = me.calcToDate(store)
+                    yAxis.toDate = me.calcToDate(store);
                 }
             }
         };

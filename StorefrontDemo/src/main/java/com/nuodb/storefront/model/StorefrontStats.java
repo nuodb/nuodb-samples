@@ -6,6 +6,7 @@ import java.util.Calendar;
 public class StorefrontStats {
     private Calendar timestamp;
     private String storefrontName;
+    private String instanceId;
     private long uptimeMs;
     private int productCount;
     private int categoryCount;
@@ -20,6 +21,17 @@ public class StorefrontStats {
     private BigDecimal purchaseValue;
 
     public StorefrontStats() {
+    }
+
+    /**
+     * Gets the globally unique ID for this JVM instance.   
+     */    
+    public String getInstanceId() {
+        return instanceId;
+    }
+
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
     }
 
     public Calendar getTimestamp() {

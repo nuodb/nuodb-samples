@@ -17,7 +17,7 @@ public interface ISimulator {
      * @return True if the worker was added, false if the workload associated with this worker has reached a limit and no additional workers are
      *         currently permitted.
      */
-    public boolean addWorker(IWorker worker, int startDelayMs);
+    public boolean addWorker(IWorker worker, long startDelayMs);
 
     /**
      * Gets the Storefront service associated with this simulator. This is for convenience so workers need not manage their own service instances.

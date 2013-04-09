@@ -17,6 +17,7 @@ import com.nuodb.storefront.model.WorkloadStep;
 import com.nuodb.storefront.model.WorkloadStepStats;
 import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
+import com.nuodb.storefront.util.ToStringComparator;
 
 public class SimulatorService implements ISimulator, ISimulatorService {
     private final ScheduledThreadPoolExecutor threadPool;
@@ -61,7 +62,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     }
 
     @Override
-    public void addWorkers(Workload workload, int numWorkers, int entryDelayMs) {
+    public void addWorkers(Workload workload, int numWorkers, long entryDelayMs) {
         addWorker(new SimulatedUserFactory(this, workload, numWorkers, entryDelayMs), 0);
     }
 
@@ -83,7 +84,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
             WorkloadStats info = getOrCreateWorkloadStats(workload);
             info.setActiveWorkerLimit(activeWorkerLimit);
             while (info.getActiveWorkerCount() < minActiveWorkers) {
-                addWorker(new SimulatedUser(this, workload), 0);
+                addWorker(new SimulatedUser(this, workload), workload.calcNextThinkTimeMs());
             }
             return new WorkloadStats(info);
         }
@@ -114,7 +115,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
 
     @Override
     public Map<WorkloadStep, WorkloadStepStats> getWorkloadStepStats() {
-        Map<WorkloadStep, WorkloadStepStats> map = new TreeMap<WorkloadStep, WorkloadStepStats>();
+        Map<WorkloadStep, WorkloadStepStats> map = new TreeMap<WorkloadStep, WorkloadStepStats>(ToStringComparator.getComparator());
         for (Map.Entry<WorkloadStep, AtomicInteger> stepEntry : stepCompletionCounts.entrySet()) {
             WorkloadStepStats stepStats = new WorkloadStepStats();
             stepStats.setCompletionCount(stepEntry.getValue().get());
@@ -129,7 +130,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     }
 
     @Override
-    public boolean addWorker(final IWorker worker, int startDelayMs) {
+    public boolean addWorker(final IWorker worker, long startDelayMs) {
         synchronized (workloadStatsMap) {
             WorkloadStats info = getOrCreateWorkloadStats(worker.getWorkload());
             if (!info.canAddWorker()) {

@@ -9,9 +9,16 @@ var Storefront = {
         // Initialize elements shared across pages
         me.TemplateMgr.applyTemplate('tpl-messages', '#messages', cfg.messages);
         me.initSearchBox();
+        if (window.self === window.top) {
+            $('#admin-link').show();
+        }
 
         // Initialize page-specific elements
         switch (cfg.pageName) {
+            case "welcome":
+                me.initWelcomePage(cfg.pageData);
+                break;
+
             case "products":
                 me.initProductsPage(cfg.pageData.products, cfg.pageData.categories, cfg.pageData.filter);
                 break;
@@ -42,6 +49,43 @@ var Storefront = {
             var txt = $('.search-query', this);
             var ico = $('.search-icon', this);
             ico[txt.val() ? 'addClass' : 'removeClass']('search-icon-clear');
+        });
+    },
+
+    initWelcomePage: function(pageData) {
+        var me = this;
+
+        // Render DDL
+        me.TemplateMgr.applyTemplate('tpl-ddl', '#ddl textarea', pageData.ddl);
+
+        // Render workload list
+        me.TemplateMgr.applyTemplate('tpl-workloads', '#workloads', pageData.workloads);
+
+        // Handle DDL toggling
+        $('#lnk-show-ddl').click(function(e) {
+            e.preventDefault();
+            var lnk = $(this);
+            lnk.toggleClass('active');
+            if (lnk.hasClass('active')) {
+                $('#ddl').slideDown({
+                    complete: function() {
+                        $('#ddl textarea').focus();
+                    }
+                })
+            } else {
+                $('#ddl').slideUp();
+            }
+        });
+
+        // Select quantity upon focus
+        $('input[type=number]').on('click', function(e) {
+            $(this).select();
+            $(this).focus();
+        });
+
+        // Get the carousel moving
+        $('.carousel').carousel({
+            interval: 7000
         });
     },
 
@@ -185,7 +229,7 @@ var Storefront = {
                 $('#category-nav li[data-category="' + categories[i] + '"]').addClass('active');
             }
         }
-        
+
         delete me.updateRequest;
     },
 

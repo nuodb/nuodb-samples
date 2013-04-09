@@ -36,7 +36,11 @@
         <servlet-name>storefront-cart</servlet-name>
         <servlet-class>com.nuodb.storefront.servlet.CartServlet</servlet-class>
     </servlet>
-
+    <servlet>
+        <servlet-name>storefront-welcome</servlet-name>
+        <servlet-class>com.nuodb.storefront.servlet.WelcomeServlet</servlet-class>
+    </servlet>
+    
     <!-- URL mappings -->
     <servlet-mapping>
         <servlet-name>jersey-serlvet</servlet-name>
@@ -54,5 +58,9 @@
         <servlet-name>storefront-cart</servlet-name>
         <url-pattern>/cart</url-pattern>
     </servlet-mapping>
-
+    <servlet-mapping>
+        <servlet-name>storefront-welcome</servlet-name>
+        <url-pattern>/welcome</url-pattern>
+    </servlet-mapping>
+    
 </web-app>

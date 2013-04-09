@@ -28,8 +28,8 @@ Ext.define('App.controller.Storefront', {
         var me = this;
 
         // Initialize workload store
-        me.getStore('Workloads').on('update', me.onWorkloadChange.bind(me));
-        me.reloadWorkloadStore();
+        // me.getStore('Workloads').on('update', me.onWorkloadChange.bind(me));
+        // me.reloadWorkloadStore();
 
         // Refresh stats periodically
         refreshInterval = setInterval(me.onRefreshStats.bind(me), App.app.refreshFrequencyMs);
@@ -128,6 +128,13 @@ Ext.define('App.controller.Storefront', {
                 if (!stats) {
                     return;
                 }
+
+                // If we're talking to a new Storefront instance (maybe service was bounced), throw away old data so deltas aren't bogus
+                var instanceId = stats.storefrontStats.instanceId;
+                if (me.instanceId !== instanceId) {
+                    me.statsHistory = [];
+                }
+                me.instanceId = instanceId;
 
                 // Convert storefront stats into series form (consistent with other categories for coding ease)
                 var storefrontStats = stats.storefrontStats;

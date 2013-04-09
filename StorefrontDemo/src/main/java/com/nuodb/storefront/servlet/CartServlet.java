@@ -20,9 +20,9 @@ public class CartServlet extends BaseServlet {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        int customerId = getOrCreateCustomer(req, resp).getId();
-        Cart cart = getService().getCustomerCart(customerId);
-        showPage(req, resp, "Cart", "cart", cart);
+        Customer customer = getOrCreateCustomer(req, resp);
+        Cart cart = getService().getCustomerCart(customer.getId());
+        showPage(req, resp, "Cart", "cart", cart, customer);
     }
 
     /**

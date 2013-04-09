@@ -1,6 +1,7 @@
 package com.nuodb.storefront.model;
 
-public enum WorkloadStep {
+
+public enum WorkloadStep {    
     BROWSE,
 
     BROWSE_NEXT_PAGE,
@@ -58,5 +59,5 @@ public enum WorkloadStep {
             WorkloadStep.MULTI_BROWSE,
             WorkloadStep.PRODUCT_ADD_REVIEW
     })
-    MULTI_BROWSE_AND_REVIEW,
+    MULTI_BROWSE_AND_REVIEW;
 }

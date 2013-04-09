@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import org.hibernate.FlushMode;
@@ -30,10 +32,26 @@ import com.nuodb.storefront.model.TransactionStats;
  */
 public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
     private static final long s_startTimeMs = System.currentTimeMillis();
+    private static final String s_instanceId = UUID.randomUUID().toString();
     private static final String s_storefrontName = "Default Storefront";
     private static final Map<String, TransactionStats> s_transactionStatsMap = new HashMap<String, TransactionStats>();
 
     public StorefrontDao() {
+    }
+
+    /**
+     * Registers a transaction name for transaction stats tracking. This is done for convenience to API clients, so they know up front all of the
+     * transaction types available, even if some of those transaction types have not yet been executed and therefore have no stats associated with
+     * them.
+     */
+    public static void registerTransactionNames(String[] transactionNames) {
+        synchronized (s_transactionStatsMap) {
+            for (String transactionName : transactionNames) {
+                if (!s_transactionStatsMap.containsKey(transactionName)) {
+                    s_transactionStatsMap.put(transactionName, new TransactionStats());
+                }
+            }
+        }
     }
 
     @Override
@@ -114,7 +132,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
 
     @Override
     public Map<String, TransactionStats> getTransactionStats() {
-        Map<String, TransactionStats> mapCopy = new HashMap<String, TransactionStats>();
+        Map<String, TransactionStats> mapCopy = new TreeMap<String, TransactionStats>();
         synchronized (s_transactionStatsMap) {
             for (Map.Entry<String, TransactionStats> entry : s_transactionStatsMap.entrySet()) {
                 mapCopy.put(entry.getKey(), new TransactionStats(entry.getValue()));
@@ -140,15 +158,16 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
 
         // Calc minActiveTime
         Calendar now = Calendar.getInstance();
-        Calendar minActiveTime = (Calendar)now.clone();
+        Calendar minActiveTime = (Calendar) now.clone();
         minActiveTime.add(Calendar.SECOND, -maxCustomerIdleTimeSec);
         query.setParameter("minActiveTime", minActiveTime);
-        
+
         // Run query
-        Object[] result = (Object[])query.uniqueResult();
-        
+        Object[] result = (Object[]) query.uniqueResult();
+
         // Fill stats
         StorefrontStats stats = new StorefrontStats();
+        stats.setInstanceId(s_instanceId);
         stats.setTimestamp(now);
         stats.setStorefrontName(s_storefrontName);
         stats.setUptimeMs(System.currentTimeMillis() - s_startTimeMs);
@@ -163,7 +182,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
         stats.setPurchaseCount(Integer.valueOf(result[8].toString()));
         stats.setPurchaseItemCount(Integer.valueOf(result[9].toString()));
         stats.setPurchaseValue(new BigDecimal(result[10].toString()));
-        
+
         return stats;
     }
 
@@ -288,8 +307,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
         synchronized (s_transactionStatsMap) {
             TransactionStats stats = s_transactionStatsMap.get(transactionName);
             if (stats == null) {
-                stats = new TransactionStats();
-                s_transactionStatsMap.put(transactionName, stats);
+                throw new RuntimeException("Transaction with name '" + transactionName + "' is not registered.");
             }
             stats.incrementCount(transactionName, System.currentTimeMillis() - startTimeMs, success);
         }
