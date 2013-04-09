@@ -35,7 +35,7 @@
     background-image: url(../img/logo.png);
     height: 48px;
     width: 74px;
-    margin: 2px 10px 2px 12px;
+    margin: 2px 10px 2px 13px;
 }
 
 #btnWelcome .x-btn-inner {
@@ -43,7 +43,7 @@
     font-family: Museo Sans, Arial;
     font-size: 19px;
     position: relative;
-    padding: 27px 14px 0 90px;
+    padding: 27px 15px 0 90px;
     color: #958979;
 }
 
