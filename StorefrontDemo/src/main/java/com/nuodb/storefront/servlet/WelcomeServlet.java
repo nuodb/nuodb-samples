@@ -65,8 +65,8 @@ public class WelcomeServlet extends BaseServlet {
         if (s_ddl == null) {
             StringBuilder buff = new StringBuilder();
             SchemaExport export = StorefrontFactory.createSchemaExport();
-            appendDdlScript(export, "createSQL", buff);
             appendDdlScript(export, "dropSQL", buff);
+            appendDdlScript(export, "createSQL", buff);
             s_ddl = buff.toString();
         }
         return s_ddl;
