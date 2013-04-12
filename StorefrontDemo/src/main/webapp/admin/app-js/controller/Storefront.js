@@ -1,3 +1,5 @@
+/* Copyright (c) 2013 NuoDB, Inc. */
+
 /**
  * @class App.controller.Storefront
  * 

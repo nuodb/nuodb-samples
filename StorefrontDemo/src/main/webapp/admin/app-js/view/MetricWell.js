@@ -1,3 +1,5 @@
+/* Copyright (c) 2013 NuoDB, Inc. */
+
 Ext.define('App.view.MetricWell', {
     extend: 'Ext.container.Container',
     alias: 'widget.metricwell',

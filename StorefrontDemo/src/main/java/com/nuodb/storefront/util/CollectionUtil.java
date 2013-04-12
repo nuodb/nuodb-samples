@@ -1,3 +1,5 @@
+/* Copyright (c) 2013 NuoDB, Inc. */
+
 package com.nuodb.storefront.util;
 
 import java.util.ArrayList;

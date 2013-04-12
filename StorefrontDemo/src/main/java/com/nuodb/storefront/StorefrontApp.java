@@ -1,3 +1,5 @@
+/* Copyright (c) 2013 NuoDB, Inc. */
+
 package com.nuodb.storefront;
 
 import java.io.IOException;
@@ -30,7 +32,7 @@ public class StorefrontApp {
      * <li>showddl -- display drop and create DDL</li>
      * <li>generate -- generate dummy storefront data</li>
      * <li>load -- load storefront data from src/main/resources/sample-products.json file</li>
-     * <li>stress -- simulate customer activity</li>
+     * <li>simulate -- simulate customer activity</li>
      * </ul>
      */
     public static void main(String[] args) throws Exception {
@@ -110,22 +112,22 @@ public class StorefrontApp {
 
     private static void printSimulatorStats(ISimulatorService simulator, PrintStream out) {
         out.println();
-        out.println(String.format("%-25s %8s %8s %8s %8s | %7s %9s %7s %9s", "Workload", "Active", "Failed", "Killed", "Complete", "Steps",
+        out.println(String.format("%-30s %8s %8s %8s %8s | %7s %9s %7s %9s", "Workload", "Active", "Failed", "Killed", "Complete", "Steps",
                 "Avg (s)", "Work", "Avg (s)"));
         for (Map.Entry<String, WorkloadStats> statsEntry : simulator.getWorkloadStats().entrySet()) {
             String workloadName = statsEntry.getKey();
             WorkloadStats stats = statsEntry.getValue();
             
-            out.println(String.format("%-25s %8d %8d %8d %8d | %7d %9.3f %7d %9.3f",
+            out.println(String.format("%-30s %8d %8d %8d %8d | %7d %9.3f %7d %9.3f",
                     workloadName,
                     stats.getActiveWorkerCount(),
                     stats.getFailedWorkerCount(),
                     stats.getKilledWorkerCount(),
                     stats.getCompletedWorkerCount(),
                     stats.getWorkInvocationCount(),
-                    stats.getAvgWorkTimeMs() / 1000f,
+                    (stats.getAvgWorkTimeMs() != null) ? stats.getAvgWorkTimeMs() / 1000f : null,
                     stats.getWorkCompletionCount(),
-                    stats.getAvgWorkCompletionTimeMs() / 1000f));
+                    (stats.getAvgWorkCompletionTimeMs() != null) ? stats.getAvgWorkCompletionTimeMs() / 1000f : null));
         }
 
         out.println();

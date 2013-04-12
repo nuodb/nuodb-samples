@@ -1,3 +1,5 @@
+/* Copyright (c) 2013 NuoDB, Inc. */
+
 /**
  * This file contains Storefront controller logic. It's all encapsulated in the "Storefront" global namespace.
  */

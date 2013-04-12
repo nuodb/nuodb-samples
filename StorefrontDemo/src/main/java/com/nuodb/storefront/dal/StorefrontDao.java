@@ -1,3 +1,5 @@
+/* Copyright (c) 2013 NuoDB, Inc. */
+
 package com.nuodb.storefront.dal;
 
 import java.math.BigDecimal;
@@ -225,7 +227,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
         if (sort != null) {
             switch (sort) {
                 case AVG_CUSTOMER_REVIEW:
-                    sql.append(" order by coalesce(rating, -1) desc");
+                    sql.append(" order by coalesce(rating, -1) desc, reviewcount desc");
                     break;
 
                 case DATE_CREATED:
@@ -307,7 +309,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
         synchronized (s_transactionStatsMap) {
             TransactionStats stats = s_transactionStatsMap.get(transactionName);
             if (stats == null) {
-                throw new RuntimeException("Transaction with name '" + transactionName + "' is not registered.");
+                s_transactionStatsMap.put(transactionName, stats = new TransactionStats());
             }
             stats.incrementCount(transactionName, System.currentTimeMillis() - startTimeMs, success);
         }

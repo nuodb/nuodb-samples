@@ -1,3 +1,5 @@
+/* Copyright (c) 2013 NuoDB, Inc. */
+
 /**
  * This file provides a lightweight wrapper of the Handlebars templating system, leveraging jQuery.
  * It ensures each client-side template is compiled no more than once.

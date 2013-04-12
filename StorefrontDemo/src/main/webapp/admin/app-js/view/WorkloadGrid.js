@@ -1,3 +1,5 @@
+/* Copyright (c) 2013 NuoDB, Inc. */
+
 Ext.define('App.view.WorkloadGrid', {
     extend: 'Ext.grid.Panel',
     requires: ['App.model.Workload'],

@@ -1,3 +1,5 @@
+/* Copyright (c) 2013 NuoDB, Inc. */
+
 /**
  * This file defines custom formatting "helpers" for use with the Handlebars template system.
  */

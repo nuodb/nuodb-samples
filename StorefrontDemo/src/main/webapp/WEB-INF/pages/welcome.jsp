@@ -1,3 +1,4 @@
+<%-- Copyright (c) 2013 NuoDB, Inc. --%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
@@ -63,7 +64,7 @@
                     <div class="carousel-caption">
                         <h3>Variable<br />Workloads</h3>
                         <h4><b>Try a bait &amp; switch</b></h4>
-                        <p>Pull a 180 by changing the mix of OLTP and ELT transactions.<br />Use the <b>Simulated Workloads</b> form below to change<br />the ratio of back office to shopper workloads.</p>
+                        <p>Pull a 180 by changing the mix of OLTP and analytic transactions.<br />Use the <b>Simulated Workloads</b> form below to change<br />the ratio of back office to shopper workloads.</p>
                     </div>
                 </div>
             </div>
@@ -73,7 +74,7 @@
         <!-- Workload controls -->
         <div class="row">
             <div class="span12">
-                <h2 id="workload-sec">Simulated Workloads</h2>
+                <h2 id="workload-sec">Simulated Workload Setup</h2>
                 <t:messages />
                 <form method="post" action="#workload-sec">
                     <table class="table table-hover table-bordered">

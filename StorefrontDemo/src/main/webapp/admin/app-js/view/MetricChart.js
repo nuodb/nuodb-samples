@@ -1,3 +1,5 @@
+/* Copyright (c) 2013 NuoDB, Inc. */
+
 Ext.define('App.view.MetricChart', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.metricchart',
