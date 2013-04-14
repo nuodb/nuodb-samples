@@ -11,7 +11,6 @@ Ext.define('App.view.HeaderBar', {
     border: false,
     cls: 'nuo-header',
     enableOverflow: true,
-    padding: '3 20 3 0',
 
     /** @Override */
     initComponent: function() {
@@ -27,10 +26,11 @@ Ext.define('App.view.HeaderBar', {
                 xtype: 'button',
                 id: 'btnWelcome',
                 itemId: 'welcome',
+                text: App.app.title,
+                tooltip: 'Describes the purpose of the Storefront demo and let\'s you configure simulated workloads', 
                 iconAlign: 'left',
                 iconCls: 'ico-nuodb',
                 scale: 'large',
-                text: App.app.title,
                 enableToggle: true,
                 allowDepress: false,
                 pressed: true,
@@ -43,7 +43,7 @@ Ext.define('App.view.HeaderBar', {
             margin: '0 4 0 0',
             items: {
                 xtype: 'splitbutton',
-                tooltip: 'Go shopping!',
+                tooltip: 'Shows the storefront web UI',
                 id: 'btnShowStore',
                 itemId: 'storefront',
                 iconAlign: 'top',
@@ -68,6 +68,7 @@ Ext.define('App.view.HeaderBar', {
         }, {
             xtype: 'metricwell',
             text: '<b>NuoDB</b> transactions/sec',
+            tooltip: 'Shows NuoDB\'s performance metrics',
             graphVisible: false,
             metric: 'dbStats.tps',
             format: 'TBD',
@@ -78,6 +79,7 @@ Ext.define('App.view.HeaderBar', {
         }, {
             xtype: 'metricwell',
             text: '<b>Service</b> calls/sec',
+            tooltip: 'Shows application\'s service layer metrics',
             format: ',.0',
             metric: 'transactionStats.all.totalCountDelta',
             itemId: 'metrics-service',
@@ -87,6 +89,7 @@ Ext.define('App.view.HeaderBar', {
         }, {
             xtype: 'metricwell',
             text: '<b>Store</b> items in carts',
+            tooltip: 'Shows store metrics',
             metric: 'storefrontStats.all.cartItemCount',
             itemId: 'metrics-storefront',
             listeners: {
@@ -95,6 +98,7 @@ Ext.define('App.view.HeaderBar', {
         }, {
             xtype: 'metricwell',
             text: '<b>Simulator</b> active users',
+            tooltip: 'Shows simulated activity metrics',
             metric: 'workloadStats.all.activeWorkerCount',
             itemId: 'metrics-simulator',
             listeners: {

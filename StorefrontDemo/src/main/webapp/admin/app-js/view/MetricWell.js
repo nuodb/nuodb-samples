@@ -129,6 +129,7 @@ Ext.define('App.view.MetricWell', {
         var me = this;
         me.callParent(arguments);
         me.syncGraph();
+        me.getEl().dom.setAttribute('data-qtip', me.tooltip);
     },
     
     toggle: function(state, suppressEvent) {

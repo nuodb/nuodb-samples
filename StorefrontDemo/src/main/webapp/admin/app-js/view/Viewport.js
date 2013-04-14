@@ -7,7 +7,7 @@
  */
 Ext.define('App.view.Viewport', {
     extend: 'Ext.container.Viewport',
-    requires: ['App.view.HeaderBar', 'App.view.FooterBar', 'App.view.ControlPanel', 'App.view.MetricDashboard', 'Ext.ux.IFrame'],
+    requires: ['App.view.HeaderBar', 'App.view.MessageBar', 'App.view.FooterBar', 'App.view.ControlPanel', 'App.view.MetricDashboard', 'Ext.ux.IFrame'],
 
     layout: 'border',
 
@@ -17,6 +17,9 @@ Ext.define('App.view.Viewport', {
         me.frameMap = {};
 
         me.items = [{
+            region: 'north',
+            xtype: 'messagebar'
+        }, {
             region: 'north',
             xtype: 'headerbar',
             listeners: {
@@ -47,12 +50,19 @@ Ext.define('App.view.Viewport', {
             me.onViewChange(viewName);
         }
     },
+    
+    refreshView: function(viewName) {
+        var me = this;
+        if (me.frameMap[viewName]) {
+            me.frameMap[viewName].load(me.getViewUrl(viewName));
+        }
+    },
 
     onViewChange: function(viewName) {
         var me = this;
         var centerLayout = me.center.getLayout();
         var viewUrl = me.getViewUrl(viewName);
-        
+
         if (viewUrl) {
             // Show URL of the view in an iframe
             

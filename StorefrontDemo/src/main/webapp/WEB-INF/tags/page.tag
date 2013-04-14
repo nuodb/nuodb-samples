@@ -52,7 +52,7 @@
 
         <% if (showHeader == null || showHeader == true) { %>
         <!-- Footer  -->
-        <div class="footer">Copyright &copy; 2013 <%=cfg.getStorefrontName()%>. All rights reserved.</div>
+        <div class="footer">Copyright &copy; 2013 NuoDB, Inc. All rights reserved.</div>
         <% } %>
     </div>
 

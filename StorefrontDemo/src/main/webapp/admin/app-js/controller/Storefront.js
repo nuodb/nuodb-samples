@@ -30,8 +30,8 @@ Ext.define('App.controller.Storefront', {
         var me = this;
 
         // Initialize workload store
-        // me.getStore('Workloads').on('update', me.onWorkloadChange.bind(me));
-        // me.reloadWorkloadStore();
+        me.getStore('Workloads').on('update', me.onWorkloadChange.bind(me));
+        me.reloadWorkloadStore();
 
         // Refresh stats periodically
         refreshInterval = setInterval(me.onRefreshStats.bind(me), App.app.refreshFrequencyMs);
@@ -193,7 +193,10 @@ Ext.define('App.controller.Storefront', {
 
                 // Notify other listeners of the change
                 me.application.fireEvent('statschange', me);
-            }
+            }, 
+            failure: function(response) {
+                me.application.fireEvent('statsfail', response.status);
+            }            
         });
     },
 

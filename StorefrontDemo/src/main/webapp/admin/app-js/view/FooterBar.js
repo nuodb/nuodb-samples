@@ -11,8 +11,7 @@ Ext.define('App.view.FooterBar', {
     cls: 'nuo-footer',
     enableOverflow: false,
     height: 30,
-    padding: '0 20 0 20',
-
+    
     /** @Override */
     initComponent: function() {
         var me = this;

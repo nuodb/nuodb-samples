@@ -34,7 +34,7 @@
         	                                </div>    
             	                        </td>
                 	                    <td class="price text-right">{{priceFormat product.unitPrice}}</td>
-                    	                <td class="text-right"><input class="input-mini" type="number" name="product-{{product.id}}" value="{{quantity}}" min="0" step="1" /></td>
+                    	                <td class="text-right"><input class="input-mini" type="number" name="product-{{product.id}}" value="{{quantity}}" min="0" max="9999" step="1" /></td>
 	                                </tr>
     	                        {{/result}}
         	                </tbody>

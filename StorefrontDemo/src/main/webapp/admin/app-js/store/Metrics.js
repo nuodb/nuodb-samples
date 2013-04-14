@@ -14,16 +14,17 @@ Ext.define('App.store.Metrics', {
            
            // Service metrics
            { category: 'transactionStats', name: 'totalCountDelta', aggregate: true, view: 'metrics-service', title: 'Service Calls per Second', unit: 'Calls/second' },
-           //{ category: 'transactionStats', name: 'successCount', aggregate: true, view: 'metrics-service', title: 'Total Successful Calls', unit: 'Calls' },
            { category: 'transactionStats', name: 'totalDurationMsDelta', aggregate: true, view: 'metrics-service', title: 'Service Processing Time', unit: 'Milliseconds' },
+           //{ category: 'transactionStats', name: 'successCount', aggregate: true, view: 'metrics-service', title: 'Total Successful Calls', unit: 'Calls' },
            //{ category: 'transactionStats', name: 'failureCount', aggregate: true, view: 'metrics-service', title: 'Total Failed Calls', unit: 'Calls' },
            
            // Storefront metrics
            { category: 'storefrontStats', name: 'cartItemCount', aggregate: true, view: 'metrics-storefront', title: 'Total Items in Shopping Carts', unit: 'Items' },
-           //{ category: 'storefrontStats', name: 'purchaseItemCount', aggregate: true, view: 'metrics-storefront', title: 'Total Items Purchased', unit: 'Items' },
            { category: 'storefrontStats', name: 'activeCustomerCount', aggregate: true, view: 'metrics-storefront', title: 'Active Customer Sessions (20 min expiry)', unit: 'Sessions' },
            { category: 'storefrontStats', name: 'purchaseItemCountDelta', aggregate: true, view: 'metrics-storefront', title: 'Items Purchased per Second', unit: 'Items/second' },
            { category: 'storefrontStats', name: 'productReviewCountDelta', aggregate: true, view: 'metrics-storefront', title: 'Reviews Written per Second', unit: 'Reviews/second' },
+           //{ category: 'storefrontStats', name: 'cartItemCount', aggregate: true, view: 'metrics-storefront', title: 'Total Items in Shopping Carts', unit: 'Items' },
+           //{ category: 'storefrontStats', name: 'purchaseItemCount', aggregate: true, view: 'metrics-storefront', title: 'Total Items Purchased', unit: 'Items' },
            
            // Simulator metrics
            { category: 'workloadStats', name: 'activeWorkerCount', aggregate: false, view: 'metrics-simulator', title: 'Active Simulated Users', unit: 'Users' },

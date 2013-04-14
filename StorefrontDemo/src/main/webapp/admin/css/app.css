@@ -11,6 +11,20 @@
     color: #e6e6e6;
     box-shadow: 0 0 10px #888;
     z-index: 99;
+    padding: 3px 20px 3px 0px;
+}
+
+.x-toolbar-default.message {
+    background-color: #c00;
+    background-image: none;
+    padding: 5px 10px;
+    z-index: 100;
+    padding: 3px 20px 3px 0px;
+}
+
+.x-toolbar-default.message .x-toolbar-text {
+    color: #eee;
+    padding: 8px 10px 8px 10px;    
 }
 
 .x-toolbar-default.nuo-footer {
@@ -19,7 +33,8 @@
     background-position: top;
     color: #e6e6e6;
     box-shadow: 0 0 10px #888;
-    z-index: 99;
+    z-index: 98;
+    padding: 0px 20px;
 }
 
 .x-toolbar-default.nuo-footer label {

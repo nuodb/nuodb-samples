@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Random;
 
 import com.googlecode.genericdao.search.SearchResult;
+import com.nuodb.storefront.exception.CartEmptyException;
 import com.nuodb.storefront.exception.UnsupportedStepException;
 import com.nuodb.storefront.model.Cart;
 import com.nuodb.storefront.model.CartSelection;
@@ -210,7 +211,11 @@ public class SimulatedUser implements IWorker {
         if (!getOrFetchNonEmptyCart()) {
             return;
         }
-        simulator.getService().checkout(customer.getId());
+        try {
+            simulator.getService().checkout(customer.getId());
+        } catch (CartEmptyException e) {
+            // This should happen only if there's nothing in the store.
+        }
         cart = null;
     }
     
@@ -226,7 +231,7 @@ public class SimulatedUser implements IWorker {
     }
 
     protected boolean getOrFetchProductList() {
-        if (products == null) {
+        if (products == null || products.getResult().isEmpty()) {
             doBrowse();
         }
 

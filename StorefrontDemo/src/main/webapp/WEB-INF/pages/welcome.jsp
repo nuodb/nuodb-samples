@@ -14,12 +14,13 @@
                     <li id="lnk-show-ddl"><a href="#" title="Displays the drop and create DDL statements of the Storefront schema"><i class="icon-align-justify"></i> Show DDL</a></li>
                     <li><a href="https://github.com/nuodb/nuodb-samples/tree/master/StorefrontDemo" target="_blank" title="Opens the source code in a new tab (hosted by GitHub)"><i class="icon-file"></i> View Source</a></li>
                     <t:admin-link />
+                    <li><a href="http://www.nuodb.com/groups/dev-center/" target="_blank" title="Goes to the NuoDB Dev Center for technical details about this sample and NuoDB"><i class="icon-info-sign"></i> Help</a></li>
                 </ul>
             </div>
         </div>
-        
+
         <!-- DDL -->
-        <div class="row" id="ddl">            
+        <div class="row" id="ddl">
             <div class="span12">
                 <h2>Storefront DDL</h2>
                 <textarea></textarea>
@@ -39,32 +40,55 @@
                 <div class="item active">
                     <img src="img/carousel/cart.png" height="347" />
                     <div class="carousel-caption">
-                        <h2>Go on...<br /><b>kick the tires</b></h2>
-                        <h4>Dive in to this <b>practical example</b> of a<br />Java web application &ndash; showcasing the<br />key benefits of NuoDB.</h4>
+                        <h2>
+                            Go on...<br />
+                            <b>kick the tires</b>
+                        </h2>
+                        <h4>
+                            Dive in to this <b>practical example</b> of a<br />Java web application &ndash; showcasing the<br />key benefits of NuoDB.
+                        </h4>
                     </div>
                 </div>
                 <div class="item">
                     <img src="img/carousel/flock.png" height="347" />
                     <div class="carousel-caption">
-                        <h3>&nbsp;<br/>Elasticity</h3>
-                        <h4><b>Open the floodgates</b></h4>
-                        <p>See how NuoDB reacts to a sudden flock of customers.<br />Use the <b>Simulated Workloads</b> form below to increase<br />the number of customer workloads.</p>
+                        <h3>
+                            &nbsp;<br />Elasticity
+                        </h3>
+                        <h4>
+                            <b>Open the floodgates</b>
+                        </h4>
+                        <p>
+                            See how NuoDB reacts to a sudden flock of customers.<br />Use the <b>Simulated User Setup</b> and <b>Node Setup</b> forms below<br />to increase the number of customer workloads and NuoDB nodes.
+                        </p>
                     </div>
                 </div>
                 <div class="item">
                     <img src="img/carousel/bags.png" height="347" />
                     <div class="carousel-caption">
-                        <h3>Multi-<br />Tenancy</h3>
-                        <h4><b>Hang some new shingles</b></h4>
-                        <p>Launch multiple stores with the same NuoDB instances.<br />Click <b>Show DDL</b> and you&rsquo;ll have the scripts<br />to create your additional schemas.</p>
+                        <h3>
+                            Multi-<br />Tenancy
+                        </h3>
+                        <h4>
+                            <b>Hang some new shingles</b>
+                        </h4>
+                        <p>
+                            Launch multiple stores with the same NuoDB nodes.<br />Click <b>Show DDL</b> and you&rsquo;ll have the scripts<br />to create your additional databases.
+                        </p>
                     </div>
                 </div>
                 <div class="item">
                     <img src="img/carousel/switch.png" height="347" />
                     <div class="carousel-caption">
-                        <h3>Variable<br />Workloads</h3>
-                        <h4><b>Try a bait &amp; switch</b></h4>
-                        <p>Pull a 180 by changing the mix of OLTP and analytic transactions.<br />Use the <b>Simulated Workloads</b> form below to change<br />the ratio of back office to shopper workloads.</p>
+                        <h3>
+                            Variable<br />Workloads
+                        </h3>
+                        <h4>
+                            <b>Try a bait &amp; switch</b>
+                        </h4>
+                        <p>
+                            Pull a 180 by changing the mix of OLTP and analytic transactions.<br />Use the <b>Simulated Users</b> form below to change<br />the ratio of back office to shopper workloads.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -74,7 +98,7 @@
         <!-- Workload controls -->
         <div class="row">
             <div class="span12">
-                <h2 id="workload-sec">Simulated Workload Setup</h2>
+                <h2 id="workload-sec">Simulated User Setup</h2>
                 <t:messages />
                 <form method="post" action="#workload-sec">
                     <table class="table table-hover table-bordered">
@@ -89,8 +113,9 @@
                         </tbody>
                     </table>
                     <p class="text-right">
-                        <button class="btn btn-primary" type="submit">Update Users</button>&nbsp;
-                        <button class="btn" id="btn-reset" title="Sets the number of user to 0 across all workloads">Reset All</button>
+                        <button class="btn btn-primary" type="submit">Update Users</button>
+                        &nbsp;
+                        <button class="btn" id="btn-reset" title="Sets the number of user to 0 across all workloads">Stop All</button>
                     </p>
                 </form>
             </div>
@@ -128,5 +153,16 @@
             </tr>
             {{/result}}  
         </script>
+        <hr />
     </div>
+
+    <div class="row">
+        <div class="span12">
+            <h2 id="workload-sec">Node Setup</h2>
+            <p>To add nodes to your NuoDB cluster, use the NuoDB Console.</p>
+            <p>If you are running NuoDB locally with default settings you will find it at <a href="http://localhost:8080/">http://localhost:8080/</a>.</p>
+        </div>
+    </div>
+    
+    <div class="footer">Copyright &copy; 2013 NuoDB, Inc. All rights reserved.</div>
 </t:page>

@@ -152,10 +152,10 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
                 + " (select count(*) from customer where datelastactive >= :minActiveTime) as activeCustomerCount,"
                 + " (select count(*) from (select distinct customer_id from cart_selection)) as cartCount,"
                 + " (select sum(quantity) from cart_selection) as cartItemCount,"
-                + " (select sum(cast(quantity as decimal(8,2)) * unitprice) from cart_selection) as cartValue,"
+                + " (select sum(cast(quantity as decimal(16,2)) * unitprice) from cart_selection) as cartValue,"
                 + " (select count(*) from purchase) as purchaseCount,"
                 + " (select sum(quantity) from purchase_selection) as purchaseItemCount,"
-                + " (select sum(cast(quantity as decimal(8,2)) * unitprice) from purchase_selection) as purchaseValue"
+                + " (select sum(cast(quantity as decimal(16,2)) * unitprice) from purchase_selection) as purchaseValue"
                 + " from dual;");
 
         // Calc minActiveTime
