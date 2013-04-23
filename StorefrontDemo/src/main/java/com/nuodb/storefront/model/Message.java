@@ -5,13 +5,15 @@ package com.nuodb.storefront.model;
 public class Message {
     private MessageSeverity severity;
     private String message;
-    
+    private String[] buttons;
+
     public Message() {
     }
-    
-    public Message(MessageSeverity severity, String message) {
+
+    public Message(MessageSeverity severity, String message, String... buttons) {
         this.severity = severity;
         this.message = message;
+        this.buttons = buttons;
     }
 
     public MessageSeverity getSeverity() {
@@ -28,5 +30,13 @@ public class Message {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String[] getButtons() {
+        return buttons;
+    }
+
+    public void setButtons(String[] buttons) {
+        this.buttons = buttons;
     }
 }

@@ -28,10 +28,14 @@ public class WelcomeServlet extends BaseServlet {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Map<String, Object> pageData = new HashMap<String, Object>();
-        pageData.put("workloads", getSimulator().getWorkloadStats().values());
-        pageData.put("ddl", getDdl());
-        showPage(req, resp, null, "welcome", pageData, new Customer());
+        try {
+            Map<String, Object> pageData = new HashMap<String, Object>();
+            pageData.put("workloads", getSimulator().getWorkloadStats().values());
+            pageData.put("ddl", getDdl());
+            showPage(req, resp, null, "welcome", pageData, new Customer());
+        } catch (Exception ex) {
+            showCriticalErrorPage(req, resp, ex);
+        }
     }
 
     /**
