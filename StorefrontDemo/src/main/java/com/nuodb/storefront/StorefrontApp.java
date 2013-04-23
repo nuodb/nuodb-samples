@@ -33,6 +33,7 @@ public class StorefrontApp {
      * <li>generate -- generate dummy storefront data</li>
      * <li>load -- load storefront data from src/main/resources/sample-products.json file</li>
      * <li>simulate -- simulate customer activity</li>
+     * <li>benchmark -- run benchmark workload </li>
      * </ul>
      */
     public static void main(String[] args) throws Exception {
@@ -56,6 +57,8 @@ public class StorefrontApp {
                 System.out.println("Data loaded successfully.  " + getProductStats());
             } else if ("simulate".equalsIgnoreCase(action)) {
                 simulateActivity();
+            } else if ("benchmark".equalsIgnoreCase(action)) {
+                benchmark();
             } else {
                 throw new IllegalArgumentException("Unknown action:  " + action);
             }
@@ -93,6 +96,14 @@ public class StorefrontApp {
         List<Product> products = mapper.readValue(stream, new TypeReference<ArrayList<Product>>() {
         });
         StorefrontFactory.createDataGeneratorService().generateProductReviews(100, products, 10);
+    }
+    
+    public static void benchmark() throws InterruptedException {
+        ISimulatorService simulator = StorefrontFactory.getSimulatorService();
+        simulator.addWorkers(Workload.SHOPPER_SUPER_FAST, 100, 0);
+        Thread.sleep(10000);
+        System.out.println(simulator.getWorkloadStats().get(Workload.SHOPPER_SUPER_FAST.getName()).getWorkCompletionCount());
+        simulator.shutdown();
     }
     
     public static void simulateActivity() throws InterruptedException {

@@ -3,12 +3,14 @@
 
 <hibernate-configuration>
 	<session-factory>
+
 		<property name="dialect">com.nuodb.hibernate.NuoDBDialect</property>
 		<property name="connection.driver_class">com.nuodb.jdbc.Driver</property>
 		<property name="connection.url">jdbc:com.nuodb://localhost:48004/Storefront</property>
 		<property name="connection.username">StorefrontUser</property>
 		<property name="connection.password">StorefrontUser</property>
 		<property name="hibernate.connection.schema">Storefront</property>
+		<property name="hibernate.connection.isolation">5</property>
 
 		<!-- Use the Hibernate built-in pool -->
 		<property name="connection.pool_size">30</property>
@@ -33,12 +35,12 @@
 		<property name="current_session_context_class">thread</property>
 
 		<!-- Add mappings (using annotations) -->
-		<mapping class="com.nuodb.storefront.model.CartSelection"/>
-		<mapping class="com.nuodb.storefront.model.Customer"/>
-		<mapping class="com.nuodb.storefront.model.Product"/>
-		<mapping class="com.nuodb.storefront.model.ProductReview"/>
-		<mapping class="com.nuodb.storefront.model.Purchase"/>
-		<mapping class="com.nuodb.storefront.model.PurchaseSelection"/>
+		<mapping class="com.nuodb.storefront.model.CartSelection" />
+		<mapping class="com.nuodb.storefront.model.Customer" />
+		<mapping class="com.nuodb.storefront.model.Product" />
+		<mapping class="com.nuodb.storefront.model.ProductReview" />
+		<mapping class="com.nuodb.storefront.model.Purchase" />
+		<mapping class="com.nuodb.storefront.model.PurchaseSelection" />
 
 	</session-factory>
 

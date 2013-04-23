@@ -105,6 +105,32 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
+            
+            <plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>com.nuodb.storefront.StorefrontApp</mainClass>
+						</manifest>
+					</archive>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+					<finalName>StorefrontDriver</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+					
+				</executions>
+			</plugin>
+            
         </plugins>
     </build>
 

@@ -146,11 +146,11 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
     public StorefrontStats getStorefrontStats(int maxCustomerIdleTimeSec) {
         SQLQuery query = getSession().createSQLQuery("select"
                 + " (select count(*) from product) as productCount,"
-                + " (select count(*) from (select distinct category from product_category)) as categoryCount,"
+                + " (select count(*) from (select distinct category from product_category) as a) as categoryCount,"
                 + " (select count(*) from product_review) as productReviewCount,"
                 + " (select count(*) from customer) as customerCount,"
                 + " (select count(*) from customer where datelastactive >= :minActiveTime) as activeCustomerCount,"
-                + " (select count(*) from (select distinct customer_id from cart_selection)) as cartCount,"
+                + " (select count(*) from (select distinct customer_id from cart_selection) as b) as cartCount,"
                 + " (select sum(quantity) from cart_selection) as cartItemCount,"
                 + " (select sum(cast(quantity as decimal(16,2)) * unitprice) from cart_selection) as cartValue,"
                 + " (select count(*) from purchase) as purchaseCount,"

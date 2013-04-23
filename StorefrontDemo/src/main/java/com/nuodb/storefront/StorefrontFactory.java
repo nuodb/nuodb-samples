@@ -2,6 +2,9 @@
 
 package com.nuodb.storefront;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
@@ -27,6 +30,30 @@ public class StorefrontFactory {
     static {
         configuration = new Configuration();
         configuration.configure();
+        
+        String dbName = System.getProperty("storefront.db.name");
+        String dbUser = System.getProperty("storefront.db.user");
+        String dbPassword = System.getProperty("storefront.db.password");
+        
+        if (dbName != null) {
+            Matcher dbNameMatcher = Pattern.compile("([^@]*)@([^@:]*(?::\\d+|$))").matcher(dbName);
+            if (!dbNameMatcher.matches()) {
+                throw new IllegalArgumentException("Database name must be of the format name@host[:port]");
+            }
+            String name = dbNameMatcher.group(1);
+            String host = dbNameMatcher.group(2);            
+            
+            String url = "jdbc:com.nuodb://" + host + "/" + name;
+            
+            configuration.setProperty("hibernate.connection.url", url);
+        }
+        if (dbUser != null) {
+            configuration.setProperty("hibernate.connection.username", dbUser);
+        }
+        if (dbPassword != null) {
+            configuration.setProperty("hibernate.connection.password", dbPassword);
+        }
+                
         sessionFactory = configuration.buildSessionFactory();
     }
     
