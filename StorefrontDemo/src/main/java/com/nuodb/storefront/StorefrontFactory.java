@@ -11,6 +11,7 @@ import org.hibernate.tool.hbm2ddl.SchemaExport;
 
 import com.nuodb.storefront.dal.IStorefrontDao;
 import com.nuodb.storefront.dal.StorefrontDao;
+import com.nuodb.storefront.model.DbConnInfo;
 import com.nuodb.storefront.service.IDataGeneratorService;
 import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
@@ -24,12 +25,17 @@ import com.nuodb.storefront.service.storefront.StorefrontService;
  * injection, e.g. via the Spring framework.
  */
 public class StorefrontFactory {
-    private static final SessionFactory sessionFactory;
-    private static final Configuration configuration;
+    private static final Configuration s_configuration;
+    private static volatile SessionFactory s_sessionFactory;
+    private static volatile ISimulatorService s_simulator;
+    
+    private static final String CFG_URL = "hibernate.connection.url";
+    private static final String CFG_USERNAME = "hibernate.connection.username";
+    private static final String CFG_PASSWORD = "hibernate.connection.password";
 
     static {
-        configuration = new Configuration();
-        configuration.configure();
+        s_configuration = new Configuration();
+        s_configuration.configure();
         
         String dbName = System.getProperty("storefront.db.name");
         String dbUser = System.getProperty("storefront.db.user");
@@ -45,28 +51,28 @@ public class StorefrontFactory {
             
             String url = "jdbc:com.nuodb://" + host + "/" + name;
             
-            configuration.setProperty("hibernate.connection.url", url);
+            s_configuration.setProperty(CFG_URL, url);
         }
         if (dbUser != null) {
-            configuration.setProperty("hibernate.connection.username", dbUser);
+            s_configuration.setProperty(CFG_USERNAME, dbUser);
         }
         if (dbPassword != null) {
-            configuration.setProperty("hibernate.connection.password", dbPassword);
+            s_configuration.setProperty(CFG_PASSWORD, dbPassword);
         }
-                
-        sessionFactory = configuration.buildSessionFactory();
-    }
-    
-    private static class SimulatorSingletonHolder {
-        // IODH-based lazy loading singleton
-        public static ISimulatorService simulator = new SimulatorService(createStorefrontService());
     }
 
     private StorefrontFactory() {
     }
+    
+    public static DbConnInfo getDbConnInfo() {
+        DbConnInfo info = new DbConnInfo();
+        info.setUrl(s_configuration.getProperty(CFG_URL));
+        info.setUsername(s_configuration.getProperty(CFG_USERNAME));
+        return info;
+    }
 
     public static SchemaExport createSchemaExport() {
-        return new SchemaExport(configuration);
+        return new SchemaExport(s_configuration);
     }
 
     public static IStorefrontService createStorefrontService() {
@@ -78,12 +84,35 @@ public class StorefrontFactory {
     }
     
     public static ISimulatorService getSimulatorService() {
-        return SimulatorSingletonHolder.simulator;
+        if (s_simulator == null) {
+            synchronized (s_configuration) {
+                s_simulator = new SimulatorService(createStorefrontService());
+            }
+        }
+        return s_simulator;
     }
 
     private static IStorefrontDao createStorefrontDao() {
         StorefrontDao dao = new StorefrontDao();
-        dao.setSessionFactory(sessionFactory);
+        dao.setSessionFactory(getOrCreateSessionFactory());
         return dao;
+    }
+    
+    private static SessionFactory getOrCreateSessionFactory() {
+        if (s_sessionFactory == null) {
+            synchronized (s_configuration) {
+                if (s_sessionFactory == null) {
+                    s_sessionFactory = s_configuration.buildSessionFactory();
+                    try {
+                        // Ensure we have a valid database connection
+                        s_sessionFactory.openSession().beginTransaction().rollback();
+                    } catch (Exception e) {
+                        s_sessionFactory = null;
+                        throw (e instanceof RuntimeException) ? ((RuntimeException)e) : new RuntimeException(e);
+                    }
+                }
+            }
+        }
+        return s_sessionFactory;
     }
 }

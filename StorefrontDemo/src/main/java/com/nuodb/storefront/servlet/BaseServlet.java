@@ -13,8 +13,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.exception.GenericJDBCException;
+
 import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.model.Customer;
+import com.nuodb.storefront.model.DbConnInfo;
 import com.nuodb.storefront.model.Message;
 import com.nuodb.storefront.model.MessageSeverity;
 import com.nuodb.storefront.model.PageConfig;
@@ -32,13 +35,22 @@ public abstract class BaseServlet extends HttpServlet {
     private static final String SESSION_CUSTOMER_ID = "customerId";
     private static final int COOKIE_MAX_AGE_SEC = 60 * 60 * 24 * 31; // 1 month
     private static final long serialVersionUID = 1452096145544476070L;
-    private static final IStorefrontService s_svc = StorefrontFactory.createStorefrontService();
-    private static final String s_storefrontName = getService().getStorefrontStats(0).getStorefrontName();
+    private static final Object s_svcLock = new Object();
+    private static volatile IStorefrontService s_svc;
+    private static volatile String s_storefrontName = "Uninitialized Storefront";
 
     protected BaseServlet() {
     }
 
     public static IStorefrontService getService() {
+        if (s_svc == null) {
+            synchronized (s_svcLock) {
+                if (s_svc == null) {
+                    s_svc = StorefrontFactory.createStorefrontService();
+                    s_storefrontName = getService().getStorefrontStats(0).getStorefrontName();
+                }
+            }
+        }
         return s_svc;
     }
 
@@ -93,8 +105,8 @@ public abstract class BaseServlet extends HttpServlet {
         addMessage(req, MessageSeverity.ERROR, errorMsg);
     }
 
-    public static void addMessage(HttpServletRequest req, MessageSeverity severity, String message) {
-        getMessages(req).add(new Message(severity, message));
+    public static void addMessage(HttpServletRequest req, MessageSeverity severity, String message, String... buttons) {
+        getMessages(req).add(new Message(severity, message, buttons));
     }
 
     public static List<Message> getMessages(HttpServletRequest req) {
@@ -136,5 +148,15 @@ public abstract class BaseServlet extends HttpServlet {
 
         // Render JSP page
         req.getRequestDispatcher("/WEB-INF/pages/" + pageName + ".jsp").forward(req, resp);
+    }
+
+    protected static void showCriticalErrorPage(HttpServletRequest req, HttpServletResponse resp, Exception ex) throws ServletException, IOException {
+        addErrorMessage(req, ex);
+        if (ex instanceof GenericJDBCException) {
+            DbConnInfo dbInfo = StorefrontFactory.getDbConnInfo();
+            addMessage(req, MessageSeverity.INFO, "Tip:  Check that the NuoDB database is running.  The storefront is trying to connect to \"" + dbInfo.getUrl() + "\" with the username \"" + dbInfo.getUsername() + "\".");
+        }
+        Customer customer = (Customer) req.getAttribute(ATTR_CUSTOMER);
+        showPage(req, resp, "Storefront Problem", "error", null, (customer == null) ? new Customer() : customer);
     }
 }

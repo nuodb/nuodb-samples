@@ -13,7 +13,14 @@ var Storefront = {
         me.initSearchBox();
         if (window.self === window.top) {
             $('#admin-link').show();
-        }
+        }        
+        $('.alert .btn').click(function() {
+            var buttons = $('.btn', $(this).closest('form'));
+            setTimeout(function() {
+                buttons.attr('disabled', 'disabled');
+            }, 0);
+        });
+        
 
         // Initialize page-specific elements
         switch (cfg.pageName) {

@@ -87,7 +87,7 @@ public class StorefrontApp {
     }
 
     public static void generateData() {
-        StorefrontFactory.createDataGeneratorService().generateAll(100, 1000, 2, 10);
+        StorefrontFactory.createDataGeneratorService().generateAll(100, 5000, 2, 10);
     }
 
     public static void loadData() throws IOException {
