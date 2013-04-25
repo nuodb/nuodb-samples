@@ -3,5 +3,5 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <t:page>
-    <a href="products" class="btn btn-large">Return to shopping</a>
+    <a href="products" class="btn btn-large">View all products</a>
 </t:page>
