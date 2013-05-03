@@ -102,6 +102,9 @@ var Storefront = {
             $('input[type=number]').val('0');
             $(this).closest('form').submit();
         });
+        
+        // Handle tooltips
+        $('a[data-toggle="tooltip"]').tooltip();
     },
 
     initProductsPage: function(products, categories, filter) {

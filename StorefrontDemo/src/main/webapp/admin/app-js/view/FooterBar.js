@@ -17,14 +17,15 @@ Ext.define('App.view.FooterBar', {
         var me = this;
         
         me.items = [];
+        me.items.push('->');
         me.addLabelConfig('Categories', 'lblCategories', 'storefrontStats.all.categoryCount', me.formatNumber);
         me.addLabelConfig('Products', 'lblProducts', 'storefrontStats.all.productCount', me.formatNumber);
         me.addLabelConfig('Reviews', 'lblReviews', 'storefrontStats.all.productReviewCount', me.formatNumber);
         me.addLabelConfig('Customers', 'lblCustomers', 'storefrontStats.all.customerCount', me.formatNumber);
         me.addLabelConfig('Purchases', 'lblPurchases', 'storefrontStats.all.purchaseCount', me.formatNumber);
         me.addLabelConfig('Purchased value', 'lblPurchasedValue', 'storefrontStats.all.purchaseValue', Ext.util.Format.currency);
-        me.items.push('->');
         me.addLabelConfig('Uptime', 'lblUptime', 'storefrontStats.all.uptimeMs', me.formatDuration);
+        me.items.push('->');
         
         me.callParent(arguments);
         
@@ -34,7 +35,7 @@ Ext.define('App.view.FooterBar', {
     
     addLabelConfig: function(label, name, metric, formatter) {
         var me = this;
-        if (me.items.length > 0) {
+        if (me.items.length > 1) {
             me.items.push('-');
         }
         me.items.push(label);

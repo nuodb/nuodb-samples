@@ -24,23 +24,23 @@ Handlebars.registerHelper('lowerCaseFormat', function(str) {
 });
 
 Handlebars.registerHelper('numberFormat', function(number) {
-    return (number && number.format) ? number.format(0) : number;
+    return ((number || number === 0) && number.format) ? number.format(0) : number;
 });
 
 Handlebars.registerHelper('numberOrZero', function(number) {
-    return (number && number.format) ? number : '0';
+    return ((number || number === 0) && number.format) ? number : '0';
 });
 
 Handlebars.registerHelper('msFormat', function(number) {
-    return (number && number.format) ? (number / 1000).format(1) + ' seconds' : number;
+    return ((number || number === 0) && number.format) ? (number / 1000).format(1) + ' sec' : number;
 });
 
 Handlebars.registerHelper('sqrtMsFormat', function(number) {
-    return (number && number.format) ? (Math.sqrt(number) / 1000).format(1) + ' seconds' : number;
+    return ((number || number === 0) && number.format) ? (Math.sqrt(number) / 1000).format(1) + ' sec' : number;
 });
 
 Handlebars.registerHelper('priceFormat', function(price) {
-    return (price && price.format) ? '$' + price.format(2) : price;
+    return ((price || price === 0) && price.format) ? '$' + price.format(2) : price;
 });
 
 Handlebars.registerHelper('productImage', function(value) {

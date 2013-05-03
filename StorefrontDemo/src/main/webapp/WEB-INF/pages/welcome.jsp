@@ -101,12 +101,14 @@
                 <h2 id="workload-sec">Simulated User Setup</h2>
                 <t:messages />
                 <form method="post" action="#workload-sec">
-                    <table class="table table-hover table-bordered">
+                    <table class="table table-hover table-bordered table-condensed">
                         <thead>
                             <tr>
                                 <th>Workload</th>
-                                <th>Simulated Steps</th>
-                                <th class="text-right"># Users</th>
+                                <th class="text-right"><a data-toggle="tooltip" title="How long, on average, the simulated user waits between taking successive steps">Avg. think time</a></th>
+                                <th class="text-right"><a data-toggle="tooltip" title="The standard deviation of the user&rsquo;s think time">Std. dev.</a></th>
+                                <th class="workload-detail">Simulated Steps</th>
+                                <th class="text-center"># Users</th>
                             </tr>
                         </thead>
                         <tbody id="workloads">
@@ -125,22 +127,20 @@
             <tr>
                 <td>
                     <div class="media">
-                        <img class="pull-left" src="img/workload.png" width="64" height="64" />
+                        <img class="pull-left" src="img/workload.png" width="32" height="32" />
                         <div class="media-body">
                             <h4 class="media-heading">{{workload.name}}</h4>
-                            <div class="prod-metadata">
+                            <div>
                                 {{#if workload.autoRepeat}}
-									<p class="desc">
+									<p class="desc workload-detail">
 										<span class="label"><i class="icon-retweet icon-white"></i> Auto-repeating</span>
 									</p>
 								{{/if}}
-                                <div class="desc">Average think time: <b>{{{msFormat workload.avgThinkTimeMs}}</b></div>
-                                <div class="desc">Standard deviation: <b>{{sqrtMsFormat workload.thinkTimeVariance}}</b></div>
                             </div>
                         </div>
                     </div>
                 </td>
-                <td>
+                <td class="workload-detail">
 					<div class="steps">
                     	<ol>
                         	{{#workload.steps}}
@@ -149,7 +149,9 @@
                     	</ol>
 					</div>
                 </td>
-                <td class="text-right"><input class="input-mini" type="number" name="workload-{{workload.name}}" value="{{numberOrZero activeWorkerLimit}}" min="0" max="1000" step="1" /></td>
+				<td class="text-right">{{{msFormat workload.avgThinkTimeMs}}</td>
+				<td class="text-right">{{sqrtMsFormat workload.thinkTimeVariance}}</td>
+                <td class="text-center"><input class="input-mini" type="number" name="workload-{{workload.name}}" value="{{numberOrZero activeWorkerLimit}}" min="0" max="1000" step="1" /></td>
             </tr>
             {{/result}}  
         </script>

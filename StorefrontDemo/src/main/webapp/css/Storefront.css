@@ -96,6 +96,10 @@ th.text-right,
 td.text-right {
   text-align: right;
 }
+th.text-center,
+td.text-center {
+  text-align: center;
+}
 #top-bar .brand {
   padding: 0 20px 0 0;
 }
@@ -356,6 +360,22 @@ td.text-right {
 }
 #welcome .carousel .carousel-control {
   top: 10%;
+}
+#welcome .workload-detail {
+  display: none;
+}
+#welcome #workloads td {
+  vertical-align: middle;
+}
+#welcome #workloads .desc {
+  margin-bottom: 2px;
+  color: #aaa;
+}
+#welcome #workloads input {
+  margin-bottom: 0 !important;
+}
+#welcome #workloads h4 {
+  margin-top: 6px;
 }
 #welcome #workloads .steps {
   width: 250px;

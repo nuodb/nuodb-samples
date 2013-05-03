@@ -19,64 +19,57 @@ Ext.define('App.view.HeaderBar', {
 
         me.items = ['->', {
             xtype: 'container',
-            layout: 'fit',
-            height: '100%',
-            margin: '0 8 0 8',
-            items: {
-                xtype: 'button',
-                id: 'btnWelcome',
-                itemId: 'welcome',
-                text: App.app.title,
-                tooltip: 'Describes the purpose of the Storefront demo and let\'s you configure simulated workloads', 
-                iconAlign: 'left',
-                iconCls: 'ico-nuodb',
-                scale: 'large',
-                enableToggle: true,
-                allowDepress: false,
-                pressed: true,
-                handler: clickHandler
-            }
+            id: 'appTitle',
+            html: App.app.title,
+            margin: '10 0 0 0'
         }, {
-            xtype: 'container',
-            layout: 'fit',
-            height: '100%',
-            margin: '0 4 0 0',
-            items: {
-                xtype: 'splitbutton',
-                tooltip: 'Shows the storefront web UI',
-                id: 'btnShowStore',
-                itemId: 'storefront',
-                iconAlign: 'top',
-                iconCls: 'ico-store-48',
-                scale: 'large',
-                width: 80,
-                enableToggle: true,
-                allowDepress: false,
-                handler: clickHandler,
-                menu: {
-                    showSeparator: false,
-                    items: [{
-                        text: '<b>Show Default Storefront</b>',
-                        handler: clickHandler
-                    }, {
-                        text: 'Show Default Storefront in New Tab',
-                        href: '../products',
-                        hrefTarget: 'blank'
-                    }]
-                }
-            }
+            xtype: 'button',
+            margin: '0 5 0 5',
+            itemId: 'welcome',
+            cls: 'btn-header',
+            text: 'Control Panel',
+            scale: 'medium',
+            iconCls: 'ico-panel-32',
+            tooltip: 'Describes the purpose of the Storefront demo and lets you configure simulated workloads',
+            iconAlign: 'bottom',
+            scale: 'large',
+            enableToggle: true,
+            allowDepress: false,
+            pressed: true,
+            handler: clickHandler,
+            width: 110
         }, {
-            xtype: 'metricwell',
-            text: '<b>NuoDB</b> transactions/sec',
-            tooltip: 'Shows NuoDB\'s performance metrics',
-            graphVisible: false,
-            metric: 'dbStats.tps',
-            format: 'TBD',
-            itemId: 'metrics-db',
-            listeners: {
-                click: clickHandler
+            xtype: 'splitbutton',
+            tooltip: 'Shows the storefront website&mdash;where you can go shopping!',
+            margin: '0 5 0 5',
+            itemId: 'storefront',
+            cls: 'btn-header',
+            iconAlign: 'bottom',
+            iconCls: 'ico-store-32',
+            text: 'Shopping Site',
+            scale: 'large',
+            width: 80,
+            enableToggle: true,
+            allowDepress: false,
+            handler: clickHandler,
+            width: 110,
+            menu: {
+                showSeparator: false,
+                items: [{
+                    text: '<b>Show Default Storefront</b>',
+                    handler: clickHandler
+                }, {
+                    text: 'Show Default Storefront in New Tab',
+                    href: '../products',
+                    hrefTarget: 'blank'
+                }]
             }
-        }, {
+
+        }, /*
+             * { xtype: 'metricwell', text: '<b>NuoDB</b> transactions/sec', tooltip: 'Shows NuoDB\'s performance metrics',
+             * graphVisible: false, metric: 'dbStats.tps', format: 'TBD', itemId: 'metrics-db', listeners: { click:
+             * clickHandler } },
+             */{
             xtype: 'metricwell',
             text: '<b>Service</b> calls/sec',
             tooltip: 'Shows application\'s service layer metrics',

@@ -25,6 +25,10 @@ th.text-right, td.text-right {
 	text-align: right;
 }
 
+th.text-center, td.text-center {
+	text-align: center;
+}
+
 #top-bar {
 	.brand {
 		padding: 0 20px 0 0;
@@ -351,8 +355,29 @@ th.text-right, td.text-right {
 			top: 10%;
 		}
 	}
-		
+
+	.workload-detail {
+		display: none;
+	}
+	
 	#workloads {
+		td {
+			vertical-align: middle;
+		}
+		
+		.desc {
+			margin-bottom: 2px;
+			color: #aaa;
+		}
+		
+		input {
+			margin-bottom: 0 !important;
+		}
+		
+		h4 {
+			margin-top: 6px;
+		}
+		
 		.steps {
 			width: 250px;
 			

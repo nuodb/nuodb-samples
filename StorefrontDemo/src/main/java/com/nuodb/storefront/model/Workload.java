@@ -12,7 +12,7 @@ public class Workload {
     public static final Workload REVIEWER = new Workload("Customer:  Browsing & reviews", true, 20000, 10000, WorkloadStep.MULTI_BROWSE_AND_REVIEW);
     public static final Workload SHOPPER = new Workload("Customer:  Slow purchaser", true, 20000, 10000, WorkloadStep.MULTI_SHOP);
     public static final Workload SHOPPER_FAST = new Workload("Customer:  Fast purchaser", true, 5000, 2500, WorkloadStep.MULTI_SHOP);
-    public static final Workload SHOPPER_SUPER_FAST = new Workload("Customer:  Super Fast purchaser", true, 0, 0, WorkloadStep.MULTI_SHOP);
+    public static final Workload SHOPPER_SUPER_FAST = new Workload("Customer:  Instant purchaser", true, 0, 0, WorkloadStep.MULTI_SHOP);
     public static final Workload ANALYST = new Workload("Back office:  Analyst", true, 20000, 10000, WorkloadStep.ADMIN_RUN_REPORT);
 
     private final String name;
