@@ -75,9 +75,9 @@
 
         <!-- NuoDB Hibernate dialect -->
         <dependency>
-            <groupId>com.nuodb</groupId>
+            <groupId>com.nuodb.hibernate</groupId>
             <artifactId>nuodb-hibernate</artifactId>
-            <version>1.0</version>
+            <version>1.1.0</version>
         </dependency>
 
         <!-- DAO -->
