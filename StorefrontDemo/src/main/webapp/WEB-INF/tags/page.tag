@@ -12,6 +12,7 @@
     <title><%=cfg.getPageTitle()%></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="css/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/jquery.form.css" rel="stylesheet" />
     <link href="css/rateit.css" rel="stylesheet" />
     <link href="css/Storefront.css" rel="stylesheet" />
     <link rel="icon" type="image/png" href="favicon.ico" />
@@ -58,6 +59,7 @@
     </div>
 
     <script src="js/jquery-1.9.1.min.js"></script>
+    <script src="js/jquery.form.js"></script>
     <script src="js/jquery.rateit.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/handlebars.js"></script>

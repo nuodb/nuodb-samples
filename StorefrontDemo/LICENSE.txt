@@ -24,6 +24,9 @@ jQuery
 http://jquery.com/
 MIT and GPLv2
 
+jQuery Form
+http://adodson.com/jquery.form.js/
+
 Twitter Bootstrap
 http://twitter.github.com/bootstrap/
 http://www.apache.org/licenses/LICENSE-2.0

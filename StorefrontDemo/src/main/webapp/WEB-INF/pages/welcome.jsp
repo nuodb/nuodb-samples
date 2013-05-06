@@ -11,10 +11,10 @@
                     <label>Welcome to the NuoDB Storefront Demo!</label>
                 </div>
                 <ul class="nav pull-right">
-                    <li id="lnk-show-ddl"><a href="#" title="Displays the drop and create DDL statements of the Storefront schema"><i class="icon-align-justify"></i> Show DDL</a></li>
-                    <li><a href="https://github.com/nuodb/nuodb-samples/tree/master/StorefrontDemo" target="_blank" title="Opens the source code in a new tab (hosted by GitHub)"><i class="icon-file"></i> View Source</a></li>
                     <t:admin-link />
-                    <li><a href="http://www.nuodb.com/groups/dev-center/" target="_blank" title="Goes to the NuoDB Dev Center for technical details about this sample and NuoDB"><i class="icon-info-sign"></i> Help</a></li>
+                    <li><a href="https://github.com/nuodb/nuodb-samples/tree/master/StorefrontDemo" target="_blank" title="Opens the source code in a new tab (hosted by GitHub)"><i class="icon-github"></i> README</a></li>
+                    <li id="lnk-show-ddl"><a href="#" title="Displays the drop and create DDL statements of the Storefront schema"><i class="icon-align-justify"></i> DDL</a></li>
+                    <li><a href="http://www.nuodb.com/groups/dev-center/" target="_blank" title="Goes to the NuoDB Dev Center for technical details about this sample and NuoDB"><i class="icon-nuodb"></i> DevCenter</a></li>
                 </ul>
             </div>
         </div>
@@ -151,7 +151,13 @@
                 </td>
 				<td class="text-right">{{{msFormat workload.avgThinkTimeMs}}</td>
 				<td class="text-right">{{sqrtMsFormat workload.thinkTimeVariance}}</td>
-                <td class="text-center"><input class="input-mini" type="number" name="workload-{{workload.name}}" value="{{numberOrZero activeWorkerLimit}}" min="0" max="1000" step="1" /></td>
+                <td class="text-center">
+					{{#if workload.avgThinkTimeMs}}
+						<input class="input-mini" type="number" name="workload-{{workload.name}}" value="{{numberOrZero activeWorkerLimit}}" min="0" max="1000" step="1" />
+					{{else}}
+						<input readonly="readonly" title="Workloads with 0 are for benchmark running only and cannot be modified here.  This helps keep the Storefront responsive." class="input-mini" type="number" name="workload-{{workload.name}}" value="{{numberOrZero activeWorkerLimit}}" min="0" max="1000" step="1" />
+					{{/if}}
+				</td>
             </tr>
             {{/result}}  
         </script>

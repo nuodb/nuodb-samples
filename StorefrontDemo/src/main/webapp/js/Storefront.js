@@ -105,6 +105,9 @@ var Storefront = {
         
         // Handle tooltips
         $('a[data-toggle="tooltip"]').tooltip();
+        
+        // Enable HTML5 form features in browsers that don't support it
+        $('form').form();
     },
 
     initProductsPage: function(products, categories, filter) {
