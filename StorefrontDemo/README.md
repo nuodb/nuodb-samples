@@ -62,9 +62,11 @@ You can use the admin interface to view database, service, storefront, and simul
 
 The interface is accessible by browing to the web app and going to the "/admin" subdirectory.
 
-   ![ScreenShot](https://raw.github.com/nuodb/nuodb-samples/master/StorefrontDemo/doc/admin-store.png)
-
    ![ScreenShot](https://raw.github.com/nuodb/nuodb-samples/master/StorefrontDemo/doc/admin-simulator.png)
+
+   ![ScreenShot](https://raw.github.com/nuodb/nuodb-samples/master/StorefrontDemo/doc/admin-service.png)
+   
+   ![ScreenShot](https://raw.github.com/nuodb/nuodb-samples/master/StorefrontDemo/doc/admin-store.png)
 
 Key libraries used by this project
 ----------------------------------
