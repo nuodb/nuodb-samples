@@ -20,6 +20,7 @@ Getting Started (command line)
         cd nuodb-samples\StorefrontDemo
         mvn tomcat:run
 4.  Explore the web app at `http://localhost:8888/StorefrontDemo`.  (If you want to run it using a different port, edit the `nuodb-samples/StorefrontDemo/pom.xml` file.)
+
 Getting Started (Eclipse)
 ---------------
 
