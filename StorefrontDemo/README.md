@@ -7,30 +7,39 @@ This web application implements a mock storefront to highlight some of NuoDB's g
 
 While the store itself is not really open for business, the queries being run under the hood are quite real!
 
-Getting started
+Getting Started (command line)
 ---------------
 
-1. Build the project using Maven within the Eclipse IDE.
-2. Create a NuoDB database and schema for the Storefront data.
-3. Edit src/main/resources/hiberante.cfg.xml to specify your database's URL, uername, password, and schema name.
-4. Seed the database with data using the runnable StorefrontApp.
-5. Run the application by either:
-   - Using an application server such as Tomcat and/or
-   - Using the load simulator action from StorefrontApp
+1.  Grab the source code from Git:
+
+        git clone git://github.com/nuodb/nuodb-samples.git
+
+2.  Create a NuoDB "Storefront" database with "StorefrontUser" as the username and "StorefrontUser" as the password.  If you want to change these defaults, edit the `nuodb-samples/StorefrontDemo/src/main/resources/hibernate.cfg.xml` file.
+3. Run the Storefront web app:
+
+        cd nuodb-samples\StorefrontDemo
+        mvn tomcat:run
+4.  Explore the web app at `http://localhost:8888/StorefrontDemo`.  (If you want to run it using a different port, edit the `nuodb-samples/StorefrontDemo/pom.xml` file.)
+Getting Started (Eclipse)
+---------------
+
+See the [Storefront Demo Developer Setup Guide](NuoDB-Storefront.ppt) for step-by-step instructions with screenshots.
 
 StorefrontApp command line utility
 -----------------------------------
 
-`com.nuodb.storefront.StorefrontApp` supports the following actions via command line arguments.  If you specify multiple actions, they are executed in sequence.
+`com.nuodb.storefront.StorefrontApp` supports the following actions via command line arguments.  
 
 - `create` -- create schema
 - `drop` -- drop schema
 - `showddl` -- display drop and create DDL
 - `generate` -- generate dummy storefront data
 - `load` -- load storefront data from src/main/resources/sample-products.json file
-- `simulate` -- simulate customer activity
+- `simulate` -- simulate customer activity with a mix of workloads for 100 seconds
+- `benchmark` -- run benchmark simulation for 1 minute
 
-For example, to recreate the schema,  initialize it with about 1,000 products, and then stress test the app with simulated load for 1 minute, specify the command line "drop create load simulate".
+
+If you specify multiple actions, they are executed in sequence.  For example, to recreate the schema,  initialize it with about 1,000 products, and then stress test the app with simulated load for 1 minute, specify the command line "drop create load simulate".
 
 
 Web app

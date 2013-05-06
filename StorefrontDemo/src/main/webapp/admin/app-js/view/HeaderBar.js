@@ -23,48 +23,56 @@ Ext.define('App.view.HeaderBar', {
             html: App.app.title,
             margin: '10 0 0 0'
         }, {
-            xtype: 'button',
-            margin: '0 5 0 5',
-            itemId: 'welcome',
-            cls: 'btn-header',
-            text: 'Control Panel',
-            scale: 'medium',
-            iconCls: 'ico-panel-32',
-            tooltip: 'Describes the purpose of the Storefront demo and lets you configure simulated workloads',
-            iconAlign: 'bottom',
-            scale: 'large',
-            enableToggle: true,
-            allowDepress: false,
-            pressed: true,
-            handler: clickHandler,
-            width: 110
-        }, {
-            xtype: 'splitbutton',
-            tooltip: 'Shows the storefront website&mdash;where you can go shopping!',
-            margin: '0 5 0 5',
-            itemId: 'storefront',
-            cls: 'btn-header',
-            iconAlign: 'bottom',
-            iconCls: 'ico-store-32',
-            text: 'Shopping Site',
-            scale: 'large',
-            width: 80,
-            enableToggle: true,
-            allowDepress: false,
-            handler: clickHandler,
-            width: 110,
-            menu: {
-                showSeparator: false,
-                items: [{
-                    text: '<b>Show Default Storefront</b>',
-                    handler: clickHandler
-                }, {
-                    text: 'Show Default Storefront in New Tab',
-                    href: '../products',
-                    hrefTarget: 'blank'
-                }]
+            xtype: 'container',
+            layout: 'fit',
+            items: {
+                xtype: 'button',
+                margin: '0 5 0 5',
+                itemId: 'welcome',
+                cls: 'btn-header',
+                text: 'Control Panel',
+                scale: 'medium',
+                iconCls: 'ico-panel-32',
+                tooltip: 'Describes the purpose of the Storefront demo and lets you configure simulated workloads',
+                iconAlign: 'bottom',
+                scale: 'large',
+                enableToggle: true,
+                allowDepress: false,
+                pressed: true,
+                handler: clickHandler,
+                width: 110
             }
-
+        }, {
+            xtype: 'container',
+            layout: 'fit',
+            items: {
+                xtype: 'splitbutton',
+                tooltip: 'Shows the storefront website&mdash;where you can go shopping!',
+                margin: '0 5 0 5',
+                itemId: 'storefront',
+                cls: 'btn-header',
+                iconAlign: 'bottom',
+                iconCls: 'ico-store-32',
+                text: 'Shopping Site',
+                scale: 'large',
+                width: 80,
+                enableToggle: true,
+                allowDepress: false,
+                ui: 'default',
+                handler: clickHandler,
+                width: 110,
+                menu: {
+                    showSeparator: false,
+                    items: [{
+                        text: '<b>Show Default Storefront</b>',
+                        handler: clickHandler
+                    }, {
+                        text: 'Show Default Storefront in New Tab',
+                        href: '../products',
+                        hrefTarget: 'blank'
+                    }]
+                }
+            }
         }, /*
              * { xtype: 'metricwell', text: '<b>NuoDB</b> transactions/sec', tooltip: 'Shows NuoDB\'s performance metrics',
              * graphVisible: false, metric: 'dbStats.tps', format: 'TBD', itemId: 'metrics-db', listeners: { click:

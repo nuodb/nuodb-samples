@@ -248,9 +248,9 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
 
                 case RELEVANCE:
                     if (matchText != null && !matchText.isEmpty()) {
-                        sql.append(" order by case when lower(name) like :matchText then 1 else 0 end desc, dateadded desc");
+                        sql.append(" order by case when lower(name) like :matchText then 1 else 0 end desc, name, dateadded desc");
                     } else {
-                        sql.append(" order by dateadded");
+                        sql.append(" order by name, dateadded desc");
                     }
                     break;
 
