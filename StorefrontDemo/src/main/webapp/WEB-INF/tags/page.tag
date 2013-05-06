@@ -9,12 +9,13 @@
 
 <html>
 <head>
-<title><%=cfg.getPageTitle()%></title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<link href="css/bootstrap.min.css" rel="stylesheet" />
-<link href="css/rateit.css" rel="stylesheet" />
-<link href="css/Storefront.css" rel="stylesheet" />
-<link rel="icon" type="image/png" href="favicon.ico" />
+    <title><%=cfg.getPageTitle()%></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="css/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/rateit.css" rel="stylesheet" />
+    <link href="css/Storefront.css" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="favicon.ico" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 </head>
 <body>
     <div class="container">

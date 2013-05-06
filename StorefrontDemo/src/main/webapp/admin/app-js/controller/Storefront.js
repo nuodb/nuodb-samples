@@ -30,11 +30,11 @@ Ext.define('App.controller.Storefront', {
         var me = this;
 
         // Initialize workload store
-        me.getStore('Workloads').on('update', me.onWorkloadChange.bind(me));
+        me.getStore('Workloads').on('update', Ext.bind(me.onWorkloadChange, me));
         me.reloadWorkloadStore();
 
         // Refresh stats periodically
-        refreshInterval = setInterval(me.onRefreshStats.bind(me), App.app.refreshFrequencyMs);
+        refreshInterval = setInterval(Ext.bind(me.onRefreshStats, me), App.app.refreshFrequencyMs);
 
         this.callParent(arguments);
     },

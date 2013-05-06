@@ -15,7 +15,7 @@ Ext.define('App.view.HeaderBar', {
     /** @Override */
     initComponent: function() {
         var me = this;
-        var clickHandler = me.onViewButtonClick.bind(me);
+        var clickHandler = Ext.bind(me.onViewButtonClick, me);
 
         me.items = ['->', {
             xtype: 'container',
