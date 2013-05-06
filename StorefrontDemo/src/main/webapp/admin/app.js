@@ -1,5 +1,9 @@
 /* Copyright (c) 2013 NuoDB, Inc. */
 
+String.prototype.endsWith = function(suffix) {
+    return this.indexOf(suffix, this.length - suffix.length) !== -1;
+};
+
 /**
  * Defines the admin application.
  */

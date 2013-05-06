@@ -23,7 +23,7 @@ Ext.define('App.view.Viewport', {
             region: 'north',
             xtype: 'headerbar',
             listeners: {
-                viewchange: me.onViewChange.bind(me)
+                viewchange: Ext.bind(me.onViewChange, me)
             }
         }, {
             region: 'center',

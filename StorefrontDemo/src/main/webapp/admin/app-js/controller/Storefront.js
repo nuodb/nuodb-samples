@@ -30,11 +30,11 @@ Ext.define('App.controller.Storefront', {
         var me = this;
 
         // Initialize workload store
-        me.getStore('Workloads').on('update', me.onWorkloadChange.bind(me));
+        me.getStore('Workloads').on('update', Ext.bind(me.onWorkloadChange, me));
         me.reloadWorkloadStore();
 
         // Refresh stats periodically
-        refreshInterval = setInterval(me.onRefreshStats.bind(me), App.app.refreshFrequencyMs);
+        me.refreshInterval = setInterval(Ext.bind(me.onRefreshStats, me), App.app.refreshFrequencyMs);
 
         this.callParent(arguments);
     },
@@ -150,7 +150,9 @@ Ext.define('App.controller.Storefront', {
                         for ( var series in stats[category]) {
                             var oldSeries = oldStats[category][series];
                             for ( var metric in stats[category][series]) {
-                                stats[category][series][metric + 'Delta'] = stats[category][series][metric] - ((oldSeries) ? oldSeries[metric] : 0);
+                                if (!metric.endsWith('Delta')) {
+                                    stats[category][series][metric + 'Delta'] = stats[category][series][metric] - ((oldSeries) ? oldSeries[metric] : 0);
+                                }
                             }
                         }
                     }

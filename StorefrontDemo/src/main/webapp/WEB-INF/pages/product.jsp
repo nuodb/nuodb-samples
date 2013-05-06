@@ -3,7 +3,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <t:page>
-    <section id="product"></section>
+    <div id="product"></div>
     <script id="tpl-product" type="text/template">
 	{{#result}}
         <!-- Product info  -->
