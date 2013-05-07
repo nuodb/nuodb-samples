@@ -64,7 +64,7 @@ Ext.define('App.view.MessageBar', {
             } catch (e) {                
             }
             msg = msg || (' HTTP status ' + response.status);
-            me.setMessage(Ext.String.format('<b>The Storefront API reported a problem:</b> &nbsp;{0}.  Retries will continue automatically.', msg));
+            me.setMessage(Ext.String.format('<b>The Storefront has a problem:</b> &nbsp;{0}.  Retries will continue automatically.', msg));
         }
         me.lastUpdateMs = -1;
     },

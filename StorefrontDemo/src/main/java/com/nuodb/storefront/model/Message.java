@@ -11,9 +11,9 @@ public class Message {
     }
 
     public Message(Exception e) {
-        this(MessageSeverity.ERROR, e.getClass().getName() + ((e.getMessage() == null) ? "" : (":  " + e.getMessage())));
+        this(MessageSeverity.ERROR, (e.getMessage() == null) ? e.getClass().getSimpleName() : e.getMessage());
     }
-    
+
     public Message(MessageSeverity severity, String message, String... buttons) {
         this.severity = severity;
         this.message = message;
