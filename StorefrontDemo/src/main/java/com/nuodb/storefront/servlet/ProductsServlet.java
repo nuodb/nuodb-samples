@@ -12,9 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.googlecode.genericdao.search.SearchResult;
-import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.model.Category;
-import com.nuodb.storefront.model.MessageSeverity;
 import com.nuodb.storefront.model.Product;
 import com.nuodb.storefront.model.ProductFilter;
 
@@ -49,9 +47,7 @@ public class ProductsServlet extends BaseServlet {
             pageData.put("categories", categoryList);
             pageData.put("filter", filter);
             
-            if (categoryList.getResult().isEmpty() && productList.getResult().isEmpty()) {
-                addMessage(req, MessageSeverity.INFO, "There are no products in the database.  Click a button below to seed the database with some sample products and reviews.  Note that the loading process may take up to several minutes.", "Load 900 real products (with pictures)", "Generate 5,000 random products (no pictures)");
-            }
+            addMessageIfDatabaseEmpty(req, categoryList, productList);
     
             showPage(req, resp, null, "products", pageData);
         } catch (Exception ex) {
@@ -64,17 +60,7 @@ public class ProductsServlet extends BaseServlet {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String btnAction = req.getParameter("btn-msg");
-        if (btnAction != null) {
-            btnAction = btnAction.toLowerCase();
-            if (btnAction.contains("load")) {
-                StorefrontApp.loadData();
-                addMessage(req, MessageSeverity.INFO, "Product data loaded successfully.");
-            } else if (btnAction.contains("generate")) {
-                StorefrontApp.generateData();
-                addMessage(req, MessageSeverity.INFO, "Product data generated successfully.");
-            }
-        }
+        seedDatabaseIfRequested(req);
         doGet(req, resp);
     }
 }

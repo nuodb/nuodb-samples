@@ -159,6 +159,7 @@ var Storefront = {
 
         // Avoid POST for search on this page -- use AJAX instead
         $('form.search').submit(function(e) {
+            $('.search').change();
             return false;
         });
         $('.search').change(function() {

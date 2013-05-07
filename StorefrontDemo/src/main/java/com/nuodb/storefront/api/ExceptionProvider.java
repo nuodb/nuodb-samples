@@ -2,6 +2,9 @@
 
 package com.nuodb.storefront.api;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -10,9 +13,12 @@ import javax.ws.rs.ext.Provider;
 import com.nuodb.storefront.exception.CartEmptyException;
 import com.nuodb.storefront.exception.CustomerNotFoundException;
 import com.nuodb.storefront.exception.ProductNotFoundException;
+import com.nuodb.storefront.model.Message;
 
 @Provider
 public class ExceptionProvider implements ExceptionMapper<RuntimeException> {
+    private static final Logger s_logger = Logger.getLogger(ExceptionProvider.class.getName());
+    
     public ExceptionProvider() {
     }
     
@@ -26,6 +32,9 @@ public class ExceptionProvider implements ExceptionMapper<RuntimeException> {
         } else {
             status = Status.INTERNAL_SERVER_ERROR;
         }
-        return Response.status(status).entity(exception.getClass().toString()).build();
+        
+        s_logger.log(Level.WARNING, "API exception provider handling RuntimeException with HTTP status " + status.getStatusCode(), exception);
+        
+        return Response.status(status).entity(new Message(exception)).build();
     }
 }

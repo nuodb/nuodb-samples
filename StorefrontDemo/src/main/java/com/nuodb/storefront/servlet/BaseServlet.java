@@ -5,6 +5,8 @@ package com.nuodb.storefront.servlet;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -15,12 +17,16 @@ import javax.servlet.http.HttpSession;
 
 import org.hibernate.exception.GenericJDBCException;
 
+import com.googlecode.genericdao.search.SearchResult;
+import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.StorefrontFactory;
+import com.nuodb.storefront.model.Category;
 import com.nuodb.storefront.model.Customer;
 import com.nuodb.storefront.model.DbConnInfo;
 import com.nuodb.storefront.model.Message;
 import com.nuodb.storefront.model.MessageSeverity;
 import com.nuodb.storefront.model.PageConfig;
+import com.nuodb.storefront.model.Product;
 import com.nuodb.storefront.model.ProductFilter;
 import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
@@ -28,7 +34,8 @@ import com.nuodb.storefront.service.IStorefrontService;
 public abstract class BaseServlet extends HttpServlet {
     public static final String ATTR_PAGE_CONFIG = "pageConfig";
     public static final String SESSION_PRODUCT_FILTER = "productFilter";
-
+    
+    private static final Logger s_logger = Logger.getLogger(BaseServlet.class.getName());
     private static final String ATTR_CUSTOMER = "customer";
     private static final String COOKIE_CUSTOMER_ID = "customerId";
     private static final String SESSION_MESSAGES = "messages";
@@ -37,7 +44,7 @@ public abstract class BaseServlet extends HttpServlet {
     private static final long serialVersionUID = 1452096145544476070L;
     private static final Object s_svcLock = new Object();
     private static volatile IStorefrontService s_svc;
-    private static volatile String s_storefrontName = "Uninitialized Storefront";
+    private static volatile String s_storefrontName = "Default Storefront";
 
     protected BaseServlet() {
     }
@@ -101,8 +108,7 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     public static void addErrorMessage(HttpServletRequest req, Exception e) {
-        String errorMsg = e.getClass().getName() + ((e.getMessage() == null) ? "" : (":  " + e.getMessage()));
-        addMessage(req, MessageSeverity.ERROR, errorMsg);
+        getMessages(req).add(new Message(e));
     }
 
     public static void addMessage(HttpServletRequest req, MessageSeverity severity, String message, String... buttons) {
@@ -158,5 +164,32 @@ public abstract class BaseServlet extends HttpServlet {
         }
         Customer customer = (Customer) req.getAttribute(ATTR_CUSTOMER);
         showPage(req, resp, "Storefront Problem", "error", null, (customer == null) ? new Customer() : customer);
+        
+        s_logger.log(Level.WARNING, "Servlet handled critical error", ex);
+    }
+
+    protected static void addMessageIfDatabaseEmpty(HttpServletRequest req, SearchResult<Category> categoryList, SearchResult<Product> productList) {
+        if (categoryList.getResult().isEmpty() && productList.getResult().isEmpty()) {
+            addMessage(req, MessageSeverity.INFO, "There are no products in the database.  Click a button below to seed the database with some sample products and reviews.  Note that the loading process may take up to several minutes.", "Load 900 real products (with pictures)", "Generate 5,000 random products (no pictures)");
+        }
+    }
+    
+    protected static boolean seedDatabaseIfRequested(HttpServletRequest req) throws IOException {
+        String btnAction = req.getParameter("btn-msg");
+        if (btnAction == null) {
+            return false;
+        }
+        
+        btnAction = btnAction.toLowerCase();
+        if (btnAction.contains("load")) {
+            StorefrontApp.loadData();
+            addMessage(req, MessageSeverity.INFO, "Product data loaded successfully.");
+            s_logger.log(Level.INFO, "Product data loaded");
+        } else if (btnAction.contains("generate")) {
+            StorefrontApp.generateData();
+            addMessage(req, MessageSeverity.INFO, "Product data generated successfully.");
+            s_logger.log(Level.INFO, "Product data generated");
+        }
+        return true;
     }
 }

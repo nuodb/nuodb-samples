@@ -197,7 +197,7 @@ Ext.define('App.controller.Storefront', {
                 me.application.fireEvent('statschange', me);
             }, 
             failure: function(response) {
-                me.application.fireEvent('statsfail', response.status);
+                me.application.fireEvent('statsfail', response);
             }            
         });
     },

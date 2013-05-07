@@ -10,6 +10,10 @@ public class Message {
     public Message() {
     }
 
+    public Message(Exception e) {
+        this(MessageSeverity.ERROR, e.getClass().getName() + ((e.getMessage() == null) ? "" : (":  " + e.getMessage())));
+    }
+    
     public Message(MessageSeverity severity, String message, String... buttons) {
         this.severity = severity;
         this.message = message;

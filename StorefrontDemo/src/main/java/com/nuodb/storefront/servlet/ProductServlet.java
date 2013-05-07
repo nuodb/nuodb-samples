@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.nuodb.storefront.exception.ProductNotFoundException;
 import com.nuodb.storefront.model.Product;
 
 public class ProductServlet extends BaseServlet {
@@ -22,9 +23,11 @@ public class ProductServlet extends BaseServlet {
             int productId = Integer.valueOf(req.getParameter("productId"));
             Product product = getService().getProductDetails(productId);
             showPage(req, resp, product.getName(), "product", product);
-        } catch (Exception e) {
-            addErrorMessage(req, e);
+        } catch (ProductNotFoundException ex) {
+            addErrorMessage(req, ex);
             resp.sendRedirect("products");
+        } catch (Exception ex) {
+            showCriticalErrorPage(req, resp, ex);
         }
     }
 }

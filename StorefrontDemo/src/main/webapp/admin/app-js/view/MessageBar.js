@@ -53,9 +53,19 @@ Ext.define('App.view.MessageBar', {
 
     },
 
-    onStatsFail: function(statusCode) {
+    onStatsFail: function(response) {
         var me = this;
-        me.setMessage('<b>Unable to connect to the Storefront API</b>.  Verify the web application is still running.  Retries will continue automatically.');
+        if (response.status == 0) {
+            me.setMessage('<b>Unable to connect to the Storefront API</b>.  Verify the web application is still running.  Retries will continue automatically.');
+        } else {
+            var msg = '';
+            try {
+                msg = Ext.decode(response.responseText).message;
+            } catch (e) {                
+            }
+            msg = msg || (' HTTP status ' + response.status);
+            me.setMessage(Ext.String.format('<b>The Storefront API reported a problem:</b> &nbsp;{0}.  Retries will continue automatically.', msg));
+        }
         me.lastUpdateMs = -1;
     },
 

@@ -13,9 +13,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 
+import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.StorefrontFactory;
+import com.nuodb.storefront.model.Category;
 import com.nuodb.storefront.model.Customer;
 import com.nuodb.storefront.model.MessageSeverity;
+import com.nuodb.storefront.model.Product;
+import com.nuodb.storefront.model.ProductFilter;
 import com.nuodb.storefront.model.Workload;
 import com.nuodb.storefront.service.ISimulatorService;
 
@@ -29,9 +33,16 @@ public class WelcomeServlet extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
+            // Fetch data the page needs
             Map<String, Object> pageData = new HashMap<String, Object>();
             pageData.put("workloads", getSimulator().getWorkloadStats().values());
             pageData.put("ddl", getDdl());
+            
+            // Also add a warning if the Storefront has no products yet
+            SearchResult<Category> categoryList = getService().getCategories();
+            SearchResult<Product> productList = getService().getProducts(new ProductFilter());
+            addMessageIfDatabaseEmpty(req, categoryList, productList);
+            
             showPage(req, resp, null, "welcome", pageData, new Customer());
         } catch (Exception ex) {
             showCriticalErrorPage(req, resp, ex);
@@ -44,21 +55,23 @@ public class WelcomeServlet extends BaseServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            ISimulatorService simulator = getSimulator();
-            int updatedWorkloadCount = 0;
-            for (Map.Entry<String, String[]> param : req.getParameterMap().entrySet()) {
-                if (param.getKey().startsWith("workload-")) {
-                    String workloadName = param.getKey().substring(9);
-                    int quantity = Integer.parseInt(param.getValue()[0]);
-                    Workload workload = simulator.getWorkload(workloadName);
-                    if (workload != null) {
-                        simulator.adjustWorkers(workload, quantity, quantity);
-                        updatedWorkloadCount++;
+            if (!seedDatabaseIfRequested(req)) {
+                ISimulatorService simulator = getSimulator();
+                int updatedWorkloadCount = 0;
+                for (Map.Entry<String, String[]> param : req.getParameterMap().entrySet()) {
+                    if (param.getKey().startsWith("workload-")) {
+                        String workloadName = param.getKey().substring(9);
+                        int quantity = Integer.parseInt(param.getValue()[0]);
+                        Workload workload = simulator.getWorkload(workloadName);
+                        if (workload != null) {
+                            simulator.adjustWorkers(workload, quantity, quantity);
+                            updatedWorkloadCount++;
+                        }
                     }
                 }
-            }
-            if (updatedWorkloadCount > 0) {
-                addMessage(req, MessageSeverity.INFO, "Workloads updated successfully.");
+                if (updatedWorkloadCount > 0) {
+                    addMessage(req, MessageSeverity.INFO, "Workloads updated successfully.");
+                }
             }
         } catch (Exception e) {
             addErrorMessage(req, e);

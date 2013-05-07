@@ -72,6 +72,8 @@ Ext.define('App.view.Viewport', {
                     itemId: 'storefrontView',
                     src: viewUrl
                 });
+            } else {
+                me.frameMap[viewName].load(viewUrl);
             }
             centerLayout.setActiveItem(me.frameMap[viewName]);
         } else {
