@@ -168,7 +168,7 @@
         <div class="span12">
             <h2 id="workload-sec">Node Setup</h2>
             <p>To add nodes to your NuoDB cluster, use the NuoDB Console.</p>
-            <p>If you are running NuoDB locally with default settings, you will find the Console at <a href="http://localhost:8080/" target="_blank">http://localhost:8080/</a>.</p>
+            <p>If you are running NuoDB locally with default settings, you will find the Console at <a href="http://localhost:8080/console.html#databases" target="_blank">http://localhost:8080/</a>.</p>
         </div>
     </div>
     
