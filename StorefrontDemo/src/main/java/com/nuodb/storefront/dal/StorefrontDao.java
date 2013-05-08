@@ -179,13 +179,23 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
         stats.setCustomerCount(Integer.valueOf(result[3].toString()));
         stats.setActiveCustomerCount(Integer.valueOf(result[4].toString()));
         stats.setCartCount(Integer.valueOf(result[5].toString()));
-        stats.setCartItemCount(Integer.valueOf(result[6].toString()));
-        stats.setCartValue(new BigDecimal(result[7].toString()));
+        stats.setCartItemCount(Integer.valueOf(toNumericString(result[6])));
+        stats.setCartValue(new BigDecimal(toNumericString(result[7])));
         stats.setPurchaseCount(Integer.valueOf(result[8].toString()));
-        stats.setPurchaseItemCount(Integer.valueOf(result[9].toString()));
-        stats.setPurchaseValue(new BigDecimal(result[10].toString()));
+        stats.setPurchaseItemCount(Integer.valueOf(toNumericString(result[9])));
+        stats.setPurchaseValue(new BigDecimal(toNumericString(result[10])));
 
         return stats;
+    }
+    
+    private static String toNumericString(Object o) {
+        if (o != null)  {
+            String str = o.toString();
+            if (str.length() > 0 && !str.equalsIgnoreCase("NaN")) {
+                return str;
+            }
+        }
+        return "0";
     }
 
     protected SQLQuery buildProductQuery(ProductFilter filter, boolean countOnly) {
