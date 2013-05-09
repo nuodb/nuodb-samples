@@ -37,12 +37,12 @@ public class WelcomeServlet extends BaseServlet {
             Map<String, Object> pageData = new HashMap<String, Object>();
             pageData.put("workloads", getSimulator().getWorkloadStats().values());
             pageData.put("ddl", getDdl());
-            
+
             // Also add a warning if the Storefront has no products yet
             SearchResult<Category> categoryList = getService().getCategories();
             SearchResult<Product> productList = getService().getProducts(new ProductFilter());
             addMessageIfDatabaseEmpty(req, categoryList, productList);
-            
+
             showPage(req, resp, null, "welcome", pageData, new Customer());
         } catch (Exception ex) {
             showCriticalErrorPage(req, resp, ex);
@@ -73,11 +73,10 @@ public class WelcomeServlet extends BaseServlet {
                     addMessage(req, MessageSeverity.INFO, "Workloads updated successfully.");
                 }
             }
-        } catch (Exception e) {
-            addErrorMessage(req, e);
+            doGet(req, resp);
+        } catch (Exception ex) {
+            showCriticalErrorPage(req, resp, ex);
         }
-
-        doGet(req, resp);
     }
 
     private static synchronized String getDdl() {

@@ -8,24 +8,32 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
-import com.nuodb.storefront.dal.IStorefrontDao;
 import com.nuodb.storefront.model.Customer;
 import com.nuodb.storefront.model.Product;
 import com.nuodb.storefront.model.ProductReview;
 
 public class DataGenerator {
     private final Random rnd = new Random();
-    private final IStorefrontDao dao;
     private final List<Customer> customers = new ArrayList<Customer>();
 
-    public DataGenerator(IStorefrontDao dao) {
-        this.dao = dao;
+    public DataGenerator() {
     }
 
-    public void createCustomers(int numCustomers) {
+    public List<Customer> createCustomers(int numCustomers) {
         for (int i = 0; i < numCustomers; i++) {
             customers.add(createCustomer());
         }
+        return customers;
+    }
+
+
+    public List<Product> createProducts(int numProducts, int maxCategoriesPerProduct, int maxReviewsPerProduct) {
+        List<Product> products = new ArrayList<Product>();
+        for (int i = 0; i < numProducts; i++) {
+            Product product = createProduct(maxCategoriesPerProduct, maxReviewsPerProduct);
+            products.add(product);
+        }
+        return products;
     }
     
     public void addProductReviews(Product product, int maxReviewsPerProduct) {
@@ -40,14 +48,8 @@ public class DataGenerator {
         customer.setDateAdded(now);
         customer.setDateLastActive(now);
         customer.setEmailAddress("test" + rnd.nextInt(100000) + "@test.com");
-        dao.save(customer);
+        //dao.save(customer);
         return customer;
-    }
-
-    public void createProducts(int numProducts, int maxCategoriesPerProduct, int maxReviewsPerProduct) {
-        for (int i = 0; i < numProducts; i++) {
-            createProduct(maxCategoriesPerProduct, maxReviewsPerProduct);
-        }
     }
 
     protected Product createProduct(int maxCategoriesPerProduct, int maxReviewsPerProduct) {
@@ -69,7 +71,7 @@ public class DataGenerator {
         // Add reviews
         addProductReviews(product, maxReviewsPerProduct);
 
-        dao.save(product);
+        //dao.save(product);
         return product;
     }
 

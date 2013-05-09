@@ -80,7 +80,7 @@ public class StorefrontFactory {
     }
 
     public static IDataGeneratorService createDataGeneratorService() {
-        return new DataGeneratorService(createStorefrontDao());
+        return new DataGeneratorService(getOrCreateSessionFactory().openStatelessSession());
     }
     
     public static ISimulatorService getSimulatorService() {

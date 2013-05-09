@@ -86,7 +86,7 @@ public class StorefrontApp {
         StorefrontFactory.createSchemaExport().create(true, false);
     }
 
-    public static void generateData() {
+    public static void generateData() throws IOException {
         StorefrontFactory.createDataGeneratorService().generateAll(100, 5000, 2, 10);
     }
 

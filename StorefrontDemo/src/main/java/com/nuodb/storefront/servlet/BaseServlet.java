@@ -170,7 +170,7 @@ public abstract class BaseServlet extends HttpServlet {
 
     protected static void addMessageIfDatabaseEmpty(HttpServletRequest req, SearchResult<Category> categoryList, SearchResult<Product> productList) {
         if (categoryList.getResult().isEmpty() && productList.getResult().isEmpty()) {
-            addMessage(req, MessageSeverity.INFO, "There are no products in the database.  Click a button below to seed the database with some sample products and reviews.  Note that the loading process may take up to several minutes.", "Load 900 real products (with pictures)", "Generate 5,000 random products (no pictures)");
+            addMessage(req, MessageSeverity.INFO, "There are no products in the database.  Click a button below to seed the database with some sample products and reviews.  Note that the loading process may take around 10 seconds.", "Load 900 real products (with pictures)", "Generate 5,000 random products (no pictures)");
         }
     }
     

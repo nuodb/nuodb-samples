@@ -38,7 +38,7 @@ public class ProductsServlet extends BaseServlet {
                     }
                 }
             }
-    
+
             // Fetch initial products
             Map<String, Object> pageData = new HashMap<String, Object>();
             SearchResult<Category> categoryList = getService().getCategories();
@@ -46,9 +46,9 @@ public class ProductsServlet extends BaseServlet {
             pageData.put("products", productList);
             pageData.put("categories", categoryList);
             pageData.put("filter", filter);
-            
+
             addMessageIfDatabaseEmpty(req, categoryList, productList);
-    
+
             showPage(req, resp, null, "products", pageData);
         } catch (Exception ex) {
             showCriticalErrorPage(req, resp, ex);
@@ -60,7 +60,11 @@ public class ProductsServlet extends BaseServlet {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        seedDatabaseIfRequested(req);
-        doGet(req, resp);
+        try {
+            seedDatabaseIfRequested(req);
+            doGet(req, resp);
+        } catch (Exception ex) {
+            showCriticalErrorPage(req, resp, ex);
+        }
     }
 }
