@@ -15,7 +15,8 @@
 		<!-- Use the Hibernate built-in pool -->
 		<property name="connection.pool_size">30</property>
 
-		<!-- Disable the second-level cache -->
+		<!-- Disable the second-level cache (best practice with NuoDB) -->
+        <!-- See http://www.nuodb.com/techblog/tag/memcached/ for more info -->
 		<property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
 		<property name="cache.use_query_cache">false</property>
 		<property name="cache.use_minimal_puts">false</property>

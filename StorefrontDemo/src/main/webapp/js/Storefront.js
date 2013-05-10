@@ -25,7 +25,7 @@ var Storefront = {
         // Initialize page-specific elements
         switch (cfg.pageName) {
             case "welcome":
-                me.initWelcomePage(cfg.pageData);
+                me.initWelcomePage(cfg.pageData, cfg.messages);
                 break;
 
             case "products":
@@ -61,8 +61,13 @@ var Storefront = {
         });
     },
 
-    initWelcomePage: function(pageData) {
+    initWelcomePage: function(pageData, messages) {
         var me = this;
+        
+        if (!document.location.hash || document.location.hash == '#') {
+            // Move messages up if we're dealing with choices
+            $('#top-bar').after($('#messages').parent());
+        }
 
         // Render DDL
         me.TemplateMgr.applyTemplate('tpl-ddl', '#ddl textarea', pageData.ddl);

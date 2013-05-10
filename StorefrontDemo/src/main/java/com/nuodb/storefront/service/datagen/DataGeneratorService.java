@@ -71,6 +71,7 @@ public class DataGeneratorService implements IDataGeneratorService {
     }
     
     protected void saveProducts(List<Product> products) throws SQLException {
+        // Insert products
         for (Product product : products) {
             session.insert(product);
 
