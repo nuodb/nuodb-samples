@@ -96,7 +96,7 @@ public class WelcomeServlet extends BaseServlet {
             createSqlField.setAccessible(true);
             for (String stmt : (String[]) createSqlField.get(export)) {
                 buffer.append(stmt);
-                buffer.append("\n");
+                buffer.append(";\n");
             }
         } catch (RuntimeException e) {
             throw e;
