@@ -25,7 +25,7 @@ var Storefront = {
         // Initialize page-specific elements
         switch (cfg.pageName) {
             case "welcome":
-                me.initWelcomePage(cfg.pageData, cfg.messages);
+                me.initWelcomePage(cfg.pageData);
                 break;
 
             case "products":
@@ -61,7 +61,7 @@ var Storefront = {
         });
     },
 
-    initWelcomePage: function(pageData, messages) {
+    initWelcomePage: function(pageData) {
         var me = this;
         
         if (!document.location.hash || document.location.hash == '#') {
