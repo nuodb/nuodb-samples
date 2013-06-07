@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.Environment;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 
 import com.nuodb.storefront.dal.IStorefrontDao;
@@ -28,10 +29,6 @@ public class StorefrontFactory {
     private static final Configuration s_configuration;
     private static volatile SessionFactory s_sessionFactory;
     private static volatile ISimulatorService s_simulator;
-    
-    private static final String CFG_URL = "hibernate.connection.url";
-    private static final String CFG_USERNAME = "hibernate.connection.username";
-    private static final String CFG_PASSWORD = "hibernate.connection.password";
 
     static {
         s_configuration = new Configuration();
@@ -51,13 +48,13 @@ public class StorefrontFactory {
             
             String url = "jdbc:com.nuodb://" + host + "/" + name;
             
-            s_configuration.setProperty(CFG_URL, url);
+            s_configuration.setProperty(Environment.URL, url);
         }
         if (dbUser != null) {
-            s_configuration.setProperty(CFG_USERNAME, dbUser);
+            s_configuration.setProperty(Environment.USER, dbUser);
         }
         if (dbPassword != null) {
-            s_configuration.setProperty(CFG_PASSWORD, dbPassword);
+            s_configuration.setProperty(Environment.PASS, dbPassword);
         }
     }
 
@@ -66,8 +63,8 @@ public class StorefrontFactory {
     
     public static DbConnInfo getDbConnInfo() {
         DbConnInfo info = new DbConnInfo();
-        info.setUrl(s_configuration.getProperty(CFG_URL));
-        info.setUsername(s_configuration.getProperty(CFG_USERNAME));
+        info.setUrl(s_configuration.getProperty(Environment.URL));
+        info.setUsername(s_configuration.getProperty(Environment.USER));
         return info;
     }
 
