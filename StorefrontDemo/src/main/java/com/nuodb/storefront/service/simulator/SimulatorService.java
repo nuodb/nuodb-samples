@@ -9,6 +9,8 @@ import java.util.TreeMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javassist.Modifier;
 
@@ -22,7 +24,8 @@ import com.nuodb.storefront.service.IStorefrontService;
 import com.nuodb.storefront.util.ToStringComparator;
 
 public class SimulatorService implements ISimulator, ISimulatorService {
-    private final ScheduledThreadPoolExecutor threadPool;
+    private static final Logger s_logger = Logger.getLogger(SimulatorService.class.getName());
+    private ScheduledThreadPoolExecutor threadPool;
     private final IStorefrontService svc;
     private final Map<String, WorkloadStats> workloadStatsMap = new HashMap<String, WorkloadStats>();
     private final Map<WorkloadStep, AtomicInteger> stepCompletionCounts = new TreeMap<WorkloadStep, AtomicInteger>();
@@ -94,11 +97,13 @@ public class SimulatorService implements ISimulator, ISimulatorService {
 
     @Override
     public void removeAll() {
-        threadPool.getQueue().clear();
-
         synchronized (workloadStatsMap) {
+            threadPool.shutdownNow();
+            threadPool = new ScheduledThreadPoolExecutor(Runtime.getRuntime().availableProcessors() * 10);
+            
             for (WorkloadStats stats : workloadStatsMap.values()) {
                 stats.setActiveWorkerLimit(0);
+                stats.setActiveWorkerCount(0);
             }
         }
     }
@@ -124,11 +129,6 @@ public class SimulatorService implements ISimulator, ISimulatorService {
             map.put(stepEntry.getKey(), stepStats);
         }
         return map;
-    }
-
-    @Override
-    public void shutdown() {
-        threadPool.shutdownNow();
     }
 
     @Override
@@ -176,9 +176,11 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     protected class RunnableWorker implements Runnable {
         private final IWorker worker;
         private long completionWorkTimeMs;
+        private final ScheduledThreadPoolExecutor originalThreadPool;
 
         public RunnableWorker(IWorker worker) {
             this.worker = worker;
+            this.originalThreadPool = threadPool;
         }
 
         @Override
@@ -187,6 +189,9 @@ public class SimulatorService implements ISimulator, ISimulatorService {
 
             // Verify this worker can still run
             synchronized (workloadStatsMap) {
+                if (originalThreadPool != threadPool) {
+                    return;
+                }
                 WorkloadStats stats = getOrCreateWorkloadStats(workload);
                 if (stats.exceedsWorkerLimit()) {
                     // Don't run this worker. We're over the limit
@@ -205,12 +210,16 @@ public class SimulatorService implements ISimulator, ISimulatorService {
             } catch (Exception e) {
                 delay = IWorker.COMPLETE_NO_REPEAT;
                 workerFailed = true;
+                s_logger.log(Level.WARNING, "Simulated worker failed", e);                
             }
             long endTimeMs = System.currentTimeMillis();
             completionWorkTimeMs += (endTimeMs - startTimeMs);
 
             // Update stats
             synchronized (workloadStatsMap) {
+                if (originalThreadPool != threadPool) {
+                    return;
+                }
                 WorkloadStats stats = getOrCreateWorkloadStats(workload);
                 stats.setWorkInvocationCount(stats.getWorkInvocationCount() + 1);
                 stats.setTotalWorkTimeMs(stats.getTotalWorkTimeMs() + endTimeMs - startTimeMs);

@@ -18,9 +18,16 @@ import com.nuodb.storefront.service.IDataGeneratorService;
 
 public class DataGeneratorService implements IDataGeneratorService {
     private final StatelessSession session;
+    private static final int MAX_DELETE_ATTEMPTS = 10;
+    private static final int DELETE_RETRY_WAIT_MS = 100;
 
     public DataGeneratorService(StatelessSession session) {
         this.session = session;
+    }
+    
+    @Override
+    public void close() {
+        session.close();
     }
 
     @Override
@@ -38,8 +45,6 @@ public class DataGeneratorService implements IDataGeneratorService {
             saveProducts(products);
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            session.close();
         }
     }
 
@@ -52,7 +57,7 @@ public class DataGeneratorService implements IDataGeneratorService {
             for (Customer customer : gen.createCustomers(numCustomers)) {
                 session.insert(customer);
             }
-            
+
             // Insert products
             for (Product product : products) {
                 Calendar now = Calendar.getInstance();
@@ -60,16 +65,48 @@ public class DataGeneratorService implements IDataGeneratorService {
                 product.setDateModified(now);
                 gen.addProductReviews(product, maxReviewsPerProduct);
             }
-            
+
             saveProducts(products);
-            
+
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            session.close();
         }
     }
-    
+
+    @Override
+    public void removeAll() throws IOException {
+        String[] statements = new String[] {
+                "delete from cart_selection",
+                "delete from purchase_selection",
+                "delete from purchase",
+                "delete from customer",
+                "delete from product_category",
+                "delete from product_review",
+                "delete from product"
+        };
+        
+        for (String statement : statements) {
+            for (int i = 0 ; ; i++) {
+                try {
+                    session.connection().prepareStatement(statement).execute();
+                    break;
+                } catch (SQLException e) {
+                    if (i < MAX_DELETE_ATTEMPTS - 1) {
+                        try {
+                            Thread.sleep(DELETE_RETRY_WAIT_MS);
+                        } catch (InterruptedException ie) {
+                            throw new IOException(ie);
+                        }
+                        continue;
+                    }
+                    
+                    // We're out of retry attempts
+                    throw new IOException(e);
+                }
+            }
+        }
+    }
+
     protected void saveProducts(List<Product> products) throws SQLException {
         // Insert products
         for (Product product : products) {

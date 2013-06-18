@@ -168,13 +168,19 @@ public abstract class BaseServlet extends HttpServlet {
         s_logger.log(Level.WARNING, "Servlet handled critical error", ex);
     }
 
-    protected static void addMessageIfDatabaseEmpty(HttpServletRequest req, SearchResult<Category> categoryList, SearchResult<Product> productList) {
+    /**
+     * Adds a message prompting the user to seed the database with data if it currently contains 0 products and 0 categories.
+     * If the DB has data and the showPurgeMessage param is set, a message allowing the user to purge the data is added instead.
+     */
+    protected static void addDataLoadMessage(HttpServletRequest req, SearchResult<Category> categoryList, SearchResult<Product> productList, boolean showPurgeMessage) {
         if (categoryList.getResult().isEmpty() && productList.getResult().isEmpty()) {
-            addMessage(req, MessageSeverity.INFO, "There are no products in the database.  Click a button below to seed the database with some sample products and reviews.  Note that the loading process may take around 10 seconds.", "Load 900 real products (with pictures served by Amazon.com)", "Generate 5,000 fake products (without pictures)");
+            addMessage(req, MessageSeverity.INFO, "There are no products in the database.  Click a button below to seed the database with some sample products and reviews.  Note that the loading process may take around 10 seconds.", "Load 900 Real Products (with pictures served by Amazon.com)", "Generate 5,000 Fake Products (without pictures)");
+        } else if (showPurgeMessage) {
+            addMessage(req, MessageSeverity.INFO, "There are currently " + productList.getTotalCount() + " products across " + categoryList.getTotalCount() + " categories.", "Remove All Data");
         }
     }
     
-    protected static boolean seedDatabaseIfRequested(HttpServletRequest req) throws IOException {
+    protected static boolean handleDataLoadRequest(HttpServletRequest req) throws IOException {
         String btnAction = req.getParameter("btn-msg");
         if (btnAction == null) {
             return false;
@@ -189,6 +195,18 @@ public abstract class BaseServlet extends HttpServlet {
             StorefrontApp.generateData();
             addMessage(req, MessageSeverity.INFO, "Product data generated successfully.");
             s_logger.log(Level.INFO, "Product data generated");
+        } else if (btnAction.contains("remove")) {
+            // Stop simulated workloads first; this prevents update conflicts
+            getSimulator().removeAll();
+
+            // Now remove all data
+            try {
+                StorefrontApp.removeData();                
+                addMessage(req, MessageSeverity.INFO, "Product data removed successfully.");
+                s_logger.log(Level.INFO, "Product data removed");
+            } catch (Exception e) {
+                s_logger.log(Level.SEVERE, "Unable to remove product data", e);
+            }
         }
         return true;
     }

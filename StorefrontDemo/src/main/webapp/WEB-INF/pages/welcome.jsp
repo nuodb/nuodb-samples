@@ -115,7 +115,7 @@
                         </tbody>
                     </table>
                     <p class="text-right">
-                        <button class="btn btn-primary" type="submit">Update Users</button>
+                        <button class="btn btn-primary" type="submit">Update Workloads</button>
                         &nbsp;
                         <button class="btn" id="btn-reset" title="Sets the number of user to 0 across all workloads">Stop All</button>
                     </p>

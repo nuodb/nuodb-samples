@@ -47,7 +47,7 @@ public class ProductsServlet extends BaseServlet {
             pageData.put("categories", categoryList);
             pageData.put("filter", filter);
 
-            addMessageIfDatabaseEmpty(req, categoryList, productList);
+            addDataLoadMessage(req, categoryList, productList, false);
 
             showPage(req, resp, null, "products", pageData);
         } catch (Exception ex) {
@@ -61,7 +61,7 @@ public class ProductsServlet extends BaseServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            seedDatabaseIfRequested(req);
+            handleDataLoadRequest(req);
             doGet(req, resp);
         } catch (Exception ex) {
             showCriticalErrorPage(req, resp, ex);

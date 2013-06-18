@@ -252,7 +252,7 @@ public class SimulatedUser implements IWorker {
         if (cart == null || cart.getResult().isEmpty()) {
             doProductAddToCart();
         }
-        return !cart.getResult().isEmpty();
+        return cart != null && !cart.getResult().isEmpty();
     }
 
     protected Category pickRandomCategory() {

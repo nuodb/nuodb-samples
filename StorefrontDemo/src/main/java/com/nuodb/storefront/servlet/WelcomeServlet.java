@@ -41,7 +41,7 @@ public class WelcomeServlet extends BaseServlet {
             // Also add a warning if the Storefront has no products yet
             SearchResult<Category> categoryList = getService().getCategories();
             SearchResult<Product> productList = getService().getProducts(new ProductFilter());
-            addMessageIfDatabaseEmpty(req, categoryList, productList);
+            addDataLoadMessage(req, categoryList, productList, true);
 
             showPage(req, resp, null, "welcome", pageData, new Customer());
         } catch (Exception ex) {
@@ -55,7 +55,7 @@ public class WelcomeServlet extends BaseServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            if (!seedDatabaseIfRequested(req)) {
+            if (!handleDataLoadRequest(req)) {
                 ISimulatorService simulator = getSimulator();
                 int updatedWorkloadCount = 0;
                 for (Map.Entry<String, String[]> param : req.getParameterMap().entrySet()) {

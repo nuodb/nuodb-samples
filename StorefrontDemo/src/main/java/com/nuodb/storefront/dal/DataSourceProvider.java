@@ -20,6 +20,7 @@ import org.hibernate.connection.ConnectionProvider;
  */
 public class DataSourceProvider implements ConnectionProvider {
     private static volatile DataSource dataSource;
+    private static int isolationLevel = 5;
 
     @Override
     public synchronized void configure(Properties props) throws HibernateException {
@@ -37,6 +38,9 @@ public class DataSourceProvider implements ConnectionProvider {
                     String dsKey = key.substring(Environment.CONNECTION_PREFIX.length() + 1);
                     String dsVal = props.getProperty(key);
                     dsProps.put(dsKey, dsVal);
+                    if (dsKey.equals("isolation")) {
+                        isolationLevel = Integer.parseInt(dsVal);
+                    }
                 }
             }
 
@@ -48,7 +52,9 @@ public class DataSourceProvider implements ConnectionProvider {
 
     @Override
     public Connection getConnection() throws SQLException {
-        return dataSource.getConnection();
+        Connection conn = dataSource.getConnection();
+        conn.setTransactionIsolation(isolationLevel);
+        return conn;
     }
 
     @Override

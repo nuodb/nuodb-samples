@@ -43,16 +43,11 @@ public interface ISimulatorService {
     public WorkloadStats adjustWorkers(Workload workload, int minActiveWorkers, Integer activeWorkerLimit);
 
     /**
-     * Removes all workers across all workloads, and sets the active worker limit to 0 across all workloads.
+     * Removes all workers across all workloads, including those currently running, and sets the active worker limit to 0 across all workloads.
      */
     public void removeAll();
 
     public Map<String, WorkloadStats> getWorkloadStats();
 
     public Map<WorkloadStep, WorkloadStepStats> getWorkloadStepStats();
-
-    /**
-     * Synchronously stops all simulator threads, running work, and queued work. Once this method is called, you cannot add additional workloads.
-     */
-    public void shutdown();
 }
