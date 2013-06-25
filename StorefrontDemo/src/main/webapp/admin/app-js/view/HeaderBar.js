@@ -65,7 +65,8 @@ Ext.define('App.view.HeaderBar', {
                     showSeparator: false,
                     items: [{
                         text: '<b>Show Default Storefront</b>',
-                        handler: clickHandler
+                        handler: clickHandler,
+                        itemId: 'storefront'
                     }, {
                         text: 'Show Default Storefront in New Tab',
                         href: '../products',
