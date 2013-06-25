@@ -79,4 +79,16 @@ public abstract class ProductSelection {
     public void setUnitPrice(BigDecimal unitPrice) {
         this.unitPrice = unitPrice;
     }
+    
+    /** Overridden because we're using a composite key.  Default semantics are still fine for our use cases. */
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+    
+    /** Overridden because we're using a composite key.  Default semantics are still fine for our use cases. */
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 }
