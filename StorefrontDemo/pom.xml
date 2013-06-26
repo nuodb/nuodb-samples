@@ -120,7 +120,7 @@
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
                     <finalName>StorefrontDriver</finalName>
-                    <appendAssemblyId>true</appendAssemblyId>
+                    <appendAssemblyId>false</appendAssemblyId>  <!-- will be changed to "true" in next release -->
                 </configuration>
                 <executions>
                     <execution>
