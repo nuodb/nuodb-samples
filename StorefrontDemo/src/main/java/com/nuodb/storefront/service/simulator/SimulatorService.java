@@ -84,6 +84,14 @@ public class SimulatorService implements ISimulator, ISimulatorService {
                 throw new IllegalArgumentException("minActiveWorkers cannot exceed activeWorkerLimit");
             }
         }
+        if (workload.getMaxWorkers() > 0) {
+            if (minActiveWorkers > workload.getMaxWorkers()) {
+                throw new IllegalArgumentException("minActiveWorkers cannot exceed workload limit of " + workload.getMaxWorkers());
+            }
+            if (activeWorkerLimit != null && activeWorkerLimit.intValue() > workload.getMaxWorkers()) {
+                throw new IllegalArgumentException("activeWorkerLimit cannot exceed workload limit of " + workload.getMaxWorkers());
+            }
+        }
 
         synchronized (workloadStatsMap) {
             WorkloadStats info = getOrCreateWorkloadStats(workload);

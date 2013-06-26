@@ -94,7 +94,7 @@ Ext.define('App.view.MessageBar', {
                 me.setMessage('<b>The Storefront appears to be under very heavy load</b>.  Consider reducing simulated users or adding nodes to the NuoDB cluster.', 'Stop All');
             }
         }
-
+        
         me.lastUpdateMs = updateMs;
     },
 
@@ -123,9 +123,11 @@ Ext.define('App.view.MessageBar', {
                     minWorkers: 0,
                     limit: 0
                 },
+                callback: function() {
+                    Ext.ComponentQuery.query('viewport')[0].refreshView('welcome');
+                },
                 scope: this
             });
         });
-        Ext.ComponentQuery.query('viewport')[0].refreshView('welcome');
     }
 });

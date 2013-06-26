@@ -57,7 +57,8 @@ public class WorkloadStats {
     }
 
     public boolean exceedsWorkerLimit() {
-        return activeWorkerLimit != null && getActiveWorkerCount() > activeWorkerLimit;
+        return (activeWorkerLimit != null && activeWorkerCount > activeWorkerLimit) ||
+                (workload.getMaxWorkers() > 0 && activeWorkerCount > workload.getMaxWorkers());
     }
 
     /**
@@ -154,7 +155,7 @@ public class WorkloadStats {
         return (workInvocationCount == 0) ? null : totalWorkTimeMs / (float) workInvocationCount;
     }
 
-    public Float getAvgWorkCompletionTimeMs() {        
+    public Float getAvgWorkCompletionTimeMs() {
         return (workCompletionCount == 0) ? null : totalWorkCompletionTimeMs / (float) workCompletionCount;
     }
 }

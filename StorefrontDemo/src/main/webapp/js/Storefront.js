@@ -113,6 +113,27 @@ var Storefront = {
         
         // Enable HTML5 form features in browsers that don't support it
         $('form').form();
+        
+        // Validate min/max users per workload
+        $('#workload-form').submit(function(e) {
+            var numberFields = $('input[type=number]');
+            for (var i = 0; i < numberFields.length; i++) {
+                var f = $(numberFields[i]);
+                var max = f.attr('max');
+                var name = f.attr('data-name');
+                if (max !== undefined && max !== '' && max != '0' && f.val() > max) {
+                    f.focus();
+                    alert('User count for "' + name + '" cannot exceed ' + max + '.');
+                    e.preventDefault();
+                    return false;
+                } else if (f.val() < 0) {
+                    alert('User count for "' + name + '" cannot be negative.');
+                    e.preventDefault();
+                    f.focus();
+                    return false;
+                }
+            }
+        })
     },
 
     initProductsPage: function(products, categories, filter) {

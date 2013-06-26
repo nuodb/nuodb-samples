@@ -100,7 +100,7 @@
             <div class="span12">
                 <h2 id="workload-sec">Simulated User Setup</h2>
                 <t:messages />
-                <form method="post" action="#workload-sec">
+                <form method="post" action="#workload-sec" id="workload-form">
                     <table class="table table-hover table-bordered table-condensed">
                         <thead>
                             <tr>
@@ -153,7 +153,7 @@
 				<td class="text-right">{{sqrtMsFormat workload.thinkTimeVariance}}</td>
                 <td class="text-center">
 					{{#if workload.avgThinkTimeMs}}
-						<input class="input-mini" type="number" name="workload-{{workload.name}}" value="{{numberOrZero activeWorkerLimit}}" min="0" max="1000" step="1" />
+						<input class="input-mini" type="number" name="workload-{{workload.name}}" data-name="{{workload.name}}" value="{{numberOrZero activeWorkerLimit}}" min="0" {{#if workload.maxWorkers}}max="{{workload.maxWorkers}}"{{/if}} step="1" />
 					{{else}}
 						<input readonly="readonly" title="Workloads with 0 are for benchmark running only and cannot be modified here.  This helps keep the Storefront responsive." class="input-mini" type="number" name="workload-{{workload.name}}" value="{{numberOrZero activeWorkerLimit}}" min="0" max="1000" step="1" />
 					{{/if}}
