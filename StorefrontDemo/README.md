@@ -73,7 +73,7 @@ Key libraries used by this project
 Server side librares:
 - **Jersey** -- JSON-based RESTful API
 - **Hibernate** -- ORM mapping
-- **NuoDB Hiberante dialect**
+- **NuoDB JDBC driver, Hibernate dialect, and DataSource connection pool**
 - **GoogleCode Generic DAO** -- thin data access wrapper on Hibernate for searching, saving, etc.
 
 Client-side libraries:
