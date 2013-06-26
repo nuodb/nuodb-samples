@@ -74,6 +74,9 @@ var Storefront = {
 
         // Render workload list
         me.TemplateMgr.applyTemplate('tpl-workloads', '#workloads', pageData.workloads);
+        
+        // Render product info
+        me.TemplateMgr.applyTemplate('tpl-product-info', '#product-info', pageData.productInfo);
 
         // Handle DDL toggling
         $('#lnk-show-ddl').click(function(e) {

@@ -47,7 +47,7 @@ public class ProductsServlet extends BaseServlet {
             pageData.put("categories", categoryList);
             pageData.put("filter", filter);
 
-            addDataLoadMessage(req, categoryList, productList, false);
+            addDataLoadMessage(req, categoryList, productList, null);
 
             showPage(req, resp, null, "products", pageData);
         } catch (Exception ex) {

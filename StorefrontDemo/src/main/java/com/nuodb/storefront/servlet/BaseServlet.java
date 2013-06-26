@@ -5,6 +5,7 @@ package com.nuodb.storefront.servlet;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,7 +35,7 @@ import com.nuodb.storefront.service.IStorefrontService;
 public abstract class BaseServlet extends HttpServlet {
     public static final String ATTR_PAGE_CONFIG = "pageConfig";
     public static final String SESSION_PRODUCT_FILTER = "productFilter";
-    
+
     private static final Logger s_logger = Logger.getLogger(BaseServlet.class.getName());
     private static final String ATTR_CUSTOMER = "customer";
     private static final String COOKIE_CUSTOMER_ID = "customerId";
@@ -160,32 +161,44 @@ public abstract class BaseServlet extends HttpServlet {
         addErrorMessage(req, ex);
         if (ex instanceof GenericJDBCException) {
             DbConnInfo dbInfo = StorefrontFactory.getDbConnInfo();
-            addMessage(req, MessageSeverity.INFO, "Tip:  Check that the NuoDB database is running.  The storefront is trying to connect to \"" + dbInfo.getUrl() + "\" with the username \"" + dbInfo.getUsername() + "\".");
+            addMessage(req, MessageSeverity.INFO, "Tip:  Check that the NuoDB database is running.  The storefront is trying to connect to \""
+                    + dbInfo.getUrl() + "\" with the username \"" + dbInfo.getUsername() + "\".");
         }
         Customer customer = (Customer) req.getAttribute(ATTR_CUSTOMER);
         showPage(req, resp, "Storefront Problem", "error", null, (customer == null) ? new Customer() : customer);
-        
+
         s_logger.log(Level.WARNING, "Servlet handled critical error", ex);
     }
 
     /**
      * Adds a message prompting the user to seed the database with data if it currently contains 0 products and 0 categories.
-     * If the DB has data and the showPurgeMessage param is set, a message allowing the user to purge the data is added instead.
      */
-    protected static void addDataLoadMessage(HttpServletRequest req, SearchResult<Category> categoryList, SearchResult<Product> productList, boolean showPurgeMessage) {
+    protected static void addDataLoadMessage(HttpServletRequest req, SearchResult<Category> categoryList, SearchResult<Product> productList,
+            Map<String, Object> productInfo) {
         if (categoryList.getResult().isEmpty() && productList.getResult().isEmpty()) {
-            addMessage(req, MessageSeverity.INFO, "There are no products in the database.  Click a button below to seed the database with some sample products and reviews.  Note that the loading process may take around 10 seconds.", "Load 900 Real Products (with pictures served by Amazon.com)", "Generate 5,000 Fake Products (without pictures)");
-        } else if (showPurgeMessage) {
-            addMessage(req, MessageSeverity.INFO, "There are currently " + productList.getTotalCount() + " products across " + categoryList.getTotalCount() + " categories.", "Remove All Data");
+            addMessage(
+                    req,
+                    MessageSeverity.INFO,
+                    "There are no products in the database.  Click a button below to seed the database with some sample products and reviews.  Note that the loading process may take around 10 seconds.",
+                    "Load 900 Real Products (with pictures served by Amazon.com)", "Generate 5,000 Fake Products (without pictures)");
+            if (productInfo != null) {
+                productInfo.put("hasData", false);
+            }
+        } else {
+            if (productInfo != null) {
+                productInfo.put("hasData", true);
+                productInfo.put("productCount", productList.getTotalCount());
+                productInfo.put("categoryCount", categoryList.getTotalCount());
+            }
         }
     }
-    
+
     protected static boolean handleDataLoadRequest(HttpServletRequest req) throws IOException {
         String btnAction = req.getParameter("btn-msg");
         if (btnAction == null) {
             return false;
         }
-        
+
         btnAction = btnAction.toLowerCase();
         if (btnAction.contains("load")) {
             StorefrontApp.loadData();
@@ -201,8 +214,7 @@ public abstract class BaseServlet extends HttpServlet {
 
             // Now remove all data
             try {
-                StorefrontApp.removeData();                
-                addMessage(req, MessageSeverity.INFO, "Product data removed successfully.");
+                StorefrontApp.removeData();
                 s_logger.log(Level.INFO, "Product data removed");
             } catch (Exception e) {
                 s_logger.log(Level.SEVERE, "Unable to remove product data", e);

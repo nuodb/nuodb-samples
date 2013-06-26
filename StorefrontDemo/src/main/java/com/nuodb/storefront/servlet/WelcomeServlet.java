@@ -35,14 +35,16 @@ public class WelcomeServlet extends BaseServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             // Fetch data the page needs
+            Map<String, Object> productInfo = new HashMap<String, Object>();
             Map<String, Object> pageData = new HashMap<String, Object>();
             pageData.put("workloads", getSimulator().getWorkloadStats().values());
             pageData.put("ddl", getDdl());
+            pageData.put("productInfo", productInfo);
 
             // Also add a warning if the Storefront has no products yet
             SearchResult<Category> categoryList = getService().getCategories();
             SearchResult<Product> productList = getService().getProducts(new ProductFilter());
-            addDataLoadMessage(req, categoryList, productList, true);
+            addDataLoadMessage(req, categoryList, productList, productInfo);
 
             showPage(req, resp, null, "welcome", pageData, new Customer());
         } catch (Exception ex) {

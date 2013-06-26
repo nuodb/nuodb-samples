@@ -161,14 +161,28 @@
             </tr>
             {{/result}}  
         </script>
-        <hr />
-            <div class="row">
-        <div class="span12">
-            <h2 id="workload-sec">Node Setup</h2>
-            <p>To add nodes to your NuoDB cluster, use the NuoDB Console.</p>
-            <p>If you are running NuoDB locally with default settings, you will find the Console at <a href="http://localhost:8080/" target="_blank">http://localhost:8080/</a>.</p>
+        <div class="row">
+            <div class="span12">
+                <div id="product-info"></div>
+                <script id="tpl-product-info" type="text/template">
+				{{#result}}
+				{{#if hasData}}
+       	            <hr />
+                	<form method="post" id="product-info">
+                    	<h2 id="data-summary">Product Catalog</h2>
+    	                <p>There are currently {{numberFormat productCount}} products across {{numberFormat categoryCount}} categories.</p>
+	                    <p><button class="btn btn-danger" name="btn-msg" type="submit" value="Remove All Data">Remove All Data</button>
+                	</form>
+				{{/if}}
+				{{/result}}
+				</script>
+                
+                <hr />
+                <h2 id="workload-sec">Node Setup</h2>
+                <p>To add nodes to your NuoDB cluster, use the NuoDB Console.</p>
+                <p>If you are running NuoDB locally with default settings, you will find the Console at <a href="http://localhost:8080/" target="_blank">http://localhost:8080/</a>.</p>
+            </div>
         </div>
-    </div>
     </div>
 
 
