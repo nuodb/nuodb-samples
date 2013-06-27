@@ -17,6 +17,7 @@ Ext.application({
     refreshFrequencyMs: 1000,
     maxStatsHistory: 60,
     apiBaseUrl: '..',
+    maxOutstandingRequestCount: 2,
 
     controllers: ['Storefront'],
     models: ['Host', 'Metric', 'Workload'],

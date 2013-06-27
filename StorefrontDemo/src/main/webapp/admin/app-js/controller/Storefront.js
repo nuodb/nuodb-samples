@@ -10,6 +10,8 @@ Ext.define('App.controller.Storefront', {
 
     stores: ['Metrics', 'Workloads'],
     defaultStorefrontName: 'Default Storefront',
+    lastTimestamp: null,
+    outstandingRequestCount: 0,
 
     /** @Override */
     init: function() {
@@ -117,10 +119,19 @@ Ext.define('App.controller.Storefront', {
     /** @private interval handler */
     onRefreshStats: function() {
         var me = this;
+        if (me.outstandingRequestCount >= App.app.maxOutstandingRequestCount) {
+            return;
+        }
+        
+        me.outstandingRequestCount++;
+        
         Ext.Ajax.request({
             url: App.app.apiBaseUrl + '/api/stats',
             method: 'GET',
             scope: this,
+            callback: function() {
+                me.outstandingRequestCount--;
+            },
             success: function(response) {
                 var stats;
                 try {
@@ -135,8 +146,15 @@ Ext.define('App.controller.Storefront', {
                 var instanceId = stats.storefrontStats.instanceId;
                 if (me.instanceId !== instanceId) {
                     me.statsHistory = [];
+                    me.lastTimestamp = null;
                 }
                 me.instanceId = instanceId;
+                
+                if (me.lastTimestamp && stats.storefrontStats.timestamp < me.lastTimestamp) {
+                    // We received a response out-of-sequence.  Ignore it since deltas were already calculated.
+                    return;
+                }
+                me.lastTimestamp = stats.storefrontStats.timestamp;
 
                 // Convert storefront stats into series form (consistent with other categories for coding ease)
                 var storefrontStats = stats.storefrontStats;
@@ -198,7 +216,7 @@ Ext.define('App.controller.Storefront', {
             }, 
             failure: function(response) {
                 me.application.fireEvent('statsfail', response);
-            }            
+            }
         });
     },
 

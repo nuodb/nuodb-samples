@@ -69,6 +69,11 @@
     text-align: left !important;
 }
 
+.x-ie .btn-header button {
+    overflow-x: hidden;
+    position: static;
+}
+
 .btn-header .x-btn-icon {
     width: 32px;
     height: 32px;
@@ -103,6 +108,10 @@
 
 .metric-well .graph-container {
     box-sizing: content-box;
+}
+
+.x-ie .metric-well {
+    background-position: 0 -3px;
 }
 
 .ico-store-32 {
