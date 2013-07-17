@@ -2,10 +2,12 @@
 
 package com.nuodb.storefront;
 
+import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.StatelessSession;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
@@ -77,7 +79,14 @@ public class StorefrontFactory {
     }
 
     public static IDataGeneratorService createDataGeneratorService() {
-        return new DataGeneratorService(getOrCreateSessionFactory().openStatelessSession());
+        StatelessSession session = getOrCreateSessionFactory().openStatelessSession();
+        try {
+            session.connection().setAutoCommit(true);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return new DataGeneratorService(session);
     }
     
     public static ISimulatorService getSimulatorService() {

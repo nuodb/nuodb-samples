@@ -79,9 +79,9 @@ public class DataGeneratorService implements IDataGeneratorService {
                 "delete from cart_selection",
                 "delete from purchase_selection",
                 "delete from purchase",
+                "delete from product_review",
                 "delete from customer",
                 "delete from product_category",
-                "delete from product_review",
                 "delete from product"
         };
         

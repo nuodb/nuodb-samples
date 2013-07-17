@@ -1,0 +1,54 @@
+<!-- Copyright (c) 2013 NuoDB, Inc. -->
+<!DOCTYPE hibernate-configuration SYSTEM "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+    <session-factory>
+        <!-- Tell Hibernate to speak MySQL -->
+        <property name="dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/Storefront</property>
+        <property name="connection.username">StorefrontUser</property>
+        <property name="connection.password">StorefrontUser</property>
+
+        <!-- Configure the MySQL connection pool -->
+        <property name="hibernate.connection.isolation">4</property> <!-- TRANSACTION_REPEATABLE_READ  -->
+        <property name="hibernate.connection.provider_class">org.hibernate.connection.C3P0ConnectionProvider</property>
+        <property name="hibernate.c3p0.acquire_increment">1</property>
+        <property name="hibernate.c3p0.idle_test_period">60</property>
+        <property name="hibernate.c3p0.min_size">1</property>
+        <property name="hibernate.c3p0.max_size">100</property>
+        <property name="hibernate.c3p0.max_statements">50</property>
+        <property name="hibernate.c3p0.timeout">0</property>
+        <property name="hibernate.c3p0.acquireRetryAttempts">1</property>
+        <property name="hibernate.c3p0.acquireRetryDelay">250</property>
+
+        <!-- Disable the second-level cache (best practice with NuoDB) -->
+        <property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+        <property name="cache.use_query_cache">false</property>
+        <property name="cache.use_minimal_puts">false</property>
+
+        <!-- In eager fetching, only join three tables deep if joins are used -->
+        <property name="max_fetch_depth">3</property>
+
+        <!-- Print SQL to stdout, format it nicely -->
+        <property name="show_sql">false</property>
+        <property name="format_sql">true</property>
+        <property name="use_sql_comments">true</property>
+
+        <!-- Drop and then re-create schema on SessionFactory build, for testing -->
+        <property name="hbm2ddl.auto">update</property>
+
+        <!-- Use thread-bound persistence context propagation, scoped to the transaction -->
+        <property name="current_session_context_class">thread</property>
+
+        <!-- Add mappings (using annotations) -->
+        <mapping class="com.nuodb.storefront.model.CartSelection" />
+        <mapping class="com.nuodb.storefront.model.Customer" />
+        <mapping class="com.nuodb.storefront.model.Product" />
+        <mapping class="com.nuodb.storefront.model.ProductReview" />
+        <mapping class="com.nuodb.storefront.model.Purchase" />
+        <mapping class="com.nuodb.storefront.model.PurchaseSelection" />
+
+    </session-factory>
+
+</hibernate-configuration>
