@@ -23,7 +23,7 @@
         <div class="row" id="ddl">
             <div class="span12">
                 <h2>Storefront DDL</h2>
-                <textarea></textarea>
+                <textarea wrap="off"></textarea>
             </div>
         </div>
         <script id="tpl-ddl" type="text/template">{{result}}</script>

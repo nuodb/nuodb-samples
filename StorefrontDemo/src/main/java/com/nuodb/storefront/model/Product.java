@@ -58,11 +58,11 @@ public class Product extends Model {
     private Set<String> categories = new HashSet<String>();
 
     // formula is useful for normalized data, but not fast queries (especially sorting on rating)
-    // @Formula("(select avg(cast(r.rating as float(4))) from product_review r where r.product_id = id)")
+    // @Formula("(select avg(cast(r.rating as float(4))) from Product_Review r where r.product_id = id)")
     private Float rating;
 
     // formula is useful for normalized data, but not fast queries (especially sorting)
-    // @Formula("(select count(r.rating) from product_review r where r.product_id = id)")
+    // @Formula("(select count(r.rating) from Product_Review r where r.product_id = id)")
     private int reviewCount;
 
     private long purchaseCount;
