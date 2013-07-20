@@ -122,9 +122,9 @@ var Storefront = {
             var numberFields = $('input[type=number]');
             for (var i = 0; i < numberFields.length; i++) {
                 var f = $(numberFields[i]);
-                var max = f.attr('max');
+                var max = parseInt(f.attr('max'));
                 var name = f.attr('data-name');
-                if (max !== undefined && max !== '' && max != '0' && f.val() > max) {
+                if (!isNaN(max) && f.val() > max) {
                     f.focus();
                     alert('User count for "' + name + '" cannot exceed ' + max + '.');
                     e.preventDefault();
