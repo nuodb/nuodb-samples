@@ -104,7 +104,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
         // This query got category usage counts, but was slower, and we currently don't need the counts for anything:
         // "select c, count(*) from Product p inner join p.categories c group by c order by c"
 
-        List categories = getSession().createSQLQuery("select distinct category, 0 from Product_Category order by category").list();
+        List categories = getSession().createSQLQuery("SELECT DISTINCT CATEGORY, 0 FROM PRODUCT_CATEGORY ORDER BY CATEGORY").list();
         for (int i = categories.size() - 1; i >= 0; i--) {
             Object[] data = (Object[]) categories.get(i);
             categories.set(i, new Category((String) data[0], ((Number) data[1]).intValue()));
@@ -144,25 +144,25 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
     }
 
     public StorefrontStats getStorefrontStats(int maxCustomerIdleTimeSec) {
-        SQLQuery query = getSession().createSQLQuery("select"
-                + " (select count(*) from Product) as productCount,"
-                + " (select count(*) from (select distinct category from Product_Category) as a) as categoryCount,"
-                + " (select count(*) from Product_Review) as productReviewCount,"
-                + " (select count(*) from Customer) as customerCount,"
-                + " (select count(*) from Customer where datelastactive >= :minActiveTime) as activeCustomerCount,"
-                + " (select count(*) from (select distinct customer_id from Cart_Selection) as b) as cartCount,"
-                + " (select sum(quantity) from Cart_Selection) as cartItemCount,"
-                + " (select sum(cast(quantity as decimal(16,2)) * unitprice) from Cart_Selection) as cartValue,"
-                + " (select count(*) from Purchase) as purchaseCount,"
-                + " (select sum(quantity) from Purchase_Selection) as purchaseItemCount,"
-                + " (select sum(cast(quantity as decimal(16,2)) * unitprice) from Purchase_Selection) as purchaseValue"
-                + " from dual;");
+        SQLQuery query = getSession().createSQLQuery("SELECT"
+                + " (SELECT COUNT(*) FROM PRODUCT) AS PRODUCT_COUNT,"
+                + " (SELECT COUNT(*) FROM (SELECT DISTINCT CATEGORY FROM PRODUCT_CATEGORY) AS A) AS CATEGORY_COUNT,"
+                + " (SELECT COUNT(*) FROM PRODUCT_REVIEW) AS PRODUCT_REVIEW_COUNT,"
+                + " (SELECT COUNT(*) FROM CUSTOMER) AS CUSTOMER_COUNT,"
+                + " (SELECT COUNT(*) FROM CUSTOMER WHERE DATE_LAST_ACTIVE >= :MIN_ACTIVE_TIME) AS ACTIVE_CUSTOMER_COUNT,"
+                + " (SELECT COUNT(*) FROM (SELECT DISTINCT CUSTOMER_ID FROM CART_SELECTION) AS B) AS CART_COUNT,"
+                + " (SELECT SUM(QUANTITY) FROM CART_SELECTION) AS CART_ITEM_COUNT,"
+                + " (SELECT SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE) FROM CART_SELECTION) AS CART_VALUE,"
+                + " (SELECT COUNT(*) FROM PURCHASE) AS PURCHASE_COUNT,"
+                + " (SELECT SUM(QUANTITY) FROM PURCHASE_SELECTION) AS PURCHASE_ITEM_COUNT,"
+                + " (SELECT SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE) FROM PURCHASE_SELECTION) AS PURCHASE_VALUE"
+                + " FROM DUAL;");
 
         // Calc minActiveTime
         Calendar now = Calendar.getInstance();
         Calendar minActiveTime = (Calendar) now.clone();
         minActiveTime.add(Calendar.SECOND, -maxCustomerIdleTimeSec);
-        query.setParameter("minActiveTime", minActiveTime);
+        query.setParameter("MIN_ACTIVE_TIME", minActiveTime);
 
         // Run query
         Object[] result = (Object[]) query.uniqueResult();
@@ -203,17 +203,17 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
         Map<String, Object> params = new HashMap<String, Object>();
 
         if (countOnly) {
-            sql.append("select count(*) from Product where 1=1");
+            sql.append("SELECT COUNT(*) FROM PRODUCT WHERE 1=1");
         } else {
-            sql.append("select * from Product where 1=1");
+            sql.append("SELECT * FROM PRODUCT WHERE 1=1");
         }
 
         // Set match text
         String matchText = filter.getMatchText();
         if (matchText != null && !matchText.isEmpty()) {
             matchText = "%" + matchText.trim().toLowerCase() + "%";
-            sql.append(" and (lower(name) like :matchText or lower(description) like :matchText)");
-            params.put("matchText", matchText);
+            sql.append(" AND (LOWER(NAME) LIKE :MATCH_TEXT OR LOWER(DESCRIPTION) LIKE :MATCH_TEXT)");
+            params.put("MATCH_TEXT", matchText);
         }
 
         // Set categories
@@ -229,7 +229,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
                 params.put(catParamName, category);
                 categoryParamList.append(":" + catParamName);
             }
-            sql.append(" and id in (select product_id from Product_Category where category in (" + categoryParamList + "))");
+            sql.append(" AND ID IN (SELECT PRODUCT_ID FROM PRODUCT_CATEGORY WHERE CATEGORY IN (" + categoryParamList + "))");
         }
 
         // Set sort
@@ -237,35 +237,35 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
         if (sort != null) {
             switch (sort) {
                 case AVG_CUSTOMER_REVIEW:
-                    sql.append(" order by coalesce(rating, -1) desc, reviewcount desc");
+                    sql.append(" ORDER BY COALESCE(RATING, -1) DESC, REVIEW_COUNT DESC");
                     break;
 
                 case DATE_CREATED:
-                    sql.append(" order by dateAdded desc");
+                    sql.append(" ORDER BY DATE_ADDED DESC");
                     break;
 
                 case NEW_AND_POPULAR:
-                    sql.append(" order by purchaseCount desc, dateadded desc");
+                    sql.append(" ORDER BY PURCHASE_COUNT DESC, DATE_ADDED DESC");
                     break;
 
                 case PRICE_HIGH_TO_LOW:
-                    sql.append(" order by unitPrice desc");
+                    sql.append(" ORDER BY UNIT_PRICE DESC");
                     break;
 
                 case PRICE_LOW_TO_HIGH:
-                    sql.append(" order by unitPrice");
+                    sql.append(" ORDER BY UNIT_PRICE");
                     break;
 
                 case RELEVANCE:
                     if (matchText != null && !matchText.isEmpty()) {
-                        sql.append(" order by case when lower(name) like :matchText then 1 else 0 end desc, name, dateAdded desc");
+                        sql.append(" ORDER BY CASE WHEN LOWER(NAME) LIKE :MATCH_TEXT THEN 1 ELSE 0 END DESC, NAME, DATE_ADDED DESC");
                     } else {
-                        sql.append(" order by name, dateAdded desc");
+                        sql.append(" ORDER BY NAME, DATE_ADDED DESC");
                     }
                     break;
 
                 default:
-                    sql.append(" order by id");
+                    sql.append(" ORDER BY ID");
                     break;
             }
         }

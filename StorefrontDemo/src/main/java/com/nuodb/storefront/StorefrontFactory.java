@@ -13,6 +13,7 @@ import org.hibernate.cfg.Environment;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 
 import com.nuodb.storefront.dal.IStorefrontDao;
+import com.nuodb.storefront.dal.UpperCaseNamingStrategy;
 import com.nuodb.storefront.dal.StorefrontDao;
 import com.nuodb.storefront.model.DbConnInfo;
 import com.nuodb.storefront.service.IDataGeneratorService;
@@ -34,6 +35,7 @@ public class StorefrontFactory {
 
     static {
         s_configuration = new Configuration();
+        s_configuration.setNamingStrategy(UpperCaseNamingStrategy.INSTANCE);
         s_configuration.configure();
         
         String dbName = System.getProperty("storefront.db.name");

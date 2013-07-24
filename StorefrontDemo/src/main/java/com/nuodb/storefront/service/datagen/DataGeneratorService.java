@@ -76,13 +76,13 @@ public class DataGeneratorService implements IDataGeneratorService {
     @Override
     public void removeAll() throws IOException {
         String[] statements = new String[] {
-                "delete from Cart_Selection",
-                "delete from Purchase_Selection",
-                "delete from Purchase",
-                "delete from Product_Review",
-                "delete from Customer",
-                "delete from Product_Category",
-                "delete from Product"
+                "DELETE FROM CART_SELECTION",
+                "DELETE FROM PURCHASE_SELECTION",
+                "DELETE FROM PURCHASE",
+                "DELETE FROM PRODUCT_REVIEW",
+                "DELETE FROM CUSTOMER",
+                "DELETE FROM PRODUCT_CATEGORY",
+                "DELETE FROM PRODUCT"
         };
         
         for (String statement : statements) {
@@ -120,7 +120,7 @@ public class DataGeneratorService implements IDataGeneratorService {
 
         // Insert product categories
         StringBuilder buff = new StringBuilder();
-        buff.append("insert into Product_Category (product_id, category) values ");
+        buff.append("INSERT INTO PRODUCT_CATEGORY (PRODUCT_ID, CATEGORY) VALUES ");
         int catCount = 0;
         for (Product product : products) {
             for (Iterator<String> iterator = product.getCategories().iterator(); iterator.hasNext();) {
