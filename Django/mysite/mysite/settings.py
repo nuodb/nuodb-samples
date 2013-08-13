@@ -11,15 +11,47 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django_pynuodb', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'test',                      # Or path to database file if using sqlite3.
-        # The following settings are not used with sqlite3:
+        'ENGINE': 'django_pynuodb', 
+        'NAME': 'NoEntry',             
         'USER': 'dba',
         'PASSWORD': 'goalie',
-        'HOST': 'localhost',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': '48004',                      # Set to empty string for default.
+        'HOST': 'localhost',   
+        'PORT': '48004',       
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django_pynuodb',
+#         'NAME': 'Thousand',
+#         'USER': 'dba',
+#         'PASSWORD': 'goalie',
+#         'HOST': 'localhost',
+#         'PORT': '48004',
+#     }
+# }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'NoEntry',
+#         'USER': 'postgres',
+#         'PASSWORD': '',
+#         'HOST': 'localhost',
+#         'PORT': '',
+#     }
+# }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'Thousand',
+#         'USER': 'postgres',
+#         'PASSWORD': '',
+#         'HOST': 'localhost',
+#         'PORT': '',
+#     }
+# }
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts

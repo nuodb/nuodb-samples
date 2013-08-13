@@ -1,6 +1,6 @@
 import pynuodb
 
-con = pynuodb.connect("test", "localhost", "dba", "goalie", options = {"schema":"user"})
+con = pynuodb.connect("Thousand", "localhost", "dba", "goalie", options = {"schema":"user"})
 
 cursor = con.cursor()
 for i in xrange(0, 1000):
