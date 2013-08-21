@@ -10,7 +10,7 @@ class IndexView(generic.ListView):
     context_object_name = 'latest_poll_list'
 
     def get_queryset(self):
-        return Poll.objects.order_by('-pub_date')[:5]
+        return Poll.objects.order_by('-pub_date')
 
 
 class DetailView(generic.DetailView):

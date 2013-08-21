@@ -4,49 +4,53 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ('Dan', ),
+    ('Test', ),
 )
 
 MANAGERS = ADMINS
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django_pynuodb', 
-        'NAME': 'NoEntry',             
-        'USER': 'dba',
-        'PASSWORD': 'goalie',
-        'HOST': 'localhost',   
-        'PORT': '48004',       
-    }
-}
+# Testing NuoDB database with no polls 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django_pynuodb', 
+#         'NAME': 'NoEntry',             
+#         'DBA_USER': 'dba',
+#         'DBA_PASSWORD': 'goalie',
+#         'HOST': 'localhost',   
+#         'PORT': '48004',       
+#     }
+# }
 
+# Testing NuoDB database with a thousand polls
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django_pynuodb',
 #         'NAME': 'Thousand',
-#         'USER': 'dba',
-#         'PASSWORD': 'goalie',
+#         'DBA_USER': 'dba',
+#         'DBA_PASSWORD': 'goalie',
 #         'HOST': 'localhost',
 #         'PORT': '48004',
 #     }
 # }
 
+# Testing Postgresql database with no polls
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
 #         'NAME': 'NoEntry',
-#         'USER': 'postgres',
+#         'USER': 'build',
 #         'PASSWORD': '',
 #         'HOST': 'localhost',
 #         'PORT': '',
 #     }
 # }
 
+# Testing Postgresql database with a thousand polls
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
 #         'NAME': 'Thousand',
-#         'USER': 'postgres',
+#         'USER': 'build',
 #         'PASSWORD': '',
 #         'HOST': 'localhost',
 #         'PORT': '',
