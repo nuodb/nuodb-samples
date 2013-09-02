@@ -21,7 +21,7 @@ public abstract class BaseApi {
     protected ISimulatorService getSimulator() {
         return BaseServlet.getSimulator();
     }
-    
+
     protected Customer getOrCreateCustomer(HttpServletRequest req, HttpServletResponse resp) {
         return BaseServlet.getOrCreateCustomer(req, resp);
     }

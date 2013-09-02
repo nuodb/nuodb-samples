@@ -14,7 +14,7 @@ import com.nuodb.storefront.model.Category;
 public class CategoriesApi extends BaseApi {
     public CategoriesApi() {
     }
-    
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public SearchResult<Category> getAll() {

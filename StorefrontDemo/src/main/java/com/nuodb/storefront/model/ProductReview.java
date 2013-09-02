@@ -77,7 +77,7 @@ public class ProductReview extends Model {
     void setProduct(Product product) {
         this.product = product;
     }
-    
+
     public void clearProduct() {
         this.product = null;
     }
@@ -89,7 +89,7 @@ public class ProductReview extends Model {
     public void setCustomer(Customer customer) {
         this.customer = customer;
     }
-    
+
     public String getGravitarHash() {
         if (customer == null) {
             return null;

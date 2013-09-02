@@ -53,7 +53,8 @@ public class Product extends Model {
     private List<ProductReview> reviews = new ArrayList<ProductReview>();
 
     @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "Product_Category", joinColumns = @JoinColumn(name = "product_id"), uniqueConstraints = { @UniqueConstraint(columnNames={"category", "product_id"})})
+    @CollectionTable(name = "Product_Category", joinColumns = @JoinColumn(name = "product_id"), uniqueConstraints = { @UniqueConstraint(columnNames = {
+            "category", "product_id" }) })
     @Column(name = "category")
     private Set<String> categories = new HashSet<String>();
 

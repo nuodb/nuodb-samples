@@ -32,7 +32,7 @@ import com.nuodb.storefront.servlet.BaseServlet;
 public class ProductsApi extends BaseApi {
     public ProductsApi() {
     }
-    
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public SearchResult<Product> search(@Context HttpServletRequest req,

@@ -115,7 +115,7 @@ public class SimulatedUser implements IWorker {
             case CART_CHECKOUT:
                 doCartCheckout();
                 break;
-                
+
             case ADMIN_RUN_REPORT:
                 doRunReport();
                 break;
@@ -218,7 +218,7 @@ public class SimulatedUser implements IWorker {
         }
         cart = null;
     }
-    
+
     protected void doRunReport() {
         simulator.getService().getStorefrontStats(0);
     }

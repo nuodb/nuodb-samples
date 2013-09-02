@@ -2,8 +2,7 @@
 
 package com.nuodb.storefront.model;
 
-
-public enum WorkloadStep {    
+public enum WorkloadStep {
     BROWSE,
 
     BROWSE_NEXT_PAGE,
@@ -11,7 +10,7 @@ public enum WorkloadStep {
     BROWSE_SEARCH,
 
     BROWSE_CATEGORY,
-    
+
     BROWSE_SORT,
 
     PRODUCT_VIEW_DETAILS,
@@ -25,7 +24,7 @@ public enum WorkloadStep {
     CART_UPDATE,
 
     CART_CHECKOUT,
-    
+
     ADMIN_RUN_REPORT,
 
     @WorkloadFlow(steps = {

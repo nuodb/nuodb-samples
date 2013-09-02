@@ -23,7 +23,7 @@ public class Purchase extends Model {
     @NotNull
     private Calendar datePurchased;
 
-    @OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER, orphanRemoval = true, mappedBy="purchase")
+    @OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER, orphanRemoval = true, mappedBy = "purchase")
     @OrderBy("dateAdded")
     private List<PurchaseSelection> selections = new ArrayList<PurchaseSelection>();
 

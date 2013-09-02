@@ -1,15 +1,25 @@
 <!-- Copyright (c) 2013 NuoDB, Inc. -->
-<web-app id="WebApp_ID" version="2.4"
-    xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<web-app id="WebApp_ID" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
 	http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 
-    <display-name>Storefront Demo</display-name>
+    <display-name>NuoDB Storefront Demo</display-name>
+
+    <context-param>
+        <description>This parameter is stored in the APP_INSTANCE table and tells all Storefront instances how to communicate with this one</description>
+        <param-name>public-url</param-name>
+        <param-value>http://localhost:7080/Storefront</param-value>
+    </context-param>
 
     <welcome-file-list>
         <welcome-file>products</welcome-file>
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
+
+    <!-- Lifecycle listeners -->
+    <listener>
+        <listener-class>com.nuodb.storefront.StorefrontWebApp</listener-class>
+    </listener>
 
     <!-- Servlets -->
     <servlet>
@@ -41,7 +51,7 @@
         <servlet-name>storefront-welcome</servlet-name>
         <servlet-class>com.nuodb.storefront.servlet.WelcomeServlet</servlet-class>
     </servlet>
-    
+
     <!-- URL mappings -->
     <servlet-mapping>
         <servlet-name>jersey-serlvet</servlet-name>
@@ -63,5 +73,5 @@
         <servlet-name>storefront-welcome</servlet-name>
         <url-pattern>/welcome</url-pattern>
     </servlet-mapping>
-    
+
 </web-app>

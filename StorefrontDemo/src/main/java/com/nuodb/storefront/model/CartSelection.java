@@ -28,7 +28,7 @@ public class CartSelection extends ProductSelection implements Serializable {
     void setCustomer(Customer customer) {
         this.customer = customer;
     }
-    
+
     public void clearCustomer() {
         this.customer = null;
     }

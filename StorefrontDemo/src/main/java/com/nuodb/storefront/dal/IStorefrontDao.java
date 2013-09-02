@@ -8,7 +8,7 @@ import java.util.concurrent.Callable;
 import com.googlecode.genericdao.dao.hibernate.GeneralDAO;
 import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.model.Category;
-import com.nuodb.storefront.model.Model;
+import com.nuodb.storefront.model.IModel;
 import com.nuodb.storefront.model.Product;
 import com.nuodb.storefront.model.ProductFilter;
 import com.nuodb.storefront.model.StorefrontStats;
@@ -20,12 +20,12 @@ import com.nuodb.storefront.service.IStorefrontService;
  * be used by Storefront services only.
  */
 public interface IStorefrontDao extends GeneralDAO {
-    public void initialize(Model model);
+    public void initialize(IModel model);
 
     /**
      * Evicts the model from a DAO session so that subsequent changes are not committed to the database.
      */
-    public void evict(Model model);
+    public void evict(IModel model);
 
     /**
      * Invokes the {@link Runnable#run()} method within the context of a transaction. Commits upon completion, or rolls back upon exception (and then
@@ -57,13 +57,15 @@ public interface IStorefrontDao extends GeneralDAO {
 
     /**
      * Gets statistics on all transactions run by this service through either {@link #runTransaction(TransactionType, String, Callable)} or
-     * {@link #runTransaction(TransactionType, String, Runnable)}.  The keys of the returned map are transaction names as specified
-     * when these methods are invoked.
+     * {@link #runTransaction(TransactionType, String, Runnable)}. The keys of the returned map are transaction names as specified when these methods
+     * are invoked.
      */
     public Map<String, TransactionStats> getTransactionStats();
-    
+
     /**
      * @see IStorefrontService#getStorefrontStats(maxCustomerIdleTimeSec)
      */
     public StorefrontStats getStorefrontStats(int maxCustomerIdleTimeSec);
+
+    public void sendHeartbeat(String appUrl);
 }

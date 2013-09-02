@@ -20,8 +20,10 @@ import org.hibernate.Transaction;
 
 import com.googlecode.genericdao.dao.hibernate.GeneralDAOImpl;
 import com.googlecode.genericdao.search.SearchResult;
+import com.nuodb.storefront.model.AppInstance;
 import com.nuodb.storefront.model.Category;
-import com.nuodb.storefront.model.Model;
+import com.nuodb.storefront.model.Currency;
+import com.nuodb.storefront.model.IModel;
 import com.nuodb.storefront.model.Product;
 import com.nuodb.storefront.model.ProductFilter;
 import com.nuodb.storefront.model.ProductSort;
@@ -34,8 +36,7 @@ import com.nuodb.storefront.model.TransactionStats;
  */
 public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
     private static final long s_startTimeMs = System.currentTimeMillis();
-    private static final String s_instanceId = UUID.randomUUID().toString();
-    private static final String s_storefrontName = "Default Storefront";
+    private static final AppInstance s_appInstance = new AppInstance();
     private static final Map<String, TransactionStats> s_transactionStatsMap = new HashMap<String, TransactionStats>();
 
     public StorefrontDao() {
@@ -57,12 +58,12 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
     }
 
     @Override
-    public void initialize(Model model) {
+    public void initialize(IModel model) {
         Hibernate.initialize(model);
     }
 
     @Override
-    public void evict(Model model) {
+    public void evict(IModel model) {
         getSession().evict(model);
     }
 
@@ -169,9 +170,10 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
 
         // Fill stats
         StorefrontStats stats = new StorefrontStats();
-        stats.setInstanceId(s_instanceId);
         stats.setTimestamp(now);
-        stats.setStorefrontName(s_storefrontName);
+        stats.setInstanceId(s_appInstance.getUuid());
+        stats.setStorefrontName(s_appInstance.getName());
+        stats.setCurrency(s_appInstance.getCurrency());
         stats.setUptimeMs(System.currentTimeMillis() - s_startTimeMs);
         stats.setProductCount(Integer.valueOf(result[0].toString()));
         stats.setCategoryCount(Integer.valueOf(result[1].toString()));
@@ -188,8 +190,29 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
         return stats;
     }
     
-    private static String toNumericString(Object o) {
-        if (o != null)  {
+    @Override
+    public void sendHeartbeat(String appUrl) {
+        synchronized (s_appInstance) {
+            Calendar now = Calendar.getInstance();
+            
+            if (s_appInstance.getUuid() == null) {
+                // Initialize instance info
+                s_appInstance.setUuid( UUID.randomUUID().toString());
+                s_appInstance.setName("Default Storefront"); // TODO:  Detect hostname or IP address
+                s_appInstance.setRegion("East"); // TODO:  Implement me using proper NuoDB query
+                s_appInstance.setFirstHeartbeat(now);
+                s_appInstance.setCurrency(Currency.US_DOLLAR);
+                s_appInstance.setCpuUtilization(0); // TODO:  Detect utilization using SIGAR library
+            }
+            s_appInstance.setUrl(appUrl);
+            s_appInstance.setLastHeartbeat(now);
+            
+            save(s_appInstance); // this will create or update as appropriate
+        }
+    }
+
+    protected static String toNumericString(Object o) {
+        if (o != null) {
             String str = o.toString();
             if (str.length() > 0 && !str.equalsIgnoreCase("NaN")) {
                 return str;

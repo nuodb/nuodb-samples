@@ -108,7 +108,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
         synchronized (workloadStatsMap) {
             threadPool.shutdownNow();
             threadPool = new ScheduledThreadPoolExecutor(Runtime.getRuntime().availableProcessors() * 10);
-            
+
             for (WorkloadStats stats : workloadStatsMap.values()) {
                 stats.setActiveWorkerLimit(0);
                 stats.setActiveWorkerCount(0);
@@ -218,7 +218,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
             } catch (Exception e) {
                 delay = IWorker.COMPLETE_NO_REPEAT;
                 workerFailed = true;
-                s_logger.log(Level.WARNING, "Simulated worker failed", e);                
+                s_logger.log(Level.WARNING, "Simulated worker failed", e);
             }
             long endTimeMs = System.currentTimeMillis();
             completionWorkTimeMs += (endTimeMs - startTimeMs);

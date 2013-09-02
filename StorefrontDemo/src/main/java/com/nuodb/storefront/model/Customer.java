@@ -14,11 +14,11 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 public class Customer extends Model {
-    @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true, mappedBy="customer")
+    @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true, mappedBy = "customer")
     @OrderBy("dateAdded")
     private List<CartSelection> cartSelections = new ArrayList<CartSelection>();
 
-    @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true, mappedBy="customer")
+    @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true, mappedBy = "customer")
     @OrderBy("datePurchased")
     private List<Purchase> transactions = new ArrayList<Purchase>();
 
@@ -31,6 +31,16 @@ public class Customer extends Model {
     private Calendar dateLastActive;
 
     private transient int cartItemCount;
+
+    /**
+     * The region through which this customer last interacted with the store.
+     */
+    private String region;
+
+    /**
+     * The name of the workload that created this simulated customer, or <code>null</code> for a "real" customer.
+     */
+    private String workload;
 
     public Customer() {
     }
@@ -75,7 +85,7 @@ public class Customer extends Model {
     public void addTransaction(Purchase transaction) {
         transaction.setCustomer(this);
         transactions.add(transaction);
-    }    
+    }
 
     public void clearTransactions() {
         transactions = null;
@@ -98,5 +108,21 @@ public class Customer extends Model {
             return emailAddress;
         }
         return "Customer " + getId();
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getWorkload() {
+        return workload;
+    }
+
+    public void setWorkload(String workload) {
+        this.workload = workload;
     }
 }

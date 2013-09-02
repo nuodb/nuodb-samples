@@ -16,7 +16,7 @@ public class ProductFilter {
 
     public ProductFilter() {
     }
-    
+
     public ProductFilter(String matchText, Collection<String> categories, Integer page, Integer pageSize, ProductSort sort) {
         this.matchText = matchText;
         this.categories = CollectionUtil.createCollectionWithNonEmptyItems(categories);

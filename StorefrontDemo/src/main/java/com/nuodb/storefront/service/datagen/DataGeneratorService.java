@@ -24,7 +24,7 @@ public class DataGeneratorService implements IDataGeneratorService {
     public DataGeneratorService(StatelessSession session) {
         this.session = session;
     }
-    
+
     @Override
     public void close() {
         session.close();
@@ -84,9 +84,9 @@ public class DataGeneratorService implements IDataGeneratorService {
                 "DELETE FROM PRODUCT_CATEGORY",
                 "DELETE FROM PRODUCT"
         };
-        
+
         for (String statement : statements) {
-            for (int i = 0 ; ; i++) {
+            for (int i = 0;; i++) {
                 try {
                     session.connection().prepareStatement(statement).execute();
                     break;
@@ -99,7 +99,7 @@ public class DataGeneratorService implements IDataGeneratorService {
                         }
                         continue;
                     }
-                    
+
                     // We're out of retry attempts
                     throw new IOException(e);
                 }

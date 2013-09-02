@@ -26,7 +26,6 @@ public class DataGenerator {
         return customers;
     }
 
-
     public List<Product> createProducts(int numProducts, int maxCategoriesPerProduct, int maxReviewsPerProduct) {
         List<Product> products = new ArrayList<Product>();
         for (int i = 0; i < numProducts; i++) {
@@ -35,7 +34,7 @@ public class DataGenerator {
         }
         return products;
     }
-    
+
     public void addProductReviews(Product product, int maxReviewsPerProduct) {
         for (int i = 0; i < rnd.nextInt(maxReviewsPerProduct); i++) {
             addProductReview(product);
@@ -48,7 +47,7 @@ public class DataGenerator {
         customer.setDateAdded(now);
         customer.setDateLastActive(now);
         customer.setEmailAddress("test" + rnd.nextInt(100000) + "@test.com");
-        //dao.save(customer);
+        // dao.save(customer);
         return customer;
     }
 
@@ -67,11 +66,11 @@ public class DataGenerator {
         for (int i = 0; i < rnd.nextInt(maxCategoriesPerProduct) + 1; i++) {
             product.getCategories().add("Category " + (char) ('A' + rnd.nextInt(26)));
         }
-        
+
         // Add reviews
         addProductReviews(product, maxReviewsPerProduct);
 
-        //dao.save(product);
+        // dao.save(product);
         return product;
     }
 
@@ -81,7 +80,7 @@ public class DataGenerator {
         if (customer == null) {
             return;
         }
-        
+
         ProductReview review = new ProductReview();
         review.setDateAdded(now);
         review.setTitle("This is a review");

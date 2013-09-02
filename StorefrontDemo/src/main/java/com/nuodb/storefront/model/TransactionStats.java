@@ -11,7 +11,7 @@ public class TransactionStats {
 
     public TransactionStats() {
     }
-    
+
     public TransactionStats(TransactionStats stats) {
         this.successCount = stats.successCount;
         this.failureCount = stats.failureCount;

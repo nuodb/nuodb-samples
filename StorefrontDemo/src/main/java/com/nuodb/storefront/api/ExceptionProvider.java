@@ -18,10 +18,10 @@ import com.nuodb.storefront.model.Message;
 @Provider
 public class ExceptionProvider implements ExceptionMapper<RuntimeException> {
     private static final Logger s_logger = Logger.getLogger(ExceptionProvider.class.getName());
-    
+
     public ExceptionProvider() {
     }
-    
+
     @Override
     public Response toResponse(RuntimeException exception) {
         Status status;
@@ -32,9 +32,9 @@ public class ExceptionProvider implements ExceptionMapper<RuntimeException> {
         } else {
             status = Status.INTERNAL_SERVER_ERROR;
         }
-        
+
         s_logger.log(Level.WARNING, "API exception provider handling RuntimeException with HTTP status " + status.getStatusCode(), exception);
-        
+
         return Response.status(status).entity(new Message(exception)).build();
     }
 }

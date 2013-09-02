@@ -90,7 +90,7 @@ public class Workload {
     public void setAutoRepeat(boolean autoRepeat) {
         this.autoRepeat = autoRepeat;
     }
-    
+
     public int getMaxWorkers() {
         return maxWorkers;
     }

@@ -25,7 +25,7 @@ import com.nuodb.storefront.service.IStorefrontService;
 public class StorefrontApp {
     private static final int BENCHMARK_DURATION_MS = 10000;
     private static final int SIMULATOR_STATS_DISPLAY_INTERVAL_MS = 5000;
-    
+
     /**
      * Command line utility to perform various actions related to the Storefront application.
      * 
@@ -112,11 +112,11 @@ public class StorefrontApp {
     public static void loadData() throws IOException {
         InputStream stream = StorefrontApp.class.getClassLoader().getResourceAsStream("sample-products.json");
         ObjectMapper mapper = new ObjectMapper();
-        
+
         // Read products from JSON file
         List<Product> products = mapper.readValue(stream, new TypeReference<ArrayList<Product>>() {
-        });        
-        
+        });
+
         // Load products into DB, and load generated views
         IDataGeneratorService svc = StorefrontFactory.createDataGeneratorService();
         try {

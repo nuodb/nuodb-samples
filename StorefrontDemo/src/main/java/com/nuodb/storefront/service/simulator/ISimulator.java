@@ -25,6 +25,6 @@ public interface ISimulator {
      * Gets the Storefront service associated with this simulator. This is for convenience so workers need not manage their own service instances.
      */
     public IStorefrontService getService();
-    
-    public void incrementStepCompletionCount(WorkloadStep step);    
+
+    public void incrementStepCompletionCount(WorkloadStep step);
 }

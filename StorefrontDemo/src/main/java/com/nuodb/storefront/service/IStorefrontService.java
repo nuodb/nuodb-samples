@@ -170,12 +170,12 @@ public interface IStorefrontService {
      *             No items were in the customer's shopping cart.
      */
     public Purchase checkout(int customerId) throws CustomerNotFoundException, CartEmptyException;
-    
+
     /**
      * Gets statistics on all database transactions run by this service.
      */
     public Map<String, TransactionStats> getTransactionStats();
-    
+
     /**
      * Gets statistics on the store, including information about its products, reviews, and customers.
      */

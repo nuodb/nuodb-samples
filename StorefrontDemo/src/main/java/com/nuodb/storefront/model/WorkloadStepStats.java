@@ -4,7 +4,7 @@ package com.nuodb.storefront.model;
 
 public class WorkloadStepStats {
     private int completionCount;
-    
+
     public WorkloadStepStats() {
     }
 

@@ -39,7 +39,8 @@ public class StorefrontService implements IStorefrontService {
     private final IStorefrontDao dao;
 
     static {
-        StorefrontDao.registerTransactionNames(new String[] { "addProduct", "addProductReview", "addToCart", "checkout", "getCategories", "getCustomerCart",
+        StorefrontDao.registerTransactionNames(new String[] { "addProduct", "addProductReview", "addToCart", "checkout", "getCategories",
+                "getCustomerCart",
                 "getOrCreateCustomer", "getProductDetails", "getProducts", "getStorefrontStats", "updateCart" });
     }
 

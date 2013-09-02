@@ -48,7 +48,7 @@ public class CustomerApi extends BaseApi {
     @POST
     @Path("/checkout")
     @Produces(MediaType.APPLICATION_JSON)
-    public Purchase purchase(@Context HttpServletRequest req , @Context HttpServletResponse resp) {
+    public Purchase purchase(@Context HttpServletRequest req, @Context HttpServletResponse resp) {
         Customer customer = getOrCreateCustomer(req, resp);
         return getService().checkout(customer.getId());
     }

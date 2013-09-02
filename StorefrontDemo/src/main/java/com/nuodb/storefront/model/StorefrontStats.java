@@ -8,6 +8,7 @@ import java.util.Calendar;
 public class StorefrontStats {
     private Calendar timestamp;
     private String storefrontName;
+    private Currency currency;
     private String instanceId;
     private long uptimeMs;
     private int productCount;
@@ -26,8 +27,8 @@ public class StorefrontStats {
     }
 
     /**
-     * Gets the globally unique ID for this JVM instance.   
-     */    
+     * Gets the globally unique ID for this JVM instance.
+     */
     public String getInstanceId() {
         return instanceId;
     }
@@ -146,5 +147,13 @@ public class StorefrontStats {
 
     public void setPurchaseValue(BigDecimal purchaseValue) {
         this.purchaseValue = purchaseValue;
+    }
+
+    public Currency getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(Currency currency) {
+        this.currency = currency;
     }
 }

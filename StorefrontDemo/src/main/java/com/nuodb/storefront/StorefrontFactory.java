@@ -13,19 +13,19 @@ import org.hibernate.cfg.Environment;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 
 import com.nuodb.storefront.dal.IStorefrontDao;
-import com.nuodb.storefront.dal.UpperCaseNamingStrategy;
 import com.nuodb.storefront.dal.StorefrontDao;
+import com.nuodb.storefront.dal.UpperCaseNamingStrategy;
 import com.nuodb.storefront.model.DbConnInfo;
 import com.nuodb.storefront.service.IDataGeneratorService;
 import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
 import com.nuodb.storefront.service.datagen.DataGeneratorService;
 import com.nuodb.storefront.service.simulator.SimulatorService;
+import com.nuodb.storefront.service.storefront.HeartbeatService;
 import com.nuodb.storefront.service.storefront.StorefrontService;
 
 /**
- * Factory for creating Storefront services and schema managers. To keep code in
- * this demo straightforward, this factory is used in lieu of dependency
+ * Factory for creating Storefront services and schema managers. To keep code in this demo straightforward, this factory is used in lieu of dependency
  * injection, e.g. via the Spring framework.
  */
 public class StorefrontFactory {
@@ -37,21 +37,21 @@ public class StorefrontFactory {
         s_configuration = new Configuration();
         s_configuration.setNamingStrategy(UpperCaseNamingStrategy.INSTANCE);
         s_configuration.configure();
-        
+
         String dbName = System.getProperty("storefront.db.name");
         String dbUser = System.getProperty("storefront.db.user");
         String dbPassword = System.getProperty("storefront.db.password");
-        
+
         if (dbName != null) {
             Matcher dbNameMatcher = Pattern.compile("([^@]*)@([^@:]*(?::\\d+|$))").matcher(dbName);
             if (!dbNameMatcher.matches()) {
                 throw new IllegalArgumentException("Database name must be of the format name@host[:port]");
             }
             String name = dbNameMatcher.group(1);
-            String host = dbNameMatcher.group(2);            
-            
+            String host = dbNameMatcher.group(2);
+
             String url = "jdbc:com.nuodb://" + host + "/" + name;
-            
+
             s_configuration.setProperty(Environment.URL, url);
         }
         if (dbUser != null) {
@@ -64,7 +64,7 @@ public class StorefrontFactory {
 
     private StorefrontFactory() {
     }
-    
+
     public static DbConnInfo getDbConnInfo() {
         DbConnInfo info = new DbConnInfo();
         info.setUrl(s_configuration.getProperty(Environment.URL));
@@ -90,7 +90,7 @@ public class StorefrontFactory {
 
         return new DataGeneratorService(session);
     }
-    
+
     public static ISimulatorService getSimulatorService() {
         if (s_simulator == null) {
             synchronized (s_configuration) {
@@ -105,7 +105,7 @@ public class StorefrontFactory {
         dao.setSessionFactory(getOrCreateSessionFactory());
         return dao;
     }
-    
+
     private static SessionFactory getOrCreateSessionFactory() {
         if (s_sessionFactory == null) {
             synchronized (s_configuration) {
@@ -116,11 +116,15 @@ public class StorefrontFactory {
                         s_sessionFactory.openSession().beginTransaction().rollback();
                     } catch (Exception e) {
                         s_sessionFactory = null;
-                        throw (e instanceof RuntimeException) ? ((RuntimeException)e) : new RuntimeException(e);
+                        throw (e instanceof RuntimeException) ? ((RuntimeException) e) : new RuntimeException(e);
                     }
                 }
             }
         }
         return s_sessionFactory;
+    }
+
+    public static HeartbeatService createHeartbeatService(String url) {
+        return new HeartbeatService(createStorefrontDao(), url);
     }
 }

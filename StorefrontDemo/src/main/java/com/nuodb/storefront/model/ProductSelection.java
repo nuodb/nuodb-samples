@@ -21,7 +21,7 @@ public abstract class ProductSelection {
 
     @NotNull
     private Calendar dateAdded;
-    
+
     @NotNull
     private Calendar dateModified;
 
@@ -31,7 +31,7 @@ public abstract class ProductSelection {
 
     public ProductSelection() {
     }
-    
+
     public ProductSelection(ProductSelection selection) {
         this.product = selection.product;
         this.quantity = selection.quantity;
@@ -63,7 +63,7 @@ public abstract class ProductSelection {
     public void setDateAdded(Calendar dateAdded) {
         this.dateAdded = dateAdded;
     }
-    
+
     public Calendar getDateModified() {
         return dateModified;
     }
@@ -79,14 +79,14 @@ public abstract class ProductSelection {
     public void setUnitPrice(BigDecimal unitPrice) {
         this.unitPrice = unitPrice;
     }
-    
-    /** Overridden because we're using a composite key.  Default semantics are still fine for our use cases. */
+
+    /** Overridden because we're using a composite key. Default semantics are still fine for our use cases. */
     @Override
     public boolean equals(Object obj) {
         return super.equals(obj);
     }
-    
-    /** Overridden because we're using a composite key.  Default semantics are still fine for our use cases. */
+
+    /** Overridden because we're using a composite key. Default semantics are still fine for our use cases. */
     @Override
     public int hashCode() {
         return super.hashCode();

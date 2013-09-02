@@ -42,6 +42,7 @@
         <property name="current_session_context_class">thread</property>
 
         <!-- Add mappings (using annotations) -->
+        <mapping class="com.nuodb.storefront.model.AppInstance" />
         <mapping class="com.nuodb.storefront.model.CartSelection" />
         <mapping class="com.nuodb.storefront.model.Customer" />
         <mapping class="com.nuodb.storefront.model.Product" />
