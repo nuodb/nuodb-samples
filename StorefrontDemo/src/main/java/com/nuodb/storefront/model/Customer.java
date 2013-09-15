@@ -35,6 +35,7 @@ public class Customer extends Model {
     /**
      * The region through which this customer last interacted with the store.
      */
+    @NotNull
     private String region;
 
     /**

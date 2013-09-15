@@ -27,6 +27,9 @@ public class Purchase extends Model {
     @OrderBy("dateAdded")
     private List<PurchaseSelection> selections = new ArrayList<PurchaseSelection>();
 
+    @NotNull
+    private String region;
+
     public Purchase() {
     }
 
@@ -54,4 +57,13 @@ public class Purchase extends Model {
         selection.setPurchase(this);
         selections.add(selection);
     }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
 }

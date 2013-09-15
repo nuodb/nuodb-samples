@@ -35,6 +35,9 @@ public class ProductReview extends Model {
     @NotNull
     private Calendar dateAdded;
 
+    @NotNull
+    private String region;
+
     public ProductReview() {
     }
 
@@ -99,5 +102,13 @@ public class ProductReview extends Model {
             return null;
         }
         return MD5Util.md5Hex(email);
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
     }
 }

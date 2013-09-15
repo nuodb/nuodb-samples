@@ -8,8 +8,10 @@ import java.util.regex.Pattern;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
+import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
+import org.hibernate.classic.Session;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 
 import com.nuodb.storefront.dal.IStorefrontDao;
@@ -17,6 +19,7 @@ import com.nuodb.storefront.dal.StorefrontDao;
 import com.nuodb.storefront.dal.UpperCaseNamingStrategy;
 import com.nuodb.storefront.model.DbConnInfo;
 import com.nuodb.storefront.service.IDataGeneratorService;
+import com.nuodb.storefront.service.IHeartbeatService;
 import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
 import com.nuodb.storefront.service.datagen.DataGeneratorService;
@@ -100,7 +103,7 @@ public class StorefrontFactory {
         return s_simulator;
     }
 
-    private static IStorefrontDao createStorefrontDao() {
+    public static IStorefrontDao createStorefrontDao() {
         StorefrontDao dao = new StorefrontDao();
         dao.setSessionFactory(getOrCreateSessionFactory());
         return dao;
@@ -112,8 +115,13 @@ public class StorefrontFactory {
                 if (s_sessionFactory == null) {
                     s_sessionFactory = s_configuration.buildSessionFactory();
                     try {
-                        // Ensure we have a valid database connection
-                        s_sessionFactory.openSession().beginTransaction().rollback();
+                        // Fetch region name.  This also ensures we have a valid connection.                        
+                        Session session = s_sessionFactory.openSession();
+                        Transaction t = session.beginTransaction();
+                        String region = session.createSQLQuery("SELECT 'Unknown' FROM DUAL").uniqueResult().toString();
+                        StorefrontApp.APP_INSTANCE.setRegion(region);
+                        t.rollback();
+                        session.close();
                     } catch (Exception e) {
                         s_sessionFactory = null;
                         throw (e instanceof RuntimeException) ? ((RuntimeException) e) : new RuntimeException(e);
@@ -124,7 +132,7 @@ public class StorefrontFactory {
         return s_sessionFactory;
     }
 
-    public static HeartbeatService createHeartbeatService(String url) {
-        return new HeartbeatService(createStorefrontDao(), url);
+    public static IHeartbeatService createHeartbeatService(String url) {
+        return new HeartbeatService(url);
     }
 }

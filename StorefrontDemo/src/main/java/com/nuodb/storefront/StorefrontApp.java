@@ -12,6 +12,7 @@ import java.util.Map;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
+import com.nuodb.storefront.model.AppInstance;
 import com.nuodb.storefront.model.Product;
 import com.nuodb.storefront.model.ProductFilter;
 import com.nuodb.storefront.model.Workload;
@@ -23,6 +24,7 @@ import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
 
 public class StorefrontApp {
+    public static final AppInstance APP_INSTANCE = new AppInstance();
     private static final int BENCHMARK_DURATION_MS = 10000;
     private static final int SIMULATOR_STATS_DISPLAY_INTERVAL_MS = 5000;
 

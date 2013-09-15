@@ -126,7 +126,7 @@ Ext.define('App.controller.Storefront', {
         me.outstandingRequestCount++;
         
         Ext.Ajax.request({
-            url: App.app.apiBaseUrl + '/api/stats',
+            url: App.app.apiBaseUrl + '/api/stats?includeStorefront=true',
             method: 'GET',
             scope: this,
             callback: function() {

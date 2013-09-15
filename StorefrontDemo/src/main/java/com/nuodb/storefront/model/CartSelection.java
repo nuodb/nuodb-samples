@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "Cart_Selection")
@@ -17,6 +18,9 @@ public class CartSelection extends ProductSelection implements Serializable {
     @Id
     @ManyToOne
     private Customer customer;
+
+    @NotNull
+    private String region;
 
     public CartSelection() {
     }
@@ -31,5 +35,13 @@ public class CartSelection extends ProductSelection implements Serializable {
 
     public void clearCustomer() {
         this.customer = null;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
     }
 }

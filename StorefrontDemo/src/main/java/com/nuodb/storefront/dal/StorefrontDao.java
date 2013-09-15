@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import org.hibernate.FlushMode;
@@ -20,9 +19,7 @@ import org.hibernate.Transaction;
 
 import com.googlecode.genericdao.dao.hibernate.GeneralDAOImpl;
 import com.googlecode.genericdao.search.SearchResult;
-import com.nuodb.storefront.model.AppInstance;
 import com.nuodb.storefront.model.Category;
-import com.nuodb.storefront.model.Currency;
 import com.nuodb.storefront.model.IModel;
 import com.nuodb.storefront.model.Product;
 import com.nuodb.storefront.model.ProductFilter;
@@ -35,8 +32,6 @@ import com.nuodb.storefront.model.TransactionStats;
  * transactions, typically by using the {@link #runTransaction(Callable)} or {@link #runTransaction(Runnable)} method.
  */
 public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
-    private static final long s_startTimeMs = System.currentTimeMillis();
-    private static final AppInstance s_appInstance = new AppInstance();
     private static final Map<String, TransactionStats> s_transactionStatsMap = new HashMap<String, TransactionStats>();
 
     public StorefrontDao() {
@@ -145,70 +140,116 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
     }
 
     public StorefrontStats getStorefrontStats(int maxCustomerIdleTimeSec) {
+        // Calc minActiveTime
+        Calendar now = Calendar.getInstance();
+        Calendar minActiveTime = (Calendar) now.clone();
+        minActiveTime.add(Calendar.SECOND, -maxCustomerIdleTimeSec);
+
+        // Run query
         SQLQuery query = getSession().createSQLQuery("SELECT"
                 + " (SELECT COUNT(*) FROM PRODUCT) AS PRODUCT_COUNT,"
                 + " (SELECT COUNT(*) FROM (SELECT DISTINCT CATEGORY FROM PRODUCT_CATEGORY) AS A) AS CATEGORY_COUNT,"
                 + " (SELECT COUNT(*) FROM PRODUCT_REVIEW) AS PRODUCT_REVIEW_COUNT,"
                 + " (SELECT COUNT(*) FROM CUSTOMER) AS CUSTOMER_COUNT,"
                 + " (SELECT COUNT(*) FROM CUSTOMER WHERE DATE_LAST_ACTIVE >= :MIN_ACTIVE_TIME) AS ACTIVE_CUSTOMER_COUNT,"
-                + " (SELECT COUNT(*) FROM (SELECT DISTINCT CUSTOMER_ID FROM CART_SELECTION) AS B) AS CART_COUNT,"
                 + " (SELECT SUM(QUANTITY) FROM CART_SELECTION) AS CART_ITEM_COUNT,"
                 + " (SELECT SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE) FROM CART_SELECTION) AS CART_VALUE,"
                 + " (SELECT COUNT(*) FROM PURCHASE) AS PURCHASE_COUNT,"
                 + " (SELECT SUM(QUANTITY) FROM PURCHASE_SELECTION) AS PURCHASE_ITEM_COUNT,"
                 + " (SELECT SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE) FROM PURCHASE_SELECTION) AS PURCHASE_VALUE"
                 + " FROM DUAL;");
-
-        // Calc minActiveTime
-        Calendar now = Calendar.getInstance();
-        Calendar minActiveTime = (Calendar) now.clone();
-        minActiveTime.add(Calendar.SECOND, -maxCustomerIdleTimeSec);
         query.setParameter("MIN_ACTIVE_TIME", minActiveTime);
-
-        // Run query
         Object[] result = (Object[]) query.uniqueResult();
 
         // Fill stats
         StorefrontStats stats = new StorefrontStats();
         stats.setTimestamp(now);
-        stats.setInstanceId(s_appInstance.getUuid());
-        stats.setStorefrontName(s_appInstance.getName());
-        stats.setCurrency(s_appInstance.getCurrency());
-        stats.setUptimeMs(System.currentTimeMillis() - s_startTimeMs);
         stats.setProductCount(Integer.valueOf(result[0].toString()));
         stats.setCategoryCount(Integer.valueOf(result[1].toString()));
         stats.setProductReviewCount(Integer.valueOf(result[2].toString()));
         stats.setCustomerCount(Integer.valueOf(result[3].toString()));
         stats.setActiveCustomerCount(Integer.valueOf(result[4].toString()));
-        stats.setCartCount(Integer.valueOf(result[5].toString()));
-        stats.setCartItemCount(Integer.valueOf(toNumericString(result[6])));
-        stats.setCartValue(new BigDecimal(toNumericString(result[7])));
-        stats.setPurchaseCount(Integer.valueOf(result[8].toString()));
-        stats.setPurchaseItemCount(Integer.valueOf(toNumericString(result[9])));
-        stats.setPurchaseValue(new BigDecimal(toNumericString(result[10])));
-
+        stats.setCartItemCount(Integer.valueOf(toNumericString(result[5])));
+        stats.setCartValue(new BigDecimal(toNumericString(result[6])));
+        stats.setPurchaseCount(Integer.valueOf(result[7].toString()));
+        stats.setPurchaseItemCount(Integer.valueOf(toNumericString(result[8])));
+        stats.setPurchaseValue(new BigDecimal(toNumericString(result[9])));
         return stats;
     }
-    
+
+    @SuppressWarnings("unchecked")
     @Override
-    public void sendHeartbeat(String appUrl) {
-        synchronized (s_appInstance) {
-            Calendar now = Calendar.getInstance();
-            
-            if (s_appInstance.getUuid() == null) {
-                // Initialize instance info
-                s_appInstance.setUuid( UUID.randomUUID().toString());
-                s_appInstance.setName("Default Storefront"); // TODO:  Detect hostname or IP address
-                s_appInstance.setRegion("East"); // TODO:  Implement me using proper NuoDB query
-                s_appInstance.setFirstHeartbeat(now);
-                s_appInstance.setCurrency(Currency.US_DOLLAR);
-                s_appInstance.setCpuUtilization(0); // TODO:  Detect utilization using SIGAR library
+    public Map<String, StorefrontStats> getStorefrontStatsByRegion(int maxCustomerIdleTimeSec) {
+        Map<String, StorefrontStats> regionStatsMap = new HashMap<String, StorefrontStats>();
+
+        // Calc minActiveTime
+        Calendar now = Calendar.getInstance();
+        Calendar minActiveTime = (Calendar) now.clone();
+        minActiveTime.add(Calendar.SECOND, -maxCustomerIdleTimeSec);
+
+        // Run query
+        SQLQuery query = getSession()
+                .createSQLQuery(
+                        " SELECT 'productCount' AS METRIC_NAME, (SELECT COUNT(*) FROM PRODUCT) AS METRIC_VALUE, NULL AS REGION FROM DUAL"
+                                + " UNION"
+                                + " SELECT 'categoryCount', (SELECT COUNT(*) FROM (SELECT DISTINCT CATEGORY FROM PRODUCT_CATEGORY)), NULL FROM DUAL"
+                                + " UNION"
+                                + " SELECT 'productReviewCount', COUNT(*), REGION FROM PRODUCT_REVIEW GROUP BY REGION"
+                                + " UNION"
+                                + " SELECT 'customerCount', COUNT(*), REGION FROM CUSTOMER GROUP BY REGION"
+                                + " UNION"
+                                + " SELECT 'activeCustomerCount', COUNT(*), REGION FROM CUSTOMER WHERE DATE_LAST_ACTIVE >= :MIN_ACTIVE_TIME GROUP BY REGION"
+                                + " UNION"
+                                + " SELECT 'cartItemCount', SUM(QUANTITY), REGION FROM CART_SELECTION GROUP BY REGION"
+                                + " UNION"
+                                + " SELECT 'cartValue', SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE), REGION FROM CART_SELECTION GROUP BY REGION"
+                                + " UNION"
+                                + " SELECT 'purchaseCount', COUNT(*), REGION FROM PURCHASE GROUP BY REGION"
+                                + " UNION"
+                                + " SELECT 'purchaseItemCount', SUM(QUANTITY), REGION FROM PURCHASE_SELECTION PS INNER JOIN PURCHASE P ON PS.PURCHASE_ID = P.ID GROUP BY REGION"
+                                + " UNION"
+                                + " SELECT 'purchaseValue', SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE), REGION FROM PURCHASE_SELECTION PS INNER JOIN PURCHASE P ON PS.PURCHASE_ID = P.ID GROUP BY REGION");
+        query.setParameter("MIN_ACTIVE_TIME", minActiveTime);
+
+        // Fill stats
+        for (Object[] row : (List<Object[]>)query.list()) {
+            String metric = row[0].toString();
+            Object value = row[1];
+            String region = (String)row[2];
+
+            StorefrontStats regionStats = regionStatsMap.get(region);
+            if (regionStats == null) {
+                regionStats = new StorefrontStats();
+                regionStats.setRegion(region);
+                regionStatsMap.put(region, regionStats);
             }
-            s_appInstance.setUrl(appUrl);
-            s_appInstance.setLastHeartbeat(now);
-            
-            save(s_appInstance); // this will create or update as appropriate
+
+            if (metric.equals("productCount")) {
+                regionStats.setProductCount(Integer.valueOf(value.toString()));
+            } else if (metric.equals("categoryCount")) {
+                regionStats.setCategoryCount(Integer.valueOf(value.toString()));
+            } else if (metric.equals("productReviewCount")) {
+                regionStats.setProductReviewCount(Integer.valueOf(value.toString()));
+            } else if (metric.equals("customerCount")) {
+                regionStats.setCustomerCount(Integer.valueOf(value.toString()));
+            } else if (metric.equals("activeCustomerCount")) {
+                regionStats.setActiveCustomerCount(Integer.valueOf(value.toString()));
+            } else if (metric.equals("cartItemCount")) {
+                regionStats.setCartItemCount(Integer.valueOf(toNumericString(value)));
+            } else if (metric.equals("cartValue")) {
+                regionStats.setCartValue(new BigDecimal(toNumericString(value)));
+            } else if (metric.equals("purchaseCount")) {
+                regionStats.setPurchaseCount(Integer.valueOf(value.toString()));
+            } else if (metric.equals("purchaseItemCount")) {
+                regionStats.setPurchaseItemCount(Integer.valueOf(toNumericString(value)));
+            } else if (metric.equals("purchaseValue")) {
+                regionStats.setPurchaseValue(new BigDecimal(toNumericString(value)));
+            } else {
+                throw new RuntimeException("Unexpected metric: " + metric);
+            }
         }
+
+        return regionStatsMap;
     }
 
     protected static String toNumericString(Object o) {

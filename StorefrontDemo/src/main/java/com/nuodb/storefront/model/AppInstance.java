@@ -1,26 +1,32 @@
 package com.nuodb.storefront.model;
 
 import java.util.Calendar;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 
 @Entity
 public class AppInstance implements IModel {
     @Id
-    @Column(length=36)
-    private String uuid;
+    @Column(length = 36)
+    private String uuid = UUID.randomUUID().toString();
 
     @NotNull
-    private String name;
+    private String name = "Default Storefront";
 
     @NotNull
     private String url;
 
     @NotNull
     private String region;
+
+    @NotNull
+    private Calendar dateStarted = Calendar.getInstance();
 
     @NotNull
     private Calendar firstHeartbeat;
@@ -31,9 +37,14 @@ public class AppInstance implements IModel {
     private int cpuUtilization;
 
     @NotNull
-    private Currency currency;
+    @Enumerated(EnumType.STRING)
+    private Currency currency = Currency.US_DOLLAR;
 
     public AppInstance() {
+    }
+    
+    public long getUptimeMs() {
+        return System.currentTimeMillis() - dateStarted.getTimeInMillis();
     }
 
     public String getUuid() {
@@ -100,4 +111,11 @@ public class AppInstance implements IModel {
         this.currency = currency;
     }
 
+    public Calendar getDateStarted() {
+        return dateStarted;
+    }
+
+    public void setDateStarted(Calendar dateStarted) {
+        this.dateStarted = dateStarted;
+    }
 }

@@ -19,6 +19,7 @@ import com.nuodb.storefront.model.ProductReview;
 import com.nuodb.storefront.model.Purchase;
 import com.nuodb.storefront.model.StorefrontStats;
 import com.nuodb.storefront.model.TransactionStats;
+import com.nuodb.storefront.model.Workload;
 
 public interface IStorefrontService {
     /**
@@ -105,9 +106,12 @@ public interface IStorefrontService {
      * 
      * @param customerId
      *            The customer ID
+     * @param workload
+     *            Specifies the simulated workload repsonsible for creating this simulated cusotmer. Leave <code>null</code> if the customer is
+     *            "real".
      * @return The customer (never <code>null</code>)
      */
-    public Customer getOrCreateCustomer(int customerId);
+    public Customer getOrCreateCustomer(int customerId, Workload workload);
 
     /**
      * Gets the contents of a customer's cart. The details of each product (reviews, etc.) are not fetched.
@@ -177,7 +181,19 @@ public interface IStorefrontService {
     public Map<String, TransactionStats> getTransactionStats();
 
     /**
-     * Gets statistics on the store, including information about its products, reviews, and customers.
+     * Fetches stats for the storefront overall.
+     * 
+     * @param maxCustomerIdleTimeSec
+     *            Max seconds a customer can be idle before being considered inactive.
      */
     public StorefrontStats getStorefrontStats(int maxCustomerIdleTimeSec);
+
+    /**
+     * Fetches stats for the storefront by region. Metrics that are not region-specific (like productCategoryCount) are placed in a region with a null
+     * name, with 0 set in the other regions.
+     * 
+     * @param maxCustomerIdleTimeSec
+     *            Max seconds a customer can be idle before being considered inactive.
+     */
+    public Map<String, StorefrontStats> getStorefrontStatsByRegion(int maxCustomerIdleTimeSec);
 }

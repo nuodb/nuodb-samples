@@ -1,24 +1,27 @@
 package com.nuodb.storefront.service.storefront;
 
+import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.nuodb.storefront.StorefrontApp;
+import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.dal.IStorefrontDao;
 import com.nuodb.storefront.dal.StorefrontDao;
 import com.nuodb.storefront.dal.TransactionType;
+import com.nuodb.storefront.model.AppInstance;
+import com.nuodb.storefront.service.IHeartbeatService;
 import com.nuodb.storefront.service.simulator.SimulatorService;
 
-public class HeartbeatService implements Runnable {
+public class HeartbeatService implements IHeartbeatService {
     private static final Logger s_log = Logger.getLogger(SimulatorService.class.getName());
-    private final IStorefrontDao dao;
     private final String appUrl;
 
     static {
         StorefrontDao.registerTransactionNames(new String[] { "sendHeartbeat" });
     }
 
-    public HeartbeatService(IStorefrontDao dao, String appUrl) {
-        this.dao = dao;
+    public HeartbeatService(String appUrl) {
         this.appUrl = appUrl;
     }
 
@@ -27,10 +30,22 @@ public class HeartbeatService implements Runnable {
         s_log.info("Sending hearbeat");
 
         try {
+            final IStorefrontDao dao = StorefrontFactory.createStorefrontDao();
             dao.runTransaction(TransactionType.READ_WRITE, "sendHeartbeat", new Runnable() {
                 @Override
                 public void run() {
-                    dao.sendHeartbeat(appUrl);
+
+                    Calendar now = Calendar.getInstance();
+                    AppInstance appInstance = StorefrontApp.APP_INSTANCE;
+
+                    if (appInstance.getFirstHeartbeat() == null) {
+                        appInstance.setFirstHeartbeat(now);
+                        appInstance.setUrl(appUrl);
+                    }
+                    appInstance.setCpuUtilization(0); // TODO: Detect utilization using SIGAR library
+                    appInstance.setLastHeartbeat(now);
+
+                    dao.save(StorefrontApp.APP_INSTANCE); // this will create or update as appropriate
                 }
             });
         } catch (Exception e) {

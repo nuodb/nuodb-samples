@@ -6,17 +6,13 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 
 public class StorefrontStats {
+    private String region;
     private Calendar timestamp;
-    private String storefrontName;
-    private Currency currency;
-    private String instanceId;
-    private long uptimeMs;
     private int productCount;
     private int categoryCount;
     private int productReviewCount;
     private int customerCount;
     private int activeCustomerCount;
-    private int cartCount;
     private int cartItemCount;
     private BigDecimal cartValue;
     private int purchaseCount;
@@ -26,15 +22,12 @@ public class StorefrontStats {
     public StorefrontStats() {
     }
 
-    /**
-     * Gets the globally unique ID for this JVM instance.
-     */
-    public String getInstanceId() {
-        return instanceId;
+    public String getRegion() {
+        return region;
     }
 
-    public void setInstanceId(String instanceId) {
-        this.instanceId = instanceId;
+    public void setRegion(String region) {
+        this.region = region;
     }
 
     public Calendar getTimestamp() {
@@ -43,22 +36,6 @@ public class StorefrontStats {
 
     public void setTimestamp(Calendar timestamp) {
         this.timestamp = timestamp;
-    }
-
-    public String getStorefrontName() {
-        return storefrontName;
-    }
-
-    public void setStorefrontName(String storefrontName) {
-        this.storefrontName = storefrontName;
-    }
-
-    public long getUptimeMs() {
-        return uptimeMs;
-    }
-
-    public void setUptimeMs(long uptimeMs) {
-        this.uptimeMs = uptimeMs;
     }
 
     public int getProductCount() {
@@ -101,14 +78,6 @@ public class StorefrontStats {
         this.activeCustomerCount = activeCustomerCount;
     }
 
-    public int getCartCount() {
-        return cartCount;
-    }
-
-    public void setCartCount(int cartCount) {
-        this.cartCount = cartCount;
-    }
-
     public int getCartItemCount() {
         return cartItemCount;
     }
@@ -147,13 +116,5 @@ public class StorefrontStats {
 
     public void setPurchaseValue(BigDecimal purchaseValue) {
         this.purchaseValue = purchaseValue;
-    }
-
-    public Currency getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(Currency currency) {
-        this.currency = currency;
     }
 }

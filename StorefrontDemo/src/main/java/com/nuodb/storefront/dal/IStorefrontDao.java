@@ -63,9 +63,19 @@ public interface IStorefrontDao extends GeneralDAO {
     public Map<String, TransactionStats> getTransactionStats();
 
     /**
-     * @see IStorefrontService#getStorefrontStats(maxCustomerIdleTimeSec)
+     * Fetches stats for the storefront overall.
+     * 
+     * @param maxCustomerIdleTimeSec
+     *            Max seconds a customer can be idle before being considered inactive.
      */
     public StorefrontStats getStorefrontStats(int maxCustomerIdleTimeSec);
 
-    public void sendHeartbeat(String appUrl);
+    /**
+     * Fetches stats for the storefront by region. Metrics that are not region-specific (like productCategoryCount) are placed in a region with a null
+     * name, with 0 set in the other regions.
+     * 
+     * @param maxCustomerIdleTimeSec
+     *            Max seconds a customer can be idle before being considered inactive.
+     */
+    public Map<String, StorefrontStats> getStorefrontStatsByRegion(int maxCustomerIdleTimeSec);
 }

@@ -13,6 +13,7 @@ import java.util.concurrent.Callable;
 
 import com.googlecode.genericdao.search.Search;
 import com.googlecode.genericdao.search.SearchResult;
+import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.dal.IStorefrontDao;
 import com.nuodb.storefront.dal.StorefrontDao;
 import com.nuodb.storefront.dal.TransactionType;
@@ -30,6 +31,7 @@ import com.nuodb.storefront.model.Purchase;
 import com.nuodb.storefront.model.PurchaseSelection;
 import com.nuodb.storefront.model.StorefrontStats;
 import com.nuodb.storefront.model.TransactionStats;
+import com.nuodb.storefront.model.Workload;
 import com.nuodb.storefront.service.IStorefrontService;
 
 /**
@@ -40,8 +42,8 @@ public class StorefrontService implements IStorefrontService {
 
     static {
         StorefrontDao.registerTransactionNames(new String[] { "addProduct", "addProductReview", "addToCart", "checkout", "getCategories",
-                "getCustomerCart",
-                "getOrCreateCustomer", "getProductDetails", "getProducts", "getStorefrontStats", "updateCart" });
+                "getCustomerCart", "getOrCreateCustomer", "getProductDetails", "getProducts", "getStorefrontStats", "getStorefrontStatsByRegion",
+                "updateCart" });
     }
 
     public StorefrontService(IStorefrontDao dao) {
@@ -170,6 +172,7 @@ public class StorefrontService implements IStorefrontService {
                 review.setComments(comments);
                 review.setRating(rating);
                 review.setDateAdded(now);
+                review.setRegion(StorefrontApp.APP_INSTANCE.getRegion());
 
                 // Update and save product (cascading save to review)
                 product.addReview(review);
@@ -193,7 +196,7 @@ public class StorefrontService implements IStorefrontService {
     }
 
     @Override
-    public Customer getOrCreateCustomer(final int customerId) {
+    public Customer getOrCreateCustomer(final int customerId, final Workload workload) {
         return dao.runTransaction(TransactionType.READ_WRITE, "getOrCreateCustomer", new Callable<Customer>() {
             @Override
             public Customer call() throws Exception {
@@ -204,7 +207,10 @@ public class StorefrontService implements IStorefrontService {
                     customer = new Customer();
                     customer.setDateAdded(now);
                 }
+                customer.setWorkload((workload == null) ? null : workload.getName());
+                customer.setRegion(StorefrontApp.APP_INSTANCE.getRegion());
                 customer.setDateLastActive(now);
+                customer.setRegion(StorefrontApp.APP_INSTANCE.getRegion());
                 countCartItems(customer);
 
                 dao.save(customer);
@@ -338,6 +344,7 @@ public class StorefrontService implements IStorefrontService {
                 Calendar now = Calendar.getInstance();
                 Purchase transaction = new Purchase();
                 transaction.setDatePurchased(now);
+                transaction.setRegion(StorefrontApp.APP_INSTANCE.getRegion());
                 customer.addTransaction(transaction);
 
                 // Move items from cart to transaction
@@ -372,6 +379,16 @@ public class StorefrontService implements IStorefrontService {
             @Override
             public StorefrontStats call() {
                 return dao.getStorefrontStats(maxCustomerIdleTimeSec);
+            }
+        });
+    }
+
+    @Override
+    public Map<String, StorefrontStats> getStorefrontStatsByRegion(final int maxCustomerIdleTimeSec) {
+        return dao.runTransaction(TransactionType.READ_ONLY, "getStorefrontStatsByRegion", new Callable<Map<String, StorefrontStats>>() {
+            @Override
+            public Map<String, StorefrontStats> call() {
+                return dao.getStorefrontStatsByRegion(maxCustomerIdleTimeSec);
             }
         });
     }
@@ -417,6 +434,7 @@ public class StorefrontService implements IStorefrontService {
 
         modifiedItem.setUnitPrice(product.getUnitPrice());
         modifiedItem.setDateModified(now);
+        modifiedItem.setRegion(StorefrontApp.APP_INSTANCE.getRegion());
         return modifiedItem;
     }
 }

@@ -5,12 +5,22 @@ package com.nuodb.storefront.model;
 import java.util.Map;
 
 public class StorefrontStatsReport {
+    private AppInstance appInstance;
     private StorefrontStats storefrontStats;
+    private Map<String, StorefrontStats> storefrontRegionStats;
     private Map<String, TransactionStats> transactionStats;
     private Map<String, WorkloadStats> workloadStats;
     private Map<WorkloadStep, WorkloadStepStats> workloadStepStats;
 
     public StorefrontStatsReport() {
+    }
+
+    public AppInstance getAppInstance() {
+        return appInstance;
+    }
+
+    public void setAppInstance(AppInstance appInstance) {
+        this.appInstance = appInstance;
     }
 
     public StorefrontStats getStorefrontStats() {
@@ -19,6 +29,14 @@ public class StorefrontStatsReport {
 
     public void setStorefrontStats(StorefrontStats storefrontStats) {
         this.storefrontStats = storefrontStats;
+    }
+
+    public Map<String, StorefrontStats> getStorefrontRegionStats() {
+        return storefrontRegionStats;
+    }
+
+    public void setStorefrontRegionStats(Map<String, StorefrontStats> StorefrontRegionStats) {
+        this.storefrontRegionStats = StorefrontRegionStats;
     }
 
     public Map<String, TransactionStats> getTransactionStats() {

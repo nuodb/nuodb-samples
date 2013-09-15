@@ -10,6 +10,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.model.StorefrontStats;
 import com.nuodb.storefront.model.StorefrontStatsReport;
 import com.nuodb.storefront.model.TransactionStats;
@@ -26,12 +27,23 @@ public class StatsApi extends BaseApi {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public StorefrontStatsReport getStorefrontStatsReport(@QueryParam("sessionTimeoutSec") Integer sessionTimeoutSec) {
+    public StorefrontStatsReport getAllStatsReport(@QueryParam("sessionTimeoutSec") Integer sessionTimeoutSec,
+            @QueryParam("includeStorefront") Boolean includeStorefront) {
         StorefrontStatsReport report = new StorefrontStatsReport();
-        report.setStorefrontStats(getStorefrontStats(sessionTimeoutSec));
+        report.setAppInstance(StorefrontApp.APP_INSTANCE);
         report.setTransactionStats(getTransactionStats());
         report.setWorkloadStats(getWorkloadStats());
         report.setWorkloadStepStats(getWorkloadStepStats());
+
+        // Storefront stats are expensive to fetch (DB query required), so only fetch them if specifically requested
+        if (includeStorefront != null && includeStorefront.booleanValue()) {
+            int maxCustomerIdleTimeSec = (sessionTimeoutSec == null) ? DEFAULT_SESSION_TIMEOUT_SEC : sessionTimeoutSec;
+            report.setStorefrontRegionStats(getService().getStorefrontStatsByRegion(maxCustomerIdleTimeSec));
+
+            // Move global stats out of the region map and put into the global stats property
+            report.setStorefrontStats(report.getStorefrontRegionStats().remove(null));
+        }
+
         return report;
     }
 

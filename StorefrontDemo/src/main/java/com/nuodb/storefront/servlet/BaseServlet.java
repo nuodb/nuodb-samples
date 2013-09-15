@@ -45,7 +45,6 @@ public abstract class BaseServlet extends HttpServlet {
     private static final long serialVersionUID = 1452096145544476070L;
     private static final Object s_svcLock = new Object();
     private static volatile IStorefrontService s_svc;
-    private static volatile String s_storefrontName = "Default Storefront";
 
     protected BaseServlet() {
     }
@@ -55,7 +54,6 @@ public abstract class BaseServlet extends HttpServlet {
             synchronized (s_svcLock) {
                 if (s_svc == null) {
                     s_svc = StorefrontFactory.createStorefrontService();
-                    s_storefrontName = getService().getStorefrontStats(0).getStorefrontName();
                 }
             }
         }
@@ -87,7 +85,7 @@ public abstract class BaseServlet extends HttpServlet {
                 customerId = 0;
             }
 
-            customer = getService().getOrCreateCustomer(customerId);
+            customer = getService().getOrCreateCustomer(customerId, null);
             req.getSession().setAttribute(SESSION_CUSTOMER_ID, customer.getId());
             req.setAttribute(ATTR_CUSTOMER, customer);
 
@@ -139,17 +137,18 @@ public abstract class BaseServlet extends HttpServlet {
             throws ServletException, IOException {
 
         // Build full page title
+        String storeName = StorefrontApp.APP_INSTANCE.getName();
         if (pageTitle == null || pageTitle.isEmpty()) {
-            pageTitle = s_storefrontName;
+            pageTitle = storeName;
         } else {
-            pageTitle = pageTitle + " - " + s_storefrontName;
+            pageTitle = pageTitle + " - " + storeName;
         }
 
         // Share data with JSP page
         if (customer == null) {
             customer = getOrCreateCustomer(req, resp);
         }
-        PageConfig initData = new PageConfig(s_storefrontName, pageTitle, pageName, pageData, customer, getMessages(req));
+        PageConfig initData = new PageConfig(storeName, pageTitle, pageName, pageData, customer, getMessages(req));
         req.setAttribute(ATTR_PAGE_CONFIG, initData);
         req.getSession().removeAttribute(SESSION_MESSAGES);
 
