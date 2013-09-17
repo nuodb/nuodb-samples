@@ -8,7 +8,7 @@
 Ext.define('App.controller.Storefront', {
     extend: 'Ext.app.Controller',
 
-    stores: ['Metrics', 'Workloads'],
+    stores: ['Metrics'],
     defaultStorefrontName: 'Default Storefront',
     lastTimestamp: null,
     outstandingRequestCount: 0,
@@ -31,10 +31,6 @@ Ext.define('App.controller.Storefront', {
     onLaunch: function() {
         var me = this;
 
-        // Initialize workload store
-        me.getStore('Workloads').on('update', Ext.bind(me.onWorkloadChange, me));
-        me.reloadWorkloadStore();
-
         // Refresh stats periodically
         me.refreshInterval = setInterval(Ext.bind(me.onRefreshStats, me), App.app.refreshFrequencyMs);
 
@@ -50,6 +46,35 @@ Ext.define('App.controller.Storefront', {
         return store;
     },
 
+    getFieldConfigs: function(stats) {
+        var fields = [{
+            name: 'timestamp',
+            type: 'date'
+        }];
+        for ( var seriesName in stats) {
+            fields.push({
+                name: seriesName,
+                type: 'int'
+            });
+        }
+        return fields;
+    },
+
+    isModelMissingStatField: function(model, stats) {
+        var fields = model.getFields();
+        var fieldNames = {};
+        for ( var i = 0; i < fields.length; i++) {
+            fieldNames[fields[i].name] = true;
+        }
+        for ( var stat in stats) {
+            if (!fieldNames[stat]) {
+                // we found a missing stat
+                return true;
+            }
+        }
+        return false;
+    },
+
     createMetricHistoryStore: function(metric) {
         var me = this;
         var category = metric.get('category');
@@ -62,23 +87,17 @@ Ext.define('App.controller.Storefront', {
                 // No data yet -- can't create store
                 return null;
             }
-            
-            var fields = [{
-                name: 'timestamp',
-                type: 'date'
-            }];
-            var stats = me.statsHistory[0][category];
-            for ( var seriesName in stats) {
-                fields.push({
-                    name: seriesName,
-                    type: 'int'
-                });
-            }
 
             // Create model
-            Ext.define('App.model.' + modelName, {
+            var stats = me.statsHistory[0][category];
+            var model = Ext.define('App.model.' + modelName, {
                 extend: 'Ext.data.Model',
-                fields: fields
+                fields: me.getFieldConfigs(stats)
+            });
+            Ext.override(model, {
+                get: function(name) {
+                    return this.callOverridden(arguments) || 0;
+                }
             });
 
             // Create store
@@ -92,7 +111,7 @@ Ext.define('App.controller.Storefront', {
         for ( var i = 0; i < me.statsHistory.length; i++) {
             var stats = me.statsHistory[i][category];
             var record = {
-                timestamp: new Date(me.statsHistory[i].storefrontStats.all.timestamp)
+                timestamp: new Date(me.statsHistory[i].timestamp)
             };
             for ( var seriesName in stats) {
                 record[seriesName] = stats[seriesName][metricName];
@@ -122,9 +141,9 @@ Ext.define('App.controller.Storefront', {
         if (me.outstandingRequestCount >= App.app.maxOutstandingRequestCount) {
             return;
         }
-        
+
         me.outstandingRequestCount++;
-        
+
         Ext.Ajax.request({
             url: App.app.apiBaseUrl + '/api/stats?includeStorefront=true',
             method: 'GET',
@@ -143,23 +162,18 @@ Ext.define('App.controller.Storefront', {
                 }
 
                 // If we're talking to a new Storefront instance (maybe service was bounced), throw away old data so deltas aren't bogus
-                var instanceId = stats.storefrontStats.instanceId;
+                var instanceId = stats.appInstance.uuid;
                 if (me.instanceId !== instanceId) {
                     me.statsHistory = [];
                     me.lastTimestamp = null;
                 }
                 me.instanceId = instanceId;
-                
-                if (me.lastTimestamp && stats.storefrontStats.timestamp < me.lastTimestamp) {
+
+                if (me.lastTimestamp && stats.timestamp < me.lastTimestamp) {
                     // We received a response out-of-sequence.  Ignore it since deltas were already calculated.
                     return;
                 }
-                me.lastTimestamp = stats.storefrontStats.timestamp;
-
-                // Convert storefront stats into series form (consistent with other categories for coding ease)
-                var storefrontStats = stats.storefrontStats;
-                stats.storefrontStats = {};
-                stats.storefrontStats[me.defaultStorefrontName] = storefrontStats;
+                me.lastTimestamp = stats.timestamp;
 
                 // Calculate deltas
                 if (me.statsHistory.length > 0) {
@@ -181,7 +195,11 @@ Ext.define('App.controller.Storefront', {
                     var all = {};
                     for ( var series in stats[category]) {
                         for ( var metric in stats[category][series]) {
-                            all[metric] = (all[metric] || 0) + stats[category][series][metric];
+                            if (metric == 'uptimeMs') {
+                                all[metric] = Math.max(all[metric] || 0, stats[category][series][metric]);
+                            } else {
+                                all[metric] = (all[metric] || 0) + stats[category][series][metric];
+                            }
                         }
                     }
                     stats[category].all = all;
@@ -192,20 +210,27 @@ Ext.define('App.controller.Storefront', {
                 me.statsHistory.push(stats);
 
                 // Update metric history stores with data
-                var timestamp = new Date(stats.storefrontStats.all.timestamp);
+                var timestamp = new Date(stats.timestamp);
                 me.getStore('Metrics').each(function(metric) {
                     var store = metric.get('historyStore');
                     if (store) {
+                        var catStats = stats[metric.get('category')];
+
+                        if (me.isModelMissingStatField(store.model, catStats)) {
+                            // Reconfigure fields 
+                            store.model.setFields(me.getFieldConfigs(catStats));
+                            store.fireEvent('metachange');
+                        }
+
                         var metricName = metric.get('name');
                         var record = {
                             timestamp: timestamp
                         };
-                        var catStats = stats[metric.get('category')];
                         for ( var seriesName in catStats) {
                             record[seriesName] = catStats[seriesName][metricName];
                         }
                         store.add(record);
-                        if (store.getCount() > App.app.maxStatsHistory) {
+                        while (store.getCount() > App.app.maxStatsHistory) {
                             store.removeAt(0);
                         }
                     }
@@ -213,63 +238,9 @@ Ext.define('App.controller.Storefront', {
 
                 // Notify other listeners of the change
                 me.application.fireEvent('statschange', me);
-            }, 
+            },
             failure: function(response) {
                 me.application.fireEvent('statsfail', response);
-            }
-        });
-    },
-
-    reloadWorkloadStore: function() {
-        var me = this;
-        Ext.Ajax.request({
-            url: App.app.apiBaseUrl + '/api/simulator/workloads',
-            method: 'GET',
-            scope: this,
-            success: function(response) {
-                var data;
-                try {
-                    data = Ext.decode(response.responseText);
-                } catch (e) {
-                    Ext.log(Ext.String.format('Unable to decode workload response:  {0} ({1})', response.responseText, e));
-                    return;
-                }
-
-                var workloads = [];
-                for ( var i = 0; i < data.length; i++) {
-                    var stats = data[i];
-                    workloads.push(Ext.apply(stats, stats.workload));
-                }
-                me.getStore('Workloads').loadData(workloads);
-            },
-            failure: function(response) {
-                Ext.log('Unable to query Storefront API: ' + response.status)
-            }
-        });
-    },
-
-    onWorkloadChange: function(store, record, op, modifiedFieldNames) {
-        var me = this;
-
-        if (!Ext.Array.contains(modifiedFieldNames, 'activeWorkerCount')) {
-            return;
-        }
-
-        var workloadName = record.get('name');
-        var activeWorkerCount = record.get('activeWorkerCount');
-
-        Ext.Ajax.request({
-            url: Ext.String.format('{0}/api/simulator/workloads/{1}/workers', App.app.apiBaseUrl, workloadName),
-            method: 'PUT',
-            params: {
-                minWorkers: activeWorkerCount,
-                limit: activeWorkerCount
-            },
-            scope: this,
-            success: function(response) {
-            },
-            failure: function(response) {
-                Ext.log('Unable to update workload: ' + response.status)
             }
         });
     }

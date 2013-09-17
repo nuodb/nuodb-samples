@@ -2,6 +2,7 @@
 
 package com.nuodb.storefront.dal;
 
+import java.util.Calendar;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -71,11 +72,13 @@ public interface IStorefrontDao extends GeneralDAO {
     public StorefrontStats getStorefrontStats(int maxCustomerIdleTimeSec);
 
     /**
-     * Fetches stats for the storefront by region. Metrics that are not region-specific (like productCategoryCount) are placed in a region with a null
-     * name, with 0 set in the other regions.
+     * Fetches stats for the storefront by region. Metrics that are not region-specific (like productCategoryCount) are placed in a region with an
+     * empty string name, with 0 set in the other regions.
      * 
      * @param maxCustomerIdleTimeSec
      *            Max seconds a customer can be idle before being considered inactive.
      */
     public Map<String, StorefrontStats> getStorefrontStatsByRegion(int maxCustomerIdleTimeSec);
+
+    public int deleteDeadAppInstances(Calendar maxLastHeartbeat);
 }

@@ -4,12 +4,14 @@ package com.nuodb.storefront.service;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.exception.CartEmptyException;
 import com.nuodb.storefront.exception.CustomerNotFoundException;
 import com.nuodb.storefront.exception.ProductNotFoundException;
+import com.nuodb.storefront.model.AppInstance;
 import com.nuodb.storefront.model.Cart;
 import com.nuodb.storefront.model.Category;
 import com.nuodb.storefront.model.Customer;
@@ -189,11 +191,13 @@ public interface IStorefrontService {
     public StorefrontStats getStorefrontStats(int maxCustomerIdleTimeSec);
 
     /**
-     * Fetches stats for the storefront by region. Metrics that are not region-specific (like productCategoryCount) are placed in a region with a null
-     * name, with 0 set in the other regions.
+     * Fetches stats for the storefront by region. Metrics that are not region-specific (like productCategoryCount) are placed in a region with an
+     * empty string name, with 0 set in the other regions.
      * 
      * @param maxCustomerIdleTimeSec
      *            Max seconds a customer can be idle before being considered inactive.
      */
     public Map<String, StorefrontStats> getStorefrontStatsByRegion(int maxCustomerIdleTimeSec);
+
+    public List<AppInstance> getAppInstances(boolean activeOnly);
 }

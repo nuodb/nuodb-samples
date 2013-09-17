@@ -20,9 +20,7 @@ Ext.application({
     maxOutstandingRequestCount: 2,
 
     controllers: ['Storefront'],
-    models: ['Host', 'Metric', 'Workload'],
-    stores: ['Hosts', 'Metrics', 'Workloads'],
-
+    
     paths: {
         'Ext.ux': 'ext-js-ux'
     },
@@ -40,7 +38,7 @@ Ext.application({
                 var dkGray = '#444';
 
                 this.callParent([Ext.apply({
-                    colors: ['#95b452', '#c3cf21', '#cca61b', '#b78776', '#b28697', '#8894a5', '#a2998b', '#58595b', '#44556f', '#6d4a46', '#684963', '#66644a'],
+                    colors: ['#95b452', '#c3cf21', '#cca61b', '#b78776', '#b28697', '#8894a5', '#a2998b', '#66644a', '#828a16', '#886f12', '#6d4a46', '#684963', '#44556f', '#58595b'],
                     axis: {
                         stroke: gray
                     },

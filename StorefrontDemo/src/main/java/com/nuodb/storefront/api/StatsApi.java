@@ -2,6 +2,7 @@
 
 package com.nuodb.storefront.api;
 
+import java.util.Calendar;
 import java.util.Map;
 
 import javax.ws.rs.GET;
@@ -30,6 +31,8 @@ public class StatsApi extends BaseApi {
     public StorefrontStatsReport getAllStatsReport(@QueryParam("sessionTimeoutSec") Integer sessionTimeoutSec,
             @QueryParam("includeStorefront") Boolean includeStorefront) {
         StorefrontStatsReport report = new StorefrontStatsReport();
+
+        report.setTimestamp(Calendar.getInstance());
         report.setAppInstance(StorefrontApp.APP_INSTANCE);
         report.setTransactionStats(getTransactionStats());
         report.setWorkloadStats(getWorkloadStats());
@@ -38,10 +41,7 @@ public class StatsApi extends BaseApi {
         // Storefront stats are expensive to fetch (DB query required), so only fetch them if specifically requested
         if (includeStorefront != null && includeStorefront.booleanValue()) {
             int maxCustomerIdleTimeSec = (sessionTimeoutSec == null) ? DEFAULT_SESSION_TIMEOUT_SEC : sessionTimeoutSec;
-            report.setStorefrontRegionStats(getService().getStorefrontStatsByRegion(maxCustomerIdleTimeSec));
-
-            // Move global stats out of the region map and put into the global stats property
-            report.setStorefrontStats(report.getStorefrontRegionStats().remove(null));
+            report.setStorefrontStats(getService().getStorefrontStatsByRegion(maxCustomerIdleTimeSec));
         }
 
         return report;

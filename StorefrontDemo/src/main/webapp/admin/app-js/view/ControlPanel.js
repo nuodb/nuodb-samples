@@ -8,7 +8,6 @@
 Ext.define('App.view.ControlPanel', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.controlpanel',
-    requires: ['App.view.WorkloadGrid'],
 
     title: 'Control Panel',
     layout: 'fit',

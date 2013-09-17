@@ -2,17 +2,26 @@
 
 package com.nuodb.storefront.model;
 
+import java.util.Calendar;
 import java.util.Map;
 
 public class StorefrontStatsReport {
+    private Calendar timestamp;
     private AppInstance appInstance;
-    private StorefrontStats storefrontStats;
-    private Map<String, StorefrontStats> storefrontRegionStats;
+    private Map<String, StorefrontStats> storefrontStats;
     private Map<String, TransactionStats> transactionStats;
     private Map<String, WorkloadStats> workloadStats;
     private Map<WorkloadStep, WorkloadStepStats> workloadStepStats;
 
     public StorefrontStatsReport() {
+    }
+
+    public Calendar getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Calendar timestamp) {
+        this.timestamp = timestamp;
     }
 
     public AppInstance getAppInstance() {
@@ -23,20 +32,12 @@ public class StorefrontStatsReport {
         this.appInstance = appInstance;
     }
 
-    public StorefrontStats getStorefrontStats() {
+    public Map<String, StorefrontStats> getStorefrontStats() {
         return storefrontStats;
     }
 
-    public void setStorefrontStats(StorefrontStats storefrontStats) {
+    public void setStorefrontStats(Map<String, StorefrontStats> storefrontStats) {
         this.storefrontStats = storefrontStats;
-    }
-
-    public Map<String, StorefrontStats> getStorefrontRegionStats() {
-        return storefrontRegionStats;
-    }
-
-    public void setStorefrontRegionStats(Map<String, StorefrontStats> StorefrontRegionStats) {
-        this.storefrontRegionStats = StorefrontRegionStats;
     }
 
     public Map<String, TransactionStats> getTransactionStats() {

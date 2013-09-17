@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
+import com.googlecode.genericdao.search.Filter;
 import com.googlecode.genericdao.search.Search;
 import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.StorefrontApp;
@@ -20,6 +21,7 @@ import com.nuodb.storefront.dal.TransactionType;
 import com.nuodb.storefront.exception.CartEmptyException;
 import com.nuodb.storefront.exception.CustomerNotFoundException;
 import com.nuodb.storefront.exception.ProductNotFoundException;
+import com.nuodb.storefront.model.AppInstance;
 import com.nuodb.storefront.model.Cart;
 import com.nuodb.storefront.model.CartSelection;
 import com.nuodb.storefront.model.Category;
@@ -41,9 +43,9 @@ public class StorefrontService implements IStorefrontService {
     private final IStorefrontDao dao;
 
     static {
-        StorefrontDao.registerTransactionNames(new String[] { "addProduct", "addProductReview", "addToCart", "checkout", "getCategories",
-                "getCustomerCart", "getOrCreateCustomer", "getProductDetails", "getProducts", "getStorefrontStats", "getStorefrontStatsByRegion",
-                "updateCart" });
+        StorefrontDao.registerTransactionNames(new String[] { "addProduct", "addProductReview", "addToCart", "checkout", "getAppInstances",
+                "getCategories", "getCustomerCart", "getOrCreateCustomer", "getProductDetails", "getProducts", "getStorefrontStats",
+                "getStorefrontStatsByRegion", "updateCart" });
     }
 
     public StorefrontService(IStorefrontDao dao) {
@@ -389,6 +391,23 @@ public class StorefrontService implements IStorefrontService {
             @Override
             public Map<String, StorefrontStats> call() {
                 return dao.getStorefrontStatsByRegion(maxCustomerIdleTimeSec);
+            }
+        });
+    }
+
+    @Override
+    public List<AppInstance> getAppInstances(final boolean activeOnly) {
+        return dao.runTransaction(TransactionType.READ_ONLY, "getAppInstances", new Callable<List<AppInstance>>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public List<AppInstance> call() {
+                Search search = new Search(AppInstance.class);
+                if (activeOnly) {
+                    Calendar minLastHeartbeat = Calendar.getInstance();
+                    minLastHeartbeat.add(Calendar.SECOND, -HeartbeatService.MAX_HEARTBEAT_AGE_SEC);
+                    search.addFilter(Filter.greaterOrEqual("lastHeartbeat", minLastHeartbeat));
+                }
+                return (List<AppInstance>) dao.search(search);
             }
         });
     }

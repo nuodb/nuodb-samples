@@ -54,6 +54,8 @@ Ext.define('App.view.MetricChart', {
         }
 
         var chartConfig = me.createChartConfig(store, metric, aggregate);
+        
+        store.on('metachange', me.onStoreMetaChange, me);
 
         if (me.rendered) {
             me.removeAll();
@@ -61,6 +63,11 @@ Ext.define('App.view.MetricChart', {
         } else {
             me.items = chartConfig;
         }
+    },
+    
+    onStoreMetaChange: function() {
+        var me = this;
+        me.showMetric(me.metric, me.aggregate);
     },
 
     createChartConfig: function(store, metric, aggregate) {
@@ -75,6 +82,11 @@ Ext.define('App.view.MetricChart', {
         var fields = store.model.getFields();
         var actualSeriesCount = 0;
         for ( var i = 0; i < fields.length; i++) {
+            if (!fields[i].name) {
+                // Ignore series without names
+                continue;
+            }
+            
             switch (fields[i].name) {
                 case 'timestamp':
                 case 'id':

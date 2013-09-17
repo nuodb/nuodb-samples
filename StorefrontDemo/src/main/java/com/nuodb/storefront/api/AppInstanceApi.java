@@ -1,0 +1,47 @@
+/* Copyright (c) 2013 NuoDB, Inc. */
+
+package com.nuodb.storefront.api;
+
+import java.util.List;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+
+import com.nuodb.storefront.StorefrontApp;
+import com.nuodb.storefront.exception.DataValidationException;
+import com.nuodb.storefront.model.AppInstance;
+import com.nuodb.storefront.model.Currency;
+
+@Path("/app-instances")
+public class AppInstanceApi extends BaseApi {
+    public AppInstanceApi() {
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<AppInstance> getActiveAppInstances() {
+        return getService().getAppInstances(true);
+    }
+
+    @PUT
+    @Path("/{instanceId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public AppInstance updateAppInstance(@PathParam("instanceId") String instanceId, @QueryParam("currency") Currency currency) {
+        if (currency == null) {
+            throw new DataValidationException("Currency not valid.");
+        }
+        
+        AppInstance instance = StorefrontApp.APP_INSTANCE;
+        if (!instance.getUuid().equals(instanceId)) {
+            throw new DataValidationException("Updates only supported for instance " + instance.getUuid());
+        }
+        
+        instance.setCurrency(currency);
+        return instance;
+    }
+}

@@ -6,10 +6,11 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 
 public class StorefrontStats {
-    private String region;
-    private Calendar timestamp;
+    // These stats are calculated at the global level only 
     private int productCount;
     private int categoryCount;
+    
+    // These stats are calculated at the global and region levels
     private int productReviewCount;
     private int customerCount;
     private int activeCustomerCount;
@@ -18,26 +19,15 @@ public class StorefrontStats {
     private int purchaseCount;
     private int purchaseItemCount;
     private BigDecimal purchaseValue;
-
+    private Calendar dateStarted;
+    
     public StorefrontStats() {
     }
-
-    public String getRegion() {
-        return region;
+    
+    public long getUptimeMs() {
+        return (dateStarted == null) ? 0 : System.currentTimeMillis() - dateStarted.getTimeInMillis();
     }
-
-    public void setRegion(String region) {
-        this.region = region;
-    }
-
-    public Calendar getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(Calendar timestamp) {
-        this.timestamp = timestamp;
-    }
-
+    
     public int getProductCount() {
         return productCount;
     }
@@ -117,4 +107,12 @@ public class StorefrontStats {
     public void setPurchaseValue(BigDecimal purchaseValue) {
         this.purchaseValue = purchaseValue;
     }
+
+    public Calendar getDateStarted() {
+        return dateStarted;
+    }
+
+    public void setDateStarted(Calendar dateStarted) {
+        this.dateStarted = dateStarted;
+    }   
 }

@@ -10,9 +10,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-import com.nuodb.storefront.exception.CartEmptyException;
-import com.nuodb.storefront.exception.CustomerNotFoundException;
-import com.nuodb.storefront.exception.ProductNotFoundException;
+import com.nuodb.storefront.exception.StorefrontException;
 import com.nuodb.storefront.model.Message;
 
 @Provider
@@ -24,17 +22,18 @@ public class ExceptionProvider implements ExceptionMapper<RuntimeException> {
 
     @Override
     public Response toResponse(RuntimeException exception) {
-        Status status;
-        if (exception instanceof CustomerNotFoundException || exception instanceof ProductNotFoundException) {
-            status = Status.NOT_FOUND;
-        } else if (exception instanceof CartEmptyException || exception instanceof IllegalArgumentException) {
-            status = Status.BAD_REQUEST;
+        Status errorCode;
+
+        if (exception instanceof StorefrontException) {
+            errorCode = ((StorefrontException) exception).getErrorCode();
+        } else if (exception instanceof IllegalArgumentException) {
+            errorCode = Status.BAD_REQUEST;
         } else {
-            status = Status.INTERNAL_SERVER_ERROR;
+            errorCode = Status.INTERNAL_SERVER_ERROR;
         }
 
-        s_logger.log(Level.WARNING, "API exception provider handling RuntimeException with HTTP status " + status.getStatusCode(), exception);
+        s_logger.log(Level.WARNING, "API exception provider handling RuntimeException with HTTP status " + errorCode.getStatusCode(), exception);
 
-        return Response.status(status).entity(new Message(exception)).build();
+        return Response.status(errorCode).entity(new Message(exception)).build();
     }
 }

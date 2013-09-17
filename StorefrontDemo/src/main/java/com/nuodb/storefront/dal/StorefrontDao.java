@@ -26,6 +26,7 @@ import com.nuodb.storefront.model.ProductFilter;
 import com.nuodb.storefront.model.ProductSort;
 import com.nuodb.storefront.model.StorefrontStats;
 import com.nuodb.storefront.model.TransactionStats;
+import com.nuodb.storefront.service.storefront.HeartbeatService;
 
 /**
  * Data access object designed for storefront operations, built on top of a general-purpose DAO. The caller is responsible for wrapping DAO calls in
@@ -140,11 +141,6 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
     }
 
     public StorefrontStats getStorefrontStats(int maxCustomerIdleTimeSec) {
-        // Calc minActiveTime
-        Calendar now = Calendar.getInstance();
-        Calendar minActiveTime = (Calendar) now.clone();
-        minActiveTime.add(Calendar.SECOND, -maxCustomerIdleTimeSec);
-
         // Run query
         SQLQuery query = getSession().createSQLQuery("SELECT"
                 + " (SELECT COUNT(*) FROM PRODUCT) AS PRODUCT_COUNT,"
@@ -156,14 +152,14 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
                 + " (SELECT SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE) FROM CART_SELECTION) AS CART_VALUE,"
                 + " (SELECT COUNT(*) FROM PURCHASE) AS PURCHASE_COUNT,"
                 + " (SELECT SUM(QUANTITY) FROM PURCHASE_SELECTION) AS PURCHASE_ITEM_COUNT,"
-                + " (SELECT SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE) FROM PURCHASE_SELECTION) AS PURCHASE_VALUE"
+                + " (SELECT SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE) FROM PURCHASE_SELECTION) AS PURCHASE_VALUE,"
+                + " (SELECT CAST(MIN(DATE_STARTED) AS DECIMAL) FROM APP_INSTANCE WHERE LAST_HEARTBEAT >= :MIN_HEARTBEAT_TIME) AS START_TIME"
                 + " FROM DUAL;");
-        query.setParameter("MIN_ACTIVE_TIME", minActiveTime);
+        setStatsParameters(query, maxCustomerIdleTimeSec);
         Object[] result = (Object[]) query.uniqueResult();
 
         // Fill stats
         StorefrontStats stats = new StorefrontStats();
-        stats.setTimestamp(now);
         stats.setProductCount(Integer.valueOf(result[0].toString()));
         stats.setCategoryCount(Integer.valueOf(result[1].toString()));
         stats.setProductReviewCount(Integer.valueOf(result[2].toString()));
@@ -174,25 +170,27 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
         stats.setPurchaseCount(Integer.valueOf(result[7].toString()));
         stats.setPurchaseItemCount(Integer.valueOf(toNumericString(result[8])));
         stats.setPurchaseValue(new BigDecimal(toNumericString(result[9])));
+
+        Calendar cal = Calendar. getInstance();
+        cal.setTimeInMillis(new BigDecimal(toNumericString(result[10])).longValue()  * 1000);
+        stats.setDateStarted(cal);
+
         return stats;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public Map<String, StorefrontStats> getStorefrontStatsByRegion(int maxCustomerIdleTimeSec) {
-        Map<String, StorefrontStats> regionStatsMap = new HashMap<String, StorefrontStats>();
-
-        // Calc minActiveTime
-        Calendar now = Calendar.getInstance();
-        Calendar minActiveTime = (Calendar) now.clone();
-        minActiveTime.add(Calendar.SECOND, -maxCustomerIdleTimeSec);
+        Map<String, StorefrontStats> regionStatsMap = new TreeMap<String, StorefrontStats>();
 
         // Run query
         SQLQuery query = getSession()
                 .createSQLQuery(
-                        " SELECT 'productCount' AS METRIC_NAME, (SELECT COUNT(*) FROM PRODUCT) AS METRIC_VALUE, NULL AS REGION FROM DUAL"
+                        " SELECT 'productCount' AS METRIC_NAME, (SELECT COUNT(*) FROM PRODUCT) AS METRIC_VALUE, '' AS REGION FROM DUAL"
                                 + " UNION"
-                                + " SELECT 'categoryCount', (SELECT COUNT(*) FROM (SELECT DISTINCT CATEGORY FROM PRODUCT_CATEGORY)), NULL FROM DUAL"
+                                + " SELECT 'categoryCount', (SELECT COUNT(*) FROM (SELECT DISTINCT CATEGORY FROM PRODUCT_CATEGORY)), '' FROM DUAL"
+                                + " UNION"
+                                + " SELECT 'dateStarted', CAST(DATE_STARTED AS DECIMAL), REGION FROM APP_INSTANCE WHERE LAST_HEARTBEAT >= :MIN_HEARTBEAT_TIME GROUP BY REGION"
                                 + " UNION"
                                 + " SELECT 'productReviewCount', COUNT(*), REGION FROM PRODUCT_REVIEW GROUP BY REGION"
                                 + " UNION"
@@ -209,18 +207,17 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
                                 + " SELECT 'purchaseItemCount', SUM(QUANTITY), REGION FROM PURCHASE_SELECTION PS INNER JOIN PURCHASE P ON PS.PURCHASE_ID = P.ID GROUP BY REGION"
                                 + " UNION"
                                 + " SELECT 'purchaseValue', SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE), REGION FROM PURCHASE_SELECTION PS INNER JOIN PURCHASE P ON PS.PURCHASE_ID = P.ID GROUP BY REGION");
-        query.setParameter("MIN_ACTIVE_TIME", minActiveTime);
+        setStatsParameters(query, maxCustomerIdleTimeSec);
 
         // Fill stats
-        for (Object[] row : (List<Object[]>)query.list()) {
+        for (Object[] row : (List<Object[]>) query.list()) {
             String metric = row[0].toString();
             Object value = row[1];
-            String region = (String)row[2];
+            String region = (String) row[2];
 
             StorefrontStats regionStats = regionStatsMap.get(region);
             if (regionStats == null) {
                 regionStats = new StorefrontStats();
-                regionStats.setRegion(region);
                 regionStatsMap.put(region, regionStats);
             }
 
@@ -228,6 +225,10 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
                 regionStats.setProductCount(Integer.valueOf(value.toString()));
             } else if (metric.equals("categoryCount")) {
                 regionStats.setCategoryCount(Integer.valueOf(value.toString()));
+            } else if (metric.equals("dateStarted")) {
+                Calendar cal = Calendar. getInstance();
+                cal.setTimeInMillis(new BigDecimal(toNumericString(value)).longValue()  * 1000);
+                regionStats.setDateStarted(cal);
             } else if (metric.equals("productReviewCount")) {
                 regionStats.setProductReviewCount(Integer.valueOf(value.toString()));
             } else if (metric.equals("customerCount")) {
@@ -250,6 +251,28 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
         }
 
         return regionStatsMap;
+    }
+
+
+    @Override
+    public int deleteDeadAppInstances(Calendar maxLastHeartbeat) {
+        SQLQuery query = getSession().createSQLQuery("DELETE FROM APP_INSTANCE WHERE LAST_HEARTBEAT <= :MAX_LAST_HEARTBEAT");
+        query.setParameter("MAX_LAST_HEARTBEAT", maxLastHeartbeat);
+        return query.executeUpdate();
+    }
+    
+    protected void setStatsParameters(SQLQuery query, int maxCustomerIdleTimeSec) {
+        Calendar now = Calendar.getInstance();
+
+        // MIN_ACTIVE_TIME
+        Calendar minActiveTime = (Calendar) now.clone();
+        minActiveTime.add(Calendar.SECOND, -maxCustomerIdleTimeSec);
+        query.setParameter("MIN_ACTIVE_TIME", minActiveTime);
+
+        // MIN_HEARTBEAT_TIME
+        Calendar minHeartbeatTime = (Calendar) now.clone();
+        minHeartbeatTime.add(Calendar.SECOND, -HeartbeatService.MAX_HEARTBEAT_AGE_SEC);
+        query.setParameter("MIN_HEARTBEAT_TIME", minHeartbeatTime);
     }
 
     protected static String toNumericString(Object o) {
