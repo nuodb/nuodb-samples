@@ -19,9 +19,6 @@ public class AppInstance implements IModel {
     private String uuid = UUID.randomUUID().toString();
 
     @NotNull
-    private String name = "Default Storefront";
-
-    @NotNull
     private String url;
 
     @NotNull
@@ -58,11 +55,7 @@ public class AppInstance implements IModel {
     }
 
     public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+        return getRegion() + " Region";
     }
 
     public String getUrl() {

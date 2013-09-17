@@ -44,28 +44,44 @@ th.text-center, td.text-center {
 }
 
 #top-bar {
-	.brand {
-		padding: 0 20px 0 0;
-		white-space: nowrap;
-		
-		img {
-			border-top-left-radius: 4px;
-			border-bottom-left-radius: 4px;
-			vertical-align: top;
-			height: 36px;
-			margin: 2px 5px 0 20px;
+	label {
+		float: left;
+		margin: 12px 20px 0 5px;
+		font-size: 20px;
+		font-weight: bold;
+		color: #777;
+
+		> a {
+			outline: 0;
+			text-decoration: none !important;
+			
+			> img {
+				height: 36px;
+				width: 36px;
+				float: left;
+				margin-top: -10px;
+				margin-right: 5px;
+			}			
 		}
 		
-		label {
-			display: inline-block;
-			padding-top: 10px;
-			font-size: 20px;
-			font-weight: bold;
-			.text-shadow(rgba(255, 255, 255, 0.74902) 0px 1px 1px);		
+		.dropdown-menu {
+			font-size: 14px;
+			
+			a {
+				position: relative;
+				padding-left: 30px;
+			}
+			
+			b {
+				position: absolute;
+				left: 13px;
+				top: 3px;
+				font-size: 20px;
+			}
 		}
-	}
+	}	
 	
-	.nav>li>a {
+	.nav > li > a {
 		padding: 10px;
 	}
 	

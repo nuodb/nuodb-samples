@@ -6,10 +6,8 @@
     <div id="welcome">
         <!-- Top nav -->
         <div id="top-bar" class="navbar">
+            <label>Welcome to the NuoDB Storefront Demo!</label>
             <div class="navbar-inner">
-                <div class="brand navbar-text">
-                    <label>Welcome to the NuoDB Storefront Demo!</label>
-                </div>
                 <ul class="nav pull-right">
                     <t:admin-link />
                     <li><a href="https://github.com/nuodb/nuodb-samples/tree/master/StorefrontDemo" target="_blank" title="Opens the source code in a new tab (hosted by GitHub)"><i class="icon-github"></i> README</a></li>
@@ -178,7 +176,7 @@
 				</script>
                 
                 <hr />
-                <h2 id="workload-sec">Node Setup</h2>
+                <h2 id="workload-sec">Node &amp; Region Setup</h2>
                 <p>To add nodes to your NuoDB cluster, use the NuoDB Console.</p>
                 <p>If you are running NuoDB locally with default settings, you will find the Console at <a href="http://localhost:8080/" target="_blank">http://localhost:8080/</a>.</p>
             </div>

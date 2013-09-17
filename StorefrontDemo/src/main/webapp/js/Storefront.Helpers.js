@@ -40,7 +40,28 @@ Handlebars.registerHelper('sqrtMsFormat', function(number) {
 });
 
 Handlebars.registerHelper('priceFormat', function(price) {
-    return ((price || price === 0) && price.format) ? '$' + price.format(2) : price;
+    if (typeof(price) != 'number') {
+        return price;
+    }
+    
+    var symbol;
+    switch (Storefront.currency) {
+        case 'BRITISH_POUND':
+            symbol = '£';
+            price *= 1.56;
+            break;
+            
+        case 'EURO':
+            symbol = '€';
+            price *= 1.34;
+            break;
+            
+        default:
+            symbol = '$'
+            break;
+    }
+
+    return symbol + price.format(2);
 });
 
 Handlebars.registerHelper('productImage', function(value) {
@@ -50,4 +71,3 @@ Handlebars.registerHelper('productImage', function(value) {
 Handlebars.registerHelper('urlEncode', function(value) {
     return encodeURIComponent(value);
 });
-

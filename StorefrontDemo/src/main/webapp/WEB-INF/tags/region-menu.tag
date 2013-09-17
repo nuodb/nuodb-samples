@@ -1,0 +1,20 @@
+<%-- Copyright (c) 2013 NuoDB, Inc. --%>
+<%@tag description="RegionMenu" pageEncoding="UTF-8"%>
+
+<script id="tpl-region-menu" type="text/template">
+{{#result}}
+	<a data-toggle="dropdown" href="#"><img alt="Logo" src="img/shop-logo.png" /><span>{{title}}<b class="caret"></b></span></a>
+	<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+    	{{#regions}}
+        	<li>
+				<a tabindex="-1" href="#" data-region="{{region}}">
+					{{#if selected}}<b>&bull;</b>{{/if}}
+					{{name}}
+				</a>
+			</li>
+    	{{/regions}}
+  		<li class="divider"></li>
+		<li><a tabindex="-1" href="#">Add a region...</a></li>
+	</ul>
+{{/result}}
+</script>

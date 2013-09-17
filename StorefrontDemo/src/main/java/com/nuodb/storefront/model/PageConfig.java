@@ -7,32 +7,35 @@ import java.util.List;
 
 import org.codehaus.jackson.map.ObjectMapper;
 
+import com.nuodb.storefront.StorefrontApp;
+
 public class PageConfig {
-    private String storefrontName;
     private String pageTitle;
     private String pageName;
     private Object pageData;
     private Customer customer;
     private List<Message> messages;
+    private List<AppInstance> appInstances;
 
     public PageConfig() {
     }
 
-    public PageConfig(String storefrontName, String pageTitle, String pageName, Object pageData, Customer customer, List<Message> messages) {
-        this.storefrontName = storefrontName;
+    public PageConfig(String pageTitle, String pageName, Object pageData, Customer customer, List<Message> messages,
+            List<AppInstance> appInstances) {
         this.pageTitle = pageTitle;
         this.pageName = pageName;
         this.pageData = pageData;
         this.customer = customer;
         this.messages = messages;
+        this.appInstances = appInstances;
     }
 
-    public String getStorefrontName() {
-        return storefrontName;
+    public String getAppInstanceUuid() {
+        return StorefrontApp.APP_INSTANCE.getUuid();
     }
-
-    public void setStorefrontName(String storefrontName) {
-        this.storefrontName = storefrontName;
+    
+    public Currency getCurrency() {
+        return StorefrontApp.APP_INSTANCE.getCurrency();
     }
 
     public String getPageTitle() {
@@ -73,6 +76,14 @@ public class PageConfig {
 
     public void setMessages(List<Message> messages) {
         this.messages = messages;
+    }
+
+    public List<AppInstance> getAppInstances() {
+        return appInstances;
+    }
+
+    public void setAppInstances(List<AppInstance> appInstances) {
+        this.appInstances = appInstances;
     }
 
     public String toJson() throws IOException {

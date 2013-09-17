@@ -8,19 +8,25 @@ var Storefront = {
     init: function(cfg) {
         var me = this;
 
+        // Set basic app properties
+        me.currency = cfg.currency;
+        me.appInstanceUuid = cfg.appInstanceUuid;
+
+        // Initialize region dropdown
+        me.initRegionSelectorMenu(cfg.appInstances);
+
         // Initialize elements shared across pages
         me.TemplateMgr.applyTemplate('tpl-messages', '#messages', cfg.messages);
         me.initSearchBox();
         if (window.self === window.top) {
             $('#admin-link').show();
-        }        
+        }
         $('.alert .btn').click(function() {
             var buttons = $('.btn', $(this).closest('form'));
             setTimeout(function() {
                 buttons.attr('disabled', 'disabled');
             }, 0);
         });
-        
 
         // Initialize page-specific elements
         switch (cfg.pageName) {
@@ -61,9 +67,73 @@ var Storefront = {
         });
     },
 
+    initRegionSelectorMenu: function(appInstances) {
+        var me = this;
+
+        if ($('#region-menu').length == 0) {
+            // No menu on this page
+            return;
+        }
+
+        // Aggregate instances to region level
+        var regionMap = {};
+        var regions = [];
+        var activeRegion = null;
+        for ( var i = 0; i < appInstances.length; i++) {
+            var instance = appInstances[i];
+            var regionObj;
+            if (!(regionObj = regionMap[instance.region])) {
+                regionMap[instance.region] = regionObj = {
+                    name: instance.name,
+                    region: instance.region,
+                    currency: instance.currency,
+                    instances: [],
+                };
+                regions.push(regionObj);
+            }
+            regionObj.instances.push(instance);
+            if (Storefront.appInstanceUuid == instance.uuid) {
+                regionObj.selected = true;
+                activeRegion = instance.name;
+            }
+        }
+
+        // Sort regions by name
+        regions.sort(function(a, b) {
+            return (a.name < b.name) ? -1 : (a.name == b.name) ? 0 : 1;
+        });
+
+        // Render menu template
+        me.TemplateMgr.applyTemplate('tpl-region-menu', '#region-menu', {
+            title: activeRegion,
+            regions: regions
+        });
+
+        // Hook menu clicks
+        $('#region-menu').on('click', 'li > a', function() {
+            // Get region
+            var region = regionMap[$(this).attr('data-region')];
+
+            if (!region) {
+                setTimeout(function() {
+                    var buff = [];
+                    buff.push('To run the Storefront across multiple regions, start additional instances of the Storefront with connection strings pointed to NuoDB brokers running in other regions.');
+                    buff.push('Use NuoDB version 2.0 (or greater) to take advantage of this feature.\n\n');
+                    buff.push('See the NuoDB documentation for more information.');
+                    alert(buff.join(''));
+                }, 0);
+                return;
+            }
+
+            // Choose a random instance to navigate to
+            var instance = region.instances[Math.floor(region.instances.length * Math.random())];
+            document.location.href = instance.url;
+        });
+    },
+
     initWelcomePage: function(pageData) {
         var me = this;
-        
+
         if (!document.location.hash || document.location.hash == '#') {
             // Move messages up if we're dealing with choices
             $('#top-bar').after($('#messages').parent());
@@ -74,7 +144,7 @@ var Storefront = {
 
         // Render workload list
         me.TemplateMgr.applyTemplate('tpl-workloads', '#workloads', pageData.workloads);
-        
+
         // Render product info
         me.TemplateMgr.applyTemplate('tpl-product-info', '#product-info', pageData.productInfo);
 
@@ -104,23 +174,23 @@ var Storefront = {
         $('.carousel').carousel({
             interval: 7000
         });
-        
+
         // Handle reset button
         $('#btn-reset').click(function() {
             $('input[type=number]').val('0');
             $(this).closest('form').submit();
         });
-        
+
         // Handle tooltips
         $('a[data-toggle="tooltip"]').tooltip();
-        
+
         // Enable HTML5 form features in browsers that don't support it
         $('form').form();
-        
+
         // Validate min/max users per workload
         $('#workload-form').submit(function(e) {
             var numberFields = $('input[type=number]');
-            for (var i = 0; i < numberFields.length; i++) {
+            for ( var i = 0; i < numberFields.length; i++) {
                 var f = $(numberFields[i]);
                 var max = parseInt(f.attr('max'));
                 var name = f.attr('data-name');

@@ -8,7 +8,7 @@
     <context-param>
         <description>This parameter is stored in the APP_INSTANCE table and tells all Storefront instances how to communicate with this one</description>
         <param-name>public-url</param-name>
-        <param-value>http://localhost:7080/Storefront</param-value>
+        <param-value>http://{ipAddress}:{port}/{contextPath}</param-value>
     </context-param>
 
     <welcome-file-list>

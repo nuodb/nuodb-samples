@@ -1,5 +1,5 @@
 <%-- Copyright (c) 2013 NuoDB, Inc. --%>
-<%@tag description="Page template" pageEncoding="UTF-8" import="com.nuodb.storefront.model.PageConfig,com.nuodb.storefront.servlet.BaseServlet"%>
+<%@tag description="Page template" pageEncoding="UTF-8" import="com.nuodb.storefront.StorefrontApp,com.nuodb.storefront.model.PageConfig,com.nuodb.storefront.servlet.BaseServlet"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 <%@attribute name="showHeader" required="false" type="java.lang.Boolean" %>
 <%
@@ -24,8 +24,8 @@
         <!-- Top nav bar -->
         <div id="top-bar" class="navbar">
             <div class="navbar-inner">
-                <a class="brand" href="products"> <img data-src="holder.js/260x180" alt="Logo" src="img/shop-logo.png" /> <label><%=cfg.getStorefrontName()%></label>
-                </a>
+                <label id="region-menu" class="dropdown"></label>
+                
                 <form class="navbar-search search text-center" method="GET" action="products">
                     <input type="text" id="search" class="search-query" name="search" placeholder="Search" />
                     <div class="search-icon">
@@ -47,6 +47,7 @@
             </div>
         </div>
         <t:messages />
+        <t:region-menu />
         <% } %>
 
         <!-- Page-specific content -->

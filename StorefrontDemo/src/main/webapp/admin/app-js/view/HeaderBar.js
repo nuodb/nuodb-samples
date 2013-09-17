@@ -46,7 +46,7 @@ Ext.define('App.view.HeaderBar', {
             xtype: 'container',
             layout: 'fit',
             items: {
-                xtype: 'splitbutton',
+                xtype: 'button',
                 tooltip: 'Shows the storefront website&mdash;where you can go shopping!',
                 margin: '0 5 0 5',
                 itemId: 'storefront',
@@ -60,19 +60,7 @@ Ext.define('App.view.HeaderBar', {
                 allowDepress: false,
                 ui: 'default',
                 handler: clickHandler,
-                width: 110,
-                menu: {
-                    showSeparator: false,
-                    items: [{
-                        text: '<b>Show Default Storefront</b>',
-                        handler: clickHandler,
-                        itemId: 'storefront'
-                    }, {
-                        text: 'Show Default Storefront in New Tab',
-                        href: '../products',
-                        hrefTarget: 'blank'
-                    }]
-                }
+                width: 110
             }
         }, /*
              * { xtype: 'metricwell', text: '<b>NuoDB</b> transactions/sec', tooltip: 'Shows NuoDB\'s performance metrics',

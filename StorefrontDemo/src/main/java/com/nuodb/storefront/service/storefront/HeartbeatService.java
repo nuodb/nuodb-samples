@@ -33,8 +33,6 @@ public class HeartbeatService implements IHeartbeatService {
 
     @Override
     public void run() {
-        s_log.info("Sending hearbeat");
-
         try {
             final IStorefrontDao dao = StorefrontFactory.createStorefrontDao();
             dao.runTransaction(TransactionType.READ_WRITE, "sendHeartbeat", new Runnable() {

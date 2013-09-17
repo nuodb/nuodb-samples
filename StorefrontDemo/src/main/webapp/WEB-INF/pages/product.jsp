@@ -41,6 +41,9 @@
                         <i class="icon icon-shopping-cart icon-white"></i> Add to Cart
                     </button>
                 </form>
+       	    	<p>
+           	    	<a href="products">Continue Shopping</a>
+            	</p>
             </div>
         </div>
 

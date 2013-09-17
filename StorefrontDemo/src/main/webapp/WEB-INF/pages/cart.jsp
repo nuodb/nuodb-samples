@@ -60,11 +60,10 @@
                 	    	<i class="icon icon-circle-arrow-right icon-white"></i> Check Out
 	                	</button>
     	        	</form>
-				{{else}}
-        	    	<p>
-            	    	<button class="btn" onclick="document.location.href='products';">Keep Shopping</button>
-	            	</p>
 				{{/if}}
+       	    	<p>
+           	    	<a href="products">Continue Shopping</a>
+            	</p>
 	        </div>
 		</script>
     </div>

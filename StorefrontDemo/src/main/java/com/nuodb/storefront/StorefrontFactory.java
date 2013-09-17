@@ -118,7 +118,7 @@ public class StorefrontFactory {
                         // Fetch region name.  This also ensures we have a valid connection.                        
                         Session session = s_sessionFactory.openSession();
                         Transaction t = session.beginTransaction();
-                        String region = session.createSQLQuery("SELECT 'Unknown' FROM DUAL").uniqueResult().toString();
+                        String region = session.createSQLQuery("SELECT 'Default' FROM DUAL").uniqueResult().toString();
                         StorefrontApp.APP_INSTANCE.setRegion(region);
                         t.rollback();
                         session.close();

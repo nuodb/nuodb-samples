@@ -21,6 +21,7 @@ import org.hibernate.exception.GenericJDBCException;
 import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.StorefrontFactory;
+import com.nuodb.storefront.StorefrontWebApp;
 import com.nuodb.storefront.model.Category;
 import com.nuodb.storefront.model.Customer;
 import com.nuodb.storefront.model.DbConnInfo;
@@ -135,7 +136,9 @@ public abstract class BaseServlet extends HttpServlet {
     protected static void showPage(HttpServletRequest req, HttpServletResponse resp, String pageTitle, String pageName, Object pageData,
             Customer customer)
             throws ServletException, IOException {
-
+        
+        StorefrontWebApp.updateWebAppUrl(req);
+        
         // Build full page title
         String storeName = StorefrontApp.APP_INSTANCE.getName();
         if (pageTitle == null || pageTitle.isEmpty()) {
@@ -148,7 +151,7 @@ public abstract class BaseServlet extends HttpServlet {
         if (customer == null) {
             customer = getOrCreateCustomer(req, resp);
         }
-        PageConfig initData = new PageConfig(storeName, pageTitle, pageName, pageData, customer, getMessages(req));
+        PageConfig initData = new PageConfig(pageTitle, pageName, pageData, customer, getMessages(req), getService().getAppInstances(true));
         req.setAttribute(ATTR_PAGE_CONFIG, initData);
         req.getSession().removeAttribute(SESSION_MESSAGES);
 
