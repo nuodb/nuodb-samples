@@ -407,6 +407,8 @@ public class StorefrontService implements IStorefrontService {
                     minLastHeartbeat.add(Calendar.SECOND, -HeartbeatService.MAX_HEARTBEAT_AGE_SEC);
                     search.addFilter(Filter.greaterOrEqual("lastHeartbeat", minLastHeartbeat));
                 }
+                search.addSort("region", false);
+                search.addSort("url", false);
                 return (List<AppInstance>) dao.search(search);
             }
         });

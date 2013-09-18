@@ -6,10 +6,10 @@
     <div id="control-panel">
         <!-- Top nav -->
         <div id="top-bar" class="navbar">
-            <label>NuoDB Storefront Demo &mdash; Control Panel</label>
+            <label>Control Panel &mdash; NuoDB Storefront Demo</label>
             <div class="navbar-inner">
                 <ul class="nav pull-right">
-                    <li><div><a id="btn-refresh" class="btn btn-success" href="#"><i class="icon icon-refresh icon-white"></i> Refresh</a></div></li>
+                    <li><div><a id="btn-refresh" class="btn" href="#"><i class="icon icon-refresh"></i> Refresh</a></div></li>
                     <t:admin-link />
                 </ul>
             </div>
@@ -17,8 +17,14 @@
 
         <t:messages />
         
+        <ul class="nav nav-tabs" id="tabs">
+			<li class="active"><a href="#regions" data-toggle="tab">Regions &amp; Customers</a></li>
+			<li><a href="#product-info" data-toggle="tab">Products</a></li>
+			<li><a href="#node-info" data-toggle="tab">Database Nodes</a></li>
+		</ul>
+        <div class="tab-content">
         <!-- Workload controls -->
-        <div id="regions"></div>
+        <div id="regions" class="tab-pane active"></div>
         <script id="tpl-regions" type="text/template">    
 			{{#result}}
 				<table class="table table-bordered" id="table-regions">
@@ -42,7 +48,7 @@
 							<th colspan="3" class="customer-summary">
 								<h3>Customers</h3>
 
-								<h4><span id="summary-users-simulated">0 simulated customers</span>: &nbsp;<button class="btn btn-danger btn-small" id="btn-reset" title="Sets the number of user to 0 across all workloads">Stop All</button></h4>
+								<h4><span id="summary-users-simulated">0 simulated customers</span>: &nbsp;<button class="btn btn-danger btn-small" id="btn-stop-all" title="Sets the number of simulated users to 0 across all workloads and regions">Stop All</button></h4>
 								<ul class="nav">
 									{{#workloads}}
 										<li><span data-workload="{{workload.name}}" class="label label-color-{{@index}}">0</span> Simulated {{lowerCaseFormat workload.name}}</li>
@@ -61,7 +67,7 @@
 							<tr class="region-overview" data-region="{{regionName}}">
 								<td>
 									<div class="dropdown">
-										<a href="#" data-toggle="dropdown"><span class="label label-status label-refreshing"><img class="invisible" src="img/refreshing.gif" width="16" height="16" title="Refreshing..." /></span> {{regionName}}<b class="caret"></b></a>
+										<a href="#" data-toggle="dropdown"><span class="label label-status label-refreshing"><img class="invisible" src="img/refreshing.gif" width="16" height="16" title="Refreshing..." /></span> {{regionName}} <b class="caret"></b></a>
 										<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
     										{{#instances}}
 	        									<li>
@@ -96,7 +102,7 @@
 									<button class="btn dropup btn-hide hide">Hide <b class="caret"></b></button>
 								</td>
 							</tr>
-							<tr class="region-details hider active" data-region="{{regionName}}">
+							<tr class="region-details hide active" data-region="{{regionName}}">
 								<td colspan="6">
 									<div class="details-box">
 										<table class="table table-hover table-bordered table-condensed">
@@ -114,7 +120,10 @@
 											<tbody>
 												{{#workloads}}
 													<tr>
-														<td><span class="label label-color-{{@index}}">&nbsp;</span> {{workload.name}}</td>
+														<td><div title="Steps:{{#workload.steps}}
+{{addOne @index}}. {{this}}{{/workload.steps}}
+
+Think time: {{{msFormat workload.avgThinkTimeMs}} (stdev {{sqrtMsFormat workload.thinkTimeVariance}})"><span class="label label-color-{{@index}}">&nbsp;</span> {{workload.name}}</div></td>
 														<td>
 															<div class="progress">
 																<div class="bar empty" style="width: 0%;"></div>
@@ -150,24 +159,25 @@
 			{{/result}}
 		</script>
     
-        <div id="product-info"></div>        
+        <div id="product-info" class="tab-pane"></div>        
         <script id="tpl-product-info" type="text/template">
 			{{#result}}
 				{{#if hasData}}
-       	            <hr />
                 	<form method="post" id="product-info">
-                    	<h2 id="data-summary">Product Catalog</h2>
     	                <p>There are currently {{numberFormat productCount}} products across {{numberFormat categoryCount}} categories.</p>
 	                    <p><button class="btn btn-danger" name="btn-msg" type="submit" value="Remove All Data">Remove All Data</button>
                 	</form>
+				{{else}}
+					<p>There are no products in the database.</p>
 				{{/if}}
 			{{/result}}
 		</script>
         
-        <hr />
-        <h2 id="workload-sec">Node Setup</h2>
-        <p>To add nodes to your NuoDB cluster, use the NuoDB Console.</p>
-        <p>If you are running NuoDB locally with default settings, you will find the Console at <a href="http://localhost:8080/" target="_blank">http://localhost:8080/</a>.</p>
+        <div id="node-info" class="tab-pane">
+        	<p>To add nodes to your NuoDB cluster, use the NuoDB Console.</p>
+        	<p>If you are running NuoDB locally with default settings, you will find the Console at <a href="http://localhost:8080/" target="_blank">http://localhost:8080/</a>.</p>
+        </div>
+        </div>
     </div>
     
     <div class="footer">Copyright &copy; 2013 NuoDB, Inc. All rights reserved.</div>

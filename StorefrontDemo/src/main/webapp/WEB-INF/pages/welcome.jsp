@@ -6,7 +6,7 @@
     <div id="welcome">
         <!-- Top nav -->
         <div id="top-bar" class="navbar">
-            <label>Welcome to the NuoDB Storefront Demo!</label>
+            <label>Welcome &mdash; NuoDB Storefront Demo!</label>
             <div class="navbar-inner">
                 <ul class="nav pull-right">
                     <t:admin-link />

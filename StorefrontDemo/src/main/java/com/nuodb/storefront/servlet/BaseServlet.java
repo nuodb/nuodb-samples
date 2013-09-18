@@ -22,6 +22,7 @@ import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.StorefrontWebApp;
+import com.nuodb.storefront.model.AppInstance;
 import com.nuodb.storefront.model.Category;
 import com.nuodb.storefront.model.Customer;
 import com.nuodb.storefront.model.DbConnInfo;
@@ -136,9 +137,9 @@ public abstract class BaseServlet extends HttpServlet {
     protected static void showPage(HttpServletRequest req, HttpServletResponse resp, String pageTitle, String pageName, Object pageData,
             Customer customer)
             throws ServletException, IOException {
-        
+
         StorefrontWebApp.updateWebAppUrl(req);
-        
+
         // Build full page title
         String storeName = StorefrontApp.APP_INSTANCE.getName() + " - NuoDB Storefront Demo";
         if (pageTitle == null || pageTitle.isEmpty()) {
@@ -151,7 +152,17 @@ public abstract class BaseServlet extends HttpServlet {
         if (customer == null) {
             customer = getOrCreateCustomer(req, resp);
         }
-        PageConfig initData = new PageConfig(pageTitle, pageName, pageData, customer, getMessages(req), getService().getAppInstances(true));
+
+        // Fetch app instance list for region dropdown menu
+        List<AppInstance> appInstances;
+        try {
+            appInstances = getService().getAppInstances(true);
+        } catch (Exception e) {
+            appInstances = new ArrayList<AppInstance>();
+            appInstances.add(StorefrontApp.APP_INSTANCE);
+        }
+
+        PageConfig initData = new PageConfig(pageTitle, pageName, pageData, customer, getMessages(req), appInstances);
         req.setAttribute(ATTR_PAGE_CONFIG, initData);
         req.getSession().removeAttribute(SESSION_MESSAGES);
 
@@ -163,8 +174,9 @@ public abstract class BaseServlet extends HttpServlet {
         addErrorMessage(req, ex);
         if (ex instanceof GenericJDBCException) {
             DbConnInfo dbInfo = StorefrontFactory.getDbConnInfo();
-            addMessage(req, MessageSeverity.INFO, "Tip:  Check that the NuoDB database is running.  The storefront is trying to connect to \""
-                    + dbInfo.getUrl() + "\" with the username \"" + dbInfo.getUsername() + "\".");
+            addMessage(req, MessageSeverity.INFO,
+                    "Tip:  Check to see whether NuoDB is running and the database exists.  The storefront is trying to connect to \""
+                            + dbInfo.getUrl() + "\" with the username \"" + dbInfo.getUsername() + "\".");
         }
         Customer customer = (Customer) req.getAttribute(ATTR_CUSTOMER);
         showPage(req, resp, "Storefront Problem", "error", null, (customer == null) ? new Customer() : customer);

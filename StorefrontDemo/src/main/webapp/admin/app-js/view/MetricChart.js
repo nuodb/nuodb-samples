@@ -110,7 +110,7 @@ Ext.define('App.view.MetricChart', {
 
         // Build series configs
         var series = [];
-        var hasMultiSeries = (seriesNames.length > 1);
+        var hasMultiSeries = (!aggregate);
         var tooltipFormat = (hasMultiSeries) ? '{0}:<br />{1} {2}' : '{1} {2}';
         series.push({
             type: 'area',
@@ -139,7 +139,7 @@ Ext.define('App.view.MetricChart', {
             }
         });
         
-        if (seriesNames.length == 1) {
+        if (aggregate) {
             series[0].type = 'line';
             series[0].highlight = false;
             series[0].style.fill = '#edf0cf';
@@ -148,8 +148,8 @@ Ext.define('App.view.MetricChart', {
             series[0].yField = series[0].yField[0];
         }
         
-        me.setToolVisible('plus', actualSeriesCount > 1 && aggregate);
-        me.setToolVisible('minus', actualSeriesCount > 1 && !aggregate);
+        me.setToolVisible('plus', actualSeriesCount > 0 && aggregate);
+        me.setToolVisible('minus', actualSeriesCount > 0 && !aggregate);
 
         // Build chart config
         return {

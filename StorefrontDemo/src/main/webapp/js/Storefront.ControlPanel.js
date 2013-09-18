@@ -9,7 +9,7 @@
     Storefront.initControlPanelPage = function(pageData) {
         app = this;
         regionData = initRegionData(app.regions, pageData.stats);
-
+        
         // Render regions table
         app.TemplateMgr.applyTemplate('tpl-regions', '#regions', regionData);
 
@@ -34,44 +34,11 @@
         $('#regions').on('click', '.btn-update', function(e) {
             var regionDetails$ = $(this).closest('.region-details');
             var regionName = regionDetails$.attr('data-region');
-            var data = regionDetails$.find('input').serializeObject();
-            for ( var key in data) {
-                data[key] = parseInt(data[key]);
-            }
-            updateWorkloadUsers(getRegionByName(regionName), data, $(this));
-        });
+            var inputs$ = regionDetails$.find('input');
 
-        // Handle refresh
-        $('#btn-refresh').click(function() {
-            document.location.reload();
-        });
-
-        // Render product info
-        app.TemplateMgr.applyTemplate('tpl-product-info', '#product-info', pageData.productInfo);
-
-        // Select quantity upon focus
-        $('input[type=number]').on('click', function(e) {
-            $(this).select();
-            $(this).focus();
-        });
-
-        // Handle reset button
-        $('#btn-reset').click(function() {
-            $('input[type=number]').val('0');
-            $(this).closest('form').submit();
-        });
-
-        // Handle tooltips
-        $('a[data-toggle="tooltip"]').tooltip();
-
-        // Enable HTML5 form features in browsers that don't support it
-        $('form').form();
-
-        // Validate min/max users per workload
-        $('#workload-form').submit(function(e) {
-            var numberFields = $('input[type=number]');
-            for ( var i = 0; i < numberFields.length; i++) {
-                var f = $(numberFields[i]);
+            // Validate inputs
+            for ( var i = 0; i < inputs$.length; i++) {
+                var f = $(inputs$[i]);
                 var max = parseInt(f.attr('max'));
                 var name = f.attr('data-name');
                 if (!isNaN(max) && f.val() > max) {
@@ -86,9 +53,47 @@
                     return false;
                 }
             }
+
+            // Serialize data
+            var data = inputs$.serializeObject();
+            for ( var key in data) {
+                data[key] = parseInt(data[key]);
+            }
+
+            // Make changes
+            updateWorkloadUsers(getRegionByName(regionName), data, $(this));
         });
 
-        refreshStats(false);
+        // Handle "Stop all" button
+        $('#btn-stop-all').click(function() {
+            var data = {};
+            for ( var i = 0; i < regionData.workloads.length; i++) {
+                data['workload-' + regionData.workloads[i].workload.name] = 0;
+            }
+            updateWorkloadUsers(null, data, $('.btn-update'));
+        });
+
+        // Handle refresh
+        $('#btn-refresh').click(function() {
+            document.location.reload();
+        });
+        
+        // Handle tooltips
+        $('div[data-toggle="tooltip"]').tooltip();
+        
+        // Render product info
+        app.TemplateMgr.applyTemplate('tpl-product-info', '#product-info', pageData.productInfo);
+
+        // Select quantity upon focus
+        $('input[type=number]').on('click', function(e) {
+            $(this).select();
+            $(this).focus();
+        });
+
+        // Enable HTML5 form features in browsers that don't support it
+        $('form').form();
+
+        refreshStats(pageData.stats);
     }
 
     function initRegionData(regions, stats) {
@@ -127,7 +132,7 @@
         };
     }
 
-    function refreshStats(includeLocalInstance) {
+    function refreshStats(localStats) {
         for ( var i = 0; i < regionData.regions.length; i++) {
             var region = regionData.regions[i];
 
@@ -136,16 +141,21 @@
                 if (instance.isRefreshing) {
                     break;
                 }
-
-                instance.isRefreshing = false;
-                $('#regions [data-region="' + region.regionName + '"] .label-status').addClass('label-refreshing');
-
-                refreshInstanceStats(region, instance);
+                
+                if (localStats && instance.uuid == Storefront.appInstanceUuid) {
+                    // We already have the local stats on hand, so don't bother doing an AJAX request to re-fetch them
+                    refreshInstanceStatsComplete(region, instance, localStats);
+                } else {
+                    refreshInstanceStats(region, instance);
+                }
             }
         }
     }
 
     function refreshInstanceStats(region, instance) {
+        $('#regions [data-region="' + region.regionName + '"] .label-status').addClass('label-refreshing');
+        instance.isRefreshing = true;
+        
         $.ajax({
             url: instance.url + '/api/stats?includeStorefront=true',
             cache: false
@@ -386,49 +396,66 @@
         }
     }
 
-    function updateWorkloadUsers(region, data, btn$) {
+    /**
+     * Updates the simulated user counts in the specified region or all regions.
+     * 
+     * @param targetRegion  The region to update, or null to update all regions.  The share of users is split evently across all instances in the region, with 
+     *                      those appearing earlier in the list getting the leftovers when an even split is not possible.
+     * @param  data         The new user counts.  The keys should be in the format of "workload-{workloadName"}.  Not all workloads need to specified.
+     * @param btn$          The button to disable while the update is in progress.  The global "Stop all" button is also disabled during the update.
+     */
+    function updateWorkloadUsers(targetRegion, data, btn$) {
         var failedInstances = [];
         var pendingUpdates = false;
+        var changeCounts = {};
 
-        $('#btn-reset').attr('disabled', 'disabled');
+        $('#btn-stop-all').attr('disabled', 'disabled');
         btn$.attr('disabled', 'disabled').text('Updating...');
 
-        for ( var i = 0; i < region.instances.length; i++) {
-            var instance = region.instances[i];
-            var instanceData = {};
-
-            // Give the instance a proportion of the total workload
-            for ( var key in data) {
-                var value = Math.ceil(data[key] / region.instances.length);
-                instanceData[key] = value;
-                data[key] -= value;
+        for ( var i = 0; i < regionData.regions.length; i++) {
+            var region = regionData.regions[i];
+            if (targetRegion && region != targetRegion) {
+                continue;
             }
+            changeCounts[region.regionName] = region.instances.length;
 
-            (function(instance) {
-                $.ajax({
-                    method: 'PUT',
-                    url: instance.url + '/api/simulator/workloads',
-                    data: instanceData,
-                    cache: false
-                }).success(function(data) {
-                    instance.workloadStats = data.workloadStats;
-                    recalcCustomerStats();
-                }).fail(function() {
-                    failedInstances.push(instance.url);
-                }).always(function() {
-                    if (--changeCount == 0) {
-                        btn$.removeAttr('disabled').text('Update');
-                        
-                        if ($('.btn-update[disabled]').length == 0) {
-                            $('#btn-reset').removeAttr('disabled');
-                        }
+            for ( var j = 0; j < region.instances.length; j++) {
+                var instance = region.instances[j];
+                var instanceData = {};
 
-                        if (failedInstances.length) {
-                            alert('Unable to change currency on one or more instances:\n\n - ' + failedInstances.join('\n -'));
+                // Give the instance a proportion of the total workload
+                for ( var key in data) {
+                    var value = Math.ceil(data[key] / region.instances.length);
+                    instanceData[key] = value;
+                    data[key] -= value;
+                }
+
+                (function(region, instance) {
+                    $.ajax({
+                        method: 'PUT',
+                        url: instance.url + '/api/simulator/workloads',
+                        data: instanceData,
+                        cache: false
+                    }).success(function(data) {
+                        instance.workloadStats = data.workloadStats;
+                        recalcCustomerStats();
+                    }).fail(function() {
+                        failedInstances.push(instance.url);
+                    }).always(function() {
+                        if (--changeCounts[region.regionName] == 0) {
+                            btn$.removeAttr('disabled').text('Update');
+
+                            if ($('.btn-update[disabled]').length == 0) {
+                                $('#btn-stop-all').removeAttr('disabled');
+                            }
+
+                            if (failedInstances.length) {
+                                alert('Unable to change currency on one or more instances:\n\n - ' + failedInstances.join('\n -'));
+                            }
                         }
-                    }                    
-                });
-            })(instance);
+                    });
+                })(region, instance);
+            }
         }
     }
 })();

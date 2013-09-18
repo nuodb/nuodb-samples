@@ -13,9 +13,6 @@ var Storefront = {
         me.appInstanceUuid = cfg.appInstanceUuid;
         me.regions = me.aggregateRegions(cfg.appInstances);
 
-        // Initialize region dropdown
-        me.initRegionSelectorMenu(me.regions);
-
         // Initialize elements shared across pages
         me.TemplateMgr.applyTemplate('tpl-messages', '#messages', cfg.messages);
         me.initSearchBox();
@@ -73,6 +70,8 @@ var Storefront = {
     },
 
     aggregateRegions: function(appInstances) {
+        var me = this;
+        
         // Aggregate instances to region level
         var regionMap = {};
         var regions = [];
@@ -100,11 +99,14 @@ var Storefront = {
         regions.sort(function(a, b) {
             return (a.name < b.name) ? -1 : (a.name == b.name) ? 0 : 1;
         });
+        
+        // Initialize region dropdown
+        me.initRegionSelectorMenu(regions, regionMap);
 
         return regions;
     },
 
-    initRegionSelectorMenu: function(regions) {
+    initRegionSelectorMenu: function(regions, regionMap) {
         var me = this;
 
         if ($('#region-menu').length == 0) {

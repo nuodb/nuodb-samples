@@ -90,8 +90,8 @@ Ext.define('App.view.HeaderBar', {
             }
         }, {
             xtype: 'metricwell',
-            text: '<b>Store</b> items in carts',
-            tooltip: 'Store metrics',
+            text: '<b>Storefront</b> items in carts',
+            tooltip: 'Storefront metrics',
             metric: 'storefrontStats.all.cartItemCount',
             itemId: 'metrics-storefront',
             listeners: {

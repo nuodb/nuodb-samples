@@ -29,6 +29,10 @@ $.fn.serializeObject = function() {
     return o;
 };
 
+Handlebars.registerHelper('addOne', function(value) {
+    return value + 1;
+});
+
 Handlebars.registerHelper('dateFormat', function(date) {
     return dateFormat(date, 'dddd, mmmm dS, yyyy "at" h:MM tt');
 });

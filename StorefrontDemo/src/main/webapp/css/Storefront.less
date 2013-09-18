@@ -12,6 +12,10 @@ body {
 	outline: 0;
 }
 
+.dropdown-menu .divider {
+	cursor: default;
+}
+
 form {
 	margin: 0;
 }
@@ -435,8 +439,13 @@ th.text-center, td.text-center {
 			
 			&.empty {
 				background-color: transparent;
+				.box-shadow(none);
 			}
 		}		
+	}
+	
+	.tab-content {
+		overflow: visible;
 	}
 	
 	#table-regions.table {
@@ -489,6 +498,11 @@ th.text-center, td.text-center {
 				.dropdown-menu {
 					text-align: left;
 				}
+			}
+			
+			&.currency .btn {
+				width: 116px;
+				text-align: right;			
 			}
 		}
 		
