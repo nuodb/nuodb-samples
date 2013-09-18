@@ -8,7 +8,7 @@ Ext.define('App.view.MetricDashboard', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.metricdashboard',
     requires: ['App.view.MetricChart'],
-    
+
     layout: {
         type: 'hbox',
         align: 'stretch'
@@ -35,7 +35,7 @@ Ext.define('App.view.MetricDashboard', {
                 type: 'vbox',
                 align: 'stretch'
             },
-            padding: '0 0 0 20',
+            padding: '0 20 0 20',
             items: []
         };
 
@@ -44,8 +44,8 @@ Ext.define('App.view.MetricDashboard', {
                 flex: 1,
                 xtype: 'metricchart',
                 metric: metrics[i],
-                title: metrics[i].get('title'),
-                padding: (i == endIdx - 1) ? '' : '0 0 20 0'
+                header: false,
+                padding: (i == endIdx - 1) ? '0 0 20 0' : '0 0 60 0',
             })
         }
 

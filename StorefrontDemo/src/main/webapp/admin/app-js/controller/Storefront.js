@@ -9,7 +9,6 @@ Ext.define('App.controller.Storefront', {
     extend: 'Ext.app.Controller',
 
     stores: ['Metrics'],
-    defaultStorefrontName: 'Default Storefront',
     lastTimestamp: null,
     outstandingRequestCount: 0,
 
@@ -18,6 +17,7 @@ Ext.define('App.controller.Storefront', {
         var me = this;
         me.callParent(arguments);
         me.statsHistory = [];
+        me.regionStats = {}; // updated by RemoteStorefront
     },
 
     /** @Override */
@@ -37,11 +37,12 @@ Ext.define('App.controller.Storefront', {
         this.callParent(arguments);
     },
 
-    getMetricHistoryStore: function(metric) {
+    getMetricHistoryStore: function(metric, aggregateIdx) {
         var me = this;
-        var store = metric.get('historyStore');
+        var storeKey = 'historyStore' + ((aggregateIdx >= 2) ? aggregateIdx : '');
+        var store = metric.get(storeKey);
         if (!store) {
-            metric.set('historyStore', store = me.createMetricHistoryStore(metric));
+            metric.set(storeKey, store = me.createMetricHistoryStore(metric, aggregateIdx));
         }
         return store;
     },
@@ -75,9 +76,9 @@ Ext.define('App.controller.Storefront', {
         return false;
     },
 
-    createMetricHistoryStore: function(metric) {
+    createMetricHistoryStore: function(metric, aggregateIdx) {
         var me = this;
-        var category = metric.get('category');
+        var category = metric.get('category') + ((aggregateIdx >= 2) ? ('_' + aggregateIdx) : '');
         var metricName = metric.get('name');
         var modelName = 'DynamicMetricModel_' + category;
         var storeName = 'DynamicMetricStore_' + category;
@@ -175,6 +176,16 @@ Ext.define('App.controller.Storefront', {
                 }
                 me.lastTimestamp = stats.timestamp;
 
+                // Add stats from other regions
+                for ( var regionName in me.regionStats) {
+                    var region = me.regionStats[regionName];
+                    for (var uuid in region) {
+                        me.aggregateStats(region[uuid].transactionStats, stats.transactionStats);
+                        me.aggregateStats(region[uuid].workloadStats, stats.workloadStats);
+                        me.aggregateStats(region[uuid].workloadStepStats, stats.workloadStepStats);
+                    }
+                }
+
                 // Calculate deltas
                 if (me.statsHistory.length > 0) {
                     var oldStats = me.statsHistory[me.statsHistory.length - 1];
@@ -243,5 +254,21 @@ Ext.define('App.controller.Storefront', {
                 me.application.fireEvent('statsfail', response);
             }
         });
+    },
+
+    aggregateStats: function(src, dest) {
+        for ( var key in src) {
+            if (!src[key]) {
+                continue;
+            }
+
+            if (!dest[key]) {
+                dest[key] = src[key];
+            } else if (typeof (dest[key]) == "object") {
+                this.aggregateStats(src[key], dest[key]);
+            } else {
+                dest[key] += src[key];
+            }
+        }
     }
 });

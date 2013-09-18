@@ -409,7 +409,17 @@ public class StorefrontService implements IStorefrontService {
                 }
                 search.addSort("region", false);
                 search.addSort("url", false);
-                return (List<AppInstance>) dao.search(search);
+                List<AppInstance> instances = (List<AppInstance>) dao.search(search);
+                
+                String localUuid = StorefrontApp.APP_INSTANCE.getUuid();
+                for (AppInstance instance : instances) {
+                    if (instance.getUuid().equals(localUuid)) {
+                        instance.setLocal(true);
+                        break;
+                    }
+                }
+                
+                return instances;
             }
         });
     }

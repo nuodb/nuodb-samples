@@ -14,12 +14,13 @@ Ext.application({
     autoCreateViewport: true,
     enableQuickTips: true,
 
-    refreshFrequencyMs: 1000,
+    refreshFrequencyMs: 1000 * 1,
+    instanceListRefreshFrequencyMs: 1000 * 30,
     maxStatsHistory: 60,
     apiBaseUrl: '..',
     maxOutstandingRequestCount: 2,
 
-    controllers: ['Storefront'],
+    controllers: ['Storefront', 'RemoteStorefronts'],
     
     paths: {
         'Ext.ux': 'ext-js-ux'

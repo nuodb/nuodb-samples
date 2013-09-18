@@ -10,51 +10,56 @@ Ext.define('App.view.MetricChart', {
     initComponent: function() {
         var me = this;
 
-        me.tools = [{
-            type: 'plus',
-            itemId: 'btnShowSeries',
-            hidden: true,
-            handler: function() {
-                me.setToolVisible('plus', false);
-                me.setToolVisible('minus', true);
-                me.showMetric(me.metric, false);
-            }
+        me.tbar = ['->', {
+            xtype: 'container',
+            html: '<b>' + me.metric.get('title') + '</b> &nbsp;&nbsp;'
+        }, ' ', {
+            xtype: 'button',
+            text: 'Total',
+            handler: me.onChangeGrouping,
+            scope: me,
+            aggregateIdx: 0
         }, {
-            type: 'minus',
-            itemId: 'btnHideSeries',
-            hidden: true,
-            handler: function() {
-                me.setToolVisible('plus', true);
-                me.setToolVisible('minus', false);
-                me.showMetric(me.metric, true);
-            }
+            xtype: 'button',
+            text: me.metric.get('groupBy'),
+            handler: me.onChangeGrouping,
+            scope: me,
+            aggregateIdx: 1
         }];
-        
-        if (me.metric) {
-            me.showMetric(me.metric);
+
+        if (me.metric.get('groupBy2')) {
+            me.tbar.push({
+                xtype: 'button',
+                text: me.metric.get('groupBy2'),
+                handler: me.onChangeGrouping,
+                scope: me,
+                aggregateIdx: 2
+            });
         }
-        
+        me.tbar.push('->');
+
+        me.showMetric(me.metric);
         me.callParent(arguments);
     },
 
-    showMetric: function(metric, aggregate) {
+    showMetric: function(metric, aggregateIdx) {
         var me = this;
         me.metric = metric;
-        me.aggregate = aggregate;
+        me.aggregateIdx = aggregateIdx;
 
-        var store = App.app.getController('Storefront').getMetricHistoryStore(metric);
+        var store = App.app.getController('Storefront').getMetricHistoryStore(metric, aggregateIdx);
         if (store == null) {
             // Metrics aren't available yet.  Wait for the store to become available and try again.
             App.app.on('statschange', function() {
-                me.showMetric(me.metric, me.aggregate);
+                me.showMetric(me.metric, me.aggregateIdx);
             }, null, {
                 single: true
             });
             return null;
         }
 
-        var chartConfig = me.createChartConfig(store, metric, aggregate);
-        
+        var chartConfig = me.createChartConfig(store, metric, aggregateIdx);
+
         store.on('metachange', me.onStoreMetaChange, me);
 
         if (me.rendered) {
@@ -64,19 +69,42 @@ Ext.define('App.view.MetricChart', {
             me.items = chartConfig;
         }
     },
-    
+
     onStoreMetaChange: function() {
         var me = this;
-        me.showMetric(me.metric, me.aggregate);
+        me.showMetric(me.metric, me.aggregateIdx);
     },
 
-    createChartConfig: function(store, metric, aggregate) {
+    onChangeGrouping: function(src) {
+        var me = this;
+        me.showMetric(me.metric, src.aggregateIdx);
+    },
+
+    createChartConfig: function(store, metric, aggregateIdx) {
         var me = this;
         var metricName = metric.get('name');
-        var aggregate = (aggregate === undefined) ? metric.get('aggregate') : aggregate;
+        if (aggregateIdx === undefined) {
+            aggregateIdx =metric.get('aggregateIdx'); 
+        }  
+        var aggregate = aggregateIdx < 1;
         var unitName = metric.get('unit');
         var unitNameLcase = unitName.toLowerCase();
-        
+
+        if (Ext.isArray(me.tbar)) {
+            me.tbar[3].pressed = aggregate;
+            me.tbar[4].pressed = (aggregateIdx == 1);
+            if (me.tbar.length >= 6) {
+                me.tbar[5].pressed = (aggregateIdx == 2);
+            }
+        } else {
+            var buttons = me.dockedItems.get(0).items;
+            buttons.get(3).toggle(aggregate);
+            buttons.get(4).toggle(aggregateIdx == 1);
+            if (buttons.get(5).toggle) {
+                buttons.get(5).toggle(aggregateIdx == 2);
+            }
+        }
+
         // Detect series
         var seriesNames = [];
         var fields = store.model.getFields();
@@ -86,7 +114,7 @@ Ext.define('App.view.MetricChart', {
                 // Ignore series without names
                 continue;
             }
-            
+
             switch (fields[i].name) {
                 case 'timestamp':
                 case 'id':
@@ -138,7 +166,7 @@ Ext.define('App.view.MetricChart', {
                 }
             }
         });
-        
+
         if (aggregate) {
             series[0].type = 'line';
             series[0].highlight = false;
@@ -147,9 +175,9 @@ Ext.define('App.view.MetricChart', {
             series[0].style['stroke-width'] = 4;
             series[0].yField = series[0].yField[0];
         }
-        
-        me.setToolVisible('plus', actualSeriesCount > 0 && aggregate);
-        me.setToolVisible('minus', actualSeriesCount > 0 && !aggregate);
+
+        //me.setToolVisible('plus', actualSeriesCount > 0 && aggregate);
+        //me.setToolVisible('minus', actualSeriesCount > 0 && !aggregate);
 
         // Build chart config
         return {
@@ -190,7 +218,7 @@ Ext.define('App.view.MetricChart', {
             }],
             series: series,
             listeners: {
-                beforerefresh: function() {                    
+                beforerefresh: function() {
                     var yAxis = this.axes.getAt(1);
                     var store = this.getStore();
                     yAxis.fromDate = me.calcFromDate(store);
@@ -212,20 +240,5 @@ Ext.define('App.view.MetricChart', {
             fromDate = new Date(fromDate.getTime() - (App.app.maxStatsHistory - numPoints) * App.app.refreshFrequencyMs);
         }
         return fromDate;
-    },
-    
-    setToolVisible: function(toolType, visible) {
-        var me = this;
-        for (var i = 0; i < me.tools.length; i++) {
-            var tool = me.tools[i];
-            if (tool.type == toolType) {
-                if (me.rendered) {
-                    tool.setVisible(visible);
-                } else {
-                    tool.hidden = !visible;
-                }
-                break;
-            }
-        }
     }
 });

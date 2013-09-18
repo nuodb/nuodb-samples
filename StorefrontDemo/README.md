@@ -28,15 +28,16 @@ Getting Started (command line)
         
       >	The externally-accessible URL of the Storefront.  Web browsers should be able to access the Storefront
       >	web app using this URL.  The URL is used by the Storefront front-end for communication and switching among instances.
-      > You may use {host}, {port}, and {context} fields as placeholders for auto-detected values, 
+      > You may use `{host}`, `{port}`, and `{context}` fields as placeholders for auto-detected values, 
       > or specify a completely custom URL with no placeholders.
       >    
-      > If you don't want to specify this as a command line 
+      > If you do not specify a command line value, the default is pulled from the `public-url` context param of web.xml.
+      > The default is `http://{host}:{port}/{context}`. 
                                                               
 		-Dstorefront.region=Default
 		
 	  > The name of the region in which this Storefront instance is running.  If you are using NuoDB 2.0 or greater,
-	  > the region name is auto-detected by querying the NODES table.
+	  > the region name is auto-detected by querying the `NODES` table.
 
 		-Dstorefront.db.name=name@host[:port]
 		

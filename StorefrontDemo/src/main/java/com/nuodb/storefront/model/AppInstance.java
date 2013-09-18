@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 @Entity
@@ -34,6 +35,9 @@ public class AppInstance implements IModel {
     private Calendar lastHeartbeat;
 
     private int cpuUtilization;
+    
+    @Transient
+    private boolean local;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -112,5 +116,13 @@ public class AppInstance implements IModel {
 
     public void setDateStarted(Calendar dateStarted) {
         this.dateStarted = dateStarted;
+    }
+
+    public boolean getLocal() {
+        return local;
+    }
+
+    public void setLocal(boolean local) {
+        this.local = local;
     }
 }

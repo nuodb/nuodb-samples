@@ -53,10 +53,14 @@ Ext.define('App.view.MessageBar', {
 
     },
 
-    onStatsFail: function(response) {
+    onStatsFail: function(response, instance) {
         var me = this;
+        var prefix = '';
+        if (instance) {
+            prefix = '[<b title="' + instance.url + '">Region ' + instance.region + '</b>]';
+        }
         if (response.status == 0) {
-            me.setMessage('<b>Unable to connect to the Storefront API</b>.  Verify the web application is still running.  Retries will continue automatically.');
+            me.setMessage(prefix + '<b>Unable to connect to the Storefront API</b>.  Verify the web application is still running.  Retries will continue automatically.');
         } else {
             var msg = '';
             try {
@@ -64,7 +68,7 @@ Ext.define('App.view.MessageBar', {
             } catch (e) {                
             }
             msg = msg || (' HTTP status ' + response.status);
-            me.setMessage(Ext.String.format('<b>The Storefront has a problem:</b> &nbsp;{0}.  Retries will continue automatically.', msg));
+            me.setMessage(Ext.String.format(prefix + '<b>The Storefront has a problem:</b> &nbsp;{0}.  Retries will continue automatically.', msg));
         }
         me.lastUpdateMs = -1;
     },
@@ -105,6 +109,8 @@ Ext.define('App.view.MessageBar', {
     },
 
     setMessage: function(message, buttonText) {
+        return; // ignore messages for now
+        
         me = this;
         me.lblMessage.setText(message);
         me.btnAction.setText(buttonText);
