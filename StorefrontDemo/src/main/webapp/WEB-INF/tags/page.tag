@@ -66,6 +66,7 @@
     <script src="js/handlebars.js"></script>
     <script src="js/date.format.js"></script>
     <script src="js/Storefront.js"></script>
+    <script src="js/Storefront.ControlPanel.js"></script>
     <script src="js/Storefront.Helpers.js"></script>
     <script src="js/Storefront.TemplateMgr.js"></script>
     <script>

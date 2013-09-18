@@ -12,12 +12,15 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.nuodb.storefront.StorefrontApp;
+import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.model.StorefrontStats;
 import com.nuodb.storefront.model.StorefrontStatsReport;
 import com.nuodb.storefront.model.TransactionStats;
 import com.nuodb.storefront.model.WorkloadStats;
 import com.nuodb.storefront.model.WorkloadStep;
 import com.nuodb.storefront.model.WorkloadStepStats;
+import com.nuodb.storefront.service.ISimulatorService;
+import com.nuodb.storefront.service.IStorefrontService;
 
 @Path("/stats")
 public class StatsApi extends BaseApi {
@@ -30,21 +33,7 @@ public class StatsApi extends BaseApi {
     @Produces(MediaType.APPLICATION_JSON)
     public StorefrontStatsReport getAllStatsReport(@QueryParam("sessionTimeoutSec") Integer sessionTimeoutSec,
             @QueryParam("includeStorefront") Boolean includeStorefront) {
-        StorefrontStatsReport report = new StorefrontStatsReport();
-
-        report.setTimestamp(Calendar.getInstance());
-        report.setAppInstance(StorefrontApp.APP_INSTANCE);
-        report.setTransactionStats(getTransactionStats());
-        report.setWorkloadStats(getWorkloadStats());
-        report.setWorkloadStepStats(getWorkloadStepStats());
-
-        // Storefront stats are expensive to fetch (DB query required), so only fetch them if specifically requested
-        if (includeStorefront != null && includeStorefront.booleanValue()) {
-            int maxCustomerIdleTimeSec = (sessionTimeoutSec == null) ? DEFAULT_SESSION_TIMEOUT_SEC : sessionTimeoutSec;
-            report.setStorefrontStats(getService().getStorefrontStatsByRegion(maxCustomerIdleTimeSec));
-        }
-
-        return report;
+        return getStorefrontStatsReport(sessionTimeoutSec, includeStorefront != null && includeStorefront.booleanValue());
     }
 
     @GET
@@ -74,5 +63,26 @@ public class StatsApi extends BaseApi {
     @Produces(MediaType.APPLICATION_JSON)
     public Map<WorkloadStep, WorkloadStepStats> getWorkloadStepStats() {
         return getSimulator().getWorkloadStepStats();
+    }
+
+    public static StorefrontStatsReport getStorefrontStatsReport(Integer sessionTimeoutSec, boolean includeStorefront)
+    {
+        StorefrontStatsReport report = new StorefrontStatsReport();
+        IStorefrontService svc = StorefrontFactory.createStorefrontService();
+        ISimulatorService sim = StorefrontFactory.getSimulatorService();
+
+        report.setTimestamp(Calendar.getInstance());
+        report.setAppInstance(StorefrontApp.APP_INSTANCE);
+        report.setTransactionStats(svc.getTransactionStats());
+        report.setWorkloadStats(sim.getWorkloadStats());
+        report.setWorkloadStepStats(sim.getWorkloadStepStats());
+
+        // Storefront stats are expensive to fetch (DB query required), so only fetch them if specifically requested
+        if (includeStorefront) {
+            int maxCustomerIdleTimeSec = (sessionTimeoutSec == null) ? DEFAULT_SESSION_TIMEOUT_SEC : sessionTimeoutSec;
+            report.setStorefrontStats(svc.getStorefrontStatsByRegion(maxCustomerIdleTimeSec));
+        }
+
+        return report;
     }
 }

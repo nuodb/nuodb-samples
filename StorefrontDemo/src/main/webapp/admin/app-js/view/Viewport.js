@@ -98,6 +98,9 @@ Ext.define('App.view.Viewport', {
             case 'welcome':
                 return '../welcome';
 
+            case 'control-panel':
+                return '../control-panel';
+                
             case 'storefront':
                 return '../products;'
 

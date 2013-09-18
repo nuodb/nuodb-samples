@@ -2,8 +2,13 @@
 
 package com.nuodb.storefront.api;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -12,12 +17,16 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.nuodb.storefront.model.Message;
+import com.nuodb.storefront.model.MessageSeverity;
 import com.nuodb.storefront.model.Workload;
 import com.nuodb.storefront.model.WorkloadStats;
 import com.nuodb.storefront.model.WorkloadStep;
+import com.nuodb.storefront.service.ISimulatorService;
 
 @Path("/simulator")
 public class SimulatorApi extends BaseApi {
@@ -37,6 +46,45 @@ public class SimulatorApi extends BaseApi {
     public Response removeAll() {
         getSimulator().removeAll();
         return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/workloads")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Object> setWorkloads(@Context HttpServletRequest req) {
+        Map<String, Object> respData = new HashMap<String, Object>();
+        List<Message> messages = new ArrayList<Message>();
+        ISimulatorService simulator = getSimulator();
+        int updatedWorkloadCount = 0;
+        int alertCount = 0;
+        for (Map.Entry<String, String[]> param : req.getParameterMap().entrySet()) {
+            if (param.getKey().startsWith("workload-")) {
+                String workloadName = param.getKey().substring(9);
+                int quantity = Integer.parseInt(param.getValue()[0]);
+                Workload workload = simulator.getWorkload(workloadName);
+                if (workload != null) {
+                    if (workload.getMaxWorkers() > 0 && quantity > workload.getMaxWorkers()) {
+                        messages.add(new Message(MessageSeverity.ALERT, workload.getName() + " is limited to " + workload.getMaxWorkers()
+                                + " users; number of users set accordingly."));
+                        quantity = workload.getMaxWorkers();
+                        alertCount++;
+                    }
+                    try {
+                        simulator.adjustWorkers(workload, quantity, quantity);
+                    } catch (Exception e) {
+                        messages.add(new Message(e));
+                    }
+                    updatedWorkloadCount++;
+                }
+            }
+        }
+        if (updatedWorkloadCount > 0 && alertCount == 0) {
+            messages.add(new Message(MessageSeverity.INFO, "Workloads updated successfully."));
+        }
+
+        respData.put("messages" , messages);
+        respData.put("workloadStats", getSimulator().getWorkloadStats());
+        return respData;
     }
 
     @POST

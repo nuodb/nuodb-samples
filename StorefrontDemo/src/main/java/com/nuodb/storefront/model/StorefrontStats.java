@@ -14,6 +14,7 @@ public class StorefrontStats {
     private int productReviewCount;
     private int customerCount;
     private int activeCustomerCount;
+    private int activeWebCustomerCount;
     private int cartItemCount;
     private BigDecimal cartValue;
     private int purchaseCount;
@@ -66,6 +67,14 @@ public class StorefrontStats {
 
     public void setActiveCustomerCount(int activeCustomerCount) {
         this.activeCustomerCount = activeCustomerCount;
+    }
+    
+    public int getActiveWebCustomerCount() {
+        return activeWebCustomerCount;
+    }
+
+    public void setActiveWebCustomerCount(int activeWebCustomerCount) {
+        this.activeWebCustomerCount = activeWebCustomerCount;
     }
 
     public int getCartItemCount() {

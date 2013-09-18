@@ -3,6 +3,7 @@
 package com.nuodb.storefront;
 
 import java.sql.SQLException;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,8 +13,10 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.classic.Session;
+import org.hibernate.exception.SQLGrammarException;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 
+import com.nuodb.impl.util.StringUtils;
 import com.nuodb.storefront.dal.IStorefrontDao;
 import com.nuodb.storefront.dal.StorefrontDao;
 import com.nuodb.storefront.dal.UpperCaseNamingStrategy;
@@ -35,6 +38,7 @@ public class StorefrontFactory {
     private static final Configuration s_configuration;
     private static volatile SessionFactory s_sessionFactory;
     private static volatile ISimulatorService s_simulator;
+    private static final Logger s_log = Logger.getLogger(StorefrontFactory.class.getName());
 
     static {
         s_configuration = new Configuration();
@@ -115,11 +119,24 @@ public class StorefrontFactory {
                 if (s_sessionFactory == null) {
                     s_sessionFactory = s_configuration.buildSessionFactory();
                     try {
-                        // Fetch region name.  This also ensures we have a valid connection.                        
                         Session session = s_sessionFactory.openSession();
+
+                        // Run a test transaction to ensure we have a valid connection
                         Transaction t = session.beginTransaction();
-                        String region = session.createSQLQuery("SELECT 'Default' FROM DUAL").uniqueResult().toString();
-                        StorefrontApp.APP_INSTANCE.setRegion(region);
+
+                        // Ask the DB for the region name if it hasn't been supplied manually
+                        if (StringUtils.isEmpty(StorefrontApp.APP_INSTANCE.getRegion())) {
+                            String region;
+                            try {
+                                Object result = session.createSQLQuery("SELECT Default3 FROM DUAL").uniqueResult();
+                                region = result.toString();
+                            } catch (SQLGrammarException e) {
+                                s_log.warning("Your database version does not support regions.  Upgrade to NouDB 2.0 or greater.");
+                                region = "Default";
+                            }
+                            StorefrontApp.APP_INSTANCE.setRegion(region);
+                        }
+
                         t.rollback();
                         session.close();
                     } catch (Exception e) {

@@ -10,16 +10,57 @@ While the store itself is not really open for business, the queries being run un
 Getting Started (command line)
 ---------------
 
-1.  Grab the source code from Git:
+1. Grab the source code from Git:
 
         git clone git://github.com/nuodb/nuodb-samples.git
 
-2.  Create a NuoDB "Storefront" database with "StorefrontUser" as the username and "StorefrontUser" as the password.  If you want to change these defaults, edit the `nuodb-samples/StorefrontDemo/src/main/resources/hibernate.cfg.xml` file.
+2. Create a NuoDB "Storefront" database with "StorefrontUser" as the username and "StorefrontUser" as the password.  If you want to change these defaults, edit the `nuodb-samples/StorefrontDemo/src/main/resources/hibernate.cfg.xml` file 
+   or specify overrides using command line arguments described in step 3.
+   
 3. Run the Storefront web app:
 
         cd nuodb-samples\StorefrontDemo
-        mvn tomcat7:run
-4.  Explore the web app at `http://localhost:8888/StorefrontDemo`.  (If you want to run it using a different port, edit the `nuodb-samples/StorefrontDemo/pom.xml` file.)
+        mvn tomcat7:run [args]
+        
+   The following (optional) Storefront environment settings may be provided:
+   
+        -Dstorefront.url=http://{host}:{port}/{context} 
+        
+      >	The externally-accessible URL of the Storefront.  Web browsers should be able to access the Storefront
+      >	web app using this URL.  The URL is used by the Storefront front-end for communication and switching among instances.
+      > You may use {host}, {port}, and {context} fields as placeholders for auto-detected values, 
+      > or specify a completely custom URL with no placeholders.
+      >    
+      > If you don't want to specify this as a command line 
+                                                              
+		-Dstorefront.region=Default
+		
+	  > The name of the region in which this Storefront instance is running.  If you are using NuoDB 2.0 or greater,
+	  > the region name is auto-detected by querying the NODES table.
+
+		-Dstorefront.db.name=name@host[:port]
+		
+	  > The name, hostname/IP, and port of the NuoDB instance to connect to.  If you'd like to test with a database other
+	  > than NuoDB, swap the `nuodb-samples/StorefrontDemo/src/main/resources/hibernate.cfg.xml` file with
+	  > `nuodb-samples/StorefrontDemo/src/main/resources/hibernate-mysql.cfg.xml` instead.    
+	  
+		-Dstorefront.db.user=StorefrontUser
+		
+	  > The username of the database account to use when connecting.
+
+		-Dstorefront.db.password=StorefrontUser
+		
+	  > The password of the database account to use when connecting. 
+
+
+   The Maven Tomcat plugin also supports some settings, including:
+   
+		-Dmaven.tomcat.port=8888
+		
+	  > The port on which the Storefront web app should run.
+                                                               
+   
+4. Explore the web app at `http://localhost:8888/StorefrontDemo` (or whichever port you've chosen).
 
 Getting Started (Eclipse)
 ---------------

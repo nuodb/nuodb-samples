@@ -10,10 +10,10 @@ Ext.define('App.view.MetricWell', {
 
     margin: '0 5',
 
-    maxHistory: 10,
+    maxHistory: 20,
 
     cls: 'metric-well x-btn x-btn-default-medium',
-    width: 140,
+    width: 185,
     allowDepress: false,
 
     /*

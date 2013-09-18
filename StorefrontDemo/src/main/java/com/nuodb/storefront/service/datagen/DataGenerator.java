@@ -49,6 +49,7 @@ public class DataGenerator {
         customer.setDateLastActive(now);
         customer.setEmailAddress("test" + rnd.nextInt(100000) + "@test.com");
         customer.setRegion(StorefrontApp.APP_INSTANCE.getRegion());
+        customer.setWorkload("DataGenerator");
         // dao.save(customer);
         return customer;
     }

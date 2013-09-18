@@ -20,6 +20,9 @@ public class StorefrontWebApp implements ServletContextListener {
     private static final int DEFAULT_PORT = 8080;
     private static int s_port;
     private static IHeartbeatService heartbeatSvc;
+    private static final String ENV_PROP_REGION = "storefront.region";
+    private static final String ENV_PROP_URL = "storefront.url";
+    private static final String DEFAULT_URL = "http://{host}:{port}/{context}";
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
@@ -30,6 +33,12 @@ public class StorefrontWebApp implements ServletContextListener {
 
         // Get external URL of this web app
         String url = getWebAppUrl(sce.getServletContext(), DEFAULT_PORT);
+        
+        // Handle region override (if provided) 
+        String region = System.getProperty(ENV_PROP_REGION);
+        if (!StringUtils.isEmpty(region)) {
+            StorefrontApp.APP_INSTANCE.setRegion(region);
+        }
 
         // Initiate heartbeat service
         executor = Executors.newSingleThreadScheduledExecutor();
@@ -55,9 +64,6 @@ public class StorefrontWebApp implements ServletContextListener {
         // Update URL
         StorefrontApp.APP_INSTANCE.setUrl(getWebAppUrl(req.getServletContext(), req.getServerPort()));
 
-        // FIXME:  For debugging only
-        StorefrontApp.APP_INSTANCE.setRegion(((s_port % 2) == 0) ? "US/East" : "US/West");
-        
         if (heartbeatSvc != null) {
             // Save changes
             heartbeatSvc.run();
@@ -65,18 +71,24 @@ public class StorefrontWebApp implements ServletContextListener {
     }
 
     public static String getWebAppUrl(ServletContext context, int port) {
+        // Remember port
         s_port = port;
-        
+
+        // Get URL from command line argument
+        String url = System.getProperty(ENV_PROP_URL);
+        if (StringUtils.isEmpty(url)) {
+            url = context.getInitParameter("public-url");
+            if (StringUtils.isEmpty(url)) {
+                url = DEFAULT_URL;
+            }
+        }
+
         // Get IP address
         String ipAddress;
         try {
             ipAddress = InetAddress.getLocalHost().getHostAddress();
         } catch (UnknownHostException e) {
             ipAddress = "localhost";
-        }
-        String url = context.getInitParameter("public-url");
-        if (StringUtils.isEmpty(url)) {
-            url = "http://{ipAddress}:{port}/{context}";
         }
 
         // Get context path
@@ -88,6 +100,6 @@ public class StorefrontWebApp implements ServletContextListener {
             contextPath = contextPath.substring(1);
         }
 
-        return url.replace("{ipAddress}", ipAddress).replace("{port}", String.valueOf(port)).replace("{contextPath}", contextPath);
+        return url.replace("{host}", ipAddress).replace("{port}", String.valueOf(port)).replace("{context}", contextPath);
     }
 }

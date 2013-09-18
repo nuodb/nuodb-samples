@@ -8,7 +8,7 @@
     <context-param>
         <description>This parameter is stored in the APP_INSTANCE table and tells all Storefront instances how to communicate with this one</description>
         <param-name>public-url</param-name>
-        <param-value>http://{ipAddress}:{port}/{contextPath}</param-value>
+        <param-value>http://{host}:{port}/{context}</param-value>
     </context-param>
 
     <welcome-file-list>
@@ -21,6 +21,16 @@
         <listener-class>com.nuodb.storefront.StorefrontWebApp</listener-class>
     </listener>
 
+    <!-- HTTP headers for cross-site AJAX support -->   
+    <filter>
+        <filter-name>AccessControlFilter</filter-name>
+        <filter-class>com.nuodb.storefront.servlet.AccessControlFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>AccessControlFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
     <!-- Servlets -->
     <servlet>
         <servlet-name>jersey-serlvet</servlet-name>
@@ -51,7 +61,11 @@
         <servlet-name>storefront-welcome</servlet-name>
         <servlet-class>com.nuodb.storefront.servlet.WelcomeServlet</servlet-class>
     </servlet>
-
+    <servlet>
+        <servlet-name>storefront-control-panel</servlet-name>
+        <servlet-class>com.nuodb.storefront.servlet.ControlPanelServlet</servlet-class>
+    </servlet>
+    
     <!-- URL mappings -->
     <servlet-mapping>
         <servlet-name>jersey-serlvet</servlet-name>
@@ -73,5 +87,8 @@
         <servlet-name>storefront-welcome</servlet-name>
         <url-pattern>/welcome</url-pattern>
     </servlet-mapping>
-
+    <servlet-mapping>
+        <servlet-name>storefront-control-panel</servlet-name>
+        <url-pattern>/control-panel</url-pattern>
+    </servlet-mapping>
 </web-app>

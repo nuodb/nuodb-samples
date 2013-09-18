@@ -148,6 +148,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
                 + " (SELECT COUNT(*) FROM PRODUCT_REVIEW) AS PRODUCT_REVIEW_COUNT,"
                 + " (SELECT COUNT(*) FROM CUSTOMER) AS CUSTOMER_COUNT,"
                 + " (SELECT COUNT(*) FROM CUSTOMER WHERE DATE_LAST_ACTIVE >= :MIN_ACTIVE_TIME) AS ACTIVE_CUSTOMER_COUNT,"
+                + " (SELECT COUNT(*) FROM CUSTOMER WHERE WORKLOAD IS NULL DATE_LAST_ACTIVE >= :MIN_ACTIVE_TIME) AS ACTIVE_WEB_CUSTOMER_COUNT,"
                 + " (SELECT SUM(QUANTITY) FROM CART_SELECTION) AS CART_ITEM_COUNT,"
                 + " (SELECT SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE) FROM CART_SELECTION) AS CART_VALUE,"
                 + " (SELECT COUNT(*) FROM PURCHASE) AS PURCHASE_COUNT,"
@@ -165,14 +166,15 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
         stats.setProductReviewCount(Integer.valueOf(result[2].toString()));
         stats.setCustomerCount(Integer.valueOf(result[3].toString()));
         stats.setActiveCustomerCount(Integer.valueOf(result[4].toString()));
-        stats.setCartItemCount(Integer.valueOf(toNumericString(result[5])));
-        stats.setCartValue(new BigDecimal(toNumericString(result[6])));
-        stats.setPurchaseCount(Integer.valueOf(result[7].toString()));
-        stats.setPurchaseItemCount(Integer.valueOf(toNumericString(result[8])));
-        stats.setPurchaseValue(new BigDecimal(toNumericString(result[9])));
+        stats.setActiveWebCustomerCount(Integer.valueOf(result[5].toString()));
+        stats.setCartItemCount(Integer.valueOf(toNumericString(result[6])));
+        stats.setCartValue(new BigDecimal(toNumericString(result[7])));
+        stats.setPurchaseCount(Integer.valueOf(result[8].toString()));
+        stats.setPurchaseItemCount(Integer.valueOf(toNumericString(result[9])));
+        stats.setPurchaseValue(new BigDecimal(toNumericString(result[10])));
 
         Calendar cal = Calendar. getInstance();
-        cal.setTimeInMillis(new BigDecimal(toNumericString(result[10])).longValue()  * 1000);
+        cal.setTimeInMillis(new BigDecimal(toNumericString(result[11])).longValue()  * 1000);
         stats.setDateStarted(cal);
 
         return stats;
@@ -197,6 +199,8 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
                                 + " SELECT 'customerCount', COUNT(*), REGION FROM CUSTOMER GROUP BY REGION"
                                 + " UNION"
                                 + " SELECT 'activeCustomerCount', COUNT(*), REGION FROM CUSTOMER WHERE DATE_LAST_ACTIVE >= :MIN_ACTIVE_TIME GROUP BY REGION"
+                                + " UNION"
+                                + " SELECT 'activeWebCustomerCount', COUNT(*), REGION FROM CUSTOMER WHERE WORKLOAD IS NULL AND DATE_LAST_ACTIVE >= :MIN_ACTIVE_TIME GROUP BY REGION"
                                 + " UNION"
                                 + " SELECT 'cartItemCount', SUM(QUANTITY), REGION FROM CART_SELECTION GROUP BY REGION"
                                 + " UNION"
@@ -235,6 +239,8 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
                 regionStats.setCustomerCount(Integer.valueOf(value.toString()));
             } else if (metric.equals("activeCustomerCount")) {
                 regionStats.setActiveCustomerCount(Integer.valueOf(value.toString()));
+            } else if (metric.equals("activeWebCustomerCount")) {
+                regionStats.setActiveWebCustomerCount(Integer.valueOf(value.toString()));
             } else if (metric.equals("cartItemCount")) {
                 regionStats.setCartItemCount(Integer.valueOf(toNumericString(value)));
             } else if (metric.equals("cartValue")) {

@@ -19,21 +19,18 @@ Ext.define('App.view.HeaderBar', {
 
         me.items = ['->', {
             xtype: 'container',
-            id: 'appTitle',
-            html: App.app.title,
-            margin: '10 0 0 0'
-        }, {
-            xtype: 'container',
-            layout: 'fit',
+            itemId: 'welcome',
+            margin: '10 0 0 0',
             items: {
                 xtype: 'button',
                 margin: '0 5 0 5',
+                id: 'welcome',
                 itemId: 'welcome',
                 cls: 'btn-header',
-                text: 'Control Panel',
+                text: 'Welcome',
                 scale: 'medium',
-                iconCls: 'ico-panel-32',
-                tooltip: 'Describes the purpose of the Storefront demo and lets you configure simulated workloads',
+                iconCls: 'ico-logo',
+                tooltip: "Demo overview, DDL, and important links",
                 iconAlign: 'bottom',
                 scale: 'large',
                 enableToggle: true,
@@ -47,7 +44,26 @@ Ext.define('App.view.HeaderBar', {
             layout: 'fit',
             items: {
                 xtype: 'button',
-                tooltip: 'Shows the storefront website&mdash;where you can go shopping!',
+                margin: '0 5 0 5',
+                itemId: 'control-panel',
+                cls: 'btn-header',
+                text: 'Control Panel',
+                scale: 'medium',
+                iconCls: 'ico-panel-32',
+                tooltip: 'Storefront instances and workload configuration',
+                iconAlign: 'bottom',
+                scale: 'large',
+                enableToggle: true,
+                allowDepress: false,
+                handler: clickHandler,
+                width: 110
+            }
+        }, {
+            xtype: 'container',
+            layout: 'fit',
+            items: {
+                xtype: 'button',
+                tooltip: 'Storefront website&mdash;where you can go shopping!',
                 margin: '0 5 0 5',
                 itemId: 'storefront',
                 cls: 'btn-header',
@@ -62,14 +78,10 @@ Ext.define('App.view.HeaderBar', {
                 handler: clickHandler,
                 width: 110
             }
-        }, /*
-             * { xtype: 'metricwell', text: '<b>NuoDB</b> transactions/sec', tooltip: 'Shows NuoDB\'s performance metrics',
-             * graphVisible: false, metric: 'dbStats.tps', format: 'TBD', itemId: 'metrics-db', listeners: { click:
-             * clickHandler } },
-             */{
+        }, {
             xtype: 'metricwell',
             text: '<b>Service</b> calls/sec',
-            tooltip: 'Shows application\'s service layer metrics',
+            tooltip: 'Service layer metrics',
             format: ',.0',
             metric: 'transactionStats.all.totalCountDelta',
             itemId: 'metrics-service',
@@ -79,7 +91,7 @@ Ext.define('App.view.HeaderBar', {
         }, {
             xtype: 'metricwell',
             text: '<b>Store</b> items in carts',
-            tooltip: 'Shows store metrics',
+            tooltip: 'Store metrics',
             metric: 'storefrontStats.all.cartItemCount',
             itemId: 'metrics-storefront',
             listeners: {
@@ -88,7 +100,7 @@ Ext.define('App.view.HeaderBar', {
         }, {
             xtype: 'metricwell',
             text: '<b>Simulator</b> active users',
-            tooltip: 'Shows simulated activity metrics',
+            tooltip: 'Simulated activity metrics',
             metric: 'workloadStats.all.activeWorkerCount',
             itemId: 'metrics-simulator',
             listeners: {

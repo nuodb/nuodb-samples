@@ -4,7 +4,12 @@
 
 body {
 	overflow-y: scroll;
-	padding-top: 20px;
+	padding: 20px 6px 10px 6px;
+}
+
+.dropdown > a {
+	text-decoration: none;
+	outline: 0;
 }
 
 form {
@@ -52,7 +57,6 @@ th.text-center, td.text-center {
 		color: #777;
 
 		> a {
-			outline: 0;
 			text-decoration: none !important;
 			
 			> img {
@@ -301,11 +305,25 @@ th.text-center, td.text-center {
 	text-align: center;
 }
 
-#welcome {
+#welcome, #control-panel {
 	.navbar label {
-		padding-left: 30px;
+		padding-left: 15px;
 		cursor: default;
 	}
+}
+	
+#welcome {	
+	#ddl {
+		display: none;
+		margin-bottom: 30px;
+		
+		textarea {
+			.border-box();
+			font-family: monospace;
+			width: 100%;
+			height: 300px;
+		}
+	}	
 	
 	.carousel {
 		background-image: url(../img/carousel/bg.png);
@@ -391,51 +409,167 @@ th.text-center, td.text-center {
 			top: 10%;
 		}
 	}
+}
 
-	.workload-detail {
-		display: none;
+#control-panel {
+	.label {
+		min-width: 30px;
+		text-align: right;
 	}
 	
-	#workloads {
-		td {
-			vertical-align: middle;
+	.label-status {
+		min-width: 16px;
+		.border-radius(8px);
+	}
+	
+	.controls .btn {
+		width: 88px; 
+	}
+	
+	.progress {
+		margin: 0;
+		height: 28px;
+		
+		> .bar {
+			background-image: none;
+			
+			&.empty {
+				background-color: transparent;
+			}
+		}		
+	}
+	
+	#table-regions.table {
+		table-layout: fixed;
+		
+		th {
+			vertical-align: top;
+			
+			h3 {
+				margin: 0 0 4px 0;
+				font-size: 18px;
+				line-height: normal;
+			}
+			
+			h4 {
+				margin: 10px 0 0 0;
+				font-size: 14px;
+			}
+			
+			ul {
+				margin: 0 0 0 15px;
+			}
+			
+			li {
+				font-weight: normal;
+				margin: 4px 0;
+			}
 		}
 		
-		.desc {
-			margin-bottom: 2px;
-			color: #aaa;
+		td {
+			vertical-align: middle;
+			
+			&.lbl-instances,
+			&.currency,
+			&.lbl-users,
+			&.users,
+			&.controls {
+				border-left-width: 0;
+			}
+			
+			&.lbl-users {
+				padding-left: 0;
+			}
+			
+			&.lbl-instances,
+			&.currency,
+			&.lbl-users {
+				text-align: right;
+				
+				.dropdown-menu {
+					text-align: left;
+				}
+			}
+		}
+		
+		tr td {
+			.btn-change {
+				display: inline;
+			}
+			
+			.btn-hide {
+				display: none;
+			}		
+		}
+		
+		tr.active > td {
+			background-color: #fafbf3;
+			
+			.btn-change {
+				display: none;
+			}
+			
+			.btn-hide {
+				display: inline;
+			}
+		}
+		
+		tr.region-details > td {
+			border-top-width: 0;
+			
+			> .details-box {
+				padding: 0 6px;
+				
+				> table {
+					margin-bottom: 5px;
+					table-layout: fixed;
+					
+					th, tbody > tr > td {
+						border-bottom-left-radius: 0;
+					}
+					
+					.progress {
+						margin-left: 3px;
+					}
+					
+					th.users, td.users {
+						text-align: right;
+						border-left-width: 0;
+						
+						.input-mini {
+							width: 68px;
+						}
+					}
+				}
+			}
 		}
 		
 		input {
 			margin-bottom: 0 !important;
 		}
-		
-		h4 {
-			margin-top: 6px;
-		}
-		
-		.steps {
-			width: 250px;
-			
-			ol {
-				margin-bottom: 0;
-				li {
-					font-size: 12px;
-					line-height: normal;
-				}
-			}
-		}
-	}
-	
-	#ddl {
-		display: none;
-		margin-bottom: 30px;
-		
-		textarea {
-			.border-box();
-			font-family: monospace;
-			width: 100%;
-			height: 300px;
-		}
 	}
 }
+
+.label-refreshing {
+	background-color: transparent !important; 
+	
+	img {
+		visibility: visible;
+	}
+}
+
+.label-color-0  	{ background-color: #95b452 !important; }
+.label-color-1  	{ background-color: #c3cf21 !important; }
+.label-color-2  	{ background-color: #cca61b !important; }
+.label-color-3  	{ background-color: #b78776 !important; }
+.label-color-4  	{ background-color: #b28697 !important; }
+.label-color-5  	{ background-color: #8894a5 !important; }
+.label-color-6  	{ background-color: #a2998b !important; }
+.label-color-7  	{ background-color: #66644a !important; }
+.label-color-8  	{ background-color: #828a16 !important; }
+.label-color-9  	{ background-color: #886f12 !important; }
+.label-color-10 	{ background-color: #6d4a46 !important; }
+.label-color-11 	{ background-color: #684963 !important; }
+.label-color-12 	{ background-color: #44556f !important; }
+.label-color-13 	{ background-color: #58595b !important; }
+.label-color-real  	{ background-color: #aaaaaa !important; }

@@ -48,13 +48,13 @@
     margin-right: 10px;
 }
 
-#appTitle {
-    background: transparent url(../img/logo.png) no-repeat;
-    padding: 29px 10px 0 80px;
-    font-family: Museo Sans, Arial;
-    font-size: 19px;
-    color: #958979;
-    height: 55px;
+#welcome-btnEl {
+    background: transparent url(../img/logo.png) no-repeat 5px 4px;
+}
+
+#welcome-btnEl .x-btn-inner {
+    text-align: right !important;
+    padding-right: 3px;
 }
     
 .btn-header {
@@ -66,7 +66,6 @@
     top: 2px;
     left: 2px;
     padding: 0;
-    text-align: left !important;
 }
 
 .x-ie .btn-header button {
@@ -89,6 +88,7 @@
     color: #958979;
     font-size: 11px;
     padding: 2px;
+    text-align: center;
 }
 
 .btn-header .x-btn-inner,

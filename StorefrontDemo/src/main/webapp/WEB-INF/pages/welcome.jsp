@@ -16,12 +16,14 @@
                 </ul>
             </div>
         </div>
+        
+        <t:messages />
 
         <!-- DDL -->
         <div class="row" id="ddl">
             <div class="span12">
                 <h2>Storefront DDL</h2>
-                <textarea wrap="off"></textarea>
+                <textarea></textarea>
             </div>
         </div>
         <script id="tpl-ddl" type="text/template">{{result}}</script>
@@ -92,98 +94,7 @@
             </div>
             <a class="left carousel-control" href="#carousel" data-slide="prev">‹</a> <a class="right carousel-control" href="#carousel" data-slide="next">›</a>
         </div>
-
-        <!-- Workload controls -->
-        <div class="row">
-            <div class="span12">
-                <h2 id="workload-sec">Simulated User Setup</h2>
-                <t:messages />
-                <form method="post" action="#workload-sec" id="workload-form">
-                    <table class="table table-hover table-bordered table-condensed">
-                        <thead>
-                            <tr>
-                                <th>Workload</th>
-                                <th class="text-right"><a data-toggle="tooltip" title="How long, on average, the simulated user waits between taking successive steps">Avg. think time</a></th>
-                                <th class="text-right"><a data-toggle="tooltip" title="The standard deviation of the user&rsquo;s think time">Std. dev.</a></th>
-                                <th class="workload-detail">Simulated Steps</th>
-                                <th class="text-center"># Users</th>
-                            </tr>
-                        </thead>
-                        <tbody id="workloads">
-                        </tbody>
-                    </table>
-                    <p class="text-right">
-                        <button class="btn btn-primary" type="submit">Update Workloads</button>
-                        &nbsp;
-                        <button class="btn" id="btn-reset" title="Sets the number of user to 0 across all workloads">Stop All</button>
-                    </p>
-                </form>
-            </div>
-        </div>
-        <script id="tpl-workloads" type="text/template">    
-            {{#result}}
-            <tr>
-                <td>
-                    <div class="media">
-                        <img class="pull-left" src="img/workload.png" width="32" height="32" />
-                        <div class="media-body">
-                            <h4 class="media-heading">{{workload.name}}</h4>
-                            <div>
-                                {{#if workload.autoRepeat}}
-									<p class="desc workload-detail">
-										<span class="label"><i class="icon-retweet icon-white"></i> Auto-repeating</span>
-									</p>
-								{{/if}}
-                            </div>
-                        </div>
-                    </div>
-                </td>
-                <td class="workload-detail">
-					<div class="steps">
-                    	<ol>
-                        	{{#workload.steps}}
-                        		<li>{{this}}</li>
-                        	{{/workload.steps}}
-                    	</ol>
-					</div>
-                </td>
-				<td class="text-right">{{{msFormat workload.avgThinkTimeMs}}</td>
-				<td class="text-right">{{sqrtMsFormat workload.thinkTimeVariance}}</td>
-                <td class="text-center">
-					{{#if workload.avgThinkTimeMs}}
-						<input class="input-mini" type="number" name="workload-{{workload.name}}" data-name="{{workload.name}}" value="{{numberOrZero activeWorkerLimit}}" min="0" {{#if workload.maxWorkers}}max="{{workload.maxWorkers}}"{{/if}} step="1" />
-					{{else}}
-						<input readonly="readonly" title="Workloads with 0 are for benchmark running only and cannot be modified here.  This helps keep the Storefront responsive." class="input-mini" type="number" name="workload-{{workload.name}}" value="{{numberOrZero activeWorkerLimit}}" min="0" max="1000" step="1" />
-					{{/if}}
-				</td>
-            </tr>
-            {{/result}}  
-        </script>
-        <div class="row">
-            <div class="span12">
-                <div id="product-info"></div>
-                <script id="tpl-product-info" type="text/template">
-				{{#result}}
-				{{#if hasData}}
-       	            <hr />
-                	<form method="post" id="product-info">
-                    	<h2 id="data-summary">Product Catalog</h2>
-    	                <p>There are currently {{numberFormat productCount}} products across {{numberFormat categoryCount}} categories.</p>
-	                    <p><button class="btn btn-danger" name="btn-msg" type="submit" value="Remove All Data">Remove All Data</button>
-                	</form>
-				{{/if}}
-				{{/result}}
-				</script>
-                
-                <hr />
-                <h2 id="workload-sec">Node &amp; Region Setup</h2>
-                <p>To add nodes to your NuoDB cluster, use the NuoDB Console.</p>
-                <p>If you are running NuoDB locally with default settings, you will find the Console at <a href="http://localhost:8080/" target="_blank">http://localhost:8080/</a>.</p>
-            </div>
-        </div>
     </div>
-
-
     
     <div class="footer">Copyright &copy; 2013 NuoDB, Inc. All rights reserved.</div>
 </t:page>

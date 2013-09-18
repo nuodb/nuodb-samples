@@ -140,7 +140,7 @@ public abstract class BaseServlet extends HttpServlet {
         StorefrontWebApp.updateWebAppUrl(req);
         
         // Build full page title
-        String storeName = StorefrontApp.APP_INSTANCE.getName();
+        String storeName = StorefrontApp.APP_INSTANCE.getName() + " - NuoDB Storefront Demo";
         if (pageTitle == null || pageTitle.isEmpty()) {
             pageTitle = storeName;
         } else {

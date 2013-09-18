@@ -3,13 +3,17 @@
 
 <script id="tpl-region-menu" type="text/template">
 {{#result}}
-	<a data-toggle="dropdown" href="#"><img alt="Logo" src="img/shop-logo.png" /><span>{{title}}<b class="caret"></b></span></a>
+	<a data-toggle="dropdown" href="#"><img alt="Logo" src="img/shop-logo.png" /><span>
+	{{#regions}}
+		{{#if selected}}{{storeName}}{{/if}}
+	{{/regions}}
+	<b class="caret"></b></span></a>
 	<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
     	{{#regions}}
         	<li>
-				<a tabindex="-1" href="#" data-region="{{region}}">
+				<a tabindex="-1" href="#" data-region="{{regionName}}">
 					{{#if selected}}<b>&bull;</b>{{/if}}
-					{{name}}
+					{{storeName}}
 				</a>
 			</li>
     	{{/regions}}

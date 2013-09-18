@@ -11,9 +11,10 @@ var Storefront = {
         // Set basic app properties
         me.currency = cfg.currency;
         me.appInstanceUuid = cfg.appInstanceUuid;
+        me.regions = me.aggregateRegions(cfg.appInstances);
 
         // Initialize region dropdown
-        me.initRegionSelectorMenu(cfg.appInstances);
+        me.initRegionSelectorMenu(me.regions);
 
         // Initialize elements shared across pages
         me.TemplateMgr.applyTemplate('tpl-messages', '#messages', cfg.messages);
@@ -32,6 +33,10 @@ var Storefront = {
         switch (cfg.pageName) {
             case "welcome":
                 me.initWelcomePage(cfg.pageData);
+                break;
+
+            case "control-panel":
+                me.initControlPanelPage(cfg.pageData);
                 break;
 
             case "products":
@@ -67,25 +72,17 @@ var Storefront = {
         });
     },
 
-    initRegionSelectorMenu: function(appInstances) {
-        var me = this;
-
-        if ($('#region-menu').length == 0) {
-            // No menu on this page
-            return;
-        }
-
+    aggregateRegions: function(appInstances) {
         // Aggregate instances to region level
         var regionMap = {};
         var regions = [];
-        var activeRegion = null;
         for ( var i = 0; i < appInstances.length; i++) {
             var instance = appInstances[i];
             var regionObj;
             if (!(regionObj = regionMap[instance.region])) {
                 regionMap[instance.region] = regionObj = {
-                    name: instance.name,
-                    region: instance.region,
+                    storeName: instance.name,
+                    regionName: instance.region,
                     currency: instance.currency,
                     instances: [],
                 };
@@ -94,7 +91,8 @@ var Storefront = {
             regionObj.instances.push(instance);
             if (Storefront.appInstanceUuid == instance.uuid) {
                 regionObj.selected = true;
-                activeRegion = instance.name;
+            } else if (instance.currency != regionObj.currency) {
+                instance.currency = 'MIXED';
             }
         }
 
@@ -103,9 +101,19 @@ var Storefront = {
             return (a.name < b.name) ? -1 : (a.name == b.name) ? 0 : 1;
         });
 
+        return regions;
+    },
+
+    initRegionSelectorMenu: function(regions) {
+        var me = this;
+
+        if ($('#region-menu').length == 0) {
+            // No menu on this page
+            return;
+        }
+
         // Render menu template
         me.TemplateMgr.applyTemplate('tpl-region-menu', '#region-menu', {
-            title: activeRegion,
             regions: regions
         });
 
@@ -140,13 +148,8 @@ var Storefront = {
         }
 
         // Render DDL
+        $('#ddl textarea').attr('wrap', 'off');
         me.TemplateMgr.applyTemplate('tpl-ddl', '#ddl textarea', pageData.ddl);
-
-        // Render workload list
-        me.TemplateMgr.applyTemplate('tpl-workloads', '#workloads', pageData.workloads);
-
-        // Render product info
-        me.TemplateMgr.applyTemplate('tpl-product-info', '#product-info', pageData.productInfo);
 
         // Handle DDL toggling
         $('#lnk-show-ddl').click(function(e) {
@@ -164,49 +167,10 @@ var Storefront = {
             }
         });
 
-        // Select quantity upon focus
-        $('input[type=number]').on('click', function(e) {
-            $(this).select();
-            $(this).focus();
-        });
-
         // Get the carousel moving
         $('.carousel').carousel({
             interval: 7000
         });
-
-        // Handle reset button
-        $('#btn-reset').click(function() {
-            $('input[type=number]').val('0');
-            $(this).closest('form').submit();
-        });
-
-        // Handle tooltips
-        $('a[data-toggle="tooltip"]').tooltip();
-
-        // Enable HTML5 form features in browsers that don't support it
-        $('form').form();
-
-        // Validate min/max users per workload
-        $('#workload-form').submit(function(e) {
-            var numberFields = $('input[type=number]');
-            for ( var i = 0; i < numberFields.length; i++) {
-                var f = $(numberFields[i]);
-                var max = parseInt(f.attr('max'));
-                var name = f.attr('data-name');
-                if (!isNaN(max) && f.val() > max) {
-                    f.focus();
-                    alert('User count for "' + name + '" cannot exceed ' + max + '.');
-                    e.preventDefault();
-                    return false;
-                } else if (f.val() < 0) {
-                    alert('User count for "' + name + '" cannot be negative.');
-                    e.preventDefault();
-                    f.focus();
-                    return false;
-                }
-            }
-        })
     },
 
     initProductsPage: function(products, categories, filter) {

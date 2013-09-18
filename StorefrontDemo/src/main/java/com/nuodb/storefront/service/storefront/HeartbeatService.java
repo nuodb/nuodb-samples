@@ -29,7 +29,7 @@ public class HeartbeatService implements IHeartbeatService {
 
     public HeartbeatService(String appUrl) {
         this.appUrl = appUrl;
-    }
+    }   
 
     @Override
     public void run() {
