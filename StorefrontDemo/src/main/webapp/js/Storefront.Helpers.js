@@ -1,7 +1,7 @@
 /* Copyright (c) 2013 NuoDB, Inc. */
 
 /**
- * This file defines custom formatting "helpers" for use with the Handlebars template system.
+ * This file defines custom formatting "helpers" for use with the Handlebars template system, as well as other prototype and global methods.
  */
 
 Number.prototype.format = function(digits) {
@@ -12,6 +12,22 @@ Number.prototype.format = function(digits) {
 function pluralize(val, label, pluralLabel) {
     return val + ' ' + ((val == 1) ? label : (pluralLabel || (label + 's')));
 }
+
+$.fn.serializeObject = function() {
+    var o = {};
+    var a = this.serializeArray();
+    $.each(a, function() {
+        if (o[this.name] !== undefined) {
+            if (!o[this.name].push) {
+                o[this.name] = [o[this.name]];
+            }
+            o[this.name].push(this.value || '');
+        } else {
+            o[this.name] = this.value || '';
+        }
+    });
+    return o;
+};
 
 Handlebars.registerHelper('dateFormat', function(date) {
     return dateFormat(date, 'dddd, mmmm dS, yyyy "at" h:MM tt');
@@ -46,12 +62,12 @@ Handlebars.registerHelper('priceFormat', function(price) {
     switch (Storefront.currency) {
         case 'BRITISH_POUND':
             symbol = '£';
-            price *= 1.56;
+            price /= 1.56;
             break;
 
         case 'EURO':
             symbol = '€';
-            price *= 1.34;
+            price /= 1.34;
             break;
 
         default:

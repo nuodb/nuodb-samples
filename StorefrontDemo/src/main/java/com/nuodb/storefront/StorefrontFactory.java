@@ -3,6 +3,7 @@
 package com.nuodb.storefront;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,6 +21,7 @@ import com.nuodb.impl.util.StringUtils;
 import com.nuodb.storefront.dal.IStorefrontDao;
 import com.nuodb.storefront.dal.StorefrontDao;
 import com.nuodb.storefront.dal.UpperCaseNamingStrategy;
+import com.nuodb.storefront.model.Currency;
 import com.nuodb.storefront.model.DbConnInfo;
 import com.nuodb.storefront.service.IDataGeneratorService;
 import com.nuodb.storefront.service.IHeartbeatService;
@@ -121,24 +123,7 @@ public class StorefrontFactory {
                     try {
                         Session session = s_sessionFactory.openSession();
 
-                        // Run a test transaction to ensure we have a valid connection
-                        Transaction t = session.beginTransaction();
-
-                        // Ask the DB for the region name if it hasn't been supplied manually
-                        if (StringUtils.isEmpty(StorefrontApp.APP_INSTANCE.getRegion())) {
-                            String region;
-                            try {
-                                Object result = session.createSQLQuery("SELECT Default3 FROM DUAL").uniqueResult();
-                                region = result.toString();
-                            } catch (SQLGrammarException e) {
-                                s_log.warning("Your database version does not support regions.  Upgrade to NouDB 2.0 or greater.");
-                                region = "Default";
-                            }
-                            StorefrontApp.APP_INSTANCE.setRegion(region);
-                        }
-
-                        t.rollback();
-                        session.close();
+                        testSession(session);
                     } catch (Exception e) {
                         s_sessionFactory = null;
                         throw (e instanceof RuntimeException) ? ((RuntimeException) e) : new RuntimeException(e);
@@ -151,5 +136,40 @@ public class StorefrontFactory {
 
     public static IHeartbeatService createHeartbeatService(String url) {
         return new HeartbeatService(url);
+    }
+
+    private static void testSession(Session session) {
+        // Run a test transaction to ensure we have a valid connection
+        Transaction t = session.beginTransaction();
+
+        // Ask the DB for the region name if it hasn't been supplied manually
+        if (StringUtils.isEmpty(StorefrontApp.APP_INSTANCE.getRegion())) {
+            String region;
+            try {
+                Object result = session.createSQLQuery("SELECT Default3 FROM DUAL").uniqueResult();
+                region = result.toString();
+            } catch (SQLGrammarException e) {
+                s_log.warning("Your database version does not support regions.  Upgrade to NouDB 2.0 or greater.");
+                region = "Default";
+            }
+            StorefrontApp.APP_INSTANCE.setRegion(region);
+        }
+
+        // Use most recent currency associated with this region
+        @SuppressWarnings("unchecked")
+        List<String> currencies = (List<String>) session
+                .createSQLQuery("SELECT DISTINCT Currency FROM APP_INSTANCE WHERE REGION=:REGION ORDER BY LAST_HEARTBEAT DESC")
+                .setParameter("REGION", StorefrontApp.APP_INSTANCE.getRegion()).list();
+        if (!currencies.isEmpty()) {
+            try {
+                Currency currency = Currency.valueOf(currencies.get(0));
+                StorefrontApp.APP_INSTANCE.setCurrency(currency);
+            } catch (IllegalArgumentException e) {
+                // not fatal, just use default
+            }
+        }
+
+        t.rollback();
+        session.close();
     }
 }

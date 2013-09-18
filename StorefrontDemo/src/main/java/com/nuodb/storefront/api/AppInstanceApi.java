@@ -4,12 +4,11 @@ package com.nuodb.storefront.api;
 
 import java.util.List;
 
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.nuodb.storefront.StorefrontApp;
@@ -29,18 +28,13 @@ public class AppInstanceApi extends BaseApi {
     }
 
     @PUT
-    @Path("/{instanceId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public AppInstance updateAppInstance(@PathParam("instanceId") String instanceId, @QueryParam("currency") Currency currency) {
+    public AppInstance updateAppInstance(@FormParam("currency") Currency currency) {
         if (currency == null) {
             throw new DataValidationException("Currency not valid.");
         }
         
         AppInstance instance = StorefrontApp.APP_INSTANCE;
-        if (!instance.getUuid().equals(instanceId)) {
-            throw new DataValidationException("Updates only supported for instance " + instance.getUuid());
-        }
-        
         instance.setCurrency(currency);
         return instance;
     }

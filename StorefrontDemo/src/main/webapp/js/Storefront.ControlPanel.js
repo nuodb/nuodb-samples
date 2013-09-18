@@ -13,6 +13,39 @@
         // Render regions table
         app.TemplateMgr.applyTemplate('tpl-regions', '#regions', regionData);
 
+        // Handle "Change" and "Hide" workload details buttons
+        $('#regions').on('click', '.btn-change', function() {
+            var row$ = $(this).closest('tr').addClass('active');
+            row$.next().fadeIn();
+        }).on('click', '.btn-hide', function() {
+            var row$ = $(this).closest('tr').removeClass('active');
+            row$.next().hide();
+        });
+
+        // Handle currency change dropdown
+        $('#regions').on('click', '.currency .dropdown-menu a', function(e) {
+            e.preventDefault();
+            var regionName = $(this).closest('.region-overview').attr('data-region');
+            var btn$ = $(this).closest('.currency').find('.btn-change-currency');
+            changeCurrency(getRegionByName(regionName), $(this).attr('data-currency'), btn$);
+        });
+
+        // Handle workload "Update" button
+        $('#regions').on('click', '.btn-update', function(e) {
+            var regionDetails$ = $(this).closest('.region-details');
+            var regionName = regionDetails$.attr('data-region');
+            var data = regionDetails$.find('input').serializeObject();
+            for ( var key in data) {
+                data[key] = parseInt(data[key]);
+            }
+            updateWorkloadUsers(getRegionByName(regionName), data, $(this));
+        });
+
+        // Handle refresh
+        $('#btn-refresh').click(function() {
+            document.location.reload();
+        });
+
         // Render product info
         app.TemplateMgr.applyTemplate('tpl-product-info', '#product-info', pageData.productInfo);
 
@@ -20,21 +53,6 @@
         $('input[type=number]').on('click', function(e) {
             $(this).select();
             $(this).focus();
-        });
-
-        // Handle refresh
-        $('#btn-refresh').click(function() {
-            document.location.reload();
-        });
-        
-        // Handle "Change" buttons
-        $('#regions').on('click', '.btn-change', function() {
-            var row$ = $(this).closest('tr').addClass('active');
-            row$.next().fadeIn();
-        });
-        $('#regions').on('click', '.btn-hide', function() {
-            var row$ = $(this).closest('tr').removeClass('active');
-            row$.next().hide();
         });
 
         // Handle reset button
@@ -72,7 +90,7 @@
 
         refreshStats(false);
     }
-    
+
     function initRegionData(regions, stats) {
         var workloadTemplates = convertWorkloadMapToSortedList(stats.workloadStats);
         var workloadList = [];
@@ -137,7 +155,6 @@
         }).fail(function() {
             instance.notResponding = true;
             refreshInstanceStatsComplete(region, instance, {
-                appInstance: {},
                 storefrontStats: {},
                 workloadStats: {}
             })
@@ -145,19 +162,25 @@
     }
 
     function refreshInstanceStatsComplete(region, instance, stats) {
-        region.isRefreshing = false;
-        region.heavyLoad = false;
-        region.notResponding = false;
+        // Update instance
+        instance.isRefreshing = false;
         if (stats.storefrontStats) {
             var regStats = stats.storefrontStats[region.regionName];
             if (regStats) {
                 region.webCustomerCount = regStats.activeWebCustomerCount;
             }
         }
-        instance.isRefreshing = false;
-        instance.heavyLoad = stats.appInstance.cpuUtilization >= 90;
-        instance.workloadStats = stats.workloadStats;
+        if (stats.appInstance) {
+            instance.heavyLoad = stats.appInstance.cpuUtilization >= 90;
+        }
+        if (stats.workloadStats) {
+            instance.workloadStats = stats.workloadStats;
+        }
 
+        // Update region
+        region.isRefreshing = false;
+        region.heavyLoad = false;
+        region.notResponding = false;
         for ( var i = 0; i < region.instances.length; i++) {
             var otherInstance = region.instances[i];
 
@@ -252,26 +275,45 @@
             var region = regionData.regions[i];
             var regionOverview$ = $('.region-overview[data-region="' + region.regionName + '"]');
             var bars$ = regionOverview$.find('.progress').children();
+            var detailedBars$ = $('.region-details[data-region="' + region.regionName + '"] .progress .bar');
             var label$ = regionOverview$.find('.lbl-users');
-            var regionUserCount = region.webCustomerCount;
+            var regionUserCount = 0;
 
             for ( var j = 0; j < region.workloads.length; j++) {
-                var workloadUserCount = region.workloads[i].activeWorkerLimit;
-                regionUserCount += workloadUserCount;
+                var workloadUserCount = region.workloads[j].activeWorkerLimit;
+
+                // Region bar
                 $(bars$[j]).css('width', (workloadUserCount / maxRegionUserCount * 100) + '%').attr('title', formatTooltipWithCount(region.workloads[j].workload.name, workloadUserCount));
+
+                // Detailed workload bar
+                $(detailedBars$[j * 2]).css('width', (regionUserCount / maxRegionUserCount * 100) + '%');
+                $(detailedBars$[j * 2 + 1]).css('width', (workloadUserCount / maxRegionUserCount * 100) + '%').attr('title', formatTooltipWithCount(region.workloads[j].workload.name, workloadUserCount));
+
+                // Detailed label
+                regionUserCount += workloadUserCount;
+                $(detailedBars$[j * 2]).closest('tr').find('.lbl-users').html(workloadUserCount.format(0));
+
+                // Input field
+                $(detailedBars$[j * 2]).closest('tr').find('input').val(workloadUserCount);
             }
             $(bars$[j]).css('width', (region.webCustomerCount / maxRegionUserCount * 100) + '%').attr('title', formatTooltipWithCount('Web browser user', region.webCustomerCount));
 
-            label$.html(regionUserCount);
+            // Region label
+            regionUserCount += region.webCustomerCount;
+            label$.html(regionUserCount.format(0));
         }
 
         // Update global workload labels
         for ( var j = 0; j < regionData.workloads.length; j++) {
-            var workload = regionData.workloads[i];
-            $('.customer-summary [data-workload="' + workload.workload.name + '"]').html(workload.activeWorkerLimit);
+            var workload = regionData.workloads[j];
+            var count = 0;
+            for ( var i = 0; i < regionData.regions.length; i++) {
+                count += regionData.regions[i].workloads[j].activeWorkerLimit;
+            }
+            $('.customer-summary [data-workload="' + workload.workload.name + '"]').html(count);
         }
-        $('#summary-users-simulated').html(pluralize(totalSimulatedUserCount, 'simulated user'));
-        $('#summary-users-real').html(pluralize(totalWebCustomerCount, 'real user'));
+        $('#summary-users-simulated').html(pluralize(totalSimulatedUserCount, 'simulated customer'));
+        $('#summary-users-real').html(pluralize(totalWebCustomerCount, 'real customer'));
         $('#label-web-user-count .label').html(totalWebCustomerCount);
     }
 
@@ -301,5 +343,92 @@
 
     function formatTooltipWithCount(label, count) {
         return label + ' (' + count.format(0) + ')';
+    }
+
+    function getRegionByName(name) {
+        for ( var i = 0; i < regionData.regions.length; i++) {
+            if (regionData.regions[i].regionName == name) {
+                return regionData.regions[i];
+            }
+        }
+        return null;
+    }
+
+    function changeCurrency(region, currency, btn$) {
+        var changeCount = region.instances.length;
+        var failedInstances = [];
+
+        btn$.attr('disabled', 'disabled').find('span').text('Changing...');
+
+        for ( var i = 0; i < region.instances.length; i++) {
+            var instance = region.instances[i];
+
+            (function(instance) {
+                $.ajax({
+                    method: 'PUT',
+                    url: instance.url + '/api/app-instances',
+                    data: {
+                        currency: currency
+                    },
+                    cache: false
+                }).fail(function() {
+                    failedInstances.push(instance.url);
+                }).always(function() {
+                    if (--changeCount == 0) {
+                        btn$.removeAttr('disabled').find('span').text(Handlebars.helpers.currencyFormat(currency));
+
+                        if (failedInstances.length) {
+                            alert('Unable to change currency on one or more instances:\n\n - ' + failedInstances.join('\n -'));
+                        }
+                    }
+                });
+            })(instance);
+        }
+    }
+
+    function updateWorkloadUsers(region, data, btn$) {
+        var failedInstances = [];
+        var pendingUpdates = false;
+
+        $('#btn-reset').attr('disabled', 'disabled');
+        btn$.attr('disabled', 'disabled').text('Updating...');
+
+        for ( var i = 0; i < region.instances.length; i++) {
+            var instance = region.instances[i];
+            var instanceData = {};
+
+            // Give the instance a proportion of the total workload
+            for ( var key in data) {
+                var value = Math.ceil(data[key] / region.instances.length);
+                instanceData[key] = value;
+                data[key] -= value;
+            }
+
+            (function(instance) {
+                $.ajax({
+                    method: 'PUT',
+                    url: instance.url + '/api/simulator/workloads',
+                    data: instanceData,
+                    cache: false
+                }).success(function(data) {
+                    instance.workloadStats = data.workloadStats;
+                    recalcCustomerStats();
+                }).fail(function() {
+                    failedInstances.push(instance.url);
+                }).always(function() {
+                    if (--changeCount == 0) {
+                        btn$.removeAttr('disabled').text('Update');
+                        
+                        if ($('.btn-update[disabled]').length == 0) {
+                            $('#btn-reset').removeAttr('disabled');
+                        }
+
+                        if (failedInstances.length) {
+                            alert('Unable to change currency on one or more instances:\n\n - ' + failedInstances.join('\n -'));
+                        }
+                    }                    
+                });
+            })(instance);
+        }
     }
 })();

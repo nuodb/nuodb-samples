@@ -42,14 +42,14 @@
 							<th colspan="3" class="customer-summary">
 								<h3>Customers</h3>
 
-								<h4><span id="summary-users-simulated">0 simulated users</span>: <button class="pull-right btn btn-danger btn-small" id="btn-reset" title="Sets the number of user to 0 across all workloads">Stop All</button></h4>
+								<h4><span id="summary-users-simulated">0 simulated customers</span>: &nbsp;<button class="btn btn-danger btn-small" id="btn-reset" title="Sets the number of user to 0 across all workloads">Stop All</button></h4>
 								<ul class="nav">
 									{{#workloads}}
 										<li><span data-workload="{{workload.name}}" class="label label-color-{{@index}}">0</span> Simulated {{lowerCaseFormat workload.name}}</li>
 									{{/workloads}}
 								</ul>
 								
-								<h4><span id="summary-users-real">0 real users</span>:</h4>
+								<h4><span id="summary-users-real">0 real customers</span>:</h4>
 								<ul class="nav">
 									<li id="label-web-user-count"><span class="label label-real">0</span> Web browser user</li>
 								</ul>
@@ -74,11 +74,11 @@
 								<td class="lbl-instances">{{instanceCountLabel}}</td>
 								<td class="currency">
 									<div class="btn-group">
-										<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span>{{currencyFormat currency}}</span> <b class="caret"></b></a>
+										<a class="btn dropdown-toggle btn-change-currency" data-toggle="dropdown" href="#"><span>{{currencyFormat currency}}</span> <b class="caret"></b></a>
 										<ul class="dropdown-menu pull-right">
-											<li><a tabindex="-1" href="#" data-currency="US_DOLLAR">U.S. dollar ($)</a></li>
 											<li><a tabindex="-1" href="#" data-currency="BRITISH_POUND">British pound (£)</a></li>
 											<li><a tabindex="-1" href="#" data-currency="EURO">Euro (€)</a></li>
+											<li><a tabindex="-1" href="#" data-currency="US_DOLLAR">U.S. dollar ($)</a></li>
 										</ul>
 									</div>
 								</td>                    
@@ -96,7 +96,7 @@
 									<button class="btn dropup btn-hide hide">Hide <b class="caret"></b></button>
 								</td>
 							</tr>
-							<tr class="region-details hide active" data-region="{{regionName}}">
+							<tr class="region-details hider active" data-region="{{regionName}}">
 								<td colspan="6">
 									<div class="details-box">
 										<table class="table table-hover table-bordered table-condensed">
@@ -107,7 +107,7 @@
 											<thead>
 												<tr>
 													<th>Simulated workload:</th>
-													<th colspan="2">Current users:</th>
+													<th colspan="2">Current customers:</th>
 													<th class="users">Change to:</th>
 												</tr>
 											</thead>
@@ -117,8 +117,8 @@
 														<td><span class="label label-color-{{@index}}">&nbsp;</span> {{workload.name}}</td>
 														<td>
 															<div class="progress">
-																<div class="bar empty" style="width: 10%;"></div>
-																<div class="bar label-color-{{@index}}" style="width: 10%;" title="{{workload.name}}"></div>
+																<div class="bar empty" style="width: 0%;"></div>
+																<div class="bar label-color-{{@index}}" style="width: 0%;" title="{{workload.name}}"></div>
 															</div>
 														</td>
 														<td class="lbl-users">0</td>
@@ -136,7 +136,7 @@
 												<tr>
 													<td></td>
 													<td colspan="3" class="users">
-														<button class="btn btn-primary" type="submit">Update Workloads</button>
+														<button class="btn btn-primary btn-update" type="submit">Update</button>
 													</td>
 												</tr>
 											</tfoot>
