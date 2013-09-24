@@ -3,6 +3,7 @@
 package com.nuodb.storefront.service.storefront;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
@@ -21,19 +22,20 @@ import com.nuodb.storefront.dal.TransactionType;
 import com.nuodb.storefront.exception.CartEmptyException;
 import com.nuodb.storefront.exception.CustomerNotFoundException;
 import com.nuodb.storefront.exception.ProductNotFoundException;
-import com.nuodb.storefront.model.AppInstance;
-import com.nuodb.storefront.model.Cart;
-import com.nuodb.storefront.model.CartSelection;
-import com.nuodb.storefront.model.Category;
-import com.nuodb.storefront.model.Customer;
-import com.nuodb.storefront.model.Product;
-import com.nuodb.storefront.model.ProductFilter;
-import com.nuodb.storefront.model.ProductReview;
-import com.nuodb.storefront.model.Purchase;
-import com.nuodb.storefront.model.PurchaseSelection;
-import com.nuodb.storefront.model.StorefrontStats;
-import com.nuodb.storefront.model.TransactionStats;
-import com.nuodb.storefront.model.Workload;
+import com.nuodb.storefront.model.dto.Category;
+import com.nuodb.storefront.model.dto.DbNode;
+import com.nuodb.storefront.model.dto.ProductFilter;
+import com.nuodb.storefront.model.dto.StorefrontStats;
+import com.nuodb.storefront.model.dto.TransactionStats;
+import com.nuodb.storefront.model.dto.Workload;
+import com.nuodb.storefront.model.entity.AppInstance;
+import com.nuodb.storefront.model.entity.Cart;
+import com.nuodb.storefront.model.entity.CartSelection;
+import com.nuodb.storefront.model.entity.Customer;
+import com.nuodb.storefront.model.entity.Product;
+import com.nuodb.storefront.model.entity.ProductReview;
+import com.nuodb.storefront.model.entity.Purchase;
+import com.nuodb.storefront.model.entity.PurchaseSelection;
 import com.nuodb.storefront.service.IStorefrontService;
 
 /**
@@ -44,7 +46,7 @@ public class StorefrontService implements IStorefrontService {
 
     static {
         StorefrontDao.registerTransactionNames(new String[] { "addProduct", "addProductReview", "addToCart", "checkout", "getAppInstances",
-                "getCategories", "getCustomerCart", "getOrCreateCustomer", "getProductDetails", "getProducts", "getStorefrontStats",
+                "getCategories", "getCustomerCart", "getDbNodes", "getOrCreateCustomer", "getProductDetails", "getProducts", "getStorefrontStats",
                 "getStorefrontStatsByRegion", "updateCart" });
     }
 
@@ -410,7 +412,7 @@ public class StorefrontService implements IStorefrontService {
                 search.addSort("region", false);
                 search.addSort("url", false);
                 List<AppInstance> instances = (List<AppInstance>) dao.search(search);
-                
+
                 String localUuid = StorefrontApp.APP_INSTANCE.getUuid();
                 for (AppInstance instance : instances) {
                     if (instance.getUuid().equals(localUuid)) {
@@ -418,8 +420,22 @@ public class StorefrontService implements IStorefrontService {
                         break;
                     }
                 }
-                
+
                 return instances;
+            }
+        });
+    }
+
+    @Override
+    public List<DbNode> getDbNodes() {
+        return dao.runTransaction(TransactionType.READ_ONLY, "getDbNodes", new Callable<List<DbNode>>() {
+            @Override
+            public List<DbNode> call() {
+                try {
+                    return dao.getDbNodes();
+                } catch (Exception e) {
+                    return new ArrayList<DbNode>();
+                }
             }
         });
     }

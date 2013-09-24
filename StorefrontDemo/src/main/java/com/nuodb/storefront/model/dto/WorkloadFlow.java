@@ -1,6 +1,6 @@
 /* Copyright (c) 2013 NuoDB, Inc. */
 
-package com.nuodb.storefront.model;
+package com.nuodb.storefront.model.dto;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;

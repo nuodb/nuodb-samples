@@ -12,9 +12,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.googlecode.genericdao.search.SearchResult;
-import com.nuodb.storefront.model.Category;
-import com.nuodb.storefront.model.Product;
-import com.nuodb.storefront.model.ProductFilter;
+import com.nuodb.storefront.model.dto.Category;
+import com.nuodb.storefront.model.dto.ProductFilter;
+import com.nuodb.storefront.model.entity.Product;
 
 public class ProductsServlet extends BaseServlet {
     private static final long serialVersionUID = 4369262156023258885L;

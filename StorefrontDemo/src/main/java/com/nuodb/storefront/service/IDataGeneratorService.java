@@ -5,7 +5,7 @@ package com.nuodb.storefront.service;
 import java.io.IOException;
 import java.util.List;
 
-import com.nuodb.storefront.model.Product;
+import com.nuodb.storefront.model.entity.Product;
 
 public interface IDataGeneratorService {
     /**

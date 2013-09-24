@@ -2,7 +2,7 @@
 
 package com.nuodb.storefront.service.simulator;
 
-import com.nuodb.storefront.model.Workload;
+import com.nuodb.storefront.model.dto.Workload;
 
 /**
  * Describes a worker that can be run by a simulator.

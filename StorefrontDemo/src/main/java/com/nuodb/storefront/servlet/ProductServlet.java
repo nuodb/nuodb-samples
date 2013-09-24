@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.nuodb.storefront.exception.ProductNotFoundException;
-import com.nuodb.storefront.model.Product;
+import com.nuodb.storefront.model.entity.Product;
 
 public class ProductServlet extends BaseServlet {
     private static final long serialVersionUID = 7440733613054861406L;

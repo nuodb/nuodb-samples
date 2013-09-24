@@ -13,6 +13,10 @@ function pluralize(val, label, pluralLabel) {
     return val.format(0) + ' ' + ((val == 1) ? label : (pluralLabel || (label + 's')));
 }
 
+function compare(a, b) {
+    return a < b ? -1 : a == b ? 0 : 1;
+}
+
 $.fn.serializeObject = function() {
     var o = {};
     var a = this.serializeArray();

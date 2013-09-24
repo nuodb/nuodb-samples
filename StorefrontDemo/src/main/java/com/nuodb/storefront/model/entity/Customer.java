@@ -1,6 +1,6 @@
 /* Copyright (c) 2013 NuoDB, Inc. */
 
-package com.nuodb.storefront.model;
+package com.nuodb.storefront.model.entity;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -12,8 +12,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.validation.constraints.NotNull;
 
+
 @Entity
-public class Customer extends Model {
+public class Customer extends AutoIdEntity {
     @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true, mappedBy = "customer")
     @OrderBy("dateAdded")
     private List<CartSelection> cartSelections = new ArrayList<CartSelection>();

@@ -1,6 +1,6 @@
 /* Copyright (c) 2013 NuoDB, Inc. */
 
-package com.nuodb.storefront.model;
+package com.nuodb.storefront.model.dto;
 
 import java.io.IOException;
 import java.util.List;
@@ -8,6 +8,9 @@ import java.util.List;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.nuodb.storefront.StorefrontApp;
+import com.nuodb.storefront.model.entity.AppInstance;
+import com.nuodb.storefront.model.entity.Customer;
+import com.nuodb.storefront.model.type.Currency;
 
 public class PageConfig {
     private String pageTitle;

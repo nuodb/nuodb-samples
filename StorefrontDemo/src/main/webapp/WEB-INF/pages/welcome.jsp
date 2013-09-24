@@ -6,13 +6,13 @@
     <div id="welcome">
         <!-- Top nav -->
         <div id="top-bar" class="navbar">
-            <label>Welcome &mdash; NuoDB Storefront Demo!</label>
+            <label>Welcome &mdash; NuoDB Storefront Demo</label>
             <div class="navbar-inner">
                 <ul class="nav pull-right">
-                    <t:admin-link />
                     <li><a href="https://github.com/nuodb/nuodb-samples/tree/master/StorefrontDemo" target="_blank" title="Opens the source code in a new tab (hosted by GitHub)"><i class="icon-github"></i> README</a></li>
                     <li id="lnk-show-ddl"><a href="#" title="Displays the drop and create DDL statements of the Storefront schema"><i class="icon-align-justify"></i> DDL</a></li>
                     <li><a href="http://www.nuodb.com/groups/dev-center/" target="_blank" title="Goes to the NuoDB Dev Center for technical details about this sample and NuoDB"><i class="icon-nuodb"></i> DevCenter</a></li>
+                    <t:admin-link />
                 </ul>
             </div>
         </div>

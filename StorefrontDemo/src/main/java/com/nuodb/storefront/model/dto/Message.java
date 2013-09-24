@@ -1,6 +1,8 @@
 /* Copyright (c) 2013 NuoDB, Inc. */
 
-package com.nuodb.storefront.model;
+package com.nuodb.storefront.model.dto;
+
+import com.nuodb.storefront.model.type.MessageSeverity;
 
 public class Message {
     private MessageSeverity severity;

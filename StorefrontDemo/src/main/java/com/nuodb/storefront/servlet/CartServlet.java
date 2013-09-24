@@ -10,9 +10,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.nuodb.storefront.model.Cart;
-import com.nuodb.storefront.model.Customer;
-import com.nuodb.storefront.model.MessageSeverity;
+import com.nuodb.storefront.model.entity.Cart;
+import com.nuodb.storefront.model.entity.Customer;
+import com.nuodb.storefront.model.type.MessageSeverity;
 
 public class CartServlet extends BaseServlet {
     private static final long serialVersionUID = 4182284887959608220L;

@@ -9,7 +9,15 @@
     Storefront.initControlPanelPage = function(pageData) {
         app = this;
         regionData = initRegionData(app.regions, pageData.stats);
-
+        
+        initCustomersTab();
+        initProductsTab(pageData.productInfo);
+        initNodesTab(pageData.dbNodes);
+        
+        refreshStats(pageData.stats);        
+    }
+    
+    function initCustomersTab() {
         // Render regions table
         app.TemplateMgr.applyTemplate('tpl-regions', '#regions', regionData);
 
@@ -94,10 +102,6 @@
         // Handle tooltips
         $('div[data-toggle="tooltip"]').tooltip();
 
-        // Render product info
-        app.TemplateMgr.applyTemplate('tpl-product-info', '#product-info', pageData.productInfo);
-        $('#lbl-products').text((pageData.productInfo.productCount || 0).format(0));
-
         // Select quantity upon focus
         $('input[type=number]').on('click', function(e) {
             $(this).select();
@@ -106,8 +110,35 @@
 
         // Enable HTML5 form features in browsers that don't support it
         $('form').form();
-
-        refreshStats(pageData.stats);
+    }
+    
+    function initProductsTab(productInfo) {
+        app.TemplateMgr.applyTemplate('tpl-product-info', '#product-info', productInfo);
+        $('#lbl-products').text((productInfo.productCount || 0).format(0));
+    }
+    
+    function initNodesTab(dbNodes) {
+        // Sort by region, then address, then type
+        dbNodes.sort(function(a, b) {
+            var diff = compare(a.region, b.region);
+            if (diff == 0) {
+                diff = compare(a.address, b.address);
+                if (diff == 0) {
+                    diff = compare(a.type, b.type);
+                }
+            }
+            return diff;
+        });
+        
+        // Apply icon based on type
+        for (var i = 0; i < dbNodes.length; i++) {
+            var node = dbNodes[i];
+            node.icon = (node.type == 'Storage') ? 'icon-hdd' : 'icon-cog';
+        }
+        
+        // Build list
+        app.TemplateMgr.applyTemplate('tpl-node-list', '#node-list', dbNodes);
+        $('#lbl-nodes').text(dbNodes.length.format(0));
     }
 
     function initRegionData(regions, stats) {

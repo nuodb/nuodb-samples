@@ -11,7 +11,7 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 import com.nuodb.storefront.exception.StorefrontException;
-import com.nuodb.storefront.model.Message;
+import com.nuodb.storefront.model.dto.Message;
 
 @Provider
 public class ExceptionProvider implements ExceptionMapper<RuntimeException> {

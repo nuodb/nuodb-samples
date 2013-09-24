@@ -16,16 +16,18 @@ import org.hibernate.Hibernate;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.transform.ResultTransformer;
 
 import com.googlecode.genericdao.dao.hibernate.GeneralDAOImpl;
 import com.googlecode.genericdao.search.SearchResult;
-import com.nuodb.storefront.model.Category;
-import com.nuodb.storefront.model.IModel;
-import com.nuodb.storefront.model.Product;
-import com.nuodb.storefront.model.ProductFilter;
-import com.nuodb.storefront.model.ProductSort;
-import com.nuodb.storefront.model.StorefrontStats;
-import com.nuodb.storefront.model.TransactionStats;
+import com.nuodb.storefront.model.dto.Category;
+import com.nuodb.storefront.model.dto.DbNode;
+import com.nuodb.storefront.model.dto.ProductFilter;
+import com.nuodb.storefront.model.dto.StorefrontStats;
+import com.nuodb.storefront.model.dto.TransactionStats;
+import com.nuodb.storefront.model.entity.IEntity;
+import com.nuodb.storefront.model.entity.Product;
+import com.nuodb.storefront.model.type.ProductSort;
 import com.nuodb.storefront.service.storefront.HeartbeatService;
 
 /**
@@ -54,13 +56,13 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
     }
 
     @Override
-    public void initialize(IModel model) {
-        Hibernate.initialize(model);
+    public void initialize(IEntity entity) {
+        Hibernate.initialize(entity);
     }
 
     @Override
-    public void evict(IModel model) {
-        getSession().evict(model);
+    public void evict(IEntity entity) {
+        getSession().evict(entity);
     }
 
     @Override
@@ -270,6 +272,54 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
         SQLQuery query = getSession().createSQLQuery("DELETE FROM APP_INSTANCE WHERE LAST_HEARTBEAT <= :MAX_LAST_HEARTBEAT");
         query.setParameter("MAX_LAST_HEARTBEAT", maxLastHeartbeat);
         return query.executeUpdate();
+    }
+    
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<DbNode> getDbNodes() {
+        SQLQuery query = getSession().createSQLQuery("SELECT SYSTEM.NODES.*, CASE WHEN ID = GETNODEID() THEN 1 ELSE 0 END AS LOCAL FROM SYSTEM.NODES");
+        query.setResultTransformer(new ResultTransformer() {
+            private static final long serialVersionUID = 211285415624172491L;
+
+            @SuppressWarnings("rawtypes")
+            @Override
+            public List transformList(List collection) {
+                return collection;
+            }
+
+            @Override
+            public Object transformTuple(Object[] tuple, String[] aliases) {
+                DbNode node = new DbNode();
+                for (int i = 0; i < aliases.length; i++) {
+                    String alias = aliases[i].toLowerCase();
+                    if (alias.equals("id")) {
+                        node.setId((Integer)tuple[i]);
+                    } else if (alias.equals("localid")) {
+                        node.setLocalId((Integer)tuple[i]);
+                    } else if (alias.equals("port")) {
+                        node.setPort((Integer)tuple[i]);
+                    } else if (alias.equals("address")) {
+                        node.setAddress((String)tuple[i]);
+                    } else if (alias.equals("state")) {
+                        node.setState((String)tuple[i]);
+                    } else if (alias.equals("type")) {
+                        node.setType((String)tuple[i]);
+                    } else if (alias.equals("connstate")) {
+                        node.setConnState((String)tuple[i]);
+                    } else if (alias.equals("msgqsize")) {
+                        node.setMsgQSize((Integer)tuple[i]);
+                    } else if (alias.equals("triptime")) {
+                        node.setTripTime((Integer)tuple[i]);
+                    } else if (alias.equals("georegion")) {
+                        node.setGeoRegion((String)tuple[i]);
+                    } else if (alias.equals("local")) {
+                        node.setLocal(tuple[i].toString().equals("1"));
+                    }
+                }
+                return node;
+            }
+        });
+        return (List<DbNode>) query.list();
     }
     
     protected void setStatsParameters(SQLQuery query, int maxCustomerIdleTimeSec) {

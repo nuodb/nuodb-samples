@@ -11,17 +11,18 @@ import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.exception.CartEmptyException;
 import com.nuodb.storefront.exception.CustomerNotFoundException;
 import com.nuodb.storefront.exception.ProductNotFoundException;
-import com.nuodb.storefront.model.AppInstance;
-import com.nuodb.storefront.model.Cart;
-import com.nuodb.storefront.model.Category;
-import com.nuodb.storefront.model.Customer;
-import com.nuodb.storefront.model.Product;
-import com.nuodb.storefront.model.ProductFilter;
-import com.nuodb.storefront.model.ProductReview;
-import com.nuodb.storefront.model.Purchase;
-import com.nuodb.storefront.model.StorefrontStats;
-import com.nuodb.storefront.model.TransactionStats;
-import com.nuodb.storefront.model.Workload;
+import com.nuodb.storefront.model.dto.Category;
+import com.nuodb.storefront.model.dto.DbNode;
+import com.nuodb.storefront.model.dto.ProductFilter;
+import com.nuodb.storefront.model.dto.StorefrontStats;
+import com.nuodb.storefront.model.dto.TransactionStats;
+import com.nuodb.storefront.model.dto.Workload;
+import com.nuodb.storefront.model.entity.AppInstance;
+import com.nuodb.storefront.model.entity.Cart;
+import com.nuodb.storefront.model.entity.Customer;
+import com.nuodb.storefront.model.entity.Product;
+import com.nuodb.storefront.model.entity.ProductReview;
+import com.nuodb.storefront.model.entity.Purchase;
 
 public interface IStorefrontService {
     /**
@@ -200,4 +201,6 @@ public interface IStorefrontService {
     public Map<String, StorefrontStats> getStorefrontStatsByRegion(int maxCustomerIdleTimeSec);
 
     public List<AppInstance> getAppInstances(boolean activeOnly);
+
+    public List<DbNode> getDbNodes();
 }

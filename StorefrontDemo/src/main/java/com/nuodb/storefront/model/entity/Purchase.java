@@ -1,6 +1,6 @@
 /* Copyright (c) 2013 NuoDB, Inc. */
 
-package com.nuodb.storefront.model;
+package com.nuodb.storefront.model.entity;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -15,7 +15,7 @@ import javax.persistence.OrderBy;
 import javax.validation.constraints.NotNull;
 
 @Entity
-public class Purchase extends Model {
+public class Purchase extends AutoIdEntity {
     @ManyToOne
     @NotNull
     private Customer customer;

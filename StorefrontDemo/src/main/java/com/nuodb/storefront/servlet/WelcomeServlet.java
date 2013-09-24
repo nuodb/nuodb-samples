@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 
 import com.nuodb.storefront.StorefrontFactory;
-import com.nuodb.storefront.model.Customer;
+import com.nuodb.storefront.model.entity.Customer;
 
 public class WelcomeServlet extends BaseServlet {
     private static final long serialVersionUID = 4369262156023258885L;
@@ -30,7 +30,7 @@ public class WelcomeServlet extends BaseServlet {
             Map<String, Object> pageData = new HashMap<String, Object>();
             pageData.put("ddl", getDdl());
 
-            showPage(req, resp, null, "welcome", pageData, new Customer());
+            showPage(req, resp, "Welcome", "welcome", pageData, new Customer());
         } catch (Exception ex) {
             showCriticalErrorPage(req, resp, ex);
         }

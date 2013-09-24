@@ -11,9 +11,9 @@ import java.util.List;
 
 import org.hibernate.StatelessSession;
 
-import com.nuodb.storefront.model.Customer;
-import com.nuodb.storefront.model.Product;
-import com.nuodb.storefront.model.ProductReview;
+import com.nuodb.storefront.model.entity.Customer;
+import com.nuodb.storefront.model.entity.Product;
+import com.nuodb.storefront.model.entity.ProductReview;
 import com.nuodb.storefront.service.IDataGeneratorService;
 
 public class DataGeneratorService implements IDataGeneratorService {

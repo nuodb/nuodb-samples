@@ -10,15 +10,15 @@ import java.util.Random;
 import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.exception.CartEmptyException;
 import com.nuodb.storefront.exception.UnsupportedStepException;
-import com.nuodb.storefront.model.Cart;
-import com.nuodb.storefront.model.CartSelection;
-import com.nuodb.storefront.model.Category;
-import com.nuodb.storefront.model.Customer;
-import com.nuodb.storefront.model.Product;
-import com.nuodb.storefront.model.ProductFilter;
-import com.nuodb.storefront.model.ProductSort;
-import com.nuodb.storefront.model.WorkloadStep;
-import com.nuodb.storefront.model.Workload;
+import com.nuodb.storefront.model.dto.Category;
+import com.nuodb.storefront.model.dto.ProductFilter;
+import com.nuodb.storefront.model.dto.Workload;
+import com.nuodb.storefront.model.dto.WorkloadStep;
+import com.nuodb.storefront.model.entity.Cart;
+import com.nuodb.storefront.model.entity.CartSelection;
+import com.nuodb.storefront.model.entity.Customer;
+import com.nuodb.storefront.model.entity.Product;
+import com.nuodb.storefront.model.type.ProductSort;
 
 /**
  * Runs through the steps specified by a {@class WorkloadType} field.

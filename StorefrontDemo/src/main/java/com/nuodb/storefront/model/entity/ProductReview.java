@@ -1,6 +1,6 @@
 /* Copyright (c) 2013 NuoDB, Inc. */
 
-package com.nuodb.storefront.model;
+package com.nuodb.storefront.model.entity;
 
 import java.util.Calendar;
 
@@ -14,7 +14,7 @@ import com.nuodb.storefront.util.MD5Util;
 
 @Entity
 @Table(name = "Product_Review")
-public class ProductReview extends Model {
+public class ProductReview extends AutoIdEntity {
     @ManyToOne
     @JoinColumn(name = "product_id")
     @NotNull

@@ -8,7 +8,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import com.googlecode.genericdao.search.SearchResult;
-import com.nuodb.storefront.model.Category;
+import com.nuodb.storefront.model.dto.Category;
 
 @Path("/categories")
 public class CategoriesApi extends BaseApi {

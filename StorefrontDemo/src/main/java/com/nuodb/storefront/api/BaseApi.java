@@ -5,7 +5,7 @@ package com.nuodb.storefront.api;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.nuodb.storefront.model.Customer;
+import com.nuodb.storefront.model.entity.Customer;
 import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
 import com.nuodb.storefront.servlet.BaseServlet;

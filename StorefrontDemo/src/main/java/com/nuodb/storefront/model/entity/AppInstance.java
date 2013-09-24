@@ -1,24 +1,19 @@
 /* Copyright (c) 2013 NuoDB, Inc. */
 
-package com.nuodb.storefront.model;
+package com.nuodb.storefront.model.entity;
 
 import java.util.Calendar;
-import java.util.UUID;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.Id;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
-@Entity
-public class AppInstance implements IModel {
-    @Id
-    @Column(length = 36)
-    private String uuid = UUID.randomUUID().toString();
+import com.nuodb.storefront.model.type.Currency;
 
+@Entity
+public class AppInstance extends UuidEntity {
     @NotNull
     private String url;
 
@@ -49,15 +44,7 @@ public class AppInstance implements IModel {
     public long getUptimeMs() {
         return System.currentTimeMillis() - dateStarted.getTimeInMillis();
     }
-
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
-
+    
     public String getName() {
         return getRegion() + " Region";
     }

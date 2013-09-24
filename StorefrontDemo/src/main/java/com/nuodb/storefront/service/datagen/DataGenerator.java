@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Random;
 
 import com.nuodb.storefront.StorefrontApp;
-import com.nuodb.storefront.model.Customer;
-import com.nuodb.storefront.model.Product;
-import com.nuodb.storefront.model.ProductReview;
+import com.nuodb.storefront.model.entity.Customer;
+import com.nuodb.storefront.model.entity.Product;
+import com.nuodb.storefront.model.entity.ProductReview;
 
 public class DataGenerator {
     private final Random rnd = new Random();

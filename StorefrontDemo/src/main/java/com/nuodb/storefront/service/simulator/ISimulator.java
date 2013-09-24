@@ -2,7 +2,7 @@
 
 package com.nuodb.storefront.service.simulator;
 
-import com.nuodb.storefront.model.WorkloadStep;
+import com.nuodb.storefront.model.dto.WorkloadStep;
 import com.nuodb.storefront.service.IStorefrontService;
 
 /**

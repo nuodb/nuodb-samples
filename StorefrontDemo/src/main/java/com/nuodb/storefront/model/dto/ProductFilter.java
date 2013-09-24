@@ -1,10 +1,11 @@
 /* Copyright (c) 2013 NuoDB, Inc. */
 
-package com.nuodb.storefront.model;
+package com.nuodb.storefront.model.dto;
 
 import java.util.Collection;
 
 import com.googlecode.genericdao.search.SearchResult;
+import com.nuodb.storefront.model.type.ProductSort;
 import com.nuodb.storefront.util.CollectionUtil;
 
 public class ProductFilter {

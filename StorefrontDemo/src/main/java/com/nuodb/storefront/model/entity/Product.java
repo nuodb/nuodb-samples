@@ -1,6 +1,6 @@
 /* Copyright (c) 2013 NuoDB, Inc. */
 
-package com.nuodb.storefront.model;
+package com.nuodb.storefront.model.entity;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -23,11 +23,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
 
-/**
- *
- */
 @Entity
-public class Product extends Model {
+public class Product extends AutoIdEntity {
     @NotNull
     private String name;
 

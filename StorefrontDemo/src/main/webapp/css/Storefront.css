@@ -452,6 +452,10 @@ td.text-center {
 #control-panel .tab-content {
   overflow: visible;
 }
+#control-panel h4 {
+  margin: 25px 0 10px 0;
+  font-size: 14px;
+}
 #control-panel #table-regions.table {
   table-layout: fixed;
 }
@@ -468,7 +472,6 @@ td.text-center {
 }
 #control-panel #table-regions.table th h4 {
   margin: 10px 0 0 0;
-  font-size: 14px;
 }
 #control-panel #table-regions.table th .btn-group {
   padding-right: 4px;

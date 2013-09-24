@@ -52,13 +52,13 @@
         <property name="current_session_context_class">thread</property>
 
         <!-- Add mappings (using annotations) -->
-        <mapping class="com.nuodb.storefront.model.AppInstance" />
-        <mapping class="com.nuodb.storefront.model.CartSelection" />
-        <mapping class="com.nuodb.storefront.model.Customer" />
-        <mapping class="com.nuodb.storefront.model.Product" />
-        <mapping class="com.nuodb.storefront.model.ProductReview" />
-        <mapping class="com.nuodb.storefront.model.Purchase" />
-        <mapping class="com.nuodb.storefront.model.PurchaseSelection" />
+        <mapping class="com.nuodb.storefront.model.entity.AppInstance" />
+        <mapping class="com.nuodb.storefront.model.entity.CartSelection" />
+        <mapping class="com.nuodb.storefront.model.entity.Customer" />
+        <mapping class="com.nuodb.storefront.model.entity.Product" />
+        <mapping class="com.nuodb.storefront.model.entity.ProductReview" />
+        <mapping class="com.nuodb.storefront.model.entity.Purchase" />
+        <mapping class="com.nuodb.storefront.model.entity.PurchaseSelection" />
 
     </session-factory>
 

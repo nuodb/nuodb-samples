@@ -4,10 +4,10 @@ package com.nuodb.storefront.service;
 
 import java.util.Map;
 
-import com.nuodb.storefront.model.Workload;
-import com.nuodb.storefront.model.WorkloadStats;
-import com.nuodb.storefront.model.WorkloadStep;
-import com.nuodb.storefront.model.WorkloadStepStats;
+import com.nuodb.storefront.model.dto.Workload;
+import com.nuodb.storefront.model.dto.WorkloadStats;
+import com.nuodb.storefront.model.dto.WorkloadStep;
+import com.nuodb.storefront.model.dto.WorkloadStepStats;
 
 public interface ISimulatorService {
     /** Looks up a workload by name */

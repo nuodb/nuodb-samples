@@ -1,4 +1,4 @@
-package com.nuodb.storefront.model;
+package com.nuodb.storefront.model.dto;
 
 public class DbConnInfo {
     private String url;

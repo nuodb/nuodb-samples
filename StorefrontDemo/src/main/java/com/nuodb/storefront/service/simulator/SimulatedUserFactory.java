@@ -2,7 +2,7 @@
 
 package com.nuodb.storefront.service.simulator;
 
-import com.nuodb.storefront.model.Workload;
+import com.nuodb.storefront.model.dto.Workload;
 
 public class SimulatedUserFactory implements IWorker {
     private static final Workload factoryWorkloadType = new Workload("User factory");

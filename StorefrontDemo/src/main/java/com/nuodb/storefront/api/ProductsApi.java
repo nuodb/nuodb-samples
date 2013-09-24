@@ -21,11 +21,11 @@ import javax.ws.rs.core.Response.Status;
 
 import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.exception.ProductNotFoundException;
-import com.nuodb.storefront.model.Customer;
-import com.nuodb.storefront.model.Product;
-import com.nuodb.storefront.model.ProductFilter;
-import com.nuodb.storefront.model.ProductReview;
-import com.nuodb.storefront.model.ProductSort;
+import com.nuodb.storefront.model.dto.ProductFilter;
+import com.nuodb.storefront.model.entity.Customer;
+import com.nuodb.storefront.model.entity.Product;
+import com.nuodb.storefront.model.entity.ProductReview;
+import com.nuodb.storefront.model.type.ProductSort;
 import com.nuodb.storefront.servlet.BaseServlet;
 
 @Path("/products")

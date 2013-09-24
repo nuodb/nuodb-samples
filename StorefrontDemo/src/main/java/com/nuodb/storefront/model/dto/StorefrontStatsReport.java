@@ -1,9 +1,11 @@
 /* Copyright (c) 2013 NuoDB, Inc. */
 
-package com.nuodb.storefront.model;
+package com.nuodb.storefront.model.dto;
 
 import java.util.Calendar;
 import java.util.Map;
+
+import com.nuodb.storefront.model.entity.AppInstance;
 
 public class StorefrontStatsReport {
     private Calendar timestamp;

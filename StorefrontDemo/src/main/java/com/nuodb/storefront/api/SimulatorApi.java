@@ -20,11 +20,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import com.nuodb.storefront.model.Message;
-import com.nuodb.storefront.model.MessageSeverity;
-import com.nuodb.storefront.model.Workload;
-import com.nuodb.storefront.model.WorkloadStats;
-import com.nuodb.storefront.model.WorkloadStep;
+import com.nuodb.storefront.model.dto.Message;
+import com.nuodb.storefront.model.dto.Workload;
+import com.nuodb.storefront.model.dto.WorkloadStats;
+import com.nuodb.storefront.model.dto.WorkloadStep;
+import com.nuodb.storefront.model.type.MessageSeverity;
 import com.nuodb.storefront.service.ISimulatorService;
 
 @Path("/simulator")

@@ -14,11 +14,11 @@ import java.util.logging.Logger;
 
 import javassist.Modifier;
 
-import com.nuodb.storefront.model.Workload;
-import com.nuodb.storefront.model.WorkloadFlow;
-import com.nuodb.storefront.model.WorkloadStats;
-import com.nuodb.storefront.model.WorkloadStep;
-import com.nuodb.storefront.model.WorkloadStepStats;
+import com.nuodb.storefront.model.dto.Workload;
+import com.nuodb.storefront.model.dto.WorkloadFlow;
+import com.nuodb.storefront.model.dto.WorkloadStats;
+import com.nuodb.storefront.model.dto.WorkloadStep;
+import com.nuodb.storefront.model.dto.WorkloadStepStats;
 import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
 import com.nuodb.storefront.util.ToStringComparator;

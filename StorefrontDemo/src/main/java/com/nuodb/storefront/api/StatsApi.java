@@ -13,12 +13,12 @@ import javax.ws.rs.core.MediaType;
 
 import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.StorefrontFactory;
-import com.nuodb.storefront.model.StorefrontStats;
-import com.nuodb.storefront.model.StorefrontStatsReport;
-import com.nuodb.storefront.model.TransactionStats;
-import com.nuodb.storefront.model.WorkloadStats;
-import com.nuodb.storefront.model.WorkloadStep;
-import com.nuodb.storefront.model.WorkloadStepStats;
+import com.nuodb.storefront.model.dto.StorefrontStats;
+import com.nuodb.storefront.model.dto.StorefrontStatsReport;
+import com.nuodb.storefront.model.dto.TransactionStats;
+import com.nuodb.storefront.model.dto.WorkloadStats;
+import com.nuodb.storefront.model.dto.WorkloadStep;
+import com.nuodb.storefront.model.dto.WorkloadStepStats;
 import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
 

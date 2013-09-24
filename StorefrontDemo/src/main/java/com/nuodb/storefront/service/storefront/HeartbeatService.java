@@ -9,7 +9,7 @@ import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.dal.IStorefrontDao;
 import com.nuodb.storefront.dal.StorefrontDao;
 import com.nuodb.storefront.dal.TransactionType;
-import com.nuodb.storefront.model.AppInstance;
+import com.nuodb.storefront.model.entity.AppInstance;
 import com.nuodb.storefront.service.IHeartbeatService;
 import com.nuodb.storefront.service.simulator.SimulatorService;
 

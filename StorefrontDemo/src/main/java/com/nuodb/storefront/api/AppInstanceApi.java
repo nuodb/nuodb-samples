@@ -13,8 +13,8 @@ import javax.ws.rs.core.MediaType;
 
 import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.exception.DataValidationException;
-import com.nuodb.storefront.model.AppInstance;
-import com.nuodb.storefront.model.Currency;
+import com.nuodb.storefront.model.entity.AppInstance;
+import com.nuodb.storefront.model.type.Currency;
 
 @Path("/app-instances")
 public class AppInstanceApi extends BaseApi {

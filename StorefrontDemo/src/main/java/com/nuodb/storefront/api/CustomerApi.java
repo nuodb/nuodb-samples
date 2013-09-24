@@ -14,10 +14,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import com.googlecode.genericdao.search.SearchResult;
-import com.nuodb.storefront.model.Cart;
-import com.nuodb.storefront.model.CartSelection;
-import com.nuodb.storefront.model.Customer;
-import com.nuodb.storefront.model.Purchase;
+import com.nuodb.storefront.model.entity.Cart;
+import com.nuodb.storefront.model.entity.CartSelection;
+import com.nuodb.storefront.model.entity.Customer;
+import com.nuodb.storefront.model.entity.Purchase;
 
 @Path("/customer")
 public class CustomerApi extends BaseApi {

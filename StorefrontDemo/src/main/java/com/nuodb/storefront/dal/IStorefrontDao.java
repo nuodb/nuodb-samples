@@ -3,17 +3,19 @@
 package com.nuodb.storefront.dal;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
 import com.googlecode.genericdao.dao.hibernate.GeneralDAO;
 import com.googlecode.genericdao.search.SearchResult;
-import com.nuodb.storefront.model.Category;
-import com.nuodb.storefront.model.IModel;
-import com.nuodb.storefront.model.Product;
-import com.nuodb.storefront.model.ProductFilter;
-import com.nuodb.storefront.model.StorefrontStats;
-import com.nuodb.storefront.model.TransactionStats;
+import com.nuodb.storefront.model.dto.Category;
+import com.nuodb.storefront.model.dto.DbNode;
+import com.nuodb.storefront.model.dto.ProductFilter;
+import com.nuodb.storefront.model.dto.StorefrontStats;
+import com.nuodb.storefront.model.dto.TransactionStats;
+import com.nuodb.storefront.model.entity.IEntity;
+import com.nuodb.storefront.model.entity.Product;
 import com.nuodb.storefront.service.IStorefrontService;
 
 /**
@@ -21,12 +23,12 @@ import com.nuodb.storefront.service.IStorefrontService;
  * be used by Storefront services only.
  */
 public interface IStorefrontDao extends GeneralDAO {
-    public void initialize(IModel model);
+    public void initialize(IEntity entity);
 
     /**
      * Evicts the model from a DAO session so that subsequent changes are not committed to the database.
      */
-    public void evict(IModel model);
+    public void evict(IEntity model);
 
     /**
      * Invokes the {@link Runnable#run()} method within the context of a transaction. Commits upon completion, or rolls back upon exception (and then
@@ -80,5 +82,14 @@ public interface IStorefrontDao extends GeneralDAO {
      */
     public Map<String, StorefrontStats> getStorefrontStatsByRegion(int maxCustomerIdleTimeSec);
 
+    /**
+     * Removes instances from the AppInstances table who have not sent a heartbeat since the specified time.
+     */
     public int deleteDeadAppInstances(Calendar maxLastHeartbeat);
+    
+    /**
+     * Fetches information about all the database nodes running in support of the underlying database schema.
+     * This method returns an empty list unless NuoDB is running.
+     */
+    public List<DbNode> getDbNodes();
 }
