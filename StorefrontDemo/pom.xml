@@ -82,9 +82,18 @@
         </dependency>
 
         <!-- MySQL dependencies: uncomment to use MySQL instead of NuoDB (and also swap out the hibernate.cfg.xml file) -->
-        <!-- <dependency> <groupId>mysql</groupId> <artifactId>mysql-connector-java</artifactId> <version>5.1.9</version> 
-            </dependency> <dependency> <groupId>org.hibernate</groupId> <artifactId>hibernate-c3p0</artifactId> <version>3.6.6.Final</version> 
-            </dependency> -->
+        <!-- 
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.9</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-c3p0</artifactId>
+            <version>3.6.6.Final</version>
+        </dependency>
+         -->
 
         <!-- DAO -->
         <dependency>

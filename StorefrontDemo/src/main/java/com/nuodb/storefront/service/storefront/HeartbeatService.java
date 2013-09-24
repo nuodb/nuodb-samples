@@ -12,6 +12,7 @@ import com.nuodb.storefront.dal.TransactionType;
 import com.nuodb.storefront.model.entity.AppInstance;
 import com.nuodb.storefront.service.IHeartbeatService;
 import com.nuodb.storefront.service.simulator.SimulatorService;
+import com.nuodb.storefront.util.PerformanceUtil;
 
 public class HeartbeatService implements IHeartbeatService {
     public static final int HEARTBEAT_INTERVAL_SEC = 60;
@@ -49,7 +50,7 @@ public class HeartbeatService implements IHeartbeatService {
                     }
 
                     // Send the heartbeat by updating the "last heartbeat time"
-                    appInstance.setCpuUtilization(0); // TODO: Detect utilization using SIGAR library
+                    appInstance.setCpuUtilization(PerformanceUtil.getCpuUtilization());
                     appInstance.setLastHeartbeat(now);
                     dao.save(StorefrontApp.APP_INSTANCE); // this will create or update as appropriate
 

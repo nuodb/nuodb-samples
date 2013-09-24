@@ -43,7 +43,8 @@ Getting Started (command line)
 		
 	  > The name, hostname/IP, and port of the NuoDB instance to connect to.  If you'd like to test with a database other
 	  > than NuoDB, swap the `nuodb-samples/StorefrontDemo/src/main/resources/hibernate.cfg.xml` file with
-	  > `nuodb-samples/StorefrontDemo/src/main/resources/hibernate-mysql.cfg.xml` instead.    
+	  > `nuodb-samples/StorefrontDemo/src/main/resources/hibernate-mysql.cfg.xml` and add necessary dependencies to the pom.xml file.
+	  > For MySQL, these dependencies already exist in the pom.xml file but are commented out.    
 	  
 		-Dstorefront.db.user=StorefrontUser
 		
