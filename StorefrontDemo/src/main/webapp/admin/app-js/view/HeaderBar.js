@@ -35,7 +35,6 @@ Ext.define('App.view.HeaderBar', {
                 scale: 'large',
                 enableToggle: true,
                 allowDepress: false,
-                pressed: true,
                 handler: clickHandler,
                 width: 110
             }
@@ -55,6 +54,7 @@ Ext.define('App.view.HeaderBar', {
                 scale: 'large',
                 enableToggle: true,
                 allowDepress: false,
+                pressed: true,
                 handler: clickHandler,
                 width: 110
             }

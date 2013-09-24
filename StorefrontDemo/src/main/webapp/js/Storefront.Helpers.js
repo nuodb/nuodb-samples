@@ -10,7 +10,7 @@ Number.prototype.format = function(digits) {
 }
 
 function pluralize(val, label, pluralLabel) {
-    return val + ' ' + ((val == 1) ? label : (pluralLabel || (label + 's')));
+    return val.format(0) + ' ' + ((val == 1) ? label : (pluralLabel || (label + 's')));
 }
 
 $.fn.serializeObject = function() {

@@ -9,7 +9,7 @@
     Storefront.initControlPanelPage = function(pageData) {
         app = this;
         regionData = initRegionData(app.regions, pageData.stats);
-        
+
         // Render regions table
         app.TemplateMgr.applyTemplate('tpl-regions', '#regions', regionData);
 
@@ -41,12 +41,18 @@
                 var f = $(inputs$[i]);
                 var max = parseInt(f.attr('max'));
                 var name = f.attr('data-name');
+                if (isNaN(f.val()) || (f[0].validity && !f[0].validity.valid)) {
+                    f.focus();
+                    alert('Please enter a number.');
+                    return false;
+                }
                 if (!isNaN(max) && f.val() > max) {
                     f.focus();
                     alert('User count for "' + name + '" cannot exceed ' + max + '.');
                     e.preventDefault();
                     return false;
-                } else if (f.val() < 0) {
+                }
+                if (f.val() < 0) {
                     alert('User count for "' + name + '" cannot be negative.');
                     e.preventDefault();
                     f.focus();
@@ -64,6 +70,13 @@
             updateWorkloadUsers(getRegionByName(regionName), data, $(this));
         });
 
+        // Handle <Enter> key on input field as an "Update" click
+        $('#regions').on('keypress', 'input', function(e) {
+            if (e.which == 13) {
+                $(this).closest('.details-box').find('.btn-update').trigger('click');
+            }
+        });
+
         // Handle "Stop all" button
         $('#btn-stop-all').click(function() {
             var data = {};
@@ -77,12 +90,13 @@
         $('#btn-refresh').click(function() {
             document.location.reload();
         });
-        
+
         // Handle tooltips
         $('div[data-toggle="tooltip"]').tooltip();
-        
+
         // Render product info
         app.TemplateMgr.applyTemplate('tpl-product-info', '#product-info', pageData.productInfo);
+        $('#lbl-products').text((pageData.productInfo.productCount || 0).format(0));
 
         // Select quantity upon focus
         $('input[type=number]').on('click', function(e) {
@@ -141,7 +155,7 @@
                 if (instance.isRefreshing) {
                     break;
                 }
-                
+
                 if (localStats && instance.uuid == Storefront.appInstanceUuid) {
                     // We already have the local stats on hand, so don't bother doing an AJAX request to re-fetch them
                     refreshInstanceStatsComplete(region, instance, localStats);
@@ -152,10 +166,15 @@
         }
     }
 
+    function syncInstanceStatusIndicator(region, instance) {
+        syncStatusIndicator($('#regions [data-region="' + region.regionName + '"] .dropdown > a .label-status'), region);
+        syncStatusIndicator($('#regions [data-instance="' + instance.uuid + '"] .label-status'), instance);
+    }
+
     function refreshInstanceStats(region, instance) {
-        $('#regions [data-region="' + region.regionName + '"] .label-status').addClass('label-refreshing');
         instance.isRefreshing = true;
-        
+        syncInstanceStatusIndicator(region, instance);
+
         $.ajax({
             url: instance.url + '/api/stats?includeStorefront=true',
             cache: false
@@ -206,8 +225,7 @@
         }
 
         // Update status indicator at region and instance levels
-        syncStatusIndicator($('#regions [data-region="' + region.regionName + '"] .dropdown > a .label-status'), region);
-        syncStatusIndicator($('#regions [data-instance="' + instance.uuid + '"] .label-status'), instance);
+        syncInstanceStatusIndicator(region, instance);
 
         // Update global region stats
         recalcRegionStats();
@@ -325,6 +343,9 @@
         $('#summary-users-simulated').html(pluralize(totalSimulatedUserCount, 'simulated customer'));
         $('#summary-users-real').html(pluralize(totalWebCustomerCount, 'real customer'));
         $('#label-web-user-count .label').html(totalWebCustomerCount);
+
+        // Update tab label
+        $('#lbl-customers').text((totalSimulatedUserCount + totalWebCustomerCount).format(0));
     }
 
     function syncStatusIndicator(status$, obj) {
@@ -425,7 +446,7 @@
 
                 // Give the instance a proportion of the total workload
                 for ( var key in data) {
-                    var value = Math.ceil(data[key] / region.instances.length);
+                    var value = Math.ceil(data[key] / (region.instances.length - j));
                     instanceData[key] = value;
                     data[key] -= value;
                 }

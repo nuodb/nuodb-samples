@@ -7,7 +7,7 @@
  */
 Ext.define('App.view.Viewport', {
     extend: 'Ext.container.Viewport',
-    requires: ['App.view.HeaderBar', 'App.view.MessageBar', 'App.view.FooterBar', 'App.view.ControlPanel', 'App.view.MetricDashboard', 'Ext.ux.IFrame'],
+    requires: ['App.view.HeaderBar', 'App.view.MessageBar', 'App.view.FooterBar', 'App.view.MetricDashboard', 'Ext.ux.IFrame'],
 
     layout: 'border',
 

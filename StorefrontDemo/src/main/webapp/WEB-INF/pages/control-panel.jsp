@@ -9,7 +9,6 @@
             <label>Control Panel &mdash; NuoDB Storefront Demo</label>
             <div class="navbar-inner">
                 <ul class="nav pull-right">
-                    <li><div><a id="btn-refresh" class="btn" href="#"><i class="icon icon-refresh"></i> Refresh</a></div></li>
                     <t:admin-link />
                 </ul>
             </div>
@@ -18,9 +17,9 @@
         <t:messages />
         
         <ul class="nav nav-tabs" id="tabs">
-			<li class="active"><a href="#regions" data-toggle="tab">Regions &amp; Customers</a></li>
-			<li><a href="#product-info" data-toggle="tab">Products</a></li>
-			<li><a href="#node-info" data-toggle="tab">Database Nodes</a></li>
+			<li class="active"><a href="#regions" data-toggle="tab">Customers <span class="label label-tab" id="lbl-customers">0</span></a></li>
+			<li><a href="#product-info" data-toggle="tab">Products <span class="label label-tab" id="lbl-products">0</span></a></li>
+			<li><a href="#node-info" data-toggle="tab">NuoDB Processes <span class="label label-tab" id="lbl-processes">0</span></a></li>
 		</ul>
         <div class="tab-content">
         <!-- Workload controls -->
@@ -46,9 +45,14 @@
 								</ul>
 							</th>
 							<th colspan="3" class="customer-summary">
+								<div class="btn-group pull-right">
+									<button id="btn-refresh" class="btn" href="#"><i class="icon icon-refresh"></i> Refresh</button>
+									<button class="btn btn-danger" id="btn-stop-all" title="Sets the number of simulated users to 0 across all workloads and regions">Stop All</button>
+								</div>
+							
 								<h3>Customers</h3>
 
-								<h4><span id="summary-users-simulated">0 simulated customers</span>: &nbsp;<button class="btn btn-danger btn-small" id="btn-stop-all" title="Sets the number of simulated users to 0 across all workloads and regions">Stop All</button></h4>
+								<h4><span id="summary-users-simulated">0 simulated customers</span>:</h4>
 								<ul class="nav">
 									{{#workloads}}
 										<li><span data-workload="{{workload.name}}" class="label label-color-{{@index}}">0</span> Simulated {{lowerCaseFormat workload.name}}</li>
@@ -135,7 +139,7 @@ Think time: {{{msFormat workload.avgThinkTimeMs}} (stdev {{sqrtMsFormat workload
 															{{#if workload.avgThinkTimeMs}}
 																<input class="input-mini" type="number" name="workload-{{workload.name}}" data-name="{{workload.name}}" value="{{numberOrZero activeWorkerLimit}}" min="0" {{#if workload.maxWorkers}}max="{{workload.maxWorkers}}"{{/if}} step="1" />
 															{{else}}
-																<input readonly="readonly" title="Workloads with 0 are for benchmark running only and cannot be modified here.  This helps keep the Storefront responsive." class="input-mini" type="number" name="workload-{{workload.name}}" value="{{numberOrZero activeWorkerLimit}}" min="0" max="1000" step="1" />
+																<input readonly="readonly" title="Workloads with no think time are for benchmark running only and cannot be modified here.  This helps keep the Storefront responsive." class="input-mini" type="number" name="workload-{{workload.name}}" value="{{numberOrZero activeWorkerLimit}}" min="0" max="1000" step="1" />
 															{{/if}}
 														</td>
 													</tr>

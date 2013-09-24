@@ -169,8 +169,8 @@ Ext.define('App.view.MetricWell', {
             highlightLineColor: '#000',
             highlightSpotColor: '#000',
             lineWidth: 3,
-            lineColor: '#bfc48e',
-            fillColor: '#edf0cf',
+            lineColor: App.app.defaultLineColor,
+            fillColor: App.app.defaultFillColor,
             disableInteraction: true
         });
     }

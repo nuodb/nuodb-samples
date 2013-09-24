@@ -192,7 +192,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
                                 + " UNION"
                                 + " SELECT 'categoryCount', (SELECT COUNT(*) FROM (SELECT DISTINCT CATEGORY FROM PRODUCT_CATEGORY)), '' FROM DUAL"
                                 + " UNION"
-                                + " SELECT 'dateStarted', CAST(DATE_STARTED AS DECIMAL), REGION FROM APP_INSTANCE WHERE LAST_HEARTBEAT >= :MIN_HEARTBEAT_TIME GROUP BY REGION"
+                                + " SELECT 'dateStarted', CAST(MIN(DATE_STARTED) AS DECIMAL), REGION FROM APP_INSTANCE WHERE LAST_HEARTBEAT >= :MIN_HEARTBEAT_TIME GROUP BY REGION"
                                 + " UNION"
                                 + " SELECT 'productReviewCount', COUNT(*), REGION FROM PRODUCT_REVIEW GROUP BY REGION"
                                 + " UNION"
@@ -218,6 +218,11 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
             String metric = row[0].toString();
             Object value = row[1];
             String region = (String) row[2];
+            
+            if (region == null) {
+                // A NULL region represents data from a previous Storefront version.  Just associate it with the global stats.
+                region = "";
+            }
 
             StorefrontStats regionStats = regionStatsMap.get(region);
             if (regionStats == null) {

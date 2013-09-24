@@ -144,15 +144,16 @@ public class StorefrontFactory {
 
         // Ask the DB for the region name if it hasn't been supplied manually
         if (StringUtils.isEmpty(StorefrontApp.APP_INSTANCE.getRegion())) {
-            String region;
+            String region = null;
             try {
-                Object result = session.createSQLQuery("SELECT Default3 FROM DUAL").uniqueResult();
+                Object result = session.createSQLQuery("SELECT GEOREGION FROM SYSTEM.NODES WHERE ID=GETNODEID()").uniqueResult();
                 region = result.toString();
             } catch (SQLGrammarException e) {
                 s_log.warning("Your database version does not support regions.  Upgrade to NouDB 2.0 or greater.");
-                region = "Default";
             }
-            StorefrontApp.APP_INSTANCE.setRegion(region);
+            if (!StringUtils.isEmpty(region)) {
+                StorefrontApp.APP_INSTANCE.setRegion(region);
+            }
         }
 
         // Use most recent currency associated with this region

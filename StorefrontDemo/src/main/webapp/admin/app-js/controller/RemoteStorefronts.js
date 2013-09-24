@@ -48,6 +48,12 @@ Ext.define('App.controller.RemoteStorefronts', {
             method: 'GET',
             scope: this,
             success: function(response) {
+                // Get old instance request counts
+                var instanceRequestCountMap = {};
+                for ( var i = 0; i < me.appInstances.length; i++) {
+                    var instance = me.appInstances[i];
+                    instanceRequestCountMap[instance.uuid] = instance.outstandingRequestCount;
+                }
                 try {
                     me.appInstances = Ext.decode(response.responseText);
                 } catch (e) {
@@ -55,24 +61,35 @@ Ext.define('App.controller.RemoteStorefronts', {
                 }
 
                 // Discover valid IDs
+                var knownUuidMap = (me.storefrontController.stats || {}).regionWorkloadStats || {};
                 var uuidMap = {};
                 for ( var i = 0; i < me.appInstances.length; i++) {
-                    uuidMap[me.appInstances[i].uuid] = true;
+                    var uuid = me.appInstances[i].uuid;
+                    uuidMap[uuid] = true;
+                    me.appInstances[i].outstandingRequestCount = instanceRequestCountMap[uuid] || 0;
                 }
 
                 // Delete instances that are no longer alive
+                var removeCount = 0;
                 var regionStats = me.storefrontController.regionStats;
                 for ( var regionName in regionStats) {
                     var region = regionStats[regionName];
                     for ( var uuid in region) {
                         if (!uuidMap[uuid]) {
                             delete region[uuid];
+                            delete me.storefrontController.seenInstanceUuidMap[uuid];
+                            removeCount++;
                         }
                     }
                 }
+
+                // Reset stats if something has changed so our deltas aren't messed up
+                if (removeCount > 0) {
+                    me.storefrontController.resetStats();
+                }
             },
             failure: function(response) {
-                me.application.fireEvent('statsfail', response, instance);
+                me.application.fireEvent('statsfail', response);
             }
         });
     },
@@ -83,7 +100,8 @@ Ext.define('App.controller.RemoteStorefronts', {
 
         for ( var i = 0; i < me.appInstances.length; i++) {
             var instance = me.appInstances[i];
-            if (!instance.local) {
+            if (!instance.local && instance.outstandingRequestCount < App.app.maxOutstandingRequestCount) {
+                instance.outstandingRequestCount++;
                 me.refreshInstanceStats(instance);
             }
         }
@@ -95,7 +113,9 @@ Ext.define('App.controller.RemoteStorefronts', {
         Ext.Ajax.request({
             url: instance.url + '/api/stats?includeStorefront=false',
             method: 'GET',
-            scope: this,
+            callback: function() {
+                instance.outstandingRequestCount--;
+            },
             success: function(response) {
                 var stats;
                 try {
@@ -107,10 +127,14 @@ Ext.define('App.controller.RemoteStorefronts', {
                 var regionStats = me.storefrontController.regionStats[instance.region];
                 if (!regionStats) {
                     me.storefrontController.regionStats[instance.region] = regionStats = {};
+                } else {
+                    var lastTimestamp = regionStats[instance.uuid].timestamp;
+                    if (lastTimestamp && stats.timestamp < lastTimestamp) {
+                        // We received a response out-of-sequence.  Ignore it since deltas were already calculated.
+                        return;
+                    }
                 }
                 regionStats[instance.uuid] = stats;
-
-                //me.storefrontController.aggregateStats(stats, regionStats);
             },
             failure: function(response) {
                 me.application.fireEvent('statsfail', response, instance);

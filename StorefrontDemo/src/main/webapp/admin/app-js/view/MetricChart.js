@@ -12,28 +12,28 @@ Ext.define('App.view.MetricChart', {
 
         me.tbar = ['->', {
             xtype: 'container',
-            html: '<b>' + me.metric.get('title') + '</b> &nbsp;&nbsp;'
+            html: '<b>' + me.metric.get('title').toUpperCase() + '</b> &nbsp;&nbsp;'
         }, ' ', {
             xtype: 'button',
             text: 'Total',
             handler: me.onChangeGrouping,
             scope: me,
-            aggregateIdx: 0
+            categoryIdx: null
         }, {
             xtype: 'button',
-            text: me.metric.get('groupBy'),
+            text: me.metric.get('groupBy0'),
             handler: me.onChangeGrouping,
             scope: me,
-            aggregateIdx: 1
+            categoryIdx: 0
         }];
 
-        if (me.metric.get('groupBy2')) {
+        if (me.metric.get('groupBy1')) {
             me.tbar.push({
                 xtype: 'button',
-                text: me.metric.get('groupBy2'),
+                text: me.metric.get('groupBy1'),
                 handler: me.onChangeGrouping,
                 scope: me,
-                aggregateIdx: 2
+                categoryIdx: 1
             });
         }
         me.tbar.push('->');
@@ -42,23 +42,28 @@ Ext.define('App.view.MetricChart', {
         me.callParent(arguments);
     },
 
-    showMetric: function(metric, aggregateIdx) {
+    showMetric: function(metric, categoryIdx) {
         var me = this;
+        
+        if (categoryIdx === undefined) {
+            categoryIdx = metric.get('defaultCategoryIdx');
+        }
+        
         me.metric = metric;
-        me.aggregateIdx = aggregateIdx;
+        me.categoryIdx = categoryIdx;
 
-        var store = App.app.getController('Storefront').getMetricHistoryStore(metric, aggregateIdx);
+        var store = App.app.getController('Storefront').getMetricHistoryStore(metric, categoryIdx);
         if (store == null) {
             // Metrics aren't available yet.  Wait for the store to become available and try again.
             App.app.on('statschange', function() {
-                me.showMetric(me.metric, me.aggregateIdx);
+                me.showMetric(me.metric, me.categoryIdx);
             }, null, {
                 single: true
             });
             return null;
         }
 
-        var chartConfig = me.createChartConfig(store, metric, aggregateIdx);
+        var chartConfig = me.createChartConfig(store, metric, categoryIdx);
 
         store.on('metachange', me.onStoreMetaChange, me);
 
@@ -72,36 +77,33 @@ Ext.define('App.view.MetricChart', {
 
     onStoreMetaChange: function() {
         var me = this;
-        me.showMetric(me.metric, me.aggregateIdx);
+        me.showMetric(me.metric, me.categoryIdx);
     },
 
     onChangeGrouping: function(src) {
         var me = this;
-        me.showMetric(me.metric, src.aggregateIdx);
+        me.showMetric(me.metric, src.categoryIdx);
     },
 
-    createChartConfig: function(store, metric, aggregateIdx) {
+    createChartConfig: function(store, metric, categoryIdx) {
         var me = this;
         var metricName = metric.get('name');
-        if (aggregateIdx === undefined) {
-            aggregateIdx =metric.get('aggregateIdx'); 
-        }  
-        var aggregate = aggregateIdx < 1;
+        var aggregate = categoryIdx == null;
         var unitName = metric.get('unit');
         var unitNameLcase = unitName.toLowerCase();
 
         if (Ext.isArray(me.tbar)) {
             me.tbar[3].pressed = aggregate;
-            me.tbar[4].pressed = (aggregateIdx == 1);
+            me.tbar[4].pressed = (categoryIdx == 0);
             if (me.tbar.length >= 6) {
-                me.tbar[5].pressed = (aggregateIdx == 2);
+                me.tbar[5].pressed = (categoryIdx === 1);
             }
         } else {
             var buttons = me.dockedItems.get(0).items;
             buttons.get(3).toggle(aggregate);
-            buttons.get(4).toggle(aggregateIdx == 1);
+            buttons.get(4).toggle(categoryIdx == 0);
             if (buttons.get(5).toggle) {
-                buttons.get(5).toggle(aggregateIdx == 2);
+                buttons.get(5).toggle(categoryIdx == 1);
             }
         }
 
@@ -170,14 +172,11 @@ Ext.define('App.view.MetricChart', {
         if (aggregate) {
             series[0].type = 'line';
             series[0].highlight = false;
-            series[0].style.fill = '#edf0cf';
-            series[0].style.stroke = '#bfc48e';
+            series[0].style.fill = App.app.defaultFillColor;
+            series[0].style.stroke = App.app.defaultLineColor;
             series[0].style['stroke-width'] = 4;
             series[0].yField = series[0].yField[0];
         }
-
-        //me.setToolVisible('plus', actualSeriesCount > 0 && aggregate);
-        //me.setToolVisible('minus', actualSeriesCount > 0 && !aggregate);
 
         // Build chart config
         return {

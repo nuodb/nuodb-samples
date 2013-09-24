@@ -23,7 +23,7 @@ public class AppInstance implements IModel {
     private String url;
 
     @NotNull
-    private String region;
+    private String region = "Default";
 
     @NotNull
     private Calendar dateStarted = Calendar.getInstance();
