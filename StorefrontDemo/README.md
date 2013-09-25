@@ -36,15 +36,16 @@ Getting Started (command line)
                                                               
 		-Dstorefront.region=Default
 		
-	  > The name of the region in which this Storefront instance is running.  If you are using NuoDB 2.0 or greater,
-	  > the region name is auto-detected by querying the `NODES` table.
+	  > The name of the region in which this Storefront instance is running.  If you are using NuoDB 2.0 or greater
+	  > and don't explicity specify a region name here, the region name is auto-detected by querying the `NODES` table
+	  > (`GEOREGION` column).
 
 		-Dstorefront.db.name=name@host[:port]
 		
-	  > The name, hostname/IP, and port of the NuoDB instance to connect to.  If you'd like to test with a database other
-	  > than NuoDB, swap the `nuodb-samples/StorefrontDemo/src/main/resources/hibernate.cfg.xml` file with
+	  > The name, hostname/IP, and port of the NuoDB instance to connect to.  If you'd like to run the Storefront with MySQL 
+	  > instead, swap the `nuodb-samples/StorefrontDemo/src/main/resources/hibernate.cfg.xml` file with
 	  > `nuodb-samples/StorefrontDemo/src/main/resources/hibernate-mysql.cfg.xml` and add necessary dependencies to the pom.xml file.
-	  > For MySQL, these dependencies already exist in the pom.xml file but are commented out.    
+	  > The MySQL dependencies already exist in the pom.xml file but need to be uncommented.      
 	  
 		-Dstorefront.db.user=StorefrontUser
 		
@@ -55,7 +56,7 @@ Getting Started (command line)
 	  > The password of the database account to use when connecting. 
 
 
-   The Maven Tomcat plugin also supports some settings, including:
+   The Maven Tomcat plugin also supports [some settings](http://tomcat.apache.org/maven-plugin-2.1/tomcat7-maven-plugin/run-mojo.html), including:
    
 		-Dmaven.tomcat.port=8888
 		

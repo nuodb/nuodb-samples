@@ -6,17 +6,25 @@
     var app;
     var regionData = null;
 
-    Storefront.initControlPanelPage = function(pageData) {
-        app = this;
+    Storefront.initControlPanelPage = function(cfg) {
+        var pageData = cfg.pageData;
+        app = this;        
         regionData = initRegionData(app.regions, pageData.stats);
-        
+
+        if (!jQuery.support.cors && regionData.instanceCount > 1) {
+            cfg.messages.push({
+                severity: 'WARNING',
+                message: 'Your browser does not support CORS, which is needed for this control panel to communicate with other Storefront instances.  The statistics you see here may be incomplete or inaccurate, and you may not be able to control all instances.  Please use Internet Explorer 10+ or a newer version of Chrome, Firefox, Safari, or Opera.'
+            });
+        }
+
         initCustomersTab();
         initProductsTab(pageData.productInfo);
         initNodesTab(pageData.dbNodes);
-        
-        refreshStats(pageData.stats);        
+
+        refreshStats(pageData.stats);
     }
-    
+
     function initCustomersTab() {
         // Render regions table
         app.TemplateMgr.applyTemplate('tpl-regions', '#regions', regionData);
@@ -111,12 +119,12 @@
         // Enable HTML5 form features in browsers that don't support it
         $('form').form();
     }
-    
+
     function initProductsTab(productInfo) {
         app.TemplateMgr.applyTemplate('tpl-product-info', '#product-info', productInfo);
         $('#lbl-products').text((productInfo.productCount || 0).format(0));
     }
-    
+
     function initNodesTab(dbNodes) {
         // Sort by region, then address, then type
         dbNodes.sort(function(a, b) {
@@ -129,13 +137,13 @@
             }
             return diff;
         });
-        
+
         // Apply icon based on type
-        for (var i = 0; i < dbNodes.length; i++) {
+        for ( var i = 0; i < dbNodes.length; i++) {
             var node = dbNodes[i];
             node.icon = (node.type == 'Storage') ? 'icon-hdd' : 'icon-cog';
         }
-        
+
         // Build list
         app.TemplateMgr.applyTemplate('tpl-node-list', '#node-list', dbNodes);
         $('#lbl-nodes').text(dbNodes.length.format(0));
@@ -173,6 +181,7 @@
         return {
             regions: regions,
             workloads: workloadList,
+            instanceCount: instanceCount,
             regionSummaryLabel: pluralize(instanceCount, "Storefront instance") + ' across ' + pluralize(regions.length, 'region')
         };
     }
@@ -440,7 +449,7 @@
                         btn$.removeAttr('disabled').find('span').text(Handlebars.helpers.currencyFormat(currency));
 
                         if (failedInstances.length) {
-                            alert('Unable to change currency on one or more instances:\n\n - ' + failedInstances.join('\n -'));
+                            alert('Unable to change currency on one or more instances:\n\n - ' + failedInstances.join('\n - '));
                         }
                     }
                 });
@@ -502,7 +511,7 @@
                             }
 
                             if (failedInstances.length) {
-                                alert('Unable to change currency on one or more instances:\n\n - ' + failedInstances.join('\n -'));
+                                alert('Unable to change currency on one or more instances:\n\n - ' + failedInstances.join('\n - '));
                             }
                         }
                     });

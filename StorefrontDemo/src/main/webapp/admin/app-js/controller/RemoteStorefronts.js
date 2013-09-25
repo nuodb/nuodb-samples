@@ -110,35 +110,39 @@ Ext.define('App.controller.RemoteStorefronts', {
     refreshInstanceStats: function(instance) {
         var me = this;
 
-        Ext.Ajax.request({
-            url: instance.url + '/api/stats?includeStorefront=false',
-            method: 'GET',
-            callback: function() {
-                instance.outstandingRequestCount--;
-            },
-            success: function(response) {
-                var stats;
-                try {
-                    stats = Ext.decode(response.responseText);
-                } catch (e) {
-                    return;
-                }
-
-                var regionStats = me.storefrontController.regionStats[instance.region];
-                if (!regionStats) {
-                    me.storefrontController.regionStats[instance.region] = regionStats = {};
-                } else {
-                    var lastTimestamp = regionStats[instance.uuid].timestamp;
-                    if (lastTimestamp && stats.timestamp < lastTimestamp) {
-                        // We received a response out-of-sequence.  Ignore it since deltas were already calculated.
+        try {
+            Ext.Ajax.request({
+                url: instance.url + '/api/stats?includeStorefront=false',
+                method: 'GET',
+                callback: function() {
+                    instance.outstandingRequestCount--;
+                },
+                success: function(response) {
+                    var stats;
+                    try {
+                        stats = Ext.decode(response.responseText);
+                    } catch (e) {
                         return;
                     }
+
+                    var regionStats = me.storefrontController.regionStats[instance.region];
+                    if (!regionStats) {
+                        me.storefrontController.regionStats[instance.region] = regionStats = {};
+                    } else {
+                        var lastTimestamp = regionStats[instance.uuid].timestamp;
+                        if (lastTimestamp && stats.timestamp < lastTimestamp) {
+                            // We received a response out-of-sequence.  Ignore it since deltas were already calculated.
+                            return;
+                        }
+                    }
+                    regionStats[instance.uuid] = stats;
+                },
+                failure: function(response) {
+                    me.application.fireEvent('statsfail', response, instance);
                 }
-                regionStats[instance.uuid] = stats;
-            },
-            failure: function(response) {
-                me.application.fireEvent('statsfail', response, instance);
-            }
-        });
+            });
+        } catch (e) {
+            // No CORS support
+        }
     }
 });

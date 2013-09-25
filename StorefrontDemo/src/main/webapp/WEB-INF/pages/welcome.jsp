@@ -6,8 +6,8 @@
     <div id="welcome">
         <!-- Top nav -->
         <div id="top-bar" class="navbar">
-            <label>Welcome &mdash; NuoDB Storefront Demo</label>
             <div class="navbar-inner">
+                <label>Welcome &mdash; NuoDB Storefront Demo</label>
                 <ul class="nav pull-right">
                     <li><a href="https://github.com/nuodb/nuodb-samples/tree/master/StorefrontDemo" target="_blank" title="Opens the source code in a new tab (hosted by GitHub)"><i class="icon-github"></i> README</a></li>
                     <li id="lnk-show-ddl"><a href="#" title="Displays the drop and create DDL statements of the Storefront schema"><i class="icon-align-justify"></i> DDL</a></li>

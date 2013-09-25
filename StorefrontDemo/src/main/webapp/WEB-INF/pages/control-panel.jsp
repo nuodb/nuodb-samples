@@ -6,8 +6,8 @@
     <div id="control-panel">
         <!-- Top nav -->
         <div id="top-bar" class="navbar">
-            <label>Control Panel &mdash; NuoDB Storefront Demo</label>
             <div class="navbar-inner">
+	            <label>Control Panel &mdash; NuoDB Storefront Demo</label>
                 <ul class="nav pull-right">
                     <t:admin-link />
                 </ul>

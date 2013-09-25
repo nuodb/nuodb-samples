@@ -9,14 +9,14 @@
 
 <html>
 <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <title><%=cfg.getPageTitle()%></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="css/bootstrap.min.css" rel="stylesheet" />
     <link href="css/jquery.form.css" rel="stylesheet" />
     <link href="css/rateit.css" rel="stylesheet" />
-    <link href="css/Storefront.css" rel="stylesheet" />
+    <link href="css/Storefront.css?v=2.0" rel="stylesheet" />
     <link rel="icon" type="image/png" href="favicon.ico" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 </head>
 <body>
     <div class="container">
@@ -65,10 +65,10 @@
     <script src="js/bootstrap.min.js"></script>
     <script src="js/handlebars.js"></script>
     <script src="js/date.format.js"></script>
-    <script src="js/Storefront.js"></script>
-    <script src="js/Storefront.ControlPanel.js"></script>
-    <script src="js/Storefront.Helpers.js"></script>
-    <script src="js/Storefront.TemplateMgr.js"></script>
+    <script src="js/Storefront.js?v=2.0"></script>
+    <script src="js/Storefront.ControlPanel.js?v=2.0"></script>
+    <script src="js/Storefront.Helpers.js?v=2.0"></script>
+    <script src="js/Storefront.TemplateMgr.js?v=2.0"></script>
     <script>
     	$(document).ready(function() {
 			Storefront.init(<%=cfg.toJson()%>);

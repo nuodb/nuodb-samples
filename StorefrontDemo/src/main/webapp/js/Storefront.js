@@ -14,7 +14,6 @@ var Storefront = {
         me.regions = me.aggregateRegions(cfg.appInstances);
 
         // Initialize elements shared across pages
-        me.TemplateMgr.applyTemplate('tpl-messages', '#messages', cfg.messages);
         me.initSearchBox();
         if (window.self === window.top) {
             $('#admin-link').show();
@@ -33,7 +32,7 @@ var Storefront = {
                 break;
 
             case "control-panel":
-                me.initControlPanelPage(cfg.pageData);
+                me.initControlPanelPage(cfg);
                 break;
 
             case "products":
@@ -48,6 +47,9 @@ var Storefront = {
                 me.initCartPage(cfg.pageData);
                 break;
         }
+        
+        // Show accumulated messages
+        me.TemplateMgr.applyTemplate('tpl-messages', '#messages', cfg.messages);
     },
 
     initSearchBox: function() {
