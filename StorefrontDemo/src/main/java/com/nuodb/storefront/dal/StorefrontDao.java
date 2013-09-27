@@ -3,8 +3,6 @@
 package com.nuodb.storefront.dal;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
@@ -38,7 +36,6 @@ import com.nuodb.storefront.service.storefront.HeartbeatService;
  */
 public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
     private static final Map<String, TransactionStats> s_transactionStatsMap = new HashMap<String, TransactionStats>();
-    private static final SimpleDateFormat s_mySqlDateFormat = new SimpleDateFormat("yyyyMMddHHmmss.SSS");
 
     public StorefrontDao() {
     }
@@ -159,7 +156,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
                 + " (SELECT COUNT(*) FROM PURCHASE) AS PURCHASE_COUNT,"
                 + " (SELECT SUM(QUANTITY) FROM PURCHASE_SELECTION) AS PURCHASE_ITEM_COUNT,"
                 + " (SELECT SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE) FROM PURCHASE_SELECTION) AS PURCHASE_VALUE,"
-                + " (SELECT CAST(MIN(DATE_STARTED) AS DECIMAL) FROM APP_INSTANCE WHERE LAST_HEARTBEAT >= :MIN_HEARTBEAT_TIME) AS START_TIME"
+                + " (SELECT MIN(DATE_STARTED) FROM APP_INSTANCE WHERE LAST_HEARTBEAT >= :MIN_HEARTBEAT_TIME) AS START_TIME"
                 + " FROM DUAL;");
         setStatsParameters(query, maxCustomerIdleTimeSec);
         Object[] result = (Object[]) query.uniqueResult();
@@ -179,7 +176,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
         stats.setPurchaseValue(getBigDecimalValue(result[10]));
 
         Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(getMsValue(result[11]));
+        cal.setTimeInMillis(getLongValue(result[11]));
         stats.setDateStarted(cal);
 
         return stats;
@@ -197,7 +194,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
                                 + " UNION"
                                 + " SELECT 'categoryCount', (SELECT COUNT(*) FROM (SELECT DISTINCT CATEGORY FROM PRODUCT_CATEGORY AS T1) AS T2), '' FROM DUAL"
                                 + " UNION"
-                                + " SELECT 'dateStarted', CAST(MIN(DATE_STARTED) AS DECIMAL(20,3)), REGION FROM APP_INSTANCE WHERE LAST_HEARTBEAT >= :MIN_HEARTBEAT_TIME GROUP BY REGION"
+                                + " SELECT 'dateStarted', MIN(DATE_STARTED), REGION FROM APP_INSTANCE WHERE LAST_HEARTBEAT >= :MIN_HEARTBEAT_TIME GROUP BY REGION"
                                 + " UNION"
                                 + " SELECT 'productReviewCount', COUNT(*), REGION FROM PRODUCT_REVIEW GROUP BY REGION"
                                 + " UNION"
@@ -241,7 +238,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
                 regionStats.setCategoryCount(getIntValue(value));
             } else if (metric.equals("dateStarted")) {
                 Calendar cal = Calendar.getInstance();
-                cal.setTimeInMillis(getMsValue(value));
+                cal.setTimeInMillis(getLongValue(value));
                 regionStats.setDateStarted(cal);
             } else if (metric.equals("productReviewCount")) {
                 regionStats.setProductReviewCount(getIntValue(value));
@@ -293,19 +290,8 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
         return new BigDecimal(value.toString());
     }
 
-    protected static long getMsValue(Object value) {
-        String strVal = value.toString();
-        if (strVal.length() == 19 && strVal.indexOf('.') == 14) {
-            // This is a date/time value (MySQL style)
-            try {
-                return s_mySqlDateFormat.parse(strVal).getTime();
-            } catch (ParseException e) {
-                return 0;
-            }
-        }
-        // This is a time in seconds (NuoDB style)
-        return getBigDecimalValue(value).longValue() * 1000;
-
+    protected static long getLongValue(Object value) {
+        return getBigDecimalValue(value).longValue();
     }
 
     @Override

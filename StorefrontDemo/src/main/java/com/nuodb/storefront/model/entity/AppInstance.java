@@ -3,6 +3,7 @@
 package com.nuodb.storefront.model.entity;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -21,7 +22,7 @@ public class AppInstance extends UuidEntity {
     private String region = "Default";
 
     @NotNull
-    private Calendar dateStarted = Calendar.getInstance();
+    private long dateStarted = new Date().getTime();
 
     @NotNull
     private Calendar firstHeartbeat;
@@ -30,7 +31,7 @@ public class AppInstance extends UuidEntity {
     private Calendar lastHeartbeat;
 
     private int cpuUtilization;
-    
+
     @Transient
     private boolean local;
 
@@ -40,11 +41,11 @@ public class AppInstance extends UuidEntity {
 
     public AppInstance() {
     }
-    
+
     public long getUptimeMs() {
-        return System.currentTimeMillis() - dateStarted.getTimeInMillis();
+        return System.currentTimeMillis() - dateStarted;
     }
-    
+
     public String getName() {
         return getRegion() + " Region";
     }
@@ -97,11 +98,11 @@ public class AppInstance extends UuidEntity {
         this.currency = currency;
     }
 
-    public Calendar getDateStarted() {
+    public long getDateStarted() {
         return dateStarted;
     }
 
-    public void setDateStarted(Calendar dateStarted) {
+    public void setDateStarted(long dateStarted) {
         this.dateStarted = dateStarted;
     }
 
