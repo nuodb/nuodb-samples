@@ -15,7 +15,7 @@
 }
 
 .x-toolbar-default.message {
-    background-color: #eb8021;
+    background-color: #e3e7a7;
     background-image: none;
     padding: 5px 10px;
     z-index: 100;
@@ -23,7 +23,7 @@
 }
 
 .x-toolbar-default.message .x-toolbar-text {
-    color: #eee;
+    color: #666;
     padding: 8px 10px 8px 0;    
     overflow: hidden;
     text-overflow: ellipsis;
@@ -32,7 +32,7 @@
 
 .x-toolbar-default.message .x-toolbar-text a {
     font-weight: bold;
-    color: #fff;
+    color: #000;
 }
 
 #msg-btnPrev {
