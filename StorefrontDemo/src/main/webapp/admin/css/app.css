@@ -24,7 +24,38 @@
 
 .x-toolbar-default.message .x-toolbar-text {
     color: #eee;
-    padding: 8px 10px 8px 10px;    
+    padding: 8px 10px 8px 0;    
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.x-toolbar-default.message .x-toolbar-text a {
+    font-weight: bold;
+    color: #fff;
+}
+
+#msg-btnPrev {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+#msg-btnNext {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+.x-toolbar-default.message .x-btn-inner {
+    color: #444;
+    font-weight: bold;
+}
+
+.x-toolbar-default.message label {
+    background-color: #e1e2e2;
+    padding: 3px 6px 0 6px;
+    height: 22px;
+    border-top: 1px solid #d1d1d1;
+    border-bottom: 1px solid #d1d1d1;
+    color: #888;
 }
 
 .x-toolbar-default.nuo-footer {

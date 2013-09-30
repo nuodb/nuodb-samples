@@ -8,6 +8,8 @@
 Ext.define('App.controller.RemoteStorefronts', {
     extend: 'Ext.app.Controller',
 
+    minHeavyCpuUtilizationPct: 90,
+
     /** @Override */
     init: function() {
         var me = this;
@@ -87,6 +89,20 @@ Ext.define('App.controller.RemoteStorefronts', {
                 if (removeCount > 0) {
                     me.storefrontController.resetStats();
                 }
+
+                // Signal instances under heavy load
+                for ( var i = 0; i < me.appInstances.length; i++) {
+                    var instance = me.appInstances[i];
+                    if (instance.cpuUtilization >= me.minHeavyCpuUtilizationPct) {
+                        me.application.fireEvent('heavyload', {
+                            status: 500,
+                            responseJson: {
+                                message: "Instance " + instance.url + " is under heavy load.  Reduce simulated users here or add instances to this region.",
+                                ttl: App.app.instanceListRefreshFrequencyMs + 2000
+                            }
+                        }, instance);
+                    }
+                }
             },
             failure: function(response) {
                 me.application.fireEvent('statsfail', response);
@@ -101,7 +117,6 @@ Ext.define('App.controller.RemoteStorefronts', {
         for ( var i = 0; i < me.appInstances.length; i++) {
             var instance = me.appInstances[i];
             if (!instance.local && instance.outstandingRequestCount < App.app.maxOutstandingRequestCount) {
-                instance.outstandingRequestCount++;
                 me.refreshInstanceStats(instance);
             }
         }
@@ -109,6 +124,7 @@ Ext.define('App.controller.RemoteStorefronts', {
 
     refreshInstanceStats: function(instance) {
         var me = this;
+        instance.outstandingRequestCount++;
 
         try {
             Ext.Ajax.request({
@@ -142,7 +158,13 @@ Ext.define('App.controller.RemoteStorefronts', {
                 }
             });
         } catch (e) {
-            // No CORS support
+            instance.outstandingRequestCount--;
+            me.application.fireEvent('statsfail', {
+                status: 500,
+                responseJson: {
+                    message: "Your browser does not support CORS, which is required to collect statistics from this instance."
+                }
+            }, instance);
         }
     }
 });

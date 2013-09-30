@@ -10,130 +10,186 @@ Ext.define('App.view.MessageBar', {
     border: false,
     cls: 'message',
     hidden: true,
-    lastUpdateMs: 0,
 
-    minLateUpdateDeviation: 0.2,
-    maxLateUpdateAgeMs: 10 * 1000,
-    minLateUpdatesForWarning: 3,
+    msgDefaultDisplayTimeMs: 10 * 1000,
 
     /** @Override */
     initComponent: function() {
         var me = this;
 
-        me.lateUpdates = [];
+        me.msgList = [];
+        me.msgIndex = -1;
 
         me.items = ['->', {
             xtype: 'tbtext',
             itemId: 'lblMessage',
             frame: true,
-            width: 840,
-            text: ''
+            width: 830,
+            text: 'This is the message'
         }, {
             xtype: 'container',
             width: 100,
             layout: {
-                type: 'vbox',
-                align: 'right'
+                type: 'hbox'
             },
-            items: {
+            items: [{
+                flex: 1,
+                xtype: 'container'
+            }, {
                 xtype: 'button',
-                text: '',
-                itemId: 'btnAction',
-                handler: me.onButtonClick,
+                text: '&lt;',
+                itemId: 'btnPrev',
+                id: 'msg-btnPrev',
+                handler: me.onPrevMessage,
                 scope: me
-            }
+            }, {
+                xtype: 'label',
+                text: '1 of 2',
+                itemId: 'lblPage'
+            }, {
+                xtype: 'button',
+                text: '&gt;',
+                itemId: 'btnNext',
+                id: 'msg-btnNext',
+                handler: me.onNextMessage,
+                scope: me
+            }]
         }, '->'];
 
         me.callParent(arguments);
+
         me.lblMessage = me.down('[itemId=lblMessage]');
+        me.lblPage = me.down('[itemId=lblPage]');
         me.btnAction = me.down('[itemId=btnAction]');
+        me.btnPrev = me.down('[itemId=btnPrev]');
+        me.btnNext = me.down('[itemId=btnNext]');
 
-        App.app.on('statsfail', me.onStatsFail, me);
         App.app.on('statschange', me.onStatsChange, me);
-
-    },
-
-    onStatsFail: function(response, instance) {
-        var me = this;
-        var prefix = '';
-        if (instance) {
-            prefix = '[<b title="' + instance.url + '">Region ' + instance.region + '</b>]';
-        }
-        if (response.status == 0) {
-            me.setMessage(prefix + '<b>Unable to connect to the Storefront API</b>.  Verify the web application is still running.  Retries will continue automatically.');
-        } else {
-            var msg = '';
-            try {
-                msg = Ext.decode(response.responseText).message;
-            } catch (e) {                
-            }
-            msg = msg || (' HTTP status ' + response.status);
-            me.setMessage(Ext.String.format(prefix + '<b>The Storefront has a problem:</b> &nbsp;{0}.  Retries will continue automatically.', msg));
-        }
-        me.lastUpdateMs = -1;
+        App.app.on('statsfail', me.onStatsFail, me);
+        App.app.on('heavyload', me.onHeavyLoad, me);
     },
 
     onStatsChange: function() {
         var me = this;
-        var updateMs = new Date().getTime();
+        me.syncMessages();
+    },
 
-        if (me.lastUpdateMs <= 0) {
-            me.clearMessage();
+    onStatsFail: function(response, instance) {
+        var me = this;
+        if (response.status == 0) {
+            me.addMessage('<b>Unable to connect to the Storefront API</b>.  Verify the web application is still running.  Retries will continue automatically.', instance);
         } else {
-            // Remove expired late times from history
-            var maxLateUpdateAge = updateMs - me.maxLateUpdateAgeMs;
-            while (me.lateUpdates.length > 0 && me.lateUpdates[0] < maxLateUpdateAge) {
-                me.lateUpdates.shift();
+            var msg = '';
+            var ttl;
+            try {
+                msg = (response.responseJson || Ext.decode(response.responseText)).message;
+                ttl = (response.responseJson) ? response.responseJson.ttl : 0;
+            } catch (e) {
             }
+            msg = msg || (' HTTP status ' + response.status);
+            me.addMessage(Ext.String.format('{0}.  Retries will continue automatically.', msg), instance);
+        }
+    },
 
-            // Add new time to history if it's late
-            if (updateMs > me.lastUpdateMs + App.app.refreshFrequencyMs * (1 + me.minLateUpdateDeviation)) {
-                me.lateUpdates.push(updateMs);
-            }
+    onHeavyLoad: function(response, instance) {
+        var me = this;
+        me.addMessage(response.responseJson.message, instance, response.responseJson.ttl);
+    },
 
-            // Show/dismiss warning as appropriate
-            if (me.lateUpdates.length == 0) {
-                me.clearMessage();
-            } else if (me.lateUpdates.length >= me.minLateUpdatesForWarning) {
-                me.setMessage('<b>The Storefront appears to be under very heavy load</b>.  Consider reducing simulated users or adding nodes to the NuoDB cluster.', 'Stop All');
+    addMessage: function(msg, instance, ttl) {
+        var me = this;
+
+        // Prepend instance/region info (if available)
+        var prefix = '';
+        if (instance) {
+            prefix = Ext.String.format('<a href="{0}" title="{0}" target="_blank">{1} region</a>: &nbsp;', instance.url, instance.region);
+        } else {
+            prefix = '<b>The Storefront has a problem:</b> &nbsp;';
+        }
+        msg = prefix + msg;
+
+        var now = new Date().getTime();
+        var uuid = instance ? instance.uuid : '';
+
+        // Update existing message (if it exists)
+        var found = false;
+        for ( var i = 0; i < me.msgList.length; i++) {
+            var msgObj = me.msgList[i];
+            if (msgObj.uuid == uuid) {
+                msgObj.message = msg;
+                msgObj.displayUntil = (ttl) ? now + ttl : now + me.msgDefaultDisplayTimeMs;
+                found = true;
+                break;
             }
         }
-        
-        me.lastUpdateMs = updateMs;
-    },
 
-    clearMessage: function() {
-        var me = this;
-        me.setMessage(null);
-        me.btnAction.setDisabled(false);
-    },
-
-    setMessage: function(message, buttonText) {
-        return; // ignore messages for now
-        
-        me = this;
-        me.lblMessage.setText(message);
-        me.btnAction.setText(buttonText);
-        me.btnAction.setVisible(!!buttonText);
-        me.setVisible(!!message);
-    },
-
-    onButtonClick: function(btn) {
-        var me = this;
-        btn.setDisabled(true);
-        Ext.getStore('Workloads').each(function(workload) {
-            Ext.Ajax.request({
-                url: Ext.String.format('{0}/api/simulator/workloads/{1}/workers', App.app.apiBaseUrl, workload.get('name')),
-                method: 'PUT',
-                params: {
-                    minWorkers: 0,
-                    limit: 0
-                },
-                callback: function() {
-                    Ext.ComponentQuery.query('viewport')[0].refreshView('welcome');
-                },
-                scope: this
+        if (!found) {
+            me.msgList.push({
+                message: msg,
+                uuid: uuid,
+                lastUpdate: now
             });
-        });
+        }
+
+        me.syncMessages();
+    },
+
+    syncMessages: function() {
+        var me = this;
+        me.purgeOldMessages();
+
+        // Hide message bar if no messages are available
+        if (me.msgList.length == 0) {
+            me.msgIndex = -1;
+            me.setVisible(false);
+            return;
+        }
+
+        // Ensure index is within bounds
+        if (me.msgIndex < 0) {
+            me.msgIndex = 0;
+        } else if (me.msgIndex >= me.msgList.length) {
+            me.msgIndex = me.msgList.length - 1;
+        }
+
+        // Display message at specific index
+        var msgObj = me.msgList[me.msgIndex];
+        me.lblMessage.setText(msgObj.message);
+        me.setVisible(true);
+
+        // Display prev/next buttons if there are multiple messages
+        me.btnPrev.setVisible(me.msgList.length > 1);
+        me.btnNext.setVisible(me.msgList.length > 1);
+        me.lblPage.setVisible(me.msgList.length > 1);
+        me.lblPage.setText((me.msgIndex + 1) + ' of ' + me.msgList.length);
+    },
+
+    onNextMessage: function() {
+        var me = this;
+        me.msgIndex++;
+        if (me.msgIndex >= me.msgList.length) {
+            me.msgIndex = 0;
+        }
+        me.syncMessages();
+    },
+
+    onPrevMessage: function() {
+        var me = this;
+        me.msgIndex--;
+        if (me.msgIndex < 0) {
+            me.msgIndex = me.msgList.length - 1;
+        }
+        me.syncMessages();
+    },
+
+    purgeOldMessages: function() {
+        var me = this;
+        var now = new Date().getTime();
+        for ( var i = me.msgList.length - 1; i >= 0; i--) {
+            var msg = me.msgList[i];
+            if (msg.displayUntil <= now) {
+                me.msgList.splice(i, 1);
+            }
+        }
     }
 });
