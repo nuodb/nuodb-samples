@@ -3,11 +3,13 @@
 package com.nuodb.storefront.service.simulator;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.exception.CartEmptyException;
 import com.nuodb.storefront.exception.UnsupportedStepException;
 import com.nuodb.storefront.model.dto.Category;
@@ -31,10 +33,10 @@ public class SimulatedUser implements IWorker {
 
     private Customer customer;
     private ProductFilter filter;
-    private SearchResult<Product> products;
-    private SearchResult<Category> categories;
+    private List<Integer> productIds;
+    private static List<String> s_categories;
     private Product product;
-    private Cart cart;
+    private boolean isCartEmpty = true;
 
     public SimulatedUser(ISimulator simulator, Workload workloadType) {
         if (workloadType == null) {
@@ -93,7 +95,7 @@ public class SimulatedUser implements IWorker {
                 break;
 
             case PRODUCT_VIEW_DETAILS:
-                doProdutViewDetails();
+                doProductViewDetails();
                 break;
 
             case PRODUCT_ADD_TO_CART:
@@ -129,57 +131,66 @@ public class SimulatedUser implements IWorker {
 
     protected void doBrowse() {
         filter = new ProductFilter();
-        products = simulator.getService().getProducts(filter);
-        categories = simulator.getService().getCategories();
+        setProductIds(simulator.getService().getProducts(filter).getResult());
+        setCategoryNames(simulator.getService().getCategories().getResult());
     }
 
     protected void doBrowseNextPage() {
         getOrFetchProductList();
         filter.setPage(filter.getPage() + 1);
-        products = simulator.getService().getProducts(filter);
+        setProductIds(simulator.getService().getProducts(filter).getResult());
     }
 
     protected void doBrowseSearch() {
         filter = new ProductFilter();
         filter.setCategories(new ArrayList<String>());
+        
+        // Base the search off a random product name (if available) 
         if (getOrFetchProductList()) {
-            Product product = products.getResult().get(rnd.nextInt(products.getResult().size()));
-            filter.setMatchText(product.getName().substring(0, Math.min(5, product.getName().length())));
-        } else {
-            filter.setMatchText("DNE search");
+            Integer productId = pickRandomProductId();
+            if (productId != null) {
+                Product product = simulator.getService().getProductDetails(productId.intValue());
+                if (product != null) {
+                    filter.setMatchText(product.getName().substring(0, Math.min(5, product.getName().length())));
+                    return;
+                }
+            }
         }
+        
+        filter.setMatchText("DNE search");
     }
 
     protected void doBrowseCategory() {
         filter = new ProductFilter();
         filter.setCategories(new ArrayList<String>());
         if (getOrFetchCategories()) {
-            Category category = pickRandomCategory();
-            filter.getCategories().add(category.getName());
+            String categoryName = pickRandomCategoryName();
+            filter.getCategories().add(categoryName);
         } else {
             filter.getCategories().add("DNE category");
         }
-        products = simulator.getService().getProducts(filter);
-        categories = simulator.getService().getCategories();
+        setProductIds(simulator.getService().getProducts(filter).getResult());
+        setCategoryNames(simulator.getService().getCategories().getResult());
     }
 
     protected void doBrowseSort() {
         filter = new ProductFilter();
         filter.setSort(ProductSort.values()[rnd.nextInt(ProductSort.values().length)]);
-        products = simulator.getService().getProducts(filter);
+        setProductIds(simulator.getService().getProducts(filter).getResult());
     }
 
-    protected void doProdutViewDetails() {
+    protected void doProductViewDetails() {
         if (getOrFetchProductList()) {
-            product = pickRandomProduct();
-            simulator.getService().getProductDetails(product.getId());
+            Integer productId = pickRandomProductId();
+            simulator.getService().getProductDetails(productId);
         }
     }
 
     protected void doProductAddToCart() {
         if (getOrFetchProduct()) {
             simulator.getService().addToCart(customer.getId(), product.getId(), rnd.nextInt(10) + 1);
-            cart = simulator.getService().getCustomerCart(customer.getId());
+            simulator.getService().getCustomerCart(customer.getId());
+            isCartEmpty = false;
         }
     }
 
@@ -189,7 +200,7 @@ public class SimulatedUser implements IWorker {
             String email = "Customer" + customer.getId() + "@test.com";
             String title = "Review " + System.currentTimeMillis();
             String comments = "This review was added by a load simulation tool.";
-            simulator.getService().addProductReview(customer.getId(), pickRandomProduct().getId(), title, comments, email, rating);
+            simulator.getService().addProductReview(customer.getId(), pickRandomProductId(), title, comments, email, rating);
         }
     }
 
@@ -200,9 +211,12 @@ public class SimulatedUser implements IWorker {
     protected void doCartUpdate() {
         if (getOrFetchNonEmptyCart()) {
             Map<Integer, Integer> updates = new HashMap<Integer, Integer>();
+            Cart cart = simulator.getService().getCustomerCart(customer.getId());
+            int itemCount = 0;
             for (CartSelection item : cart.getResult()) {
-                updates.put(item.getProduct().getId(), rnd.nextInt(10));
+                updates.put(item.getProduct().getId(), itemCount += rnd.nextInt(10));
             }
+            isCartEmpty = itemCount == 0;
             simulator.getService().updateCart(customer.getId(), updates);
         }
     }
@@ -216,7 +230,7 @@ public class SimulatedUser implements IWorker {
         } catch (CartEmptyException e) {
             // This should happen only if there's nothing in the store.
         }
-        cart = null;
+        isCartEmpty = true;
     }
 
     protected void doRunReport() {
@@ -224,23 +238,23 @@ public class SimulatedUser implements IWorker {
     }
 
     protected boolean getOrFetchCategories() {
-        if (categories == null) {
+        if (s_categories == null) {
             doBrowse();
         }
-        return !categories.getResult().isEmpty();
+        return !s_categories.isEmpty();
     }
 
     protected boolean getOrFetchProductList() {
-        if (products == null || products.getResult().isEmpty()) {
+        if (productIds == null || productIds.isEmpty()) {
             doBrowse();
         }
 
-        return !products.getResult().isEmpty();
+        return !productIds.isEmpty();
     }
 
     protected boolean getOrFetchProduct() {
         if (product == null) {
-            doProdutViewDetails();
+            doProductViewDetails();
             if (product == null) {
                 return false;
             }
@@ -249,22 +263,43 @@ public class SimulatedUser implements IWorker {
     }
 
     protected boolean getOrFetchNonEmptyCart() {
-        if (cart == null || cart.getResult().isEmpty()) {
+        if (isCartEmpty) {
             doProductAddToCart();
         }
-        return cart != null && !cart.getResult().isEmpty();
+        return !isCartEmpty;
     }
 
-    protected Category pickRandomCategory() {
-        if (categories == null) {
-            categories = simulator.getService().getCategories();
+    protected String pickRandomCategoryName() {
+        if (s_categories == null) {
+            setCategoryNames(simulator.getService().getCategories().getResult());
         }
-        return (categories == null || categories.getResult().isEmpty()) ? null :
-                categories.getResult().get(rnd.nextInt(categories.getResult().size()));
+        return (s_categories == null || s_categories.isEmpty()) ? null : s_categories.get(rnd.nextInt(s_categories.size()));
     }
 
-    protected Product pickRandomProduct() {
-        return (products == null || products.getResult().isEmpty()) ? null :
-                products.getResult().get(rnd.nextInt(products.getResult().size()));
+    protected Integer pickRandomProductId() {
+        return (productIds == null || productIds.isEmpty()) ? null : productIds.get(rnd.nextInt(productIds.size()));
+
+    }
+
+    private void setCategoryNames(Collection<Category> result) {
+        if (s_categories != null) {
+            return;
+        }
+        if (s_categories == null) {
+            s_categories = new ArrayList<String>(result.size());
+        }
+        for (Category category : simulator.getService().getCategories().getResult()) {
+            s_categories.add(category.getName());
+        }
+    }
+
+    private void setProductIds(Collection<Product> products) {
+        if (productIds == null) {
+            productIds = new LinkedList<Integer>();
+        }
+        productIds.clear();
+        for (Product product : products) {
+            productIds.add(product.getId());
+        }
     }
 }

@@ -105,7 +105,7 @@ Ext.define('App.controller.RemoteStorefronts', {
                 }
             },
             failure: function(response) {
-                me.application.fireEvent('statsfail', response);
+                me.application.fireEvent('statsfail', response, null);
             }
         });
     },

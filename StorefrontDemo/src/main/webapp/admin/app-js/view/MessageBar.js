@@ -77,7 +77,7 @@ Ext.define('App.view.MessageBar', {
     onStatsFail: function(response, instance) {
         var me = this;
         if (response.status == 0) {
-            me.addMessage('<b>Unable to connect to the Storefront API</b>.  Verify the web application is still running.  Retries will continue automatically.', instance);
+            me.addMessage('Unable to connect to the Storefront API.  Verify the web application is still running.  Retries will continue automatically.', instance);
         } else {
             var msg = '';
             var ttl;
