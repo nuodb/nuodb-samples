@@ -35,8 +35,8 @@ public class SimulatedUser implements IWorker {
     private ProductFilter filter;
     private List<Integer> productIds;
     private static List<String> s_categories;
-    private Product product;
     private boolean isCartEmpty = true;
+    private Integer selectedProductId;
 
     public SimulatedUser(ISimulator simulator, Workload workloadType) {
         if (workloadType == null) {
@@ -181,14 +181,14 @@ public class SimulatedUser implements IWorker {
 
     protected void doProductViewDetails() {
         if (getOrFetchProductList()) {
-            Integer productId = pickRandomProductId();
-            simulator.getService().getProductDetails(productId);
+            selectedProductId = pickRandomProductId();
+            simulator.getService().getProductDetails(selectedProductId);
         }
     }
 
     protected void doProductAddToCart() {
         if (getOrFetchProduct()) {
-            simulator.getService().addToCart(customer.getId(), product.getId(), rnd.nextInt(10) + 1);
+            simulator.getService().addToCart(customer.getId(), selectedProductId, rnd.nextInt(10) + 1);
             simulator.getService().getCustomerCart(customer.getId());
             isCartEmpty = false;
         }
@@ -253,9 +253,9 @@ public class SimulatedUser implements IWorker {
     }
 
     protected boolean getOrFetchProduct() {
-        if (product == null) {
+        if (selectedProductId == null) {
             doProductViewDetails();
-            if (product == null) {
+            if (selectedProductId == null) {
                 return false;
             }
         }
