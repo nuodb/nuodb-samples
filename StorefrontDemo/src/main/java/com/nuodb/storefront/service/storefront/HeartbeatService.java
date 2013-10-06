@@ -1,8 +1,8 @@
 package com.nuodb.storefront.service.storefront;
 
 import java.util.Calendar;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.apache.log4j.Logger;
 
 import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.StorefrontFactory;
@@ -15,14 +15,15 @@ import com.nuodb.storefront.service.simulator.SimulatorService;
 import com.nuodb.storefront.util.PerformanceUtil;
 
 public class HeartbeatService implements IHeartbeatService {
-    public static final int HEARTBEAT_INTERVAL_SEC = 60;
-    public static final int PURGE_FREQUENCY_SEC = 60 * 30; // 30 min
-    public static final int MAX_HEARTBEAT_AGE_SEC = 90;
+    public static final int HEARTBEAT_INTERVAL_SEC = 10;          // 10 sec
+    public static final int MAX_HEARTBEAT_AGE_SEC = 20;           // 20 sec
+    public static final int PURGE_FREQUENCY_SEC = 60 * 30;        // 30 min
     public static final int MIN_INSTANCE_PURGE_AGE_SEC = 60 * 60; // 1 hour
 
     private static final Logger s_log = Logger.getLogger(SimulatorService.class.getName());
     private final String appUrl;
     private int secondsUntilNextPurge = 0;
+    private int consecutiveFailureCount = 0;
 
     static {
         StorefrontDao.registerTransactionNames(new String[] { "sendHeartbeat" });
@@ -39,20 +40,6 @@ public class HeartbeatService implements IHeartbeatService {
             dao.runTransaction(TransactionType.READ_WRITE, "sendHeartbeat", new Runnable() {
                 @Override
                 public void run() {
-
-                    int mb = 1024*1024;
-                    
-                //Getting the runtime reference from system
-                System.gc();
-                Runtime runtime = Runtime.getRuntime();
-                System.out.println("##### Heap utilization statistics [MB] #####");
-                System.out.println("Used Memory:"
-                    + (runtime.totalMemory() - runtime.freeMemory()) / mb);
-                System.out.println("Free Memory:"
-                    + runtime.freeMemory() / mb);
-                System.out.println("Total Memory:" + runtime.totalMemory() / mb);
-                System.out.println("Max Memory:" + runtime.maxMemory() / mb);
-                    
                     Calendar now = Calendar.getInstance();
                     AppInstance appInstance = StorefrontApp.APP_INSTANCE;
                     secondsUntilNextPurge -= HEARTBEAT_INTERVAL_SEC;
@@ -69,15 +56,19 @@ public class HeartbeatService implements IHeartbeatService {
 
                     // If enough time has elapsed, also delete rows of instances that are no longer sending heartbeats
                     if (secondsUntilNextPurge <= 0) {
-                        secondsUntilNextPurge = PURGE_FREQUENCY_SEC;
                         Calendar maxLastHeartbeat = Calendar.getInstance();
                         maxLastHeartbeat.add(Calendar.SECOND, -MIN_INSTANCE_PURGE_AGE_SEC);
                         dao.deleteDeadAppInstances(maxLastHeartbeat);
+                        secondsUntilNextPurge = PURGE_FREQUENCY_SEC;
                     }
+                    
+                    consecutiveFailureCount = 0;
                 }
             });
         } catch (Exception e) {
-            s_log.log(Level.SEVERE, "Unable to send heartbeat", e);
+        	if (++consecutiveFailureCount == 1) {
+        		s_log.error("Unable to send heartbeat", e);
+        	}
         }
     }
 }

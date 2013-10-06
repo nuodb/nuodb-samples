@@ -59,7 +59,7 @@
                             <b>Open the floodgates</b>
                         </h4>
                         <p>
-                            See how NuoDB reacts to a sudden flock of customers.<br />Use the <b>Simulated User Setup</b> and <b>Node Setup</b> forms below<br />to increase the number of customer workloads and NuoDB nodes.
+                            See how NuoDB reacts to a sudden flock of customers.<br />Use the <b>Control Panel</b> to increase the number of <br />customer workloads and NuoDB nodes.
                         </p>
                     </div>
                 </div>
@@ -73,7 +73,7 @@
                             <b>Hang some new shingles</b>
                         </h4>
                         <p>
-                            Launch multiple stores with the same NuoDB nodes.<br />Click <b>Show DDL</b> and you&rsquo;ll have the scripts<br />to create your additional databases.
+                            Launch multiple stores with the same NuoDB nodes.<br />Click the <b>DDL</b> link above and you&rsquo;ll have the scripts<br />to create your additional databases.
                         </p>
                     </div>
                 </div>
@@ -87,7 +87,7 @@
                             <b>Try a bait &amp; switch</b>
                         </h4>
                         <p>
-                            Pull a 180 by changing the mix of OLTP and analytic transactions.<br />Use the <b>Simulated Users</b> form below to change<br />the ratio of back office to shopper workloads.
+                            Pull a 180 by changing the mix of OLTP and analytic<br />transactions. Use the <b>Control Panel</b> to change<br />the ratio of back office to shopper workloads.
                         </p>
                     </div>
                 </div>

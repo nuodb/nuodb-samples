@@ -21,6 +21,7 @@ import com.nuodb.storefront.model.dto.WorkloadStep;
 import com.nuodb.storefront.model.dto.WorkloadStepStats;
 import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
+import com.nuodb.storefront.util.PerformanceUtil;
 
 @Path("/stats")
 public class StatsApi extends BaseApi {
@@ -70,7 +71,9 @@ public class StatsApi extends BaseApi {
         StorefrontStatsReport report = new StorefrontStatsReport();
         IStorefrontService svc = StorefrontFactory.createStorefrontService();
         ISimulatorService sim = StorefrontFactory.getSimulatorService();
-
+        
+        StorefrontApp.APP_INSTANCE.setCpuUtilization(PerformanceUtil.getCpuUtilization());
+        
         report.setTimestamp(Calendar.getInstance());
         report.setAppInstance(StorefrontApp.APP_INSTANCE);
         report.setTransactionStats(svc.getTransactionStats());

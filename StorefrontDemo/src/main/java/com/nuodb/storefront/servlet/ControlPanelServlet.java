@@ -32,7 +32,7 @@ public class ControlPanelServlet extends BaseServlet {
         try {
             IStorefrontService svc = getService();
             
-            // Fetch customer/stats data
+            // Fetch store stats
             StorefrontStatsReport stats = StatsApi.getStorefrontStatsReport(null, true);
             
             // Fetch product data (and add a warning if the Storefront has no products yet)
@@ -49,8 +49,6 @@ public class ControlPanelServlet extends BaseServlet {
             pageData.put("stats", stats);
             pageData.put("productInfo", productInfo);
             pageData.put("dbNodes", dbNodes);
-
-            // Also 
 
             showPage(req, resp, "Control Panel", "control-panel", pageData, new Customer());
         } catch (Exception ex) {

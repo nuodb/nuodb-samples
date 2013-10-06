@@ -412,14 +412,21 @@ public class StorefrontService implements IStorefrontService {
                 }
                 search.addSort("region", false);
                 search.addSort("url", false);
+                search.addSort("lastHeartbeat", true);
                 List<AppInstance> instances = (List<AppInstance>) dao.search(search);
 
+                // Mark local instance, and remove extra instnces with the same URL (instance with most recent heartbeat wins)
                 String localUuid = StorefrontApp.APP_INSTANCE.getUuid();
-                for (AppInstance instance : instances) {
+                for (int i = 0; i < instances.size(); ) {
+                	AppInstance instance = instances.get(i);
                     if (instance.getUuid().equals(localUuid)) {
                         instance.setLocal(true);
-                        break;
-                    }
+                    } else if (activeOnly && i > 0 && instance.getUrl().equals(instances.get(i - 1).getUrl())) {
+                		instances.remove(i);
+                		continue;
+                	}
+                    
+                	i++;
                 }
 
                 return instances;

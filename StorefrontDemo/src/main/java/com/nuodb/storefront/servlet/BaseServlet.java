@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -16,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
 import org.hibernate.exception.GenericJDBCException;
 
 import com.googlecode.genericdao.search.SearchResult;
@@ -181,7 +180,7 @@ public abstract class BaseServlet extends HttpServlet {
         Customer customer = (Customer) req.getAttribute(ATTR_CUSTOMER);
         showPage(req, resp, "Storefront Problem", "error", null, (customer == null) ? new Customer() : customer);
 
-        s_logger.log(Level.WARNING, "Servlet handled critical error", ex);
+        s_logger.warn("Servlet handled critical error", ex);
     }
 
     /**
@@ -217,11 +216,11 @@ public abstract class BaseServlet extends HttpServlet {
         if (btnAction.contains("load")) {
             StorefrontApp.loadData();
             addMessage(req, MessageSeverity.INFO, "Product data loaded successfully.");
-            s_logger.log(Level.INFO, "Product data loaded");
+            s_logger.info("Product data loaded");
         } else if (btnAction.contains("generate")) {
             StorefrontApp.generateData();
             addMessage(req, MessageSeverity.INFO, "Product data generated successfully.");
-            s_logger.log(Level.INFO, "Product data generated");
+            s_logger.info("Product data generated");
         } else if (btnAction.contains("remove")) {
             // Stop simulated workloads first; this prevents update conflicts
             getSimulator().removeAll();
@@ -229,9 +228,9 @@ public abstract class BaseServlet extends HttpServlet {
             // Now remove all data
             try {
                 StorefrontApp.removeData();
-                s_logger.log(Level.INFO, "Product data removed");
+                s_logger.info("Product data removed");
             } catch (Exception e) {
-                s_logger.log(Level.SEVERE, "Unable to remove product data", e);
+                s_logger.error("Unable to remove product data", e);
             }
         }
         return true;

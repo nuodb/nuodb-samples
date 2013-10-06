@@ -2,13 +2,12 @@
 
 package com.nuodb.storefront.api;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+
+import org.apache.log4j.Logger;
 
 import com.nuodb.storefront.exception.StorefrontException;
 import com.nuodb.storefront.model.dto.Message;
@@ -32,7 +31,7 @@ public class ExceptionProvider implements ExceptionMapper<RuntimeException> {
             errorCode = Status.INTERNAL_SERVER_ERROR;
         }
 
-        s_logger.log(Level.WARNING, "API exception provider handling RuntimeException with HTTP status " + errorCode.getStatusCode(), exception);
+        s_logger.warn("API exception provider handling RuntimeException with HTTP status " + errorCode.getStatusCode(), exception);
 
         return Response.status(errorCode).entity(new Message(exception)).build();
     }

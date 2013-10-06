@@ -61,7 +61,7 @@ Ext.define('App.controller.Storefront', {
         }
         fields.sort(function(a, b) {
             return (a.name < b.name) ? -1 : (a.name == b.name) ? 0 : 1;
-        })
+        });
         return fields;
     },
 
@@ -163,7 +163,7 @@ Ext.define('App.controller.Storefront', {
                 me.outstandingRequestCount--;
             },
             success: function(response) {
-                var stats;
+                var stats = null;
                 try {
                     stats = Ext.decode(response.responseText);
                 } catch (e) {
@@ -171,6 +171,8 @@ Ext.define('App.controller.Storefront', {
                 if (!stats) {
                     return;
                 }
+                
+                me.checkForHeavyLoad(stats.appInstance);
 
                 // If we're talking to a new Storefront instance (maybe service was bounced), throw away old data so deltas aren't bogus
                 if (me.instancesAvailableHaveChanged(stats)) {
@@ -267,7 +269,20 @@ Ext.define('App.controller.Storefront', {
             }
         });
     },
-
+    
+    checkForHeavyLoad: function(instance) {
+    	var me = this;
+        if (instance.cpuUtilization >= App.app.minHeavyCpuUtilizationPct) {
+            me.application.fireEvent('heavyload', {
+                status: 500,
+                responseJson: {
+                    message: "Instance " + instance.url + " is under heavy load.  Reduce simulated users here or add instances to this region.",
+                    ttl: App.app.refreshFrequencyMs + App.app.refreshGracePeriodMs
+                }
+            }, instance);
+        }
+    },
+    
     instancesAvailableHaveChanged: function(stats) {
         var me = this;
 

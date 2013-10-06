@@ -9,10 +9,10 @@ import java.util.TreeMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javassist.Modifier;
+
+import org.apache.log4j.Logger;
 
 import com.nuodb.storefront.model.dto.Workload;
 import com.nuodb.storefront.model.dto.WorkloadFlow;
@@ -218,7 +218,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
             } catch (Exception e) {
                 delay = IWorker.COMPLETE_NO_REPEAT;
                 workerFailed = true;
-                s_logger.log(Level.WARNING, "Simulated worker failed", e);
+                s_logger.warn("Simulated worker failed", e);
             }
             long endTimeMs = System.currentTimeMillis();
             completionWorkTimeMs += (endTimeMs - startTimeMs);

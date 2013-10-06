@@ -4,10 +4,10 @@ package com.nuodb.storefront;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.hibernate.Transaction;
@@ -143,13 +143,13 @@ public class StorefrontFactory {
         Transaction t = session.beginTransaction();
 
         // Ask the DB for the region name if it hasn't been supplied manually
-        if (StringUtils.isEmpty(StorefrontApp.APP_INSTANCE.getRegion())) {
+        if (!StorefrontApp.APP_INSTANCE.getRegionOverride()) {
             String region = null;
             try {
                 Object result = session.createSQLQuery("SELECT GEOREGION FROM SYSTEM.NODES WHERE ID=GETNODEID()").uniqueResult();
                 region = result.toString();
             } catch (SQLGrammarException e) {
-                s_log.warning("Your database version does not support regions.  Upgrade to NouDB 2.0 or greater.");
+                s_log.warn("Your database version does not support regions.  Upgrade to NouDB 2.0 or greater.");
             }
             if (!StringUtils.isEmpty(region)) {
                 StorefrontApp.APP_INSTANCE.setRegion(region);

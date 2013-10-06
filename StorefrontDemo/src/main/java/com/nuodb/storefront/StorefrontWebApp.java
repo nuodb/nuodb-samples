@@ -38,6 +38,7 @@ public class StorefrontWebApp implements ServletContextListener {
         String region = System.getProperty(ENV_PROP_REGION);
         if (!StringUtils.isEmpty(region)) {
             StorefrontApp.APP_INSTANCE.setRegion(region);
+            StorefrontApp.APP_INSTANCE.setRegionOverride(true);
         }
 
         // Initiate heartbeat service
