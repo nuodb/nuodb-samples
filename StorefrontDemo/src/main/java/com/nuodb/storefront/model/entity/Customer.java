@@ -12,6 +12,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.Index;
+
 
 @Entity
 public class Customer extends AutoIdEntity {
@@ -29,6 +31,7 @@ public class Customer extends AutoIdEntity {
     private Calendar dateAdded;
 
     @NotNull
+    @Index(name = "idx_customer_date_last_active")
     private Calendar dateLastActive;
 
     private transient int cartItemCount;

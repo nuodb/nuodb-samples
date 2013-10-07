@@ -379,9 +379,9 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
         Map<String, Object> params = new HashMap<String, Object>();
 
         if (countOnly) {
-            sql.append("SELECT COUNT(*) FROM PRODUCT WHERE 1=1");
+            sql.append("SELECT COUNT(*) FROM PRODUCT");
         } else {
-            sql.append("SELECT * FROM PRODUCT WHERE 1=1");
+            sql.append("SELECT * FROM PRODUCT");
         }
 
         // Set match text
@@ -446,6 +446,12 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
             }
         }
 
+        // Replace first "AND" with "WHERE"
+        int andIdx = sql.indexOf("AND");
+        if (andIdx > 0) {
+        	sql.replace(andIdx, andIdx + "AND".length(), "WHERE");
+        }
+        
         // Build SQL
         SQLQuery query = getSession().createSQLQuery(sql.toString());
         if (!countOnly) {

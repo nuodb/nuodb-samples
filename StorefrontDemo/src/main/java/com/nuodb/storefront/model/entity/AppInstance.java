@@ -11,6 +11,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.Index;
+
 import com.nuodb.impl.util.StringUtils;
 import com.nuodb.storefront.model.type.Currency;
 
@@ -29,6 +31,7 @@ public class AppInstance extends UuidEntity {
 	private Calendar firstHeartbeat;
 
 	@NotNull
+	@Index(name = "idx_app_instance_last_heartbeat")
 	private Calendar lastHeartbeat;
 
 	private int cpuUtilization;
