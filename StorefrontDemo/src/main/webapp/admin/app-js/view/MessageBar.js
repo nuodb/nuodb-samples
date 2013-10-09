@@ -108,6 +108,7 @@ Ext.define('App.view.MessageBar', {
 
         var now = new Date().getTime();
         var uuid = instance ? instance.uuid : '';
+        var displayUntil = (ttl) ? now + ttl : now + App.app.msgDefaultDisplayTimeMs;
 
         // Update existing message (if it exists)
         var found = false;
@@ -115,7 +116,7 @@ Ext.define('App.view.MessageBar', {
             var msgObj = me.msgList[i];
             if (msgObj.uuid == uuid) {
                 msgObj.message = msg;
-                msgObj.displayUntil = (ttl) ? now + ttl : now + App.app.msgDefaultDisplayTimeMs;
+                msgObj.displayUntil = displayUntil;
                 found = true;
                 break;
             }
@@ -125,7 +126,7 @@ Ext.define('App.view.MessageBar', {
             me.msgList.push({
                 message: msg,
                 uuid: uuid,
-                lastUpdate: now
+                displayUntil: displayUntil
             });
         }
 
