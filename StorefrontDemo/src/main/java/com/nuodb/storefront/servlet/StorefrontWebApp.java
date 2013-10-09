@@ -1,4 +1,6 @@
-package com.nuodb.storefront;
+/* Copyright (c) 2013 NuoDB, Inc. */
+
+package com.nuodb.storefront.servlet;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -12,18 +14,17 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.http.HttpServletRequest;
 
 import com.nuodb.impl.util.StringUtils;
+import com.nuodb.storefront.StorefrontApp;
+import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.service.IHeartbeatService;
-import com.nuodb.storefront.service.storefront.HeartbeatService;
 
 public class StorefrontWebApp implements ServletContextListener {
     private static ScheduledExecutorService executor;
-    private static final int DEFAULT_PORT = 8080;
     private static int s_port;
     private static IHeartbeatService heartbeatSvc;
     private static final String ENV_PROP_REGION = "storefront.region";
     private static final String ENV_PROP_URL = "storefront.url";
-    private static final String DEFAULT_URL = "http://{host}:{port}/{context}";
-
+    
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         if (executor != null) {
@@ -32,18 +33,19 @@ public class StorefrontWebApp implements ServletContextListener {
         }
 
         // Get external URL of this web app
-        String url = getWebAppUrl(sce.getServletContext(), DEFAULT_PORT);
+        String url = getWebAppUrl(sce.getServletContext(), StorefrontApp.DEFAULT_PORT);
         
         // Handle region override (if provided) 
         String region = System.getProperty(ENV_PROP_REGION);
         if (!StringUtils.isEmpty(region)) {
             StorefrontApp.APP_INSTANCE.setRegion(region);
+            StorefrontApp.APP_INSTANCE.setRegionOverride(true);
         }
 
         // Initiate heartbeat service
         executor = Executors.newSingleThreadScheduledExecutor();
         heartbeatSvc = StorefrontFactory.createHeartbeatService(url);
-        executor.scheduleAtFixedRate(heartbeatSvc, HeartbeatService.HEARTBEAT_INTERVAL_SEC, HeartbeatService.HEARTBEAT_INTERVAL_SEC, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(heartbeatSvc, StorefrontApp.HEARTBEAT_INTERVAL_SEC, StorefrontApp.HEARTBEAT_INTERVAL_SEC, TimeUnit.SECONDS);
 
         // Send a heartbeat immediately to ensure AppInstance is initialized before any API or web request is processed
         heartbeatSvc.run();
@@ -79,7 +81,7 @@ public class StorefrontWebApp implements ServletContextListener {
         if (StringUtils.isEmpty(url)) {
             url = context.getInitParameter("public-url");
             if (StringUtils.isEmpty(url)) {
-                url = DEFAULT_URL;
+                url = StorefrontApp.DEFAULT_URL;
             }
         }
 

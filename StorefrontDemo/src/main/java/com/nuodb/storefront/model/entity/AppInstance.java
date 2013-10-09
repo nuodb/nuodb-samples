@@ -11,15 +11,19 @@ import javax.persistence.Enumerated;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.Index;
+
+import com.nuodb.impl.util.StringUtils;
 import com.nuodb.storefront.model.type.Currency;
 
 @Entity
-public class AppInstance extends UuidEntity {
+public class AppInstance extends UuidEntity
+{
     @NotNull
     private String url;
 
     @NotNull
-    private String region = "Default";
+    private String region;
 
     @NotNull
     private long dateStarted = new Date().getTime();
@@ -28,6 +32,7 @@ public class AppInstance extends UuidEntity {
     private Calendar firstHeartbeat;
 
     @NotNull
+    @Index(name = "idx_app_instance_last_heartbeat")
     private Calendar lastHeartbeat;
 
     private int cpuUtilization;
@@ -35,82 +40,127 @@ public class AppInstance extends UuidEntity {
     @Transient
     private boolean local;
 
+    @Transient
+    private boolean regionOverride;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     private Currency currency = Currency.US_DOLLAR;
 
-    public AppInstance() {
+    public AppInstance()
+    {
+    }
+    
+    public AppInstance(String region, boolean local) {
+        this.region = region;
+        this.local = local;
     }
 
-    public long getUptimeMs() {
+    public long getUptimeMs()
+    {
         return System.currentTimeMillis() - dateStarted;
     }
 
-    public String getName() {
-        return getRegion() + " Region";
+    public String getName()
+    {
+        if (region.toLowerCase().endsWith("region"))
+        {
+            return region;
+        }
+        return region + " Region";
     }
 
-    public String getUrl() {
+    public String getUrl()
+    {
         return url;
     }
 
-    public void setUrl(String url) {
+    public void setUrl(String url)
+    {
         this.url = url;
     }
 
-    public String getRegion() {
+    public String getRegion()
+    {
         return region;
     }
 
-    public void setRegion(String region) {
+    public void setRegion(String region)
+    {
+        if (StringUtils.isEmpty(region))
+        {
+            throw new IllegalArgumentException();
+        }
         this.region = region;
     }
 
-    public Calendar getFirstHeartbeat() {
+    public Calendar getFirstHeartbeat()
+    {
         return firstHeartbeat;
     }
 
-    public void setFirstHeartbeat(Calendar firstHeartbeat) {
+    public void setFirstHeartbeat(Calendar firstHeartbeat)
+    {
         this.firstHeartbeat = firstHeartbeat;
     }
 
-    public Calendar getLastHeartbeat() {
+    public Calendar getLastHeartbeat()
+    {
         return lastHeartbeat;
     }
 
-    public void setLastHeartbeat(Calendar lastHeartbeat) {
+    public void setLastHeartbeat(Calendar lastHeartbeat)
+    {
         this.lastHeartbeat = lastHeartbeat;
     }
 
-    public int getCpuUtilization() {
+    public int getCpuUtilization()
+    {
         return cpuUtilization;
     }
 
-    public void setCpuUtilization(int cpuUtilization) {
+    public void setCpuUtilization(int cpuUtilization)
+    {
         this.cpuUtilization = cpuUtilization;
     }
 
-    public Currency getCurrency() {
+    public Currency getCurrency()
+    {
         return currency;
     }
 
-    public void setCurrency(Currency currency) {
+    public void setCurrency(Currency currency)
+    {
         this.currency = currency;
     }
 
-    public long getDateStarted() {
+    public long getDateStarted()
+    {
         return dateStarted;
     }
 
-    public void setDateStarted(long dateStarted) {
+    public void setDateStarted(long dateStarted)
+    {
         this.dateStarted = dateStarted;
     }
 
-    public boolean getLocal() {
+    public boolean getLocal()
+    {
         return local;
     }
 
-    public void setLocal(boolean local) {
+    public void setLocal(boolean local)
+    {
         this.local = local;
+    }
+
+    public boolean getRegionOverride()
+    {
+        return regionOverride;
+    }
+
+    public void setRegionOverride(boolean regionOverride)
+    {
+        this.regionOverride = regionOverride;
     }
 }

@@ -102,7 +102,7 @@ Ext.define('App.view.Viewport', {
                 return '../control-panel';
                 
             case 'storefront':
-                return '../products;'
+                return '../products';
 
             default:
                 return null;

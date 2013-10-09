@@ -1,5 +1,5 @@
 <!-- Copyright (c) 2013 NuoDB, Inc. -->
-<web-app id="WebApp_ID" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<web-app id="StorefrontDemo" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
 	http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 
@@ -12,13 +12,13 @@
     </context-param>
 
     <welcome-file-list>
-        <welcome-file>products</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
 
     <!-- Lifecycle listeners -->
     <listener>
-        <listener-class>com.nuodb.storefront.StorefrontWebApp</listener-class>
+        <listener-class>com.nuodb.storefront.servlet.StorefrontWebApp</listener-class>
     </listener>
 
     <!-- HTTP headers for cross-site AJAX support -->   

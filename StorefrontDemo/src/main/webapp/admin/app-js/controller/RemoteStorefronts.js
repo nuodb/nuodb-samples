@@ -8,8 +8,6 @@
 Ext.define('App.controller.RemoteStorefronts', {
     extend: 'Ext.app.Controller',
 
-    minHeavyCpuUtilizationPct: 90,
-
     /** @Override */
     init: function() {
         var me = this;
@@ -63,7 +61,6 @@ Ext.define('App.controller.RemoteStorefronts', {
                 }
 
                 // Discover valid IDs
-                var knownUuidMap = (me.storefrontController.stats || {}).regionWorkloadStats || {};
                 var uuidMap = {};
                 for ( var i = 0; i < me.appInstances.length; i++) {
                     var uuid = me.appInstances[i].uuid;
@@ -88,20 +85,6 @@ Ext.define('App.controller.RemoteStorefronts', {
                 // Reset stats if something has changed so our deltas aren't messed up
                 if (removeCount > 0) {
                     me.storefrontController.resetStats();
-                }
-
-                // Signal instances under heavy load
-                for ( var i = 0; i < me.appInstances.length; i++) {
-                    var instance = me.appInstances[i];
-                    if (instance.cpuUtilization >= me.minHeavyCpuUtilizationPct) {
-                        me.application.fireEvent('heavyload', {
-                            status: 500,
-                            responseJson: {
-                                message: "Instance " + instance.url + " is under heavy load.  Reduce simulated users here or add instances to this region.",
-                                ttl: App.app.instanceListRefreshFrequencyMs + 2000
-                            }
-                        }, instance);
-                    }
                 }
             },
             failure: function(response) {
@@ -141,9 +124,13 @@ Ext.define('App.controller.RemoteStorefronts', {
                         return;
                     }
 
+                    // Apply latest region stats
                     var regionStats = me.storefrontController.regionStats[instance.region];
                     if (!regionStats) {
                         me.storefrontController.regionStats[instance.region] = regionStats = {};
+                    } else if (!regionStats[instance.uuid]) {
+                    	// We received stats after we marked this instance as dead.  Ignore stats for now.
+                    	return;
                     } else {
                         var lastTimestamp = regionStats[instance.uuid].timestamp;
                         if (lastTimestamp && stats.timestamp < lastTimestamp) {
@@ -152,6 +139,9 @@ Ext.define('App.controller.RemoteStorefronts', {
                         }
                     }
                     regionStats[instance.uuid] = stats;
+                    
+                    // Warn if this instance is under heavy load
+                    me.storefrontController.checkForHeavyLoad(stats.appInstance);
                 },
                 failure: function(response) {
                     me.application.fireEvent('statsfail', response, instance);

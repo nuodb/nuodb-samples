@@ -202,9 +202,6 @@
 									   <td><i class="{{icon}}"></i> {{type}}</td>
 									   <td>
 										   {{address}}:{{port}}
-										   {{#if local}}
-											   <span class="label label-success" title="This instance of the Storefront is currently connected to this NuoDB node."><i class="icon-star icon-white"></i></span>
-										   {{/if}}
 									   </td>
 									   <td>{{state}}</td>
 								   </tr>

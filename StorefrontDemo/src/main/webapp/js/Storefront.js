@@ -40,7 +40,7 @@ var Storefront = {
                 break;
 
             case "product":
-                me.initProductPage(cfg.pageData);
+                me.initProductPage(cfg.pageData, cfg.customer);
                 break;
 
             case "cart":
@@ -241,7 +241,7 @@ var Storefront = {
         me.syncProductsPage(products);
     },
 
-    initProductPage: function(product) {
+    initProductPage: function(product, customer) {
         var me = this;
 
         me.TemplateMgr.applyTemplate('tpl-product', '#product', product);
@@ -261,17 +261,33 @@ var Storefront = {
                 document.location.href = "cart";
             });
         });
+        
+        // Initialize review form fields
+        $('form.add-review [name=emailAddress]').val(customer.emailAddress);
+        
+        // Focus on first field when review dialog opens
+        $('#dlg-add-review').on('shown', function() {
+        	$('[name=title]').focus();
+        });
 
         // Handle "Add Review" form submit
         $('form.add-review').submit(function(event) {
             event.preventDefault();
+            
+            // Validate form
+        	var rating = $('[name=rating]', this).val();
+        	if (!rating) {
+        		alert("Please select a star rating first.");
+        		return;
+        	}
+        	
             $.ajax('api/products/' + encodeURIComponent(product.id) + '/reviews', {
                 cache: false,
                 data: {
                     title: $('[name=title]', this).val(),
                     comments: $('[name=comments]', this).val(),
                     emailAddress: $('[name=emailAddress]', this).val(),
-                    rating: $('[name=rating]', this).val()
+                    rating: rating
                 },
                 dataType: 'json',
                 type: 'POST'

@@ -11,8 +11,6 @@ Ext.define('App.view.MessageBar', {
     cls: 'message',
     hidden: true,
 
-    msgDefaultDisplayTimeMs: 10 * 1000,
-
     /** @Override */
     initComponent: function() {
         var me = this;
@@ -80,14 +78,14 @@ Ext.define('App.view.MessageBar', {
             me.addMessage('Unable to connect to the Storefront API.  Verify the web application is still running.  Retries will continue automatically.', instance);
         } else {
             var msg = '';
-            var ttl;
+            var ttl = null;
             try {
                 msg = (response.responseJson || Ext.decode(response.responseText)).message;
                 ttl = (response.responseJson) ? response.responseJson.ttl : 0;
             } catch (e) {
             }
             msg = msg || (' HTTP status ' + response.status);
-            me.addMessage(Ext.String.format('{0}.  Retries will continue automatically.', msg), instance);
+            me.addMessage(Ext.String.format('{0}.  Retries will continue automatically.', msg), instance, ttl);
         }
     },
 
@@ -117,7 +115,7 @@ Ext.define('App.view.MessageBar', {
             var msgObj = me.msgList[i];
             if (msgObj.uuid == uuid) {
                 msgObj.message = msg;
-                msgObj.displayUntil = (ttl) ? now + ttl : now + me.msgDefaultDisplayTimeMs;
+                msgObj.displayUntil = (ttl) ? now + ttl : now + App.app.msgDefaultDisplayTimeMs;
                 found = true;
                 break;
             }

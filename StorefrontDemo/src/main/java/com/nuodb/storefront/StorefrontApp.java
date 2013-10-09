@@ -24,8 +24,18 @@ import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
 
 public class StorefrontApp {
-    public static final AppInstance APP_INSTANCE = new AppInstance();
-    
+    public static final int HEARTBEAT_INTERVAL_SEC = 10;          // 10 sec
+    public static final int MAX_HEARTBEAT_AGE_SEC = 20;           // 20 sec
+    public static final int PURGE_FREQUENCY_SEC = 60 * 30;        // 30 min
+    public static final int MIN_INSTANCE_PURGE_AGE_SEC = 60 * 60; // 1 hour
+    public static final int DEFAULT_SESSION_TIMEOUT_SEC = 60 * 20;// 20 min
+
+    public static final String DEFAULT_REGION_NAME = "Default";
+    public static final int DEFAULT_PORT = 8080;
+    public static final String DEFAULT_URL = "http://{host}:{port}/{context}";
+
+    public static final AppInstance APP_INSTANCE = new AppInstance(DEFAULT_REGION_NAME, true);
+
     private static final int BENCHMARK_DURATION_MS = 10000;
     private static final int SIMULATOR_STATS_DISPLAY_INTERVAL_MS = 5000;
 

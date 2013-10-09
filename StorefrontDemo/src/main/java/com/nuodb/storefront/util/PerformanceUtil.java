@@ -2,29 +2,36 @@ package com.nuodb.storefront.util;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
+import java.lang.reflect.Method;
 
-@SuppressWarnings("restriction")
 public class PerformanceUtil {
-    private static final OperatingSystemMXBean osInfo;
-    private static final com.sun.management.OperatingSystemMXBean sunOsInfo;
-    private static final int availableProcessors;
+    private static final OperatingSystemMXBean s_osInfo;
+    private static final int s_availableProcessors;
+    private static final Method s_getProcessCpuTime;
 
-    private static long lastSystemTime;
-    private static long lastProcessCpuTime;
+    private static long s_lastSystemTime;
+    private static long s_lastProcessCpuTime;
 
     private PerformanceUtil() {
     }
 
     static {
-        osInfo = ManagementFactory.getOperatingSystemMXBean();
-        availableProcessors = osInfo.getAvailableProcessors();
+        s_osInfo = ManagementFactory.getOperatingSystemMXBean();
+        s_availableProcessors = s_osInfo.getAvailableProcessors();
 
-        if (osInfo.getSystemLoadAverage() < 0 && osInfo instanceof com.sun.management.OperatingSystemMXBean) {
-            sunOsInfo = (com.sun.management.OperatingSystemMXBean) osInfo;
-            lastSystemTime = System.nanoTime();
-            lastProcessCpuTime = sunOsInfo.getProcessCpuTime();
+        if (s_osInfo.getSystemLoadAverage() < 0) {
+        	Method getProcessCpuTime;
+        	try {
+        		getProcessCpuTime = s_osInfo.getClass().getMethod("getProcessCpuTime", (Class<?>[])null);
+	            getProcessCpuTime.setAccessible(true);
+	            s_lastProcessCpuTime = (Long)getProcessCpuTime.invoke(s_osInfo, (Object[])null);
+	            s_lastSystemTime = System.nanoTime();
+			} catch (Exception e) {
+				getProcessCpuTime = null;
+			}
+            s_getProcessCpuTime = getProcessCpuTime;
         } else {
-            sunOsInfo = null; // not available or not needed
+        	s_getProcessCpuTime = null; // not available or not needed
         }
     }
 
@@ -33,21 +40,26 @@ public class PerformanceUtil {
      */
     public static int getCpuUtilization() {
         double load;
-        if (sunOsInfo != null) {
-            synchronized (sunOsInfo) {
+        if (s_getProcessCpuTime != null) {
+            synchronized (s_getProcessCpuTime) {
                 long systemTime = System.nanoTime();
-                long processCpuTime = sunOsInfo.getProcessCpuTime();
-                load = (double) (processCpuTime - lastProcessCpuTime) / (systemTime - lastSystemTime);
-                lastProcessCpuTime = processCpuTime;
-                lastSystemTime = systemTime;
+                long processCpuTime;
+				try {
+					processCpuTime = (Long)s_getProcessCpuTime.invoke(s_osInfo, (Object[])null);
+	                load = (double) (processCpuTime - s_lastProcessCpuTime) / (systemTime - s_lastSystemTime);
+	                s_lastProcessCpuTime = processCpuTime;
+	                s_lastSystemTime = systemTime;
+				} catch (Exception e) {
+					load = 0;
+				}
             }
         } else {
-            load = osInfo.getSystemLoadAverage();
+            load = s_osInfo.getSystemLoadAverage();
         }
 
         if (load < 0) {
             return 0;
         }
-        return (int) Math.round(load / availableProcessors * 100);
+        return (int) Math.round(load / s_availableProcessors * 100);
     }
 }
