@@ -24,7 +24,7 @@ public class StorefrontWebApp implements ServletContextListener {
     private static IHeartbeatService heartbeatSvc;
     private static final String ENV_PROP_REGION = "storefront.region";
     private static final String ENV_PROP_URL = "storefront.url";
-    
+
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         if (executor != null) {
@@ -34,8 +34,8 @@ public class StorefrontWebApp implements ServletContextListener {
 
         // Get external URL of this web app
         String url = getWebAppUrl(sce.getServletContext(), StorefrontApp.DEFAULT_PORT);
-        
-        // Handle region override (if provided) 
+
+        // Handle region override (if provided)
         String region = System.getProperty(ENV_PROP_REGION);
         if (!StringUtils.isEmpty(region)) {
             StorefrontApp.APP_INSTANCE.setRegion(region);

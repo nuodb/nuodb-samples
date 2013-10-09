@@ -20,18 +20,18 @@ public class PerformanceUtil {
         s_availableProcessors = s_osInfo.getAvailableProcessors();
 
         if (s_osInfo.getSystemLoadAverage() < 0) {
-        	Method getProcessCpuTime;
-        	try {
-        		getProcessCpuTime = s_osInfo.getClass().getMethod("getProcessCpuTime", (Class<?>[])null);
-	            getProcessCpuTime.setAccessible(true);
-	            s_lastProcessCpuTime = (Long)getProcessCpuTime.invoke(s_osInfo, (Object[])null);
-	            s_lastSystemTime = System.nanoTime();
-			} catch (Exception e) {
-				getProcessCpuTime = null;
-			}
+            Method getProcessCpuTime;
+            try {
+                getProcessCpuTime = s_osInfo.getClass().getMethod("getProcessCpuTime", (Class<?>[]) null);
+                getProcessCpuTime.setAccessible(true);
+                s_lastProcessCpuTime = (Long) getProcessCpuTime.invoke(s_osInfo, (Object[]) null);
+                s_lastSystemTime = System.nanoTime();
+            } catch (Exception e) {
+                getProcessCpuTime = null;
+            }
             s_getProcessCpuTime = getProcessCpuTime;
         } else {
-        	s_getProcessCpuTime = null; // not available or not needed
+            s_getProcessCpuTime = null; // not available or not needed
         }
     }
 
@@ -44,14 +44,14 @@ public class PerformanceUtil {
             synchronized (s_getProcessCpuTime) {
                 long systemTime = System.nanoTime();
                 long processCpuTime;
-				try {
-					processCpuTime = (Long)s_getProcessCpuTime.invoke(s_osInfo, (Object[])null);
-	                load = (double) (processCpuTime - s_lastProcessCpuTime) / (systemTime - s_lastSystemTime);
-	                s_lastProcessCpuTime = processCpuTime;
-	                s_lastSystemTime = systemTime;
-				} catch (Exception e) {
-					load = 0;
-				}
+                try {
+                    processCpuTime = (Long) s_getProcessCpuTime.invoke(s_osInfo, (Object[]) null);
+                    load = (double) (processCpuTime - s_lastProcessCpuTime) / (systemTime - s_lastSystemTime);
+                    s_lastProcessCpuTime = processCpuTime;
+                    s_lastSystemTime = systemTime;
+                } catch (Exception e) {
+                    load = 0;
+                }
             }
         } else {
             load = s_osInfo.getSystemLoadAverage();

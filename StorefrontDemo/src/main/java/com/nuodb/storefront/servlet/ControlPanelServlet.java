@@ -31,19 +31,19 @@ public class ControlPanelServlet extends BaseServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             IStorefrontService svc = getService();
-            
+
             // Fetch store stats
             StorefrontStatsReport stats = StorefrontFactory.getSimulatorService().getStorefrontStatsReport(null, true);
-            
+
             // Fetch product data (and add a warning if the Storefront has no products yet)
             Map<String, Object> productInfo = new HashMap<String, Object>();
             SearchResult<Category> categoryList = svc.getCategories();
             SearchResult<Product> productList = svc.getProducts(new ProductFilter());
             addDataLoadMessage(req, categoryList, productList, productInfo);
-            
+
             // Fetch nodes data
             List<DbNode> dbNodes = svc.getDbNodes();
-            
+
             // Fetch data the page needs
             Map<String, Object> pageData = new HashMap<String, Object>();
             pageData.put("stats", stats);

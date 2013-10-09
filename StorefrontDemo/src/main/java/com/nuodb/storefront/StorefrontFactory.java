@@ -28,8 +28,7 @@ import com.nuodb.storefront.service.storefront.AppInstanceInitService;
 import com.nuodb.storefront.service.storefront.StorefrontService;
 
 /**
- * Factory for creating Storefront services and schema managers. To keep code in
- * this demo straightforward, this factory is used in lieu of dependency
+ * Factory for creating Storefront services and schema managers. To keep code in this demo straightforward, this factory is used in lieu of dependency
  * injection, e.g. via the Spring framework.
  */
 public class StorefrontFactory
@@ -100,8 +99,7 @@ public class StorefrontFactory
         try
         {
             session.connection().setAutoCommit(true);
-        }
-        catch (SQLException e)
+        } catch (SQLException e)
         {
             throw new RuntimeException(e);
         }
@@ -147,11 +145,10 @@ public class StorefrontFactory
                         StorefrontDao dao = new StorefrontDao();
                         dao.setSessionFactory(s_sessionFactory);
                         dao.runTransaction(TransactionType.READ_ONLY, null, new AppInstanceInitService(dao));
-                    }
-                    catch (Exception e)
+                    } catch (Exception e)
                     {
                         s_sessionFactory = null;
-                        throw (e instanceof RuntimeException) ? ((RuntimeException)e) : new RuntimeException(e);
+                        throw (e instanceof RuntimeException) ? ((RuntimeException) e) : new RuntimeException(e);
                     }
                 }
             }

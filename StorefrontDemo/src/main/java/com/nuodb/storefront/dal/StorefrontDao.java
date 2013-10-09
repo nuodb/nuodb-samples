@@ -33,10 +33,8 @@ import com.nuodb.storefront.model.type.Currency;
 import com.nuodb.storefront.model.type.ProductSort;
 
 /**
- * Data access object designed for storefront operations, built on top of a
- * general-purpose DAO. The caller is responsible for wrapping DAO calls in
- * transactions, typically by using the {@link #runTransaction(Callable)} or
- * {@link #runTransaction(Runnable)} method.
+ * Data access object designed for storefront operations, built on top of a general-purpose DAO. The caller is responsible for wrapping DAO calls in
+ * transactions, typically by using the {@link #runTransaction(Callable)} or {@link #runTransaction(Runnable)} method.
  */
 public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
 {
@@ -47,10 +45,9 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
     }
 
     /**
-     * Registers a transaction name for transaction stats tracking. This is done
-     * for convenience to API clients, so they know up front all of the
-     * transaction types available, even if some of those transaction types have
-     * not yet been executed and therefore have no stats associated with them.
+     * Registers a transaction name for transaction stats tracking. This is done for convenience to API clients, so they know up front all of the
+     * transaction types available, even if some of those transaction types have not yet been executed and therefore have no stats associated with
+     * them.
      */
     public static void registerTransactionNames(String[] transactionNames)
     {
@@ -104,14 +101,13 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
             t.commit();
             updateTransactionStats(name, startTime, true);
             return result;
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             t.rollback();
             updateTransactionStats(name, startTime, false);
             if (e instanceof RuntimeException)
             {
-                throw (RuntimeException)e;
+                throw (RuntimeException) e;
             }
             throw new RuntimeException(e);
         }
@@ -128,8 +124,8 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
         List categories = getSession().createSQLQuery("SELECT DISTINCT CATEGORY, 0 FROM PRODUCT_CATEGORY ORDER BY CATEGORY").list();
         for (int i = categories.size() - 1; i >= 0; i--)
         {
-            Object[] data = (Object[])categories.get(i);
-            categories.set(i, new Category((String)data[0], ((Number)data[1]).intValue()));
+            Object[] data = (Object[]) categories.get(i);
+            categories.set(i, new Category((String) data[0], ((Number) data[1]).intValue()));
         }
 
         SearchResult result = new SearchResult<Category>();
@@ -146,7 +142,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
 
         SearchResult<Product> result = new SearchResult<Product>();
         result.setResult(buildProductQuery(filter, false).list());
-        result.setTotalCount(((Number)buildProductQuery(filter, true).uniqueResult()).intValue());
+        result.setTotalCount(((Number) buildProductQuery(filter, true).uniqueResult()).intValue());
 
         for (Product p : result.getResult())
         {
@@ -188,7 +184,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
                 + " (SELECT MIN(DATE_STARTED) FROM APP_INSTANCE WHERE LAST_HEARTBEAT >= :MIN_HEARTBEAT_TIME) AS START_TIME"
                 + " FROM DUAL;");
         setStorefrontStatsParameters(query, maxCustomerIdleTimeSec);
-        Object[] result = (Object[])query.uniqueResult();
+        Object[] result = (Object[]) query.uniqueResult();
 
         // Fill stats
         StorefrontStats stats = new StorefrontStats();
@@ -246,11 +242,11 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
         setStorefrontStatsParameters(query, maxCustomerIdleTimeSec);
 
         // Fill stats
-        for (Object[] row : (List<Object[]>)query.list())
+        for (Object[] row : (List<Object[]>) query.list())
         {
             String metric = row[0].toString();
             Object value = row[1];
-            String region = (String)row[2];
+            String region = (String) row[2];
 
             if (region == null)
             {
@@ -333,7 +329,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
         }
         if (value instanceof Number)
         {
-            return ((Number)value).intValue();
+            return ((Number) value).intValue();
         }
         return Integer.valueOf(value.toString());
     }
@@ -346,7 +342,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
         }
         if (value instanceof Number)
         {
-            return new BigDecimal(((Number)value).doubleValue());
+            return new BigDecimal(((Number) value).doubleValue());
         }
         String str = value.toString();
         if (str.equalsIgnoreCase("NaN"))
@@ -394,43 +390,43 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
                     String alias = aliases[i].toLowerCase();
                     if (alias.equals("id"))
                     {
-                        node.setId((Integer)tuple[i]);
+                        node.setId((Integer) tuple[i]);
                     }
                     else if (alias.equals("localid"))
                     {
-                        node.setLocalId((Integer)tuple[i]);
+                        node.setLocalId((Integer) tuple[i]);
                     }
                     else if (alias.equals("port"))
                     {
-                        node.setPort((Integer)tuple[i]);
+                        node.setPort((Integer) tuple[i]);
                     }
                     else if (alias.equals("address"))
                     {
-                        node.setAddress((String)tuple[i]);
+                        node.setAddress((String) tuple[i]);
                     }
                     else if (alias.equals("state"))
                     {
-                        node.setState((String)tuple[i]);
+                        node.setState((String) tuple[i]);
                     }
                     else if (alias.equals("type"))
                     {
-                        node.setType((String)tuple[i]);
+                        node.setType((String) tuple[i]);
                     }
                     else if (alias.equals("connstate"))
                     {
-                        node.setConnState((String)tuple[i]);
+                        node.setConnState((String) tuple[i]);
                     }
                     else if (alias.equals("msgqsize"))
                     {
-                        node.setMsgQSize((Integer)tuple[i]);
+                        node.setMsgQSize((Integer) tuple[i]);
                     }
                     else if (alias.equals("triptime"))
                     {
-                        node.setTripTime((Integer)tuple[i]);
+                        node.setTripTime((Integer) tuple[i]);
                     }
                     else if (alias.equals("georegion"))
                     {
-                        node.setGeoRegion((String)tuple[i]);
+                        node.setGeoRegion((String) tuple[i]);
                     }
                     else if (alias.equals("local"))
                     {
@@ -440,7 +436,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
                 return node;
             }
         });
-        return (List<DbNode>)query.list();
+        return (List<DbNode>) query.list();
     }
 
     @Override
@@ -449,8 +445,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
         try
         {
             return getSession().createSQLQuery("SELECT GEOREGION FROM SYSTEM.NODES WHERE ID=GETNODEID()").uniqueResult().toString();
-        }
-        catch (SQLGrammarException e)
+        } catch (SQLGrammarException e)
         {
             return null;
         }
@@ -460,7 +455,8 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
     public Currency getRegionCurrency(final String region)
     {
         @SuppressWarnings("unchecked")
-        List<String> currencies = (List<String>)getSession().createSQLQuery("SELECT DISTINCT Currency FROM APP_INSTANCE WHERE REGION=:REGION ORDER BY LAST_HEARTBEAT DESC")
+        List<String> currencies = (List<String>) getSession()
+                .createSQLQuery("SELECT DISTINCT Currency FROM APP_INSTANCE WHERE REGION=:REGION ORDER BY LAST_HEARTBEAT DESC")
                 .setParameter("REGION", region).list();
         if (currencies.isEmpty())
         {
@@ -474,12 +470,12 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
         Calendar now = Calendar.getInstance();
 
         // MIN_ACTIVE_TIME
-        Calendar minActiveTime = (Calendar)now.clone();
+        Calendar minActiveTime = (Calendar) now.clone();
         minActiveTime.add(Calendar.SECOND, -maxCustomerIdleTimeSec);
         query.setParameter("MIN_ACTIVE_TIME", minActiveTime);
 
         // MIN_HEARTBEAT_TIME
-        Calendar minHeartbeatTime = (Calendar)now.clone();
+        Calendar minHeartbeatTime = (Calendar) now.clone();
         minHeartbeatTime.add(Calendar.SECOND, -StorefrontApp.MAX_HEARTBEAT_AGE_SEC);
         query.setParameter("MIN_HEARTBEAT_TIME", minHeartbeatTime);
     }

@@ -87,25 +87,23 @@ public interface IStorefrontDao extends GeneralDAO {
      * Removes instances from the AppInstances table who have not sent a heartbeat since the specified time.
      */
     public int deleteDeadAppInstances(Calendar maxLastHeartbeat);
-    
+
     /**
-     * Fetches information about all the database nodes running in support of the underlying database schema.
-     * This method returns an empty list unless NuoDB is running.
+     * Fetches information about all the database nodes running in support of the underlying database schema. This method returns an empty list unless
+     * NuoDB is running.
      */
     public List<DbNode> getDbNodes();
 
     /**
-     * Gets the "georegion" tag of the NuoDB transaction engine of the current database connection.
-     * Since the Storefront uses a thread pool and may communicate with multiple transaction engines,
-     * the return value may vary if called multiple times.  A <code>null</code> value is returned
-     * if the underlying database does not support georegion metadata (e.g. NuoDB pre-2.0, MySQL, etc.).
+     * Gets the "georegion" tag of the NuoDB transaction engine of the current database connection. Since the Storefront uses a thread pool and may
+     * communicate with multiple transaction engines, the return value may vary if called multiple times. A <code>null</code> value is returned if the
+     * underlying database does not support georegion metadata (e.g. NuoDB pre-2.0, MySQL, etc.).
      */
     public String getCurrentDbNodeRegion();
 
     /**
-     * Gets the currency currently associated with a specified region.  This is determined
-     * by looking at the most recent Storefront instance (by last heartbeat time) associated
-     * with this region.  If no such instance exists, <code>null</code> is returned instead.
+     * Gets the currency currently associated with a specified region. This is determined by looking at the most recent Storefront instance (by last
+     * heartbeat time) associated with this region. If no such instance exists, <code>null</code> is returned instead.
      */
     public Currency getRegionCurrency(String region);
 }

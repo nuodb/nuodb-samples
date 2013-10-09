@@ -28,7 +28,8 @@ public class StatsApi extends BaseApi {
     @Produces(MediaType.APPLICATION_JSON)
     public StorefrontStatsReport getAllStatsReport(@QueryParam("sessionTimeoutSec") Integer sessionTimeoutSec,
             @QueryParam("includeStorefront") Boolean includeStorefront) {
-        return StorefrontFactory.getSimulatorService().getStorefrontStatsReport(sessionTimeoutSec, includeStorefront != null && includeStorefront.booleanValue());
+        return StorefrontFactory.getSimulatorService().getStorefrontStatsReport(sessionTimeoutSec,
+                includeStorefront != null && includeStorefront.booleanValue());
     }
 
     @GET

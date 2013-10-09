@@ -33,7 +33,7 @@ public class AppInstanceApi extends BaseApi {
         if (currency == null) {
             throw new DataValidationException("Currency not valid.");
         }
-        
+
         AppInstance instance = StorefrontApp.APP_INSTANCE;
         instance.setCurrency(currency);
         return instance;

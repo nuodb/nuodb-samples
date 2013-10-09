@@ -9,7 +9,7 @@ import javax.ws.rs.core.Response.Status;
  */
 public class UnsupportedStepException extends StorefrontException {
     private static final long serialVersionUID = 3147731827773036813L;
-    
+
     public UnsupportedStepException() {
         super(Status.SERVICE_UNAVAILABLE);
     }
