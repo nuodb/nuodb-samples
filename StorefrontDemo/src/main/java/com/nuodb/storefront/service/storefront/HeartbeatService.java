@@ -39,20 +39,6 @@ public class HeartbeatService implements IHeartbeatService {
             dao.runTransaction(TransactionType.READ_WRITE, "sendHeartbeat", new Runnable() {
                 @Override
                 public void run() {
-
-                    int mb = 1024*1024;
-                    
-                //Getting the runtime reference from system
-                System.gc();
-                Runtime runtime = Runtime.getRuntime();
-                System.out.println("##### Heap utilization statistics [MB] #####");
-                System.out.println("Used Memory:"
-                    + (runtime.totalMemory() - runtime.freeMemory()) / mb);
-                System.out.println("Free Memory:"
-                    + runtime.freeMemory() / mb);
-                System.out.println("Total Memory:" + runtime.totalMemory() / mb);
-                System.out.println("Max Memory:" + runtime.maxMemory() / mb);
-                    
                     Calendar now = Calendar.getInstance();
                     AppInstance appInstance = StorefrontApp.APP_INSTANCE;
                     secondsUntilNextPurge -= HEARTBEAT_INTERVAL_SEC;

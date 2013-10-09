@@ -50,7 +50,6 @@ public class DataGenerator {
         customer.setEmailAddress("test" + rnd.nextInt(100000) + "@test.com");
         customer.setRegion(StorefrontApp.APP_INSTANCE.getRegion());
         customer.setWorkload("DataGenerator");
-        // dao.save(customer);
         return customer;
     }
 
@@ -73,7 +72,6 @@ public class DataGenerator {
         // Add reviews
         addProductReviews(product, maxReviewsPerProduct);
 
-        // dao.save(product);
         return product;
     }
 
