@@ -11,7 +11,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotNull;
 
-
 @MappedSuperclass
 public abstract class ProductSelection {
     @Id

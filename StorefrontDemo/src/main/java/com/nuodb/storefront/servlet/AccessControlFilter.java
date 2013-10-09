@@ -1,3 +1,5 @@
+/* Copyright (c) 2013 NuoDB, Inc. */
+
 package com.nuodb.storefront.servlet;
 
 import java.io.IOException;
@@ -10,6 +12,9 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * Filter to permit CORS requests (AJAX requests from other domains) for data aggregation across regions/instances
+ */
 public class AccessControlFilter implements Filter {
     public AccessControlFilter() {
     }

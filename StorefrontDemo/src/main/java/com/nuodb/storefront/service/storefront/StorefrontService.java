@@ -39,40 +39,49 @@ import com.nuodb.storefront.model.entity.PurchaseSelection;
 import com.nuodb.storefront.service.IStorefrontService;
 
 /**
- * Basic implementation of the storefront service interface. Each service method invocation runs in its own transaction.
+ * Basic implementation of the storefront service interface. Each service method
+ * invocation runs in its own transaction.
  */
-public class StorefrontService implements IStorefrontService {
+public class StorefrontService implements IStorefrontService
+{
     private final IStorefrontDao dao;
     private boolean s_hasNodesTable = true;
 
-    static {
+    static
+    {
         StorefrontDao.registerTransactionNames(new String[] { "addProduct", "addProductReview", "addToCart", "checkout", "getAppInstances",
                 "getCategories", "getCustomerCart", "getDbNodes", "getOrCreateCustomer", "getProductDetails", "getProducts", "getStorefrontStats",
                 "getStorefrontStatsByRegion", "updateCart" });
     }
 
-    public StorefrontService(IStorefrontDao dao) {
+    public StorefrontService(IStorefrontDao dao)
+    {
         this.dao = dao;
     }
 
     @Override
-    public SearchResult<Category> getCategories() {
+    public SearchResult<Category> getCategories()
+    {
         return dao.runTransaction(TransactionType.READ_ONLY, "getCategories", new Callable<SearchResult<Category>>() {
             @Override
-            public SearchResult<Category> call() throws Exception {
+            public SearchResult<Category> call() throws Exception
+            {
                 return dao.getCategories();
             }
         });
     }
 
     @Override
-    public SearchResult<Product> getProducts(final ProductFilter filter) {
+    public SearchResult<Product> getProducts(final ProductFilter filter)
+    {
         return dao.runTransaction(TransactionType.READ_ONLY, "getProducts", new Callable<SearchResult<Product>>() {
             @Override
-            public SearchResult<Product> call() throws Exception {
+            public SearchResult<Product> call() throws Exception
+            {
                 SearchResult<Product> result = dao.getProducts(filter);
 
-                for (Product product : result.getResult()) {
+                for (Product product : result.getResult())
+                {
                     dao.evict(product);
                     product.clearCategories();
                 }
@@ -83,25 +92,31 @@ public class StorefrontService implements IStorefrontService {
     }
 
     @Override
-    public Product getProductDetails(final int productId) {
+    public Product getProductDetails(final int productId)
+    {
         return dao.runTransaction(TransactionType.READ_ONLY, "getProductDetails", new Callable<Product>() {
             @Override
-            public Product call() throws Exception {
+            public Product call() throws Exception
+            {
                 Search productSearch = new Search(Product.class);
                 productSearch.addFilterEqual("id", productId);
                 productSearch.addFetch("categories");
                 productSearch.addFetch("reviews");
-                Product product = (Product) dao.searchUnique(productSearch);
-                if (product == null) {
+                Product product = (Product)dao.searchUnique(productSearch);
+                if (product == null)
+                {
                     throw new ProductNotFoundException();
                 }
 
-                // Initialize customers associated with each review, but don't do a deep load
+                // Initialize customers associated with each review, but don't
+                // do a deep load
                 Set<Customer> customers = new HashSet<Customer>();
-                for (ProductReview review : product.getReviews()) {
+                for (ProductReview review : product.getReviews())
+                {
                     customers.add(review.getCustomer());
                 }
-                for (Customer customer : customers) {
+                for (Customer customer : customers)
+                {
                     dao.initialize(customer);
                     dao.evict(customer);
                     customer.clearCartSelections();
@@ -109,7 +124,8 @@ public class StorefrontService implements IStorefrontService {
                 }
 
                 // Break circular references so items are serialized properly
-                for (ProductReview review : product.getReviews()) {
+                for (ProductReview review : product.getReviews())
+                {
                     dao.evict(review);
                     review.clearProduct();
                 }
@@ -122,14 +138,17 @@ public class StorefrontService implements IStorefrontService {
 
     @Override
     public Product addProduct(final String name, final String description, final String imageUrl, final BigDecimal unitPrice,
-            final Collection<String> categories) {
-        if (unitPrice.signum() < 0) {
+            final Collection<String> categories)
+    {
+        if (unitPrice.signum() < 0)
+        {
             throw new IllegalArgumentException("unitPrice");
         }
 
         return dao.runTransaction(TransactionType.READ_WRITE, "addProduct", new Callable<Product>() {
             @Override
-            public Product call() throws Exception {
+            public Product call() throws Exception
+            {
                 Calendar now = Calendar.getInstance();
                 Product product = new Product();
                 product.setName(name);
@@ -148,25 +167,30 @@ public class StorefrontService implements IStorefrontService {
 
     @Override
     public ProductReview addProductReview(final int customerId, final int productId, final String title, final String comments,
-            final String emailAddress, final int rating) {
-        if (rating < 1 || rating > 5) {
+            final String emailAddress, final int rating)
+    {
+        if (rating < 1 || rating > 5)
+        {
             throw new IllegalArgumentException("rating");
         }
 
         return dao.runTransaction(TransactionType.READ_WRITE, "addProductReview", new Callable<ProductReview>() {
             @Override
-            public ProductReview call() throws Exception {
+            public ProductReview call() throws Exception
+            {
 
                 Customer customer = dao.find(Customer.class, customerId);
-                if (customer == null) {
+                if (customer == null)
+                {
                     throw new CustomerNotFoundException();
                 }
 
                 Search productSearch = new Search(Product.class);
                 productSearch.addFilterEqual("id", productId);
                 productSearch.addFetch("reviews");
-                Product product = (Product) dao.searchUnique(productSearch);
-                if (product == null) {
+                Product product = (Product)dao.searchUnique(productSearch);
+                if (product == null)
+                {
                     throw new ProductNotFoundException();
                 }
 
@@ -183,7 +207,8 @@ public class StorefrontService implements IStorefrontService {
                 product.addReview(review);
                 dao.save(product);
 
-                if (emailAddress != null && !emailAddress.isEmpty()) {
+                if (emailAddress != null && !emailAddress.isEmpty())
+                {
                     customer.setEmailAddress(emailAddress);
                     dao.save(customer);
                 }
@@ -201,14 +226,17 @@ public class StorefrontService implements IStorefrontService {
     }
 
     @Override
-    public Customer getOrCreateCustomer(final int customerId, final Workload workload) {
+    public Customer getOrCreateCustomer(final int customerId, final Workload workload)
+    {
         return dao.runTransaction(TransactionType.READ_WRITE, "getOrCreateCustomer", new Callable<Customer>() {
             @Override
-            public Customer call() throws Exception {
+            public Customer call() throws Exception
+            {
 
                 Calendar now = Calendar.getInstance();
                 Customer customer = dao.find(Customer.class, customerId);
-                if (customer == null) {
+                if (customer == null)
+                {
                     customer = new Customer();
                     customer.setDateAdded(now);
                 }
@@ -229,22 +257,26 @@ public class StorefrontService implements IStorefrontService {
     }
 
     @Override
-    public Cart getCustomerCart(final int customerId) {
+    public Cart getCustomerCart(final int customerId)
+    {
         return dao.runTransaction(TransactionType.READ_ONLY, "getCustomerCart", new Callable<Cart>() {
             @Override
-            public Cart call() throws Exception {
+            public Cart call() throws Exception
+            {
                 Search search = new Search(Customer.class);
                 search.addFilterEqual("id", customerId);
                 search.addFetch("cartSelections");
 
-                Customer customer = (Customer) dao.searchUnique(search);
-                if (customer == null) {
+                Customer customer = (Customer)dao.searchUnique(search);
+                if (customer == null)
+                {
                     throw new CustomerNotFoundException();
                 }
                 customer.clearTransactions();
 
                 BigDecimal totalPrice = new BigDecimal(0);
-                for (CartSelection selection : customer.getCartSelections()) {
+                for (CartSelection selection : customer.getCartSelections())
+                {
                     selection.clearCustomer();
 
                     Product product = selection.getProduct();
@@ -263,21 +295,26 @@ public class StorefrontService implements IStorefrontService {
     }
 
     @Override
-    public int addToCart(final int customerId, final int productId, final int quantity) {
-        if (quantity <= 0) {
+    public int addToCart(final int customerId, final int productId, final int quantity)
+    {
+        if (quantity <= 0)
+        {
             throw new IllegalArgumentException("quantity");
         }
 
         return dao.runTransaction(TransactionType.READ_WRITE, "addToCart", new Callable<Integer>() {
             @Override
-            public Integer call() throws Exception {
+            public Integer call() throws Exception
+            {
                 Customer customer = dao.find(Customer.class, customerId);
-                if (customer == null) {
+                if (customer == null)
+                {
                     throw new CustomerNotFoundException();
                 }
 
                 Product product = dao.find(Product.class, productId);
-                if (product == null) {
+                if (product == null)
+                {
                     throw new ProductNotFoundException();
                 }
 
@@ -290,27 +327,35 @@ public class StorefrontService implements IStorefrontService {
 
     @Override
     public int updateCart(final int customerId, final Map<Integer, Integer> productQuantityMap)
-            throws IllegalArgumentException, CustomerNotFoundException, ProductNotFoundException {
+            throws IllegalArgumentException, CustomerNotFoundException, ProductNotFoundException
+    {
         return dao.runTransaction(TransactionType.READ_WRITE, "updateCart", new Callable<Integer>() {
             @Override
-            public Integer call() throws Exception {
+            public Integer call() throws Exception
+            {
                 Customer customer = dao.find(Customer.class, customerId);
-                if (customer == null) {
+                if (customer == null)
+                {
                     throw new CustomerNotFoundException();
                 }
 
                 List<CartSelection> cart = customer.getCartSelections();
-                if (productQuantityMap == null || productQuantityMap.isEmpty()) {
+                if (productQuantityMap == null || productQuantityMap.isEmpty())
+                {
                     // There's nothing in the map so remove all items
                     cart.clear();
-                } else {
+                }
+                else
+                {
                     // Add/update items described in the map
                     Set<CartSelection> referencedItems = new HashSet<CartSelection>();
-                    for (Map.Entry<Integer, Integer> productQuantity : productQuantityMap.entrySet()) {
+                    for (Map.Entry<Integer, Integer> productQuantity : productQuantityMap.entrySet())
+                    {
                         int productId = productQuantity.getKey();
                         int quantity = productQuantity.getValue();
                         Product product = dao.find(Product.class, productId);
-                        if (product == null) {
+                        if (product == null)
+                        {
                             throw new ProductNotFoundException();
                         }
 
@@ -318,8 +363,10 @@ public class StorefrontService implements IStorefrontService {
                     }
 
                     // Remove items not described in the map
-                    for (int i = cart.size() - 1; i >= 0; i--) {
-                        if (!referencedItems.contains(cart.get(i))) {
+                    for (int i = cart.size() - 1; i >= 0; i--)
+                    {
+                        if (!referencedItems.contains(cart.get(i)))
+                        {
                             cart.remove(i);
                         }
                     }
@@ -331,17 +378,21 @@ public class StorefrontService implements IStorefrontService {
     }
 
     @Override
-    public Purchase checkout(final int customerId) {
+    public Purchase checkout(final int customerId)
+    {
         return dao.runTransaction(TransactionType.READ_WRITE, "checkout", new Callable<Purchase>() {
             @Override
-            public Purchase call() throws Exception {
+            public Purchase call() throws Exception
+            {
                 Customer customer = dao.find(Customer.class, customerId);
-                if (customer == null) {
+                if (customer == null)
+                {
                     throw new CustomerNotFoundException();
                 }
 
                 List<CartSelection> cart = customer.getCartSelections();
-                if (cart.isEmpty()) {
+                if (cart.isEmpty())
+                {
                     throw new CartEmptyException();
                 }
 
@@ -353,13 +404,16 @@ public class StorefrontService implements IStorefrontService {
                 customer.addTransaction(transaction);
 
                 // Move items from cart to transaction
-                for (CartSelection cartSelection : cart) {
+                for (CartSelection cartSelection : cart)
+                {
                     PurchaseSelection selection = new PurchaseSelection(cartSelection);
                     transaction.addTransactionSelection(selection);
                     selection.setUnitPrice(selection.getProduct().getUnitPrice());
 
-                    // Increment purchase count. This is denormalized, non-synchronized data so it may not be 100% accurate.
-                    // But that's ok -- it's just use to roughly gauge popularity and can be reconstructed exactly later
+                    // Increment purchase count. This is denormalized,
+                    // non-synchronized data so it may not be 100% accurate.
+                    // But that's ok -- it's just use to roughly gauge
+                    // popularity and can be reconstructed exactly later
                     // by looking at the transaction table.
                     Product product = selection.getProduct();
                     product.setPurchaseCount(product.getPurchaseCount() + selection.getQuantity());
@@ -374,59 +428,86 @@ public class StorefrontService implements IStorefrontService {
     }
 
     @Override
-    public Map<String, TransactionStats> getTransactionStats() {
+    public Map<String, TransactionStats> getTransactionStats()
+    {
         return dao.getTransactionStats();
     }
 
     @Override
-    public StorefrontStats getStorefrontStats(final int maxCustomerIdleTimeSec) {
+    public StorefrontStats getStorefrontStats(final int maxCustomerIdleTimeSec)
+    {
         return dao.runTransaction(TransactionType.READ_ONLY, "getStorefrontStats", new Callable<StorefrontStats>() {
             @Override
-            public StorefrontStats call() {
+            public StorefrontStats call()
+            {
                 return dao.getStorefrontStats(maxCustomerIdleTimeSec);
             }
         });
     }
 
     @Override
-    public Map<String, StorefrontStats> getStorefrontStatsByRegion(final int maxCustomerIdleTimeSec) {
+    public Map<String, StorefrontStats> getStorefrontStatsByRegion(final int maxCustomerIdleTimeSec)
+    {
         return dao.runTransaction(TransactionType.READ_ONLY, "getStorefrontStatsByRegion", new Callable<Map<String, StorefrontStats>>() {
             @Override
-            public Map<String, StorefrontStats> call() {
+            public Map<String, StorefrontStats> call()
+            {
                 return dao.getStorefrontStatsByRegion(maxCustomerIdleTimeSec);
             }
         });
     }
 
     @Override
-    public List<AppInstance> getAppInstances(final boolean activeOnly) {
+    public List<AppInstance> getAppInstances(final boolean activeOnly)
+    {
         return dao.runTransaction(TransactionType.READ_ONLY, "getAppInstances", new Callable<List<AppInstance>>() {
             @SuppressWarnings("unchecked")
             @Override
-            public List<AppInstance> call() {
+            public List<AppInstance> call()
+            {
                 Search search = new Search(AppInstance.class);
-                if (activeOnly) {
+                if (activeOnly)
+                {
                     Calendar minLastHeartbeat = Calendar.getInstance();
-                    minLastHeartbeat.add(Calendar.SECOND, -HeartbeatService.MAX_HEARTBEAT_AGE_SEC);
+                    minLastHeartbeat.add(Calendar.SECOND, -StorefrontApp.MAX_HEARTBEAT_AGE_SEC);
                     search.addFilter(Filter.greaterOrEqual("lastHeartbeat", minLastHeartbeat));
                 }
                 search.addSort("region", false);
                 search.addSort("url", false);
                 search.addSort("lastHeartbeat", true);
-                List<AppInstance> instances = (List<AppInstance>) dao.search(search);
+                List<AppInstance> instances = (List<AppInstance>)dao.search(search);
 
-                // Mark local instance, and remove extra instnces with the same URL (instance with most recent heartbeat wins)
+                // Perform instance list cleanup:
+                // 1) For the local instance, use in-memory object (newer)
+                // rather than what's in DB (updated with every heartbeat)
+                // 2) Remove extra instances with the same URL (instance with
+                // most recent heartbeat wins)
                 String localUuid = StorefrontApp.APP_INSTANCE.getUuid();
-                for (int i = 0; i < instances.size(); ) {
-                	AppInstance instance = instances.get(i);
-                    if (instance.getUuid().equals(localUuid)) {
-                        instance.setLocal(true);
-                    } else if (activeOnly && i > 0 && instance.getUrl().equals(instances.get(i - 1).getUrl())) {
-                		instances.remove(i);
-                		continue;
-                	}
-                    
-                	i++;
+                boolean foundLocal = false;
+                for (int i = 0; i < instances.size();)
+                {
+                    AppInstance instance = instances.get(i);
+                    if (instance.getUuid().equals(localUuid))
+                    {
+                        instances.set(i, StorefrontApp.APP_INSTANCE);
+                        foundLocal = true;
+                    }
+                    else if (activeOnly && i > 0 && instance.getUrl().equals(instances.get(i - 1).getUrl()))
+                    {
+                        instances.remove(i);
+                        continue;
+                    }
+
+                    i++;
+                }
+
+                if (!foundLocal)
+                {
+                    // Avoid race condition whereby the instance list is being
+                    // requested before the first heartbeat
+                    // by ensuring the local instance is always present in the
+                    // list
+                    instances.add(StorefrontApp.APP_INSTANCE);
                 }
 
                 return instances;
@@ -435,16 +516,23 @@ public class StorefrontService implements IStorefrontService {
     }
 
     @Override
-    public List<DbNode> getDbNodes() {
+    public List<DbNode> getDbNodes()
+    {
         return dao.runTransaction(TransactionType.READ_ONLY, "getDbNodes", new Callable<List<DbNode>>() {
             @Override
-            public List<DbNode> call() {
-                try {
-                    if (s_hasNodesTable) {
+            public List<DbNode> call()
+            {
+                try
+                {
+                    if (s_hasNodesTable)
+                    {
                         return dao.getDbNodes();
                     }
-                } catch (Exception e) {
-                    // Set a flag so we don't keep querying the DB with something bogus
+                }
+                catch (Exception e)
+                {
+                    // Set a flag so we don't keep querying the DB with
+                    // something bogus
                     s_hasNodesTable = false;
                 }
                 return new ArrayList<DbNode>();
@@ -452,38 +540,48 @@ public class StorefrontService implements IStorefrontService {
         });
     }
 
-    protected int countCartItems(Customer customer) {
+    protected int countCartItems(Customer customer)
+    {
         int cartItemCount = 0;
-        for (CartSelection selection : customer.getCartSelections()) {
+        for (CartSelection selection : customer.getCartSelections())
+        {
             cartItemCount += selection.getQuantity();
         }
         customer.setCartItemCount(cartItemCount);
         return cartItemCount;
     }
 
-    protected CartSelection addOrUpdateCartItem(Customer customer, Product product, int quantity, boolean incrementQty) {
+    protected CartSelection addOrUpdateCartItem(Customer customer, Product product, int quantity, boolean incrementQty)
+    {
         Calendar now = Calendar.getInstance();
         int productId = product.getId();
 
         List<CartSelection> cart = customer.getCartSelections();
         CartSelection modifiedItem = null;
-        for (int i = cart.size() - 1; i >= 0; i--) {
+        for (int i = cart.size() - 1; i >= 0; i--)
+        {
             CartSelection selection = cart.get(i);
 
-            if (selection.getProduct().getId() == productId) {
+            if (selection.getProduct().getId() == productId)
+            {
                 modifiedItem = selection;
-                if (incrementQty) {
+                if (incrementQty)
+                {
                     modifiedItem.setQuantity(selection.getQuantity() + quantity);
-                } else {
+                }
+                else
+                {
                     modifiedItem.setQuantity(quantity);
                 }
-                if (modifiedItem.getQuantity() <= 0) {
+                if (modifiedItem.getQuantity() <= 0)
+                {
                     cart.remove(i);
                 }
             }
         }
 
-        if (modifiedItem == null && quantity >= 0) {
+        if (modifiedItem == null && quantity >= 0)
+        {
             modifiedItem = new CartSelection();
             modifiedItem.setDateAdded(now);
             modifiedItem.setProduct(product);

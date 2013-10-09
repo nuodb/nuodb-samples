@@ -4,6 +4,7 @@ package com.nuodb.storefront.service;
 
 import java.util.Map;
 
+import com.nuodb.storefront.model.dto.StorefrontStatsReport;
 import com.nuodb.storefront.model.dto.Workload;
 import com.nuodb.storefront.model.dto.WorkloadStats;
 import com.nuodb.storefront.model.dto.WorkloadStep;
@@ -50,4 +51,6 @@ public interface ISimulatorService {
     public Map<String, WorkloadStats> getWorkloadStats();
 
     public Map<WorkloadStep, WorkloadStepStats> getWorkloadStepStats();
+    
+    public StorefrontStatsReport getStorefrontStatsReport(Integer sessionTimeoutSec, boolean includeStorefront);
 }

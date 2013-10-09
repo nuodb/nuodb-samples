@@ -3,6 +3,7 @@
 package com.nuodb.storefront.service.simulator;
 
 import java.lang.reflect.Field;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -14,6 +15,8 @@ import javassist.Modifier;
 
 import org.apache.log4j.Logger;
 
+import com.nuodb.storefront.StorefrontApp;
+import com.nuodb.storefront.model.dto.StorefrontStatsReport;
 import com.nuodb.storefront.model.dto.Workload;
 import com.nuodb.storefront.model.dto.WorkloadFlow;
 import com.nuodb.storefront.model.dto.WorkloadStats;
@@ -21,6 +24,7 @@ import com.nuodb.storefront.model.dto.WorkloadStep;
 import com.nuodb.storefront.model.dto.WorkloadStepStats;
 import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
+import com.nuodb.storefront.util.PerformanceUtil;
 import com.nuodb.storefront.util.ToStringComparator;
 
 public class SimulatorService implements ISimulator, ISimulatorService {
@@ -161,6 +165,28 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     @Override
     public void incrementStepCompletionCount(WorkloadStep step) {
         stepCompletionCounts.get(step).incrementAndGet();
+    }
+    
+    @Override
+    public StorefrontStatsReport getStorefrontStatsReport(Integer sessionTimeoutSec, boolean includeStorefront)
+    {
+        StorefrontStatsReport report = new StorefrontStatsReport();
+        
+        StorefrontApp.APP_INSTANCE.setCpuUtilization(PerformanceUtil.getCpuUtilization());
+        
+        report.setTimestamp(Calendar.getInstance());
+        report.setAppInstance(StorefrontApp.APP_INSTANCE);
+        report.setTransactionStats(svc.getTransactionStats());
+        report.setWorkloadStats(getWorkloadStats());
+        report.setWorkloadStepStats(getWorkloadStepStats());
+
+        // Storefront stats are expensive to fetch (DB query required), so only fetch them if specifically requested
+        if (includeStorefront) {
+            int maxCustomerIdleTimeSec = (sessionTimeoutSec == null) ? StorefrontApp.DEFAULT_SESSION_TIMEOUT_SEC : sessionTimeoutSec;
+            report.setStorefrontStats(svc.getStorefrontStatsByRegion(maxCustomerIdleTimeSec));
+        }
+
+        return report;
     }
 
     protected void addWorker(RunnableWorker worker, long startDelayMs) {

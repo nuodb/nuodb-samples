@@ -5,6 +5,7 @@
 
     var app;
     var regionData = null;
+    var minHeavyCpuUtilizationPct = 90;
 
     Storefront.initControlPanelPage = function(cfg) {
         var pageData = cfg.pageData;
@@ -174,10 +175,6 @@
             }
         }
 
-        regions.sort(function(a, b) {
-            return (a)
-        })
-
         return {
             regions: regions,
             workloads: workloadList,
@@ -240,7 +237,7 @@
             }
         }
         if (stats.appInstance) {
-            instance.heavyLoad = stats.appInstance.cpuUtilization >= 90;
+            instance.heavyLoad = stats.appInstance.cpuUtilization >= minHeavyCpuUtilizationPct;
         }
         if (stats.workloadStats) {
             instance.workloadStats = stats.workloadStats;

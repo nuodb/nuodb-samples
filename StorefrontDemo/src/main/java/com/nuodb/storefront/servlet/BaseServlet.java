@@ -20,7 +20,6 @@ import org.hibernate.exception.GenericJDBCException;
 import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.StorefrontFactory;
-import com.nuodb.storefront.StorefrontWebApp;
 import com.nuodb.storefront.model.dto.Category;
 import com.nuodb.storefront.model.dto.DbConnInfo;
 import com.nuodb.storefront.model.dto.Message;

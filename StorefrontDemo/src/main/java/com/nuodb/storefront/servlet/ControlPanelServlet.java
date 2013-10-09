@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.googlecode.genericdao.search.SearchResult;
-import com.nuodb.storefront.api.StatsApi;
+import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.model.dto.Category;
 import com.nuodb.storefront.model.dto.DbNode;
 import com.nuodb.storefront.model.dto.ProductFilter;
@@ -33,7 +33,7 @@ public class ControlPanelServlet extends BaseServlet {
             IStorefrontService svc = getService();
             
             // Fetch store stats
-            StorefrontStatsReport stats = StatsApi.getStorefrontStatsReport(null, true);
+            StorefrontStatsReport stats = StorefrontFactory.getSimulatorService().getStorefrontStatsReport(null, true);
             
             // Fetch product data (and add a warning if the Storefront has no products yet)
             Map<String, Object> productInfo = new HashMap<String, Object>();

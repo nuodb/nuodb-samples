@@ -9,9 +9,7 @@ import org.hibernate.cfg.ImprovedNamingStrategy;
 public class UpperCaseNamingStrategy extends ImprovedNamingStrategy {
     private static final long serialVersionUID = 1230229016645882001L;
 
-    public static final UpperCaseNamingStrategy INSTANCE = new UpperCaseNamingStrategy();
-
-    protected UpperCaseNamingStrategy() {
+    public UpperCaseNamingStrategy() {
     }
 
     @Override

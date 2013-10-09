@@ -16,6 +16,7 @@ import com.nuodb.storefront.model.dto.StorefrontStats;
 import com.nuodb.storefront.model.dto.TransactionStats;
 import com.nuodb.storefront.model.entity.IEntity;
 import com.nuodb.storefront.model.entity.Product;
+import com.nuodb.storefront.model.type.Currency;
 import com.nuodb.storefront.service.IStorefrontService;
 
 /**
@@ -92,4 +93,19 @@ public interface IStorefrontDao extends GeneralDAO {
      * This method returns an empty list unless NuoDB is running.
      */
     public List<DbNode> getDbNodes();
+
+    /**
+     * Gets the "georegion" tag of the NuoDB transaction engine of the current database connection.
+     * Since the Storefront uses a thread pool and may communicate with multiple transaction engines,
+     * the return value may vary if called multiple times.  A <code>null</code> value is returned
+     * if the underlying database does not support georegion metadata (e.g. NuoDB pre-2.0, MySQL, etc.).
+     */
+    public String getCurrentDbNodeRegion();
+
+    /**
+     * Gets the currency currently associated with a specified region.  This is determined
+     * by looking at the most recent Storefront instance (by last heartbeat time) associated
+     * with this region.  If no such instance exists, <code>null</code> is returned instead.
+     */
+    public Currency getRegionCurrency(String region);
 }
