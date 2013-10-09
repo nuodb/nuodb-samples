@@ -136,7 +136,7 @@ public abstract class BaseServlet extends HttpServlet {
             Customer customer)
             throws ServletException, IOException {
 
-        StorefrontWebApp.updateWebAppUrl(req);
+        StorefrontWebApp.updateWebAppPort(req);
 
         // Build full page title
         String storeName = StorefrontApp.APP_INSTANCE.getName() + " - NuoDB Storefront Demo";

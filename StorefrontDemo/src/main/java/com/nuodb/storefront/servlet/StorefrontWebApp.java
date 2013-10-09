@@ -24,6 +24,7 @@ public class StorefrontWebApp implements ServletContextListener {
     private static IHeartbeatService heartbeatSvc;
     private static final String ENV_PROP_REGION = "storefront.region";
     private static final String ENV_PROP_URL = "storefront.url";
+    private static final String ENV_MAVEN_TOMCAT_PORT = "maven.tomcat.port";
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
@@ -33,7 +34,7 @@ public class StorefrontWebApp implements ServletContextListener {
         }
 
         // Get external URL of this web app
-        String url = getWebAppUrl(sce.getServletContext(), StorefrontApp.DEFAULT_PORT);
+        String url = buildWebAppUrl(sce.getServletContext(), guessWebAppPort());
 
         // Handle region override (if provided)
         String region = System.getProperty(ENV_PROP_REGION);
@@ -57,14 +58,14 @@ public class StorefrontWebApp implements ServletContextListener {
         executor.shutdown();
     }
 
-    public static void updateWebAppUrl(HttpServletRequest req) {
+    public static void updateWebAppPort(HttpServletRequest req) {
         if (s_port == req.getServerPort()) {
             // URL is up to date
             return;
         }
 
         // Update URL
-        StorefrontApp.APP_INSTANCE.setUrl(getWebAppUrl(req.getServletContext(), req.getServerPort()));
+        StorefrontApp.APP_INSTANCE.setUrl(buildWebAppUrl(req.getServletContext(), req.getServerPort()));
 
         if (heartbeatSvc != null) {
             // Save changes
@@ -72,7 +73,7 @@ public class StorefrontWebApp implements ServletContextListener {
         }
     }
 
-    public static String getWebAppUrl(ServletContext context, int port) {
+    public static String buildWebAppUrl(ServletContext context, int port) {
         // Remember port
         s_port = port;
 
@@ -103,5 +104,17 @@ public class StorefrontWebApp implements ServletContextListener {
         }
 
         return url.replace("{host}", ipAddress).replace("{port}", String.valueOf(port)).replace("{context}", contextPath);
+    }
+
+    private static int guessWebAppPort() {
+        String portStr = System.getProperty(ENV_MAVEN_TOMCAT_PORT);
+        if (!StringUtils.isEmpty(portStr)) {
+            try {
+
+                return Integer.valueOf(portStr).intValue();
+            } catch (Exception e) {
+            }
+        }
+        return StorefrontApp.DEFAULT_PORT;
     }
 }
