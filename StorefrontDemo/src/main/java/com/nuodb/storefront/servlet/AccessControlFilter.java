@@ -25,6 +25,8 @@ public class AccessControlFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        StorefrontWebApp.initHeartbeatService();
+        
         HttpServletResponse httpResp = (HttpServletResponse) response;
         httpResp.addHeader("Access-Control-Allow-Origin", "*");
         httpResp.addHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");

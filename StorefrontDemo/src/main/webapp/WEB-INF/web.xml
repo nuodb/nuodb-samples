@@ -6,9 +6,15 @@
     <display-name>NuoDB Storefront Demo</display-name>
 
     <context-param>
-        <description>This parameter is stored in the APP_INSTANCE table and tells all Storefront instances how to communicate with this one</description>
-        <param-name>public-url</param-name>
+        <description>Externally-accessible URL for remote Storefront instances to communicate with this one.  The {host}, {port} and {context} placeholders may be used for auto-detected values.</description>
+        <param-name>storefront.publicUrl</param-name>
         <param-value>http://{host}:{port}/{context}</param-value>
+    </context-param>
+    
+    <context-param>
+        <description>When true, indicates the heartbeat service should not start until the first HTTP request is received.  Otherwise heartbeating starts when the web app starts.</description>
+        <param-name>storefront.lazyLoad</param-name>
+        <param-value>false</param-value>
     </context-param>
 
     <welcome-file-list>

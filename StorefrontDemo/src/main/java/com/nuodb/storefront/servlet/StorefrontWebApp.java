@@ -19,23 +19,30 @@ import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.service.IHeartbeatService;
 
 public class StorefrontWebApp implements ServletContextListener {
-    private static ScheduledExecutorService executor;
-    private static int s_port;
-    private static IHeartbeatService heartbeatSvc;
     private static final String ENV_PROP_REGION = "storefront.region";
     private static final String ENV_PROP_URL = "storefront.url";
     private static final String ENV_MAVEN_TOMCAT_PORT = "maven.tomcat.port";
+    private static final String CONTEXT_INIT_PARAM_PUBLIC_URL = "storefront.publicUrl";
+    private static final String CONTEXT_INIT_PARAM_LAZY_LOAD = "storefront.lazyLoad";
+
+    private static ScheduledExecutorService executor;
+    private static int s_port;
+    private static IHeartbeatService heartbeatSvc;
+    private static final Object heartbeatSvcLock = new Object();
+    private static boolean initialized = false;
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        if (executor != null) {
+        if (initialized) {
             // Context might be reinitialized due to code edits -- don't reinitialize hearbeat service, though
             return;
         }
 
         // Get external URL of this web app
-        String url = buildWebAppUrl(sce.getServletContext(), guessWebAppPort());
-
+        ServletContext context = sce.getServletContext();
+        String url = buildWebAppUrl(context, guessWebAppPort());
+        StorefrontApp.APP_INSTANCE.setUrl(url);
+        
         // Handle region override (if provided)
         String region = System.getProperty(ENV_PROP_REGION);
         if (!StringUtils.isEmpty(region)) {
@@ -45,11 +52,21 @@ public class StorefrontWebApp implements ServletContextListener {
 
         // Initiate heartbeat service
         executor = Executors.newSingleThreadScheduledExecutor();
-        heartbeatSvc = StorefrontFactory.createHeartbeatService(url);
-        executor.scheduleAtFixedRate(heartbeatSvc, StorefrontApp.HEARTBEAT_INTERVAL_SEC, StorefrontApp.HEARTBEAT_INTERVAL_SEC, TimeUnit.SECONDS);
+        String lazyLoad = context.getInitParameter(CONTEXT_INIT_PARAM_LAZY_LOAD);
+        if (StringUtils.isEmpty(lazyLoad) || (!lazyLoad.equalsIgnoreCase("true") && !lazyLoad.equals("1"))) {
+            initHeartbeatService();
+        }
 
-        // Send a heartbeat immediately to ensure AppInstance is initialized before any API or web request is processed
-        heartbeatSvc.run();
+        initialized = true;
+    }
+    
+    public static void initHeartbeatService() {
+        synchronized (heartbeatSvcLock) {
+            if (heartbeatSvc == null) {
+                heartbeatSvc = StorefrontFactory.createHeartbeatService();
+                executor.scheduleAtFixedRate(heartbeatSvc, 0, StorefrontApp.HEARTBEAT_INTERVAL_SEC, TimeUnit.SECONDS);
+            }
+        }
     }
 
     @Override
@@ -57,7 +74,7 @@ public class StorefrontWebApp implements ServletContextListener {
         // Stop sending heartbeats
         executor.shutdown();
     }
-
+    
     public static void updateWebAppPort(HttpServletRequest req) {
         if (s_port == req.getServerPort()) {
             // URL is up to date
@@ -66,11 +83,6 @@ public class StorefrontWebApp implements ServletContextListener {
 
         // Update URL
         StorefrontApp.APP_INSTANCE.setUrl(buildWebAppUrl(req.getServletContext(), req.getServerPort()));
-
-        if (heartbeatSvc != null) {
-            // Save changes
-            heartbeatSvc.run();
-        }
     }
 
     public static String buildWebAppUrl(ServletContext context, int port) {
@@ -80,7 +92,7 @@ public class StorefrontWebApp implements ServletContextListener {
         // Get URL from command line argument
         String url = System.getProperty(ENV_PROP_URL);
         if (StringUtils.isEmpty(url)) {
-            url = context.getInitParameter("public-url");
+            url = context.getInitParameter(CONTEXT_INIT_PARAM_PUBLIC_URL);
             if (StringUtils.isEmpty(url)) {
                 url = StorefrontApp.DEFAULT_URL;
             }

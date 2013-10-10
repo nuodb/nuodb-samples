@@ -18,7 +18,6 @@ import com.nuodb.storefront.util.PerformanceUtil;
 
 public class HeartbeatService implements IHeartbeatService {
     private static final Logger s_log = Logger.getLogger(SimulatorService.class.getName());
-    private final String appUrl;
     private int secondsUntilNextPurge = 0;
     private int consecutiveFailureCount = 0;
 
@@ -26,8 +25,7 @@ public class HeartbeatService implements IHeartbeatService {
         StorefrontDao.registerTransactionNames(new String[] { "sendHeartbeat" });
     }
 
-    public HeartbeatService(String appUrl) {
-        this.appUrl = appUrl;
+    public HeartbeatService() {
     }   
 
     @Override
@@ -43,7 +41,6 @@ public class HeartbeatService implements IHeartbeatService {
 
                     if (appInstance.getFirstHeartbeat() == null) {
                         appInstance.setFirstHeartbeat(now);
-                        appInstance.setUrl(appUrl);
                     }
 
                     // Send the heartbeat with the latest "last heartbeat time"

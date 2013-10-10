@@ -126,9 +126,9 @@ public class StorefrontFactory
         return dao;
     }
 
-    public static IHeartbeatService createHeartbeatService(String url)
+    public static IHeartbeatService createHeartbeatService()
     {
-        return new HeartbeatService(url);
+        return new HeartbeatService();
     }
 
     private static SessionFactory getOrCreateSessionFactory()
