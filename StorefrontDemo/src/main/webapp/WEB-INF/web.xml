@@ -11,11 +11,14 @@
         <param-value>http://{host}:{port}/{context}</param-value>
     </context-param>
     
+    <!--
+    Default value is "false".  Commented out so Jetty embedded web app can override this with "true" when the app is hosted by the NuoDB Console's process.
     <context-param>
         <description>When true, indicates the heartbeat service should not start until the first HTTP request is received.  Otherwise heartbeating starts when the web app starts.</description>
         <param-name>storefront.lazyLoad</param-name>
         <param-value>false</param-value>
     </context-param>
+    -->
 
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
