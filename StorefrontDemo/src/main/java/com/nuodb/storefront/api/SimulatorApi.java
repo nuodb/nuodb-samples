@@ -89,8 +89,8 @@ public class SimulatorApi extends BaseApi {
     @POST
     @Path("/workloads/{workload}/workers")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addWorkers(
-            @PathParam("workload") String workload, @FormParam("numWorkers") int numWorkers, @FormParam("entryDelayMs") int entryDelayMs) {
+    public Response addWorkers(@PathParam("workload") String workload, @FormParam("numWorkers") int numWorkers,
+            @FormParam("entryDelayMs") int entryDelayMs) {
         getSimulator().addWorkers(lookupWorkloadByName(workload), numWorkers, entryDelayMs);
         return Response.ok().build();
     }

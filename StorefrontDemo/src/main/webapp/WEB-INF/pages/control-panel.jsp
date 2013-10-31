@@ -137,9 +137,9 @@
 															<td class="lbl-users">0</td>
 															<td class="users">
 																{{#if workload.avgThinkTimeMs}}
-																	<input class="input-mini" type="number" name="workload-{{workload.name}}" data-name="{{workload.name}}" value="{{numberOrZero activeWorkerLimit}}" min="0" {{#if workload.maxWorkers}}max="{{workload.maxWorkers}}"{{/if}} step="1" />
+																	<input class="input-mini" type="number" name="workload-{{workload.name}}" data-name="{{workload.name}}" value="{{numberOrZero activeWorkerCount}}" min="0" {{#if workload.maxWorkers}}max="{{workload.maxWorkers}}"{{/if}} step="1" />
 																{{else}}
-																	<input readonly="readonly" title="Workloads with no think time are for benchmark running only and cannot be modified here.  This helps keep the Storefront responsive." class="input-mini" type="number" name="workload-{{workload.name}}" value="{{numberOrZero activeWorkerLimit}}" min="0" max="1000" step="1" />
+																	<input readonly="readonly" title="Workloads with no think time are for benchmark running only and cannot be modified here.  This helps keep the Storefront responsive." class="input-mini" type="number" name="workload-{{workload.name}}" value="{{numberOrZero activeWorkerCount}}" min="0" max="1000" step="1" />
 																{{/if}}
 															</td>
 														</tr>
@@ -199,7 +199,7 @@
 											   (Unspecified)
 										   {{/if}}
 									   </td>
-									   <td><i class="{{icon}}"></i> {{type}}</td>
+									   <td><i class="{{icon}}"></i> {{type}} engine</td>
 									   <td>
 										   {{address}}:{{port}}
 									   </td>

@@ -14,14 +14,12 @@ public class Workload {
             WorkloadStep.MULTI_BROWSE);
     public static final Workload REVIEWER = new Workload("Customer:  Browsing & reviews", true, 20000, 10000, DEFAULT_MAX_WORKERS,
             WorkloadStep.MULTI_BROWSE_AND_REVIEW);
-    public static final Workload SHOPPER = new Workload("Customer:  Slow purchaser", true, 20000, 10000, DEFAULT_MAX_WORKERS,
-            WorkloadStep.MULTI_SHOP);
+    public static final Workload SHOPPER = new Workload("Customer:  Slow purchaser", true, 20000, 10000, DEFAULT_MAX_WORKERS, WorkloadStep.MULTI_SHOP);
     public static final Workload SHOPPER_FAST = new Workload("Customer:  Fast purchaser", true, 5000, 2500, DEFAULT_MAX_WORKERS,
             WorkloadStep.MULTI_SHOP);
     public static final Workload SHOPPER_SUPER_FAST = new Workload("Customer:  Instant purchaser", true, 0, 0, DEFAULT_MAX_WORKERS,
             WorkloadStep.MULTI_SHOP);
-    public static final Workload ANALYST = new Workload("Back office analyst", true, 20000, 10000, DEFAULT_MAX_WORKERS,
-            WorkloadStep.ADMIN_RUN_REPORT);
+    public static final Workload ANALYST = new Workload("Back office analyst", true, 20000, 10000, DEFAULT_MAX_WORKERS, WorkloadStep.ADMIN_RUN_REPORT);
 
     private final String name;
     private double avgThinkTimeMs;

@@ -165,7 +165,7 @@
             for ( var j = 0; j < workloadTemplates.length; j++) {
                 var workload = workloadTemplates[j];
                 var workloadCopy = {
-                    activeWorkerLimit: 0,
+                    activeWorkerCount: 0,
                     workload: $.extend({}, workload.workload)
                 };
                 region.workloads.push(workloadCopy);
@@ -309,7 +309,7 @@
             var regionUserCount = region.webCustomerCount;
             for ( var j = 0; j < region.workloads.length; j++) {
                 var workload = region.workloads[j];
-                workload.activeWorkerLimit = 0;
+                workload.activeWorkerCount = 0;
 
                 for ( var k = 0; k < region.instances.length; k++) {
                     var instance = region.instances[k];
@@ -318,9 +318,10 @@
                     if (instance.workloadStats) {
                         var workloadStats = instance.workloadStats[workload.workload.name];
                         if (workloadStats) {
-                            workload.activeWorkerLimit += workloadStats.activeWorkerLimit;
-                            regionUserCount += workloadStats.activeWorkerLimit;
-                            totalSimulatedUserCount += workloadStats.activeWorkerLimit;
+                            var instanceUserCount = Math.min(workloadStats.activeWorkerCount, workloadStats.activeWorkerLimit);
+                            workload.activeWorkerCount += instanceUserCount;
+                            regionUserCount += instanceUserCount;
+                            totalSimulatedUserCount += instanceUserCount;
                         }
                     }
                 }
@@ -345,7 +346,7 @@
             var regionUserCount = 0;
 
             for ( var j = 0; j < region.workloads.length; j++) {
-                var workloadUserCount = region.workloads[j].activeWorkerLimit;
+                var workloadUserCount = region.workloads[j].activeWorkerCount;
 
                 // Region bar
                 $(bars$[j]).css('width', (workloadUserCount / maxRegionUserCount * 100) + '%').attr('title', formatTooltipWithCount(region.workloads[j].workload.name, workloadUserCount));
@@ -373,7 +374,7 @@
             var workload = regionData.workloads[j];
             var count = 0;
             for ( var i = 0; i < regionData.regions.length; i++) {
-                count += regionData.regions[i].workloads[j].activeWorkerLimit;
+                count += regionData.regions[i].workloads[j].activeWorkerCount;
             }
             $('.customer-summary [data-workload="' + workload.workload.name + '"]').html(count);
         }

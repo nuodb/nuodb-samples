@@ -14,7 +14,6 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Index;
 
-
 @Entity
 public class Customer extends AutoIdEntity {
     @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true, mappedBy = "customer")

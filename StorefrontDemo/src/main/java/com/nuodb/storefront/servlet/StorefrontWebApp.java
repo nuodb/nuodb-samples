@@ -42,7 +42,7 @@ public class StorefrontWebApp implements ServletContextListener {
         ServletContext context = sce.getServletContext();
         String url = buildWebAppUrl(context, guessWebAppPort());
         StorefrontApp.APP_INSTANCE.setUrl(url);
-        
+
         // Handle region override (if provided)
         String region = System.getProperty(ENV_PROP_REGION);
         if (!StringUtils.isEmpty(region)) {
@@ -59,7 +59,7 @@ public class StorefrontWebApp implements ServletContextListener {
 
         initialized = true;
     }
-    
+
     public static void initHeartbeatService() {
         synchronized (heartbeatSvcLock) {
             if (heartbeatSvc == null) {
@@ -74,7 +74,7 @@ public class StorefrontWebApp implements ServletContextListener {
         // Stop sending heartbeats
         executor.shutdown();
     }
-    
+
     public static void updateWebAppPort(HttpServletRequest req) {
         if (s_port == req.getServerPort()) {
             // URL is up to date
@@ -110,8 +110,7 @@ public class StorefrontWebApp implements ServletContextListener {
         String contextPath = context.getContextPath();
         if (StringUtils.isEmpty(contextPath)) {
             contextPath = "";
-        }
-        else if (contextPath.startsWith("/")) {
+        } else if (contextPath.startsWith("/")) {
             contextPath = contextPath.substring(1);
         }
 

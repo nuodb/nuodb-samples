@@ -144,8 +144,8 @@ public class SimulatedUser implements IWorker {
     protected void doBrowseSearch() {
         filter = new ProductFilter();
         filter.setCategories(new ArrayList<String>());
-        
-        // Base the search off a random product name (if available) 
+
+        // Base the search off a random product name (if available)
         if (getOrFetchProductList()) {
             Integer productId = pickRandomProductId();
             if (productId != null) {
@@ -156,7 +156,7 @@ public class SimulatedUser implements IWorker {
                 }
             }
         }
-        
+
         filter.setMatchText("DNE search");
     }
 

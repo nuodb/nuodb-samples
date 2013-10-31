@@ -26,7 +26,7 @@ public class HeartbeatService implements IHeartbeatService {
     }
 
     public HeartbeatService() {
-    }   
+    }
 
     @Override
     public void run() {
@@ -55,14 +55,14 @@ public class HeartbeatService implements IHeartbeatService {
                         dao.deleteDeadAppInstances(maxLastHeartbeat);
                         secondsUntilNextPurge = StorefrontApp.PURGE_FREQUENCY_SEC;
                     }
-                    
+
                     consecutiveFailureCount = 0;
                 }
             });
         } catch (Exception e) {
-        	if (++consecutiveFailureCount == 1) {
-        		s_log.error("Unable to send heartbeat", e);
-        	}
+            if (++consecutiveFailureCount == 1) {
+                s_log.error("Unable to send heartbeat", e);
+            }
         }
     }
 }

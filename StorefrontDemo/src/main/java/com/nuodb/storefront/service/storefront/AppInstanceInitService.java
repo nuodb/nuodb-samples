@@ -9,41 +9,31 @@ import com.nuodb.storefront.dal.IStorefrontDao;
 import com.nuodb.storefront.model.type.Currency;
 
 /**
- * Performs one-time initialization of this Storefront's
- * {@link StorefrontApp#APP_INSTANCE} singleton when a Hibernate session factory
- * is created.
+ * Performs one-time initialization of this Storefront's {@link StorefrontApp#APP_INSTANCE} singleton when a Hibernate session factory is created.
  */
-public class AppInstanceInitService implements Runnable
-{
+public class AppInstanceInitService implements Runnable {
     private static final Logger s_log = Logger.getLogger(AppInstanceInitService.class.getName());
     private final IStorefrontDao dao;
 
-    public AppInstanceInitService(IStorefrontDao dao)
-    {
+    public AppInstanceInitService(IStorefrontDao dao) {
         this.dao = dao;
     }
 
     @Override
-    public void run()
-    {
+    public void run() {
         // Init region name
-        if (!StorefrontApp.APP_INSTANCE.getRegionOverride())
-        {
+        if (!StorefrontApp.APP_INSTANCE.getRegionOverride()) {
             String region = dao.getCurrentDbNodeRegion();
-            if (region == null)
-            {
+            if (region == null) {
                 s_log.warn("Your database version does not support regions.  Upgrade to NouDB 2.0 or greater.");
-            }
-            else if (!region.isEmpty())
-            {
+            } else if (!region.isEmpty()) {
                 StorefrontApp.APP_INSTANCE.setRegion(region);
             }
         }
 
         // Init currency
         Currency currency = dao.getRegionCurrency(StorefrontApp.APP_INSTANCE.getRegion());
-        if (currency != null)
-        {
+        if (currency != null) {
             StorefrontApp.APP_INSTANCE.setCurrency(currency);
         }
     }

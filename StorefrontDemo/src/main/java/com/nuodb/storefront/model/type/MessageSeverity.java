@@ -3,8 +3,5 @@
 package com.nuodb.storefront.model.type;
 
 public enum MessageSeverity {
-    SUCCESS,
-    INFO,
-    ALERT,
-    ERROR
+    SUCCESS, INFO, ALERT, ERROR
 }

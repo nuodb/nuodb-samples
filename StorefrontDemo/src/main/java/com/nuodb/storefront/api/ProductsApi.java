@@ -35,9 +35,9 @@ public class ProductsApi extends BaseApi {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public SearchResult<Product> search(@Context HttpServletRequest req,
-            @QueryParam("matchText") String matchText, @QueryParam("categories") List<String> categories,
-            @QueryParam("page") Integer page, @QueryParam("pageSize") Integer pageSize, @QueryParam("sort") ProductSort sort) {
+    public SearchResult<Product> search(@Context HttpServletRequest req, @QueryParam("matchText") String matchText,
+            @QueryParam("categories") List<String> categories, @QueryParam("page") Integer page, @QueryParam("pageSize") Integer pageSize,
+            @QueryParam("sort") ProductSort sort) {
         ProductFilter filter = new ProductFilter(matchText, categories, page, pageSize, sort);
         req.getSession().setAttribute(BaseServlet.SESSION_PRODUCT_FILTER, filter);
         return getService().getProducts(filter);
@@ -65,9 +65,9 @@ public class ProductsApi extends BaseApi {
     @POST
     @Path("/{productId}/reviews")
     @Produces(MediaType.APPLICATION_JSON)
-    public ProductReview addReview(@Context HttpServletRequest req, @Context HttpServletResponse resp,
-            @PathParam("productId") int productId, @FormParam("title") String title,
-            @FormParam("comments") String comments, @FormParam("emailAddress") String emailAddress, @FormParam("rating") int rating) {
+    public ProductReview addReview(@Context HttpServletRequest req, @Context HttpServletResponse resp, @PathParam("productId") int productId,
+            @FormParam("title") String title, @FormParam("comments") String comments, @FormParam("emailAddress") String emailAddress,
+            @FormParam("rating") int rating) {
         Customer customer = getOrCreateCustomer(req, resp);
         return getService().addProductReview(customer.getId(), productId, title, comments, emailAddress, rating);
     }
