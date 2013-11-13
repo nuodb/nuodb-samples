@@ -16,6 +16,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.hibernate.exception.GenericJDBCException;
+import org.hibernate.exception.SQLGrammarException;
 
 import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.StorefrontApp;
@@ -133,8 +134,7 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     protected static void showPage(HttpServletRequest req, HttpServletResponse resp, String pageTitle, String pageName, Object pageData,
-            Customer customer)
-            throws ServletException, IOException {
+            Customer customer) throws ServletException, IOException {
 
         StorefrontWebApp.updateWebAppPort(req);
 
@@ -172,9 +172,20 @@ public abstract class BaseServlet extends HttpServlet {
         addErrorMessage(req, ex);
         if (ex instanceof GenericJDBCException) {
             DbConnInfo dbInfo = StorefrontFactory.getDbConnInfo();
-            addMessage(req, MessageSeverity.INFO,
+            addMessage(
+                    req,
+                    MessageSeverity.INFO,
                     "Tip:  Check to see whether NuoDB is running and the database exists.  The storefront is trying to connect to \""
                             + dbInfo.getUrl() + "\" with the username \"" + dbInfo.getUsername() + "\".");
+        } else if (ex instanceof SQLGrammarException) {
+            // Tables could be missing or bad. This could happen if a user re-creates the Storefront DB while it's running. Try repairing.
+            try {
+                StorefrontFactory.createSchema();
+                addMessage(req, MessageSeverity.ALERT, "The Storefront schema has been updated.  One or more tables were missing or out of date.",
+                        "Refresh page");
+            } catch (Exception e) {
+                // Repair didn't work
+            }
         }
         Customer customer = (Customer) req.getAttribute(ATTR_CUSTOMER);
         showPage(req, resp, "Storefront Problem", "error", null, (customer == null) ? new Customer() : customer);

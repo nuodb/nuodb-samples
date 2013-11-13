@@ -100,7 +100,8 @@ Ext.define('App.view.MessageBar', {
         // Prepend instance/region info (if available)
         var prefix = '';
         if (instance) {
-            prefix = Ext.String.format('<a href="{0}" title="{0}" target="_blank">{1} region</a>: &nbsp;', instance.url, instance.region);
+            regionSuffix = (instance.region.toLowerCase().endsWith('region')) ? '' : ' region';
+            prefix = Ext.String.format('<a href="{0}" title="{0}" target="_blank">{1}{2}</a>: &nbsp;', instance.url, instance.region, regionSuffix);
         } else {
             prefix = '<b>The Storefront has a problem:</b> &nbsp;';
         }

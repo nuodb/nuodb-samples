@@ -168,8 +168,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     }
 
     @Override
-    public StorefrontStatsReport getStorefrontStatsReport(Integer sessionTimeoutSec, boolean includeStorefront)
-    {
+    public StorefrontStatsReport getStorefrontStatsReport(Integer sessionTimeoutSec, boolean includeStorefront) {
         StorefrontStatsReport report = new StorefrontStatsReport();
 
         StorefrontApp.APP_INSTANCE.setCpuUtilization(PerformanceUtil.getCpuUtilization());

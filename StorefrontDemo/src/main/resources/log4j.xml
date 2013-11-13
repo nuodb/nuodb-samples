@@ -8,7 +8,6 @@
 	</appender>
 	<logger name="com.nuodb.storefront">
 		<level value="info" />
-		<appender-ref ref="ConsoleAppender" />
 	</logger>
 	<root>
 		<level value="warn" />

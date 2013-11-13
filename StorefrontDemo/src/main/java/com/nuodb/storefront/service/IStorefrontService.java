@@ -36,7 +36,6 @@ public interface IStorefrontService {
      * Gets products matching the specified criteria. The categories and reviews of each product is not populated; to fetch this data, invoke the
      * {@link #getProduct(int)} method.
      * 
-     * 
      * @return The matching products (on the specified page and/or to the specified limit, if specified) and total count of products matching the
      *         criteria.
      */
@@ -144,8 +143,8 @@ public interface IStorefrontService {
      * @throws ProductNotFoundException
      *             No product exists with the specified productId.
      */
-    public int addToCart(int customerId, int productId, int quantity)
-            throws IllegalArgumentException, CustomerNotFoundException, ProductNotFoundException;
+    public int addToCart(int customerId, int productId, int quantity) throws IllegalArgumentException, CustomerNotFoundException,
+            ProductNotFoundException;
 
     /**
      * Updates the cart to contain exactly the items specified with the quantities specified.
@@ -162,8 +161,8 @@ public interface IStorefrontService {
      * @throws ProductNotFoundException
      *             No product exists with the specified productId.
      */
-    public int updateCart(int customerId, Map<Integer, Integer> productQuantityMap)
-            throws IllegalArgumentException, CustomerNotFoundException, ProductNotFoundException;
+    public int updateCart(int customerId, Map<Integer, Integer> productQuantityMap) throws IllegalArgumentException, CustomerNotFoundException,
+            ProductNotFoundException;
 
     /**
      * Converts the contents of a customer's cart to a purchase, and clears the cart.

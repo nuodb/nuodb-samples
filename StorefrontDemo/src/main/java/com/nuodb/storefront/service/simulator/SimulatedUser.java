@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Random;
 
 import org.apache.log4j.Logger;
+import org.hibernate.exception.SQLGrammarException;
 
 import com.nuodb.storefront.exception.CartEmptyException;
 import com.nuodb.storefront.exception.UnsupportedStepException;
@@ -30,7 +31,7 @@ import com.nuodb.storefront.model.type.ProductSort;
 public class SimulatedUser implements IWorker {
     private static final Logger s_log = Logger.getLogger(SimulatedUser.class.getName());
     private static final long MIN_BACKOFF_DELAY = 1000 * 1;
-    private static final long MAX_BACKOFF_DELAY = 1000 * 90;
+    private static final long MAX_BACKOFF_DELAY = 1000 * 60;
 
     private final ISimulator simulator;
     private final Workload workloadType;
@@ -43,6 +44,8 @@ public class SimulatedUser implements IWorker {
     private static List<String> s_categories;
     private boolean isCartEmpty = true;
     private Integer selectedProductId;
+
+    // Fibonacci backoff retry tracking
     private long priorBackoffDelay = 0;
     private long nextBackoffDelay = MIN_BACKOFF_DELAY;
 
@@ -80,7 +83,7 @@ public class SimulatedUser implements IWorker {
                 nextBackoffDelay += priorBackoffDelay;
                 priorBackoffDelay = actualBackoffDelay;
                 
-                s_log.info("Encountered recoverable exception with " + getWorkload().getName() + ".  Will retry in " + actualBackoffDelay + "ms.", e);
+                s_log.info("Encountered recoverable exception with simulated user \"" + getWorkload().getName() + "\".  Will retry in " + actualBackoffDelay + " ms.", e);
                 
                 return actualBackoffDelay;
             }
@@ -97,12 +100,17 @@ public class SimulatedUser implements IWorker {
     }
 
     protected boolean isRecoverableException(RuntimeException e) {
+        if (e instanceof SQLGrammarException) {
+            // The schema has been busted.  Someone may have dropped a critical table.  Retrying the worker won't help. 
+            return false;
+        }
+        
         return true;
     }
 
     protected void doWork(WorkloadStep step) {
         customer = simulator.getService().getOrCreateCustomer((customer == null) ? 0 : customer.getId(), workloadType);
-if (1+1==2)throw new RuntimeException("Test");
+
         switch (step) {
             case BROWSE:
                 doBrowse();

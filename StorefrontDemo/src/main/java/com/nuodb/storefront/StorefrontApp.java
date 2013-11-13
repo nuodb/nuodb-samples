@@ -170,15 +170,9 @@ public class StorefrontApp {
             String workloadName = statsEntry.getKey();
             WorkloadStats stats = statsEntry.getValue();
 
-            out.println(String.format("%-30s %8d %8d %8d %8d | %7d %9.3f %7d %9.3f",
-                    workloadName,
-                    stats.getActiveWorkerCount(),
-                    stats.getFailedWorkerCount(),
-                    stats.getKilledWorkerCount(),
-                    stats.getCompletedWorkerCount(),
-                    stats.getWorkInvocationCount(),
-                    (stats.getAvgWorkTimeMs() != null) ? stats.getAvgWorkTimeMs() / 1000f : null,
-                    stats.getWorkCompletionCount(),
+            out.println(String.format("%-30s %8d %8d %8d %8d | %7d %9.3f %7d %9.3f", workloadName, stats.getActiveWorkerCount(),
+                    stats.getFailedWorkerCount(), stats.getKilledWorkerCount(), stats.getCompletedWorkerCount(), stats.getWorkInvocationCount(),
+                    (stats.getAvgWorkTimeMs() != null) ? stats.getAvgWorkTimeMs() / 1000f : null, stats.getWorkCompletionCount(),
                     (stats.getAvgWorkCompletionTimeMs() != null) ? stats.getAvgWorkCompletionTimeMs() / 1000f : null));
         }
 

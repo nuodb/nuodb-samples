@@ -31,14 +31,12 @@ import com.nuodb.storefront.service.storefront.StorefrontService;
  * Factory for creating Storefront services and schema managers. To keep code in this demo straightforward, this factory is used in lieu of dependency
  * injection, e.g. via the Spring framework.
  */
-public class StorefrontFactory
-{
+public class StorefrontFactory {
     private static final Configuration s_configuration;
     private static volatile SessionFactory s_sessionFactory;
     private static volatile ISimulatorService s_simulator;
 
-    static
-    {
+    static {
         s_configuration = new Configuration();
         s_configuration.setNamingStrategy(new UpperCaseNamingStrategy());
         s_configuration.configure();
@@ -47,11 +45,9 @@ public class StorefrontFactory
         String dbUser = System.getProperty("storefront.db.user");
         String dbPassword = System.getProperty("storefront.db.password");
 
-        if (dbName != null)
-        {
+        if (dbName != null) {
             Matcher dbNameMatcher = Pattern.compile("([^@]*)@([^@:]*(?::\\d+|$))").matcher(dbName);
-            if (!dbNameMatcher.matches())
-            {
+            if (!dbNameMatcher.matches()) {
                 throw new IllegalArgumentException("Database name must be of the format name@host[:port]");
             }
             String name = dbNameMatcher.group(1);
@@ -61,92 +57,76 @@ public class StorefrontFactory
 
             s_configuration.setProperty(Environment.URL, url);
         }
-        if (dbUser != null)
-        {
+        if (dbUser != null) {
             s_configuration.setProperty(Environment.USER, dbUser);
         }
-        if (dbPassword != null)
-        {
+        if (dbPassword != null) {
             s_configuration.setProperty(Environment.PASS, dbPassword);
         }
     }
 
-    private StorefrontFactory()
-    {
+    private StorefrontFactory() {
     }
 
-    public static DbConnInfo getDbConnInfo()
-    {
+    public static DbConnInfo getDbConnInfo() {
         DbConnInfo info = new DbConnInfo();
         info.setUrl(s_configuration.getProperty(Environment.URL));
         info.setUsername(s_configuration.getProperty(Environment.USER));
         return info;
     }
 
-    public static SchemaExport createSchemaExport()
-    {
+    public static SchemaExport createSchemaExport() {
         return new SchemaExport(s_configuration);
     }
 
-    public static IStorefrontService createStorefrontService()
-    {
+    public static void createSchema() {
+        new SchemaExport(s_configuration).create(false, true);
+    }
+
+    public static IStorefrontService createStorefrontService() {
         return new StorefrontService(createStorefrontDao());
     }
 
-    public static IDataGeneratorService createDataGeneratorService()
-    {
+    public static IDataGeneratorService createDataGeneratorService() {
         StatelessSession session = getOrCreateSessionFactory().openStatelessSession();
-        try
-        {
+        try {
             session.connection().setAutoCommit(true);
-        } catch (SQLException e)
-        {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
         return new DataGeneratorService(session);
     }
 
-    public static ISimulatorService getSimulatorService()
-    {
-        if (s_simulator == null)
-        {
-            synchronized (s_configuration)
-            {
+    public static ISimulatorService getSimulatorService() {
+        if (s_simulator == null) {
+            synchronized (s_configuration) {
                 s_simulator = new SimulatorService(createStorefrontService());
             }
         }
         return s_simulator;
     }
 
-    public static IStorefrontDao createStorefrontDao()
-    {
+    public static IStorefrontDao createStorefrontDao() {
         StorefrontDao dao = new StorefrontDao();
         dao.setSessionFactory(getOrCreateSessionFactory());
         return dao;
     }
 
-    public static IHeartbeatService createHeartbeatService()
-    {
+    public static IHeartbeatService createHeartbeatService() {
         return new HeartbeatService();
     }
 
-    private static SessionFactory getOrCreateSessionFactory()
-    {
-        if (s_sessionFactory == null)
-        {
-            synchronized (s_configuration)
-            {
-                if (s_sessionFactory == null)
-                {
+    private static SessionFactory getOrCreateSessionFactory() {
+        if (s_sessionFactory == null) {
+            synchronized (s_configuration) {
+                if (s_sessionFactory == null) {
                     s_sessionFactory = s_configuration.buildSessionFactory();
-                    try
-                    {
+                    try {
                         StorefrontDao dao = new StorefrontDao();
                         dao.setSessionFactory(s_sessionFactory);
                         dao.runTransaction(TransactionType.READ_ONLY, null, new AppInstanceInitService(dao));
-                    } catch (Exception e)
-                    {
+                    } catch (Exception e) {
                         s_sessionFactory = null;
                         throw (e instanceof RuntimeException) ? ((RuntimeException) e) : new RuntimeException(e);
                     }

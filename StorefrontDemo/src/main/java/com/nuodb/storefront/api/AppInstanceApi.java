@@ -37,20 +37,20 @@ public class AppInstanceApi extends BaseApi {
     @Path("/init-params")
     public Map<String, String> getParams(@Context HttpServletRequest req) {
         Map<String, String> map = new HashMap<String, String>();
-        
+
         ServletContext ctx = req.getServletContext();
         Enumeration<String> names = ctx.getInitParameterNames();
         while (names.hasMoreElements()) {
             String name = names.nextElement();
             map.put("init." + name, ctx.getInitParameter(name));
         }
-        
+
         names = ctx.getAttributeNames();
         while (names.hasMoreElements()) {
             String name = names.nextElement();
             map.put("attr." + name, ctx.getAttribute(name) + "");
         }
-        
+
         return map;
     }
 

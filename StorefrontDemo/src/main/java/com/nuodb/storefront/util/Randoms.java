@@ -58,8 +58,7 @@ public class Randoms extends Random {
     }
 
     /** Return a random BitSet with "size" bits, each having probability p of being true. */
-    public synchronized BitSet nextBitSet(int size, double p)
-    {
+    public synchronized BitSet nextBitSet(int size, double p) {
         BitSet bs = new BitSet(size);
         for (int i = 0; i < size; i++)
             if (nextBoolean(p)) {
@@ -122,8 +121,7 @@ public class Randoms extends Random {
             nextGaussian = x2;
             haveNextGaussian = true;
             return x1;
-        }
-        else {
+        } else {
             haveNextGaussian = false;
             return nextGaussian;
         }
@@ -148,27 +146,20 @@ public class Randoms extends Random {
 
     /* Return a sample from the Gamma distribution, with parameter IA */
     /* From Numerical "Recipes in C", page 292 */
-    public synchronized double oldNextGamma(int ia)
-    {
+    public synchronized double oldNextGamma(int ia) {
         int j;
         double am, e, s, v1, v2, x, y;
 
         assert (ia >= 1);
-        if (ia < 6)
-        {
+        if (ia < 6) {
             x = 1.0;
             for (j = 1; j <= ia; j++)
                 x *= nextUniform();
             x = -Math.log(x);
-        }
-        else
-        {
-            do
-            {
-                do
-                {
-                    do
-                    {
+        } else {
+            do {
+                do {
+                    do {
                         v1 = 2.0 * nextUniform() - 1.0;
                         v2 = 2.0 * nextUniform() - 1.0;
                     } while (v1 * v1 + v2 * v2 > 1.0);
@@ -204,15 +195,13 @@ public class Randoms extends Random {
                     gamma = -Math.log((b - p) / alpha);
                     if (nextUniform() <= Math.pow(gamma, alpha - 1))
                         flag = true;
-                }
-                else {
+                } else {
                     gamma = Math.pow(p, 1 / alpha);
                     if (nextUniform() <= Math.exp(-gamma))
                         flag = true;
                 }
             }
-        }
-        else if (alpha == 1) {
+        } else if (alpha == 1) {
             gamma = -Math.log(nextUniform());
         } else {
             double y = -Math.log(nextUniform());

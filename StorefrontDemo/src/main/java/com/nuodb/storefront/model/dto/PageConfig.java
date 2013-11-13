@@ -23,8 +23,7 @@ public class PageConfig {
     public PageConfig() {
     }
 
-    public PageConfig(String pageTitle, String pageName, Object pageData, Customer customer, List<Message> messages,
-            List<AppInstance> appInstances) {
+    public PageConfig(String pageTitle, String pageName, Object pageData, Customer customer, List<Message> messages, List<AppInstance> appInstances) {
         this.pageTitle = pageTitle;
         this.pageName = pageName;
         this.pageData = pageData;
@@ -36,7 +35,7 @@ public class PageConfig {
     public String getAppInstanceUuid() {
         return StorefrontApp.APP_INSTANCE.getUuid();
     }
-    
+
     public Currency getCurrency() {
         return StorefrontApp.APP_INSTANCE.getCurrency();
     }

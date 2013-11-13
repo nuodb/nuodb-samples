@@ -36,12 +36,10 @@ import com.nuodb.storefront.model.type.ProductSort;
  * Data access object designed for storefront operations, built on top of a general-purpose DAO. The caller is responsible for wrapping DAO calls in
  * transactions, typically by using the {@link #runTransaction(Callable)} or {@link #runTransaction(Runnable)} method.
  */
-public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
-{
+public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
     private static final Map<String, TransactionStats> s_transactionStatsMap = new HashMap<String, TransactionStats>();
 
-    public StorefrontDao()
-    {
+    public StorefrontDao() {
     }
 
     /**
@@ -49,14 +47,10 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
      * transaction types available, even if some of those transaction types have not yet been executed and therefore have no stats associated with
      * them.
      */
-    public static void registerTransactionNames(String[] transactionNames)
-    {
-        synchronized (s_transactionStatsMap)
-        {
-            for (String transactionName : transactionNames)
-            {
-                if (!s_transactionStatsMap.containsKey(transactionName))
-                {
+    public static void registerTransactionNames(String[] transactionNames) {
+        synchronized (s_transactionStatsMap) {
+            for (String transactionName : transactionNames) {
+                if (!s_transactionStatsMap.containsKey(transactionName)) {
                     s_transactionStatsMap.put(transactionName, new TransactionStats());
                 }
             }
@@ -64,24 +58,20 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
     }
 
     @Override
-    public void initialize(IEntity entity)
-    {
+    public void initialize(IEntity entity) {
         Hibernate.initialize(entity);
     }
 
     @Override
-    public void evict(IEntity entity)
-    {
+    public void evict(IEntity entity) {
         getSession().evict(entity);
     }
 
     @Override
-    public void runTransaction(TransactionType transactionType, String name, final Runnable r)
-    {
+    public void runTransaction(TransactionType transactionType, String name, final Runnable r) {
         runTransaction(transactionType, name, new Callable<Object>() {
             @Override
-            public Object call() throws Exception
-            {
+            public Object call() throws Exception {
                 r.run();
                 return null;
             }
@@ -89,24 +79,20 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
     }
 
     @Override
-    public <T> T runTransaction(TransactionType transactionType, String name, Callable<T> c)
-    {
+    public <T> T runTransaction(TransactionType transactionType, String name, Callable<T> c) {
         long startTime = System.currentTimeMillis();
 
         Transaction t = this.getSession().beginTransaction();
         prepareSession(transactionType);
-        try
-        {
+        try {
             T result = c.call();
             t.commit();
             updateTransactionStats(name, startTime, true);
             return result;
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             t.rollback();
             updateTransactionStats(name, startTime, false);
-            if (e instanceof RuntimeException)
-            {
+            if (e instanceof RuntimeException) {
                 throw (RuntimeException) e;
             }
             throw new RuntimeException(e);
@@ -115,15 +101,13 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
 
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public SearchResult<Category> getCategories()
-    {
+    public SearchResult<Category> getCategories() {
         // This query got category usage counts, but was slower, and we
         // currently don't need the counts for anything:
         // "select c, count(*) from Product p inner join p.categories c group by c order by c"
 
         List categories = getSession().createSQLQuery("SELECT DISTINCT CATEGORY, 0 FROM PRODUCT_CATEGORY ORDER BY CATEGORY").list();
-        for (int i = categories.size() - 1; i >= 0; i--)
-        {
+        for (int i = categories.size() - 1; i >= 0; i--) {
             Object[] data = (Object[]) categories.get(i);
             categories.set(i, new Category((String) data[0], ((Number) data[1]).intValue()));
         }
@@ -136,16 +120,14 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
 
     @Override
     @SuppressWarnings("unchecked")
-    public SearchResult<Product> getProducts(ProductFilter filter)
-    {
+    public SearchResult<Product> getProducts(ProductFilter filter) {
         Session session = getSession();
 
         SearchResult<Product> result = new SearchResult<Product>();
         result.setResult(buildProductQuery(filter, false).list());
         result.setTotalCount(((Number) buildProductQuery(filter, true).uniqueResult()).intValue());
 
-        for (Product p : result.getResult())
-        {
+        for (Product p : result.getResult()) {
             session.evict(p);
             p.clearReviews();
         }
@@ -153,36 +135,34 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
     }
 
     @Override
-    public Map<String, TransactionStats> getTransactionStats()
-    {
+    public Map<String, TransactionStats> getTransactionStats() {
         Map<String, TransactionStats> mapCopy = new TreeMap<String, TransactionStats>();
-        synchronized (s_transactionStatsMap)
-        {
-            for (Map.Entry<String, TransactionStats> entry : s_transactionStatsMap.entrySet())
-            {
+        synchronized (s_transactionStatsMap) {
+            for (Map.Entry<String, TransactionStats> entry : s_transactionStatsMap.entrySet()) {
                 mapCopy.put(entry.getKey(), new TransactionStats(entry.getValue()));
             }
         }
         return mapCopy;
     }
 
-    public StorefrontStats getStorefrontStats(int maxCustomerIdleTimeSec)
-    {
+    public StorefrontStats getStorefrontStats(int maxCustomerIdleTimeSec) {
         // Run query
-        SQLQuery query = getSession().createSQLQuery("SELECT"
-                + " (SELECT COUNT(*) FROM PRODUCT) AS PRODUCT_COUNT,"
-                + " (SELECT COUNT(*) FROM (SELECT DISTINCT CATEGORY FROM PRODUCT_CATEGORY) AS A) AS CATEGORY_COUNT,"
-                + " (SELECT COUNT(*) FROM PRODUCT_REVIEW) AS PRODUCT_REVIEW_COUNT,"
-                + " (SELECT COUNT(*) FROM CUSTOMER) AS CUSTOMER_COUNT,"
-                + " (SELECT COUNT(*) FROM CUSTOMER WHERE DATE_LAST_ACTIVE >= :MIN_ACTIVE_TIME) AS ACTIVE_CUSTOMER_COUNT,"
-                + " (SELECT COUNT(*) FROM CUSTOMER WHERE WORKLOAD IS NULL AND DATE_LAST_ACTIVE >= :MIN_ACTIVE_TIME) AS ACTIVE_WEB_CUSTOMER_COUNT,"
-                + " (SELECT SUM(QUANTITY) FROM CART_SELECTION) AS CART_ITEM_COUNT,"
-                + " (SELECT SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE) FROM CART_SELECTION) AS CART_VALUE,"
-                + " (SELECT COUNT(*) FROM PURCHASE) AS PURCHASE_COUNT,"
-                + " (SELECT SUM(QUANTITY) FROM PURCHASE_SELECTION) AS PURCHASE_ITEM_COUNT,"
-                + " (SELECT SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE) FROM PURCHASE_SELECTION) AS PURCHASE_VALUE,"
-                + " (SELECT MIN(DATE_STARTED) FROM APP_INSTANCE WHERE LAST_HEARTBEAT >= :MIN_HEARTBEAT_TIME) AS START_TIME"
-                + " FROM DUAL;");
+        SQLQuery query = getSession()
+                .createSQLQuery(
+                        "SELECT"
+                                + " (SELECT COUNT(*) FROM PRODUCT) AS PRODUCT_COUNT,"
+                                + " (SELECT COUNT(*) FROM (SELECT DISTINCT CATEGORY FROM PRODUCT_CATEGORY) AS A) AS CATEGORY_COUNT,"
+                                + " (SELECT COUNT(*) FROM PRODUCT_REVIEW) AS PRODUCT_REVIEW_COUNT,"
+                                + " (SELECT COUNT(*) FROM CUSTOMER) AS CUSTOMER_COUNT,"
+                                + " (SELECT COUNT(*) FROM CUSTOMER WHERE DATE_LAST_ACTIVE >= :MIN_ACTIVE_TIME) AS ACTIVE_CUSTOMER_COUNT,"
+                                + " (SELECT COUNT(*) FROM CUSTOMER WHERE WORKLOAD IS NULL AND DATE_LAST_ACTIVE >= :MIN_ACTIVE_TIME) AS ACTIVE_WEB_CUSTOMER_COUNT,"
+                                + " (SELECT SUM(QUANTITY) FROM CART_SELECTION) AS CART_ITEM_COUNT,"
+                                + " (SELECT SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE) FROM CART_SELECTION) AS CART_VALUE,"
+                                + " (SELECT COUNT(*) FROM PURCHASE) AS PURCHASE_COUNT,"
+                                + " (SELECT SUM(QUANTITY) FROM PURCHASE_SELECTION) AS PURCHASE_ITEM_COUNT,"
+                                + " (SELECT SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE) FROM PURCHASE_SELECTION) AS PURCHASE_VALUE,"
+                                + " (SELECT MIN(DATE_STARTED) FROM APP_INSTANCE WHERE LAST_HEARTBEAT >= :MIN_HEARTBEAT_TIME) AS START_TIME"
+                                + " FROM DUAL;");
         setStorefrontStatsParameters(query, maxCustomerIdleTimeSec);
         Object[] result = (Object[]) query.uniqueResult();
 
@@ -209,8 +189,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
 
     @SuppressWarnings("unchecked")
     @Override
-    public Map<String, StorefrontStats> getStorefrontStatsByRegion(int maxCustomerIdleTimeSec)
-    {
+    public Map<String, StorefrontStats> getStorefrontStatsByRegion(int maxCustomerIdleTimeSec) {
         Map<String, StorefrontStats> regionStatsMap = new TreeMap<String, StorefrontStats>();
 
         // Run query
@@ -242,78 +221,50 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
         setStorefrontStatsParameters(query, maxCustomerIdleTimeSec);
 
         // Fill stats
-        for (Object[] row : (List<Object[]>) query.list())
-        {
+        for (Object[] row : (List<Object[]>) query.list()) {
             String metric = row[0].toString();
             Object value = row[1];
             String region = (String) row[2];
 
-            if (region == null)
-            {
+            if (region == null) {
                 // A NULL region represents data from a previous Storefront
                 // version. Just associate it with the global stats.
                 region = "";
             }
 
             StorefrontStats regionStats = regionStatsMap.get(region);
-            if (regionStats == null)
-            {
+            if (regionStats == null) {
                 regionStats = new StorefrontStats();
                 regionStatsMap.put(region, regionStats);
             }
 
-            if (metric.equals("productCount"))
-            {
+            if (metric.equals("productCount")) {
                 regionStats.setProductCount(getIntValue(value));
-            }
-            else if (metric.equals("categoryCount"))
-            {
+            } else if (metric.equals("categoryCount")) {
                 regionStats.setCategoryCount(getIntValue(value));
-            }
-            else if (metric.equals("dateStarted"))
-            {
+            } else if (metric.equals("dateStarted")) {
                 Calendar cal = Calendar.getInstance();
                 cal.setTimeInMillis(getLongValue(value));
                 regionStats.setDateStarted(cal);
-            }
-            else if (metric.equals("productReviewCount"))
-            {
+            } else if (metric.equals("productReviewCount")) {
                 regionStats.setProductReviewCount(getIntValue(value));
-            }
-            else if (metric.equals("customerCount"))
-            {
+            } else if (metric.equals("customerCount")) {
                 regionStats.setCustomerCount(getIntValue(value));
-            }
-            else if (metric.equals("activeCustomerCount"))
-            {
+            } else if (metric.equals("activeCustomerCount")) {
                 regionStats.setActiveCustomerCount(getIntValue(value));
-            }
-            else if (metric.equals("activeWebCustomerCount"))
-            {
+            } else if (metric.equals("activeWebCustomerCount")) {
                 regionStats.setActiveWebCustomerCount(getIntValue(value));
-            }
-            else if (metric.equals("cartItemCount"))
-            {
+            } else if (metric.equals("cartItemCount")) {
                 regionStats.setCartItemCount(getIntValue(value));
-            }
-            else if (metric.equals("cartValue"))
-            {
+            } else if (metric.equals("cartValue")) {
                 regionStats.setCartValue(new BigDecimal(toNumericString(value)));
-            }
-            else if (metric.equals("purchaseCount"))
-            {
+            } else if (metric.equals("purchaseCount")) {
                 regionStats.setPurchaseCount(getIntValue(value));
-            }
-            else if (metric.equals("purchaseItemCount"))
-            {
+            } else if (metric.equals("purchaseItemCount")) {
                 regionStats.setPurchaseItemCount(getIntValue(value));
-            }
-            else if (metric.equals("purchaseValue"))
-            {
+            } else if (metric.equals("purchaseValue")) {
                 regionStats.setPurchaseValue(new BigDecimal(toNumericString(value)));
-            }
-            else
-            {
+            } else {
                 throw new RuntimeException("Unexpected metric: " + metric);
             }
         }
@@ -321,45 +272,36 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
         return regionStatsMap;
     }
 
-    protected static int getIntValue(Object value)
-    {
-        if (value == null)
-        {
+    protected static int getIntValue(Object value) {
+        if (value == null) {
             return 0;
         }
-        if (value instanceof Number)
-        {
+        if (value instanceof Number) {
             return ((Number) value).intValue();
         }
         return Integer.valueOf(value.toString());
     }
 
-    protected static BigDecimal getBigDecimalValue(Object value)
-    {
-        if (value == null)
-        {
+    protected static BigDecimal getBigDecimalValue(Object value) {
+        if (value == null) {
             return BigDecimal.ZERO;
         }
-        if (value instanceof Number)
-        {
+        if (value instanceof Number) {
             return new BigDecimal(((Number) value).doubleValue());
         }
         String str = value.toString();
-        if (str.equalsIgnoreCase("NaN"))
-        {
+        if (str.equalsIgnoreCase("NaN")) {
             return BigDecimal.ZERO;
         }
         return new BigDecimal(value.toString());
     }
 
-    protected static long getLongValue(Object value)
-    {
+    protected static long getLongValue(Object value) {
         return getBigDecimalValue(value).longValue();
     }
 
     @Override
-    public int deleteDeadAppInstances(Calendar maxLastHeartbeat)
-    {
+    public int deleteDeadAppInstances(Calendar maxLastHeartbeat) {
         SQLQuery query = getSession().createSQLQuery("DELETE FROM APP_INSTANCE WHERE LAST_HEARTBEAT <= :MAX_LAST_HEARTBEAT");
         query.setParameter("MAX_LAST_HEARTBEAT", maxLastHeartbeat);
         return query.executeUpdate();
@@ -367,8 +309,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<DbNode> getDbNodes()
-    {
+    public List<DbNode> getDbNodes() {
         SQLQuery query = getSession()
                 .createSQLQuery("SELECT SYSTEM.NODES.*, CASE WHEN ID = GETNODEID() THEN 1 ELSE 0 END AS LOCAL FROM SYSTEM.NODES");
         query.setResultTransformer(new ResultTransformer() {
@@ -376,60 +317,36 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
 
             @SuppressWarnings("rawtypes")
             @Override
-            public List transformList(List collection)
-            {
+            public List transformList(List collection) {
                 return collection;
             }
 
             @Override
-            public Object transformTuple(Object[] tuple, String[] aliases)
-            {
+            public Object transformTuple(Object[] tuple, String[] aliases) {
                 DbNode node = new DbNode();
-                for (int i = 0; i < aliases.length; i++)
-                {
+                for (int i = 0; i < aliases.length; i++) {
                     String alias = aliases[i].toLowerCase();
-                    if (alias.equals("id"))
-                    {
+                    if (alias.equals("id")) {
                         node.setId((Integer) tuple[i]);
-                    }
-                    else if (alias.equals("localid"))
-                    {
+                    } else if (alias.equals("localid")) {
                         node.setLocalId((Integer) tuple[i]);
-                    }
-                    else if (alias.equals("port"))
-                    {
+                    } else if (alias.equals("port")) {
                         node.setPort((Integer) tuple[i]);
-                    }
-                    else if (alias.equals("address"))
-                    {
+                    } else if (alias.equals("address")) {
                         node.setAddress((String) tuple[i]);
-                    }
-                    else if (alias.equals("state"))
-                    {
+                    } else if (alias.equals("state")) {
                         node.setState((String) tuple[i]);
-                    }
-                    else if (alias.equals("type"))
-                    {
+                    } else if (alias.equals("type")) {
                         node.setType((String) tuple[i]);
-                    }
-                    else if (alias.equals("connstate"))
-                    {
+                    } else if (alias.equals("connstate")) {
                         node.setConnState((String) tuple[i]);
-                    }
-                    else if (alias.equals("msgqsize"))
-                    {
+                    } else if (alias.equals("msgqsize")) {
                         node.setMsgQSize((Integer) tuple[i]);
-                    }
-                    else if (alias.equals("triptime"))
-                    {
+                    } else if (alias.equals("triptime")) {
                         node.setTripTime((Integer) tuple[i]);
-                    }
-                    else if (alias.equals("georegion"))
-                    {
+                    } else if (alias.equals("georegion")) {
                         node.setGeoRegion((String) tuple[i]);
-                    }
-                    else if (alias.equals("local"))
-                    {
+                    } else if (alias.equals("local")) {
                         node.setLocal(tuple[i].toString().equals("1"));
                     }
                 }
@@ -440,33 +357,27 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
     }
 
     @Override
-    public String getCurrentDbNodeRegion()
-    {
-        try
-        {
+    public String getCurrentDbNodeRegion() {
+        try {
             return getSession().createSQLQuery("SELECT GEOREGION FROM SYSTEM.NODES WHERE ID=GETNODEID()").uniqueResult().toString();
-        } catch (SQLGrammarException e)
-        {
+        } catch (SQLGrammarException e) {
             return null;
         }
     }
 
     @Override
-    public Currency getRegionCurrency(final String region)
-    {
+    public Currency getRegionCurrency(final String region) {
         @SuppressWarnings("unchecked")
         List<String> currencies = (List<String>) getSession()
                 .createSQLQuery("SELECT DISTINCT Currency FROM APP_INSTANCE WHERE REGION=:REGION ORDER BY LAST_HEARTBEAT DESC")
                 .setParameter("REGION", region).list();
-        if (currencies.isEmpty())
-        {
+        if (currencies.isEmpty()) {
             return null;
         }
         return Currency.valueOf(currencies.get(0));
     }
 
-    protected void setStorefrontStatsParameters(SQLQuery query, int maxCustomerIdleTimeSec)
-    {
+    protected void setStorefrontStatsParameters(SQLQuery query, int maxCustomerIdleTimeSec) {
         Calendar now = Calendar.getInstance();
 
         // MIN_ACTIVE_TIME
@@ -480,37 +391,29 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
         query.setParameter("MIN_HEARTBEAT_TIME", minHeartbeatTime);
     }
 
-    protected static String toNumericString(Object o)
-    {
-        if (o != null)
-        {
+    protected static String toNumericString(Object o) {
+        if (o != null) {
             String str = o.toString();
-            if (str.length() > 0 && !str.equalsIgnoreCase("NaN"))
-            {
+            if (str.length() > 0 && !str.equalsIgnoreCase("NaN")) {
                 return str;
             }
         }
         return "0";
     }
 
-    protected SQLQuery buildProductQuery(ProductFilter filter, boolean countOnly)
-    {
+    protected SQLQuery buildProductQuery(ProductFilter filter, boolean countOnly) {
         StringBuilder sql = new StringBuilder();
         Map<String, Object> params = new HashMap<String, Object>();
 
-        if (countOnly)
-        {
+        if (countOnly) {
             sql.append("SELECT COUNT(*) FROM PRODUCT");
-        }
-        else
-        {
+        } else {
             sql.append("SELECT * FROM PRODUCT");
         }
 
         // Set match text
         String matchText = filter.getMatchText();
-        if (matchText != null && !matchText.isEmpty())
-        {
+        if (matchText != null && !matchText.isEmpty()) {
             matchText = "%" + matchText.trim().toLowerCase() + "%";
             sql.append(" AND (LOWER(NAME) LIKE :MATCH_TEXT OR LOWER(DESCRIPTION) LIKE :MATCH_TEXT)");
             params.put("MATCH_TEXT", matchText);
@@ -518,14 +421,11 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
 
         // Set categories
         Collection<String> categories = filter.getCategories();
-        if (categories != null && !categories.isEmpty())
-        {
+        if (categories != null && !categories.isEmpty()) {
             StringBuilder categoryParamList = new StringBuilder();
             int categoryIdx = 0;
-            for (String category : categories)
-            {
-                if (categoryIdx > 0)
-                {
+            for (String category : categories) {
+                if (categoryIdx > 0) {
                     categoryParamList.append(", ");
                 }
                 String catParamName = "cat" + ++categoryIdx;
@@ -537,10 +437,8 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
 
         // Set sort
         ProductSort sort = filter.getSort();
-        if (sort != null)
-        {
-            switch (sort)
-            {
+        if (sort != null) {
+            switch (sort) {
                 case AVG_CUSTOMER_REVIEW:
                     sql.append(" ORDER BY COALESCE(RATING, -1) DESC, REVIEW_COUNT DESC");
                     break;
@@ -562,12 +460,9 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
                     break;
 
                 case RELEVANCE:
-                    if (matchText != null && !matchText.isEmpty())
-                    {
+                    if (matchText != null && !matchText.isEmpty()) {
                         sql.append(" ORDER BY CASE WHEN LOWER(NAME) LIKE :MATCH_TEXT THEN 1 ELSE 0 END DESC, NAME, DATE_ADDED DESC");
-                    }
-                    else
-                    {
+                    } else {
                         sql.append(" ORDER BY NAME, DATE_ADDED DESC");
                     }
                     break;
@@ -580,31 +475,25 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
 
         // Replace first "AND" with "WHERE"
         int andIdx = sql.indexOf("AND");
-        if (andIdx > 0)
-        {
+        if (andIdx > 0) {
             sql.replace(andIdx, andIdx + "AND".length(), "WHERE");
         }
 
         // Build SQL
         SQLQuery query = getSession().createSQLQuery(sql.toString());
-        if (!countOnly)
-        {
+        if (!countOnly) {
             query.addEntity(Product.class);
         }
-        for (Map.Entry<String, Object> param : params.entrySet())
-        {
+        for (Map.Entry<String, Object> param : params.entrySet()) {
             query.setParameter(param.getKey(), param.getValue());
         }
 
         // Set pagination params (limit and offset)
-        if (!countOnly)
-        {
+        if (!countOnly) {
             Integer pageSize = filter.getPageSize();
-            if (pageSize != null && pageSize > 0)
-            {
+            if (pageSize != null && pageSize > 0) {
                 Integer page = filter.getPage();
-                if (page != null)
-                {
+                if (page != null) {
                     query.setFirstResult(pageSize * (page - 1));
                 }
                 query.setMaxResults(pageSize);
@@ -614,10 +503,8 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
         return query;
     }
 
-    protected void prepareSession(TransactionType transactionType)
-    {
-        switch (transactionType)
-        {
+    protected void prepareSession(TransactionType transactionType) {
+        switch (transactionType) {
             case READ_ONLY:
                 Session session = getSession();
 
@@ -639,18 +526,14 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao
         }
     }
 
-    protected void updateTransactionStats(String transactionName, long startTimeMs, boolean success)
-    {
-        if (transactionName == null)
-        {
+    protected void updateTransactionStats(String transactionName, long startTimeMs, boolean success) {
+        if (transactionName == null) {
             return;
         }
 
-        synchronized (s_transactionStatsMap)
-        {
+        synchronized (s_transactionStatsMap) {
             TransactionStats stats = s_transactionStatsMap.get(transactionName);
-            if (stats == null)
-            {
+            if (stats == null) {
                 s_transactionStatsMap.put(transactionName, stats = new TransactionStats());
             }
             stats.incrementCount(transactionName, System.currentTimeMillis() - startTimeMs, success);

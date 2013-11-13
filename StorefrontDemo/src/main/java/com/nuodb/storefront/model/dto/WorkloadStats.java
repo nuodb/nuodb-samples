@@ -57,8 +57,8 @@ public class WorkloadStats {
     }
 
     public boolean exceedsWorkerLimit() {
-        return (activeWorkerLimit != null && activeWorkerCount > activeWorkerLimit) ||
-                (workload.getMaxWorkers() > 0 && activeWorkerCount > workload.getMaxWorkers());
+        return (activeWorkerLimit != null && activeWorkerCount > activeWorkerLimit)
+                || (workload.getMaxWorkers() > 0 && activeWorkerCount > workload.getMaxWorkers());
     }
 
     /**

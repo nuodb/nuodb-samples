@@ -75,15 +75,8 @@ public class DataGeneratorService implements IDataGeneratorService {
 
     @Override
     public void removeAll() throws IOException {
-        String[] statements = new String[] {
-                "DELETE FROM CART_SELECTION",
-                "DELETE FROM PURCHASE_SELECTION",
-                "DELETE FROM PURCHASE",
-                "DELETE FROM PRODUCT_REVIEW",
-                "DELETE FROM CUSTOMER",
-                "DELETE FROM PRODUCT_CATEGORY",
-                "DELETE FROM PRODUCT"
-        };
+        String[] statements = new String[] { "DELETE FROM CART_SELECTION", "DELETE FROM PURCHASE_SELECTION", "DELETE FROM PURCHASE",
+                "DELETE FROM PRODUCT_REVIEW", "DELETE FROM CUSTOMER", "DELETE FROM PRODUCT_CATEGORY", "DELETE FROM PRODUCT" };
 
         for (String statement : statements) {
             for (int i = 0;; i++) {

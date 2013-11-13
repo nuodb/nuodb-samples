@@ -6,10 +6,10 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 
 public class StorefrontStats {
-    // These stats are calculated at the global level only 
+    // These stats are calculated at the global level only
     private int productCount;
     private int categoryCount;
-    
+
     // These stats are calculated at the global and region levels
     private int productReviewCount;
     private int customerCount;
@@ -21,14 +21,14 @@ public class StorefrontStats {
     private int purchaseItemCount;
     private BigDecimal purchaseValue;
     private Calendar dateStarted;
-    
+
     public StorefrontStats() {
     }
-    
+
     public long getUptimeMs() {
         return (dateStarted == null) ? 0 : System.currentTimeMillis() - dateStarted.getTimeInMillis();
     }
-    
+
     public int getProductCount() {
         return productCount;
     }
@@ -68,7 +68,7 @@ public class StorefrontStats {
     public void setActiveCustomerCount(int activeCustomerCount) {
         this.activeCustomerCount = activeCustomerCount;
     }
-    
+
     public int getActiveWebCustomerCount() {
         return activeWebCustomerCount;
     }
@@ -123,5 +123,5 @@ public class StorefrontStats {
 
     public void setDateStarted(Calendar dateStarted) {
         this.dateStarted = dateStarted;
-    }   
+    }
 }
