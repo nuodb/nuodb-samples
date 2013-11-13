@@ -166,14 +166,14 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     public void incrementStepCompletionCount(WorkloadStep step) {
         stepCompletionCounts.get(step).incrementAndGet();
     }
-    
+
     @Override
     public StorefrontStatsReport getStorefrontStatsReport(Integer sessionTimeoutSec, boolean includeStorefront)
     {
         StorefrontStatsReport report = new StorefrontStatsReport();
-        
+
         StorefrontApp.APP_INSTANCE.setCpuUtilization(PerformanceUtil.getCpuUtilization());
-        
+
         report.setTimestamp(Calendar.getInstance());
         report.setAppInstance(StorefrontApp.APP_INSTANCE);
         report.setTransactionStats(svc.getTransactionStats());

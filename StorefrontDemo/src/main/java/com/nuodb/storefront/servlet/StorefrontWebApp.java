@@ -37,7 +37,7 @@ public class StorefrontWebApp implements ServletContextListener {
             // Context might be reinitialized due to code edits -- don't reinitialize hearbeat service, though
             return;
         }
-
+        
         // Get external URL of this web app
         ServletContext context = sce.getServletContext();
         String url = buildWebAppUrl(context, guessWebAppPort());
