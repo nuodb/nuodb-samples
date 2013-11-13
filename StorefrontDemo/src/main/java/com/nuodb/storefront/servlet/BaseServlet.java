@@ -232,9 +232,6 @@ public abstract class BaseServlet extends HttpServlet {
             addMessage(req, MessageSeverity.INFO, "Product data generated successfully.");
             s_logger.info("Product data generated");
         } else if (btnAction.contains("remove")) {
-            // Stop simulated workloads first; this prevents update conflicts
-            getSimulator().removeAll();
-
             // Now remove all data
             try {
                 StorefrontApp.removeData();

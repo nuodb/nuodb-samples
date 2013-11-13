@@ -11,9 +11,12 @@ import java.util.Map;
 import java.util.Random;
 
 import org.apache.log4j.Logger;
+import org.hibernate.ObjectNotFoundException;
 import org.hibernate.exception.SQLGrammarException;
 
 import com.nuodb.storefront.exception.CartEmptyException;
+import com.nuodb.storefront.exception.CustomerNotFoundException;
+import com.nuodb.storefront.exception.ProductNotFoundException;
 import com.nuodb.storefront.exception.UnsupportedStepException;
 import com.nuodb.storefront.model.dto.Category;
 import com.nuodb.storefront.model.dto.ProductFilter;
@@ -75,17 +78,14 @@ public class SimulatedUser implements IWorker {
             priorBackoffDelay = 0;
             nextBackoffDelay = MIN_BACKOFF_DELAY;
         } catch (RuntimeException e) {
-            if (isRecoverableException(e)) {
-                if (nextBackoffDelay >= MAX_BACKOFF_DELAY) {
-                    return MAX_BACKOFF_DELAY;
-                }
-                long actualBackoffDelay = nextBackoffDelay;
-                nextBackoffDelay += priorBackoffDelay;
-                priorBackoffDelay = actualBackoffDelay;
-                
-                s_log.info("Encountered recoverable exception with simulated user \"" + getWorkload().getName() + "\".  Will retry in " + actualBackoffDelay + " ms.", e);
-                
-                return actualBackoffDelay;
+            if (isExceptionRecoverable(e)) {
+                recoverFromException(e);
+
+                long retryDelay = getRetryDelay();
+                s_log.info("Encountered recoverable exception with simulated user \"" + getWorkload().getName() + "\".  Will retry in " + retryDelay
+                        + " ms.", e);
+
+                return retryDelay;
             }
             throw e;
         }
@@ -99,13 +99,43 @@ public class SimulatedUser implements IWorker {
         return workloadType.calcNextThinkTimeMs();
     }
 
-    protected boolean isRecoverableException(RuntimeException e) {
+    protected long getRetryDelay() {
+        if (nextBackoffDelay >= MAX_BACKOFF_DELAY) {
+            return MAX_BACKOFF_DELAY;
+        }
+
+        long retryDelay = nextBackoffDelay;
+        nextBackoffDelay += priorBackoffDelay;
+        priorBackoffDelay = retryDelay;
+        return retryDelay;
+    }
+
+    protected boolean isExceptionRecoverable(RuntimeException e) {
         if (e instanceof SQLGrammarException) {
-            // The schema has been busted.  Someone may have dropped a critical table.  Retrying the worker won't help. 
+            // The schema has been busted. Someone may have dropped a critical table. Retrying the worker won't help.
             return false;
         }
-        
+
         return true;
+    }
+
+    protected void recoverFromException(RuntimeException e) {
+        if (e instanceof ObjectNotFoundException || e instanceof CustomerNotFoundException) {
+            // Customer may be missing. Reset everything.
+            stepIdx = 0;
+            customer = null;
+            filter = null;
+            productIds = null;
+            s_categories = null;
+            isCartEmpty = true;
+            selectedProductId = null;
+        } else if (e instanceof ProductNotFoundException) {
+            // Product is missing.  Just reset product-related stats.
+            productIds = null;
+            selectedProductId = null;
+            filter = null;
+            s_categories = null;
+        }
     }
 
     protected void doWork(WorkloadStep step) {
