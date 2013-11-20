@@ -210,6 +210,7 @@
 
     function refreshInstanceStats(region, instance) {
         instance.isRefreshing = true;
+        region.isRefreshing = true;
         syncInstanceStatusIndicator(region, instance);
 
         $.ajax({
