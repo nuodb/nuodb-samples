@@ -215,7 +215,7 @@
                  
 				<h4>Adding Nodes</h4>       
 				<p>To add nodes to your NuoDB cluster, use the NuoDB Console.</p>
-				<p>If you are running NuoDB locally with default settings, you will find the Console at <a href="http://localhost:8080/" target="_blank">http://localhost:8080/</a>.</p>
+				<p id="console-link">If you are running NuoDB locally with default settings, you can find the Console at <a href="http://localhost:8080/console.html">http://localhost:8080/console.html</a>.</p>
 				<h4>Removing Nodes</h4>
 				<p>Try testing fault tolerance by killing any node while the Storefront is running.</p>
 			</div>

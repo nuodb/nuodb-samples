@@ -24,22 +24,27 @@ public class StorefrontWebApp implements ServletContextListener {
     private static final String ENV_MAVEN_TOMCAT_PORT = "maven.tomcat.port";
     private static final String CONTEXT_INIT_PARAM_PUBLIC_URL = "storefront.publicUrl";
     private static final String CONTEXT_INIT_PARAM_LAZY_LOAD = "storefront.lazyLoad";
+    private static final String CONTEXT_INIT_PARAM_IS_CONSOLE_LOCAL = "storefront.isConsoleLocal";
 
-    private static ScheduledExecutorService executor;
+    private static ScheduledExecutorService s_executor;
     private static int s_port;
-    private static IHeartbeatService heartbeatSvc;
-    private static final Object heartbeatSvcLock = new Object();
-    private static boolean initialized = false;
+    private static IHeartbeatService s_heartbeatSvc;
+    private static final Object s_heartbeatSvcLock = new Object();
+    private static boolean s_initialized = false;
+    private static boolean s_isConsoleLocal;
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        if (initialized) {
+        if (s_initialized) {
             // Context might be reinitialized due to code edits -- don't reinitialize hearbeat service, though
             return;
         }
-        
-        // Get external URL of this web app
+
         ServletContext context = sce.getServletContext();
+        s_executor = Executors.newSingleThreadScheduledExecutor();
+        s_isConsoleLocal = isInitParameterTrue(CONTEXT_INIT_PARAM_IS_CONSOLE_LOCAL, context);
+
+        // Get external URL of this web app
         String url = buildWebAppUrl(context, guessWebAppPort());
         StorefrontApp.APP_INSTANCE.setUrl(url);
 
@@ -50,21 +55,28 @@ public class StorefrontWebApp implements ServletContextListener {
             StorefrontApp.APP_INSTANCE.setRegionOverride(true);
         }
 
-        // Initiate heartbeat service
-        executor = Executors.newSingleThreadScheduledExecutor();
-        String lazyLoad = context.getInitParameter(CONTEXT_INIT_PARAM_LAZY_LOAD);
-        if (StringUtils.isEmpty(lazyLoad) || (!lazyLoad.equalsIgnoreCase("true") && !lazyLoad.equals("1"))) {
+        // Initialize heartbeat service
+        if (isInitParameterTrue(CONTEXT_INIT_PARAM_LAZY_LOAD, context)) {
             initHeartbeatService();
         }
 
-        initialized = true;
+        s_initialized = true;
+    }
+    
+    public static boolean isConsoleLocal() {
+        return s_isConsoleLocal;
+    }
+
+    protected static boolean isInitParameterTrue(String name, ServletContext context) {
+        String val = context.getInitParameter(name);
+        return !StringUtils.isEmpty(val) && (val.equalsIgnoreCase("true") || val.equals("1"));
     }
 
     public static void initHeartbeatService() {
-        synchronized (heartbeatSvcLock) {
-            if (heartbeatSvc == null) {
-                heartbeatSvc = StorefrontFactory.createHeartbeatService();
-                executor.scheduleAtFixedRate(heartbeatSvc, 0, StorefrontApp.HEARTBEAT_INTERVAL_SEC, TimeUnit.SECONDS);
+        synchronized (s_heartbeatSvcLock) {
+            if (s_heartbeatSvc == null) {
+                s_heartbeatSvc = StorefrontFactory.createHeartbeatService();
+                s_executor.scheduleAtFixedRate(s_heartbeatSvc, 0, StorefrontApp.HEARTBEAT_INTERVAL_SEC, TimeUnit.SECONDS);
             }
         }
     }
@@ -72,7 +84,7 @@ public class StorefrontWebApp implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         // Stop sending heartbeats
-        executor.shutdown();
+        s_executor.shutdown();
     }
 
     public static void updateWebAppPort(HttpServletRequest req) {

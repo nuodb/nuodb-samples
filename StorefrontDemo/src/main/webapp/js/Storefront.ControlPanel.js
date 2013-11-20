@@ -9,19 +9,20 @@
 
     Storefront.initControlPanelPage = function(cfg) {
         var pageData = cfg.pageData;
-        app = this;        
+        app = this;
         regionData = initRegionData(app.regions, pageData.stats);
 
         if (!jQuery.support.cors && regionData.instanceCount > 1) {
-            cfg.messages.push({
-                severity: 'WARNING',
-                message: 'Your browser does not support CORS, which is needed for this control panel to communicate with other Storefront instances.  The statistics you see here may be incomplete or inaccurate, and you may not be able to control all instances.  Please use Internet Explorer 10+ or a newer version of Chrome, Firefox, Safari, or Opera.'
-            });
+            cfg.messages
+                    .push({
+                        severity: 'WARNING',
+                        message: 'Your browser does not support CORS, which is needed for this control panel to communicate with other Storefront instances.  The statistics you see here may be incomplete or inaccurate, and you may not be able to control all instances.  Please use Internet Explorer 10+ or a newer version of Chrome, Firefox, Safari, or Opera.'
+                    });
         }
 
         initCustomersTab();
         initProductsTab(pageData.productInfo);
-        initNodesTab(pageData.dbNodes);
+        initNodesTab(pageData.dbNodes, pageData.isConsoleLocal);
 
         refreshStats(pageData.stats);
     }
@@ -126,7 +127,12 @@
         $('#lbl-products').text((productInfo.productCount || 0).format(0));
     }
 
-    function initNodesTab(dbNodes) {
+    function initNodesTab(dbNodes, isConsoleLocal) {
+        if (isConsoleLocal) {
+            var consoleUrl = location.protocol + '//' + location.host + '/console.html';
+            $('#console-link').html('You can find the Console at <a href="consoleUrl">' + consoleUrl + '</a>.');
+        }
+
         // Sort by region, then address, then type
         dbNodes.sort(function(a, b) {
             var diff = compare(a.region, b.region);

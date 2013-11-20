@@ -49,6 +49,7 @@ public class ControlPanelServlet extends BaseServlet {
             pageData.put("stats", stats);
             pageData.put("productInfo", productInfo);
             pageData.put("dbNodes", dbNodes);
+            pageData.put("isConsoleLocal", StorefrontWebApp.isConsoleLocal());
 
             showPage(req, resp, "Control Panel", "control-panel", pageData, new Customer());
         } catch (Exception ex) {
