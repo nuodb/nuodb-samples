@@ -42,7 +42,7 @@ public class StorefrontWebApp implements ServletContextListener {
 
         ServletContext context = sce.getServletContext();
         s_executor = Executors.newSingleThreadScheduledExecutor();
-        s_isConsoleLocal = isInitParameterTrue(CONTEXT_INIT_PARAM_IS_CONSOLE_LOCAL, context);
+        s_isConsoleLocal = isInitParameterTrue(CONTEXT_INIT_PARAM_IS_CONSOLE_LOCAL, context, false);
 
         // Get external URL of this web app
         String url = buildWebAppUrl(context, guessWebAppPort());
@@ -56,7 +56,7 @@ public class StorefrontWebApp implements ServletContextListener {
         }
 
         // Initialize heartbeat service
-        if (isInitParameterTrue(CONTEXT_INIT_PARAM_LAZY_LOAD, context)) {
+        if (!isInitParameterTrue(CONTEXT_INIT_PARAM_LAZY_LOAD, context, false)) {
             initHeartbeatService();
         }
 
@@ -67,9 +67,12 @@ public class StorefrontWebApp implements ServletContextListener {
         return s_isConsoleLocal;
     }
 
-    protected static boolean isInitParameterTrue(String name, ServletContext context) {
+    protected static boolean isInitParameterTrue(String name, ServletContext context, boolean defaultValue) {
         String val = context.getInitParameter(name);
-        return !StringUtils.isEmpty(val) && (val.equalsIgnoreCase("true") || val.equals("1"));
+        if (StringUtils.isEmpty(val)) {
+            return defaultValue;
+        }
+        return (val.equalsIgnoreCase("true") || val.equals("1"));
     }
 
     public static void initHeartbeatService() {
