@@ -44,11 +44,11 @@ Ext.define('App.view.MetricChart', {
 
     showMetric: function(metric, categoryIdx) {
         var me = this;
-        
+
         if (categoryIdx === undefined) {
             categoryIdx = metric.get('defaultCategoryIdx');
         }
-        
+
         me.metric = metric;
         me.categoryIdx = categoryIdx;
 
@@ -178,6 +178,8 @@ Ext.define('App.view.MetricChart', {
             series[0].yField = series[0].yField[0];
         }
 
+        var dateRange = me.calcDateRange(store);
+
         // Build chart config
         return {
             xtype: 'chart',
@@ -208,11 +210,11 @@ Ext.define('App.view.MetricChart', {
             }, {
                 type: 'Time',
                 dateFormat: 'h:i:s a',
-                fromDate: me.calcFromDate(store),
-                toDate: me.calcToDate(store),
+                fromDate: dateRange[0],
+                toDate: dateRange[1],
                 position: 'bottom',
                 fields: 'timestamp',
-                step: [Ext.Date.SECOND, 60],
+                step: [Ext.Date.SECOND, App.app.maxStatsHistory - 1],
                 minorTickSteps: 0
             }],
             series: series,
@@ -220,24 +222,17 @@ Ext.define('App.view.MetricChart', {
                 beforerefresh: function() {
                     var yAxis = this.axes.getAt(1);
                     var store = this.getStore();
-                    yAxis.fromDate = me.calcFromDate(store);
-                    yAxis.toDate = me.calcToDate(store);
+                    var dateRange = me.calcDateRange(store);
+                    yAxis.fromDate = dateRange[0];
+                    yAxis.toDate = dateRange[1];
                 }
             }
         };
     },
 
-    calcToDate: function(store) {
-        return store.getAt(store.getCount() - 1).get('timestamp');
-    },
-
-    calcFromDate: function(store) {
-        var me = this;
-        var fromDate = store.getAt(0).get('timestamp');
-        var numPoints = store.getCount();
-        if (numPoints < App.app.maxStatsHistory) {
-            fromDate = new Date(fromDate.getTime() - (App.app.maxStatsHistory - numPoints) * App.app.refreshFrequencyMs);
-        }
-        return fromDate;
+    calcDateRange: function(store) {
+        var toDate = store.getAt(store.getCount() - 1).get('timestamp');
+        var fromDate = new Date(toDate.getTime() - App.app.refreshFrequencyMs * (App.app.maxStatsHistory - 1));
+        return [fromDate, toDate];
     }
 });

@@ -18,7 +18,7 @@ Ext.define('App.controller.Storefront', {
         me.callParent(arguments);
         me.statsHistory = [];
         me.regionStats = {}; // updated by RemoteStorefront
-        me.seenInstanceUuidMap = {};        
+        me.seenInstanceUuidMap = {};
     },
 
     /** @Override */
@@ -171,95 +171,22 @@ Ext.define('App.controller.Storefront', {
                 if (!stats) {
                     return;
                 }
-                
+
                 me.checkForHeavyLoad(stats.appInstance);
 
                 // If we're talking to a new Storefront instance (maybe service was bounced), throw away old data so deltas aren't bogus
                 if (me.instancesAvailableHaveChanged(stats)) {
                     me.resetStats();
                 }
-
-                if (me.lastTimestamp && stats.timestamp < me.lastTimestamp) {
-                    // We received a response out-of-sequence.  Ignore it since deltas were already calculated.
+                
+                // If we've received an out-of-sequence response, ignore it since deltas were already calculated.
+                stats.timestamp = Math.round(stats.timestamp / 1000) * 1000;
+                if (me.lastTimestamp && stats.timestamp <= me.lastTimestamp) {
                     return;
                 }
+                
                 me.lastTimestamp = stats.timestamp;
-
-                // Add stats from regions
-                stats.regionTransactionStats = {};
-                stats.regionWorkloadStats = {};
-                stats.regionWorkloadStepStats = {};
-                me.aggregateInstanceStats(stats.appInstance.region, stats, stats); // this region first
-                for ( var regionName in me.regionStats) {
-                    var region = me.regionStats[regionName];
-                    for ( var uuid in region) {
-                        me.aggregateInstanceStats(regionName, region[uuid], stats);
-                        me.seenInstanceUuidMap[uuid] = true;
-                    }
-                }
-
-                // Calculate deltas
-                if (me.statsHistory.length > 0) {
-                    var oldStats = me.statsHistory[me.statsHistory.length - 1];
-                    for ( var category in stats) {
-                        for ( var series in stats[category]) {
-                            var oldSeries = oldStats[category][series];
-                            for ( var metric in stats[category][series]) {
-                                if (!metric.endsWith('Delta')) {
-                                    stats[category][series][metric + 'Delta'] = stats[category][series][metric] - ((oldSeries) ? oldSeries[metric] : 0);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Create "all" aggregate for each category
-                for ( var category in stats) {
-                    var all = {};
-                    for ( var series in stats[category]) {
-                        for ( var metric in stats[category][series]) {
-                            if (metric == 'uptimeMs') {
-                                all[metric] = Math.max(all[metric] || 0, stats[category][series][metric]);
-                            } else {
-                                all[metric] = (all[metric] || 0) + stats[category][series][metric];
-                            }
-                        }
-                    }
-                    stats[category].all = all;
-                }
-
-                // Record to history
-                me.statsHistory.splice(0, me.statsHistory.length - App.app.maxStatsHistory);
-                me.statsHistory.push(stats);
-
-                // Update metric history stores with data
-                var timestamp = new Date(stats.timestamp);
-                me.getStore('Metrics').each(function(metric) {
-                    for ( var i = 0; i < 2; i++) {
-                        var store = metric.get('historyStore' + i);
-                        if (store) {
-                            var catStats = stats[metric.get('category' + i)];
-
-                            if (me.isModelMissingStatField(store.model, catStats)) {
-                                // Reconfigure fields 
-                                store.model.setFields(me.getFieldConfigs(catStats));
-                                store.fireEvent('metachange');
-                            }
-
-                            var metricName = metric.get('name');
-                            var record = {
-                                timestamp: timestamp
-                            };
-                            for ( var seriesName in catStats) {
-                                record[seriesName] = catStats[seriesName][metricName];
-                            }
-                            store.add(record);
-                            while (store.getCount() > App.app.maxStatsHistory) {
-                                store.removeAt(0);
-                            }
-                        }
-                    }
-                });
+                me.processStats(stats);
 
                 // Notify other listeners of the change
                 me.application.fireEvent('statschange', me);
@@ -269,9 +196,127 @@ Ext.define('App.controller.Storefront', {
             }
         });
     },
-    
+
+    processStats: function(stats) {
+        var me = this;
+
+        // Combine stats from regions
+        stats.regionTransactionStats = {};
+        stats.regionWorkloadStats = {};
+        stats.regionWorkloadStepStats = {};
+        me.aggregateInstanceStats(stats.appInstance.region, stats, stats); // this region first
+        for ( var regionName in me.regionStats) {
+            var region = me.regionStats[regionName];
+            for ( var uuid in region) {
+                me.aggregateInstanceStats(regionName, region[uuid], stats);
+                me.seenInstanceUuidMap[uuid] = true;
+            }
+        }
+
+        // Fill gaps with fake results that are smoothed
+        var priorStats = me.statsHistory[me.statsHistory.length - 1];
+        if (priorStats) {
+            var gapSize = (stats.timestamp - priorStats.timestamp) / 1000 - 1;
+            if (gapSize > 0) {
+                var gapIncrement = 1 / (gapSize + 1);
+                for ( var i = 0; i < gapSize; i++) {
+                    me.addStats(me.fillStatsGap(priorStats, stats, {
+                        filler: true
+                    }, gapIncrement * (i + 1)));
+                }
+            }
+        }
+
+        me.addStats(stats);
+    },
+
+    fillStatsGap: function(start, end, gap, gapIncrement) {
+        for ( var key in start) {
+            var startVal = start[key];
+            var endVal = end[key];
+            if (endVal !== undefined) {
+                if (typeof (startVal) == "object") {
+                    var gapVal = gap[key] = {};
+                    this.fillStatsGap(startVal, endVal, gapVal, gapIncrement);
+                } else if (typeof (startVal) == "number") {
+                    var diff = endVal - startVal;
+                    gap[key] = startVal + diff * gapIncrement;
+                }
+            }
+        }
+        return gap;
+    },
+
+    addStats: function(stats) {
+        var me = this;
+
+        // Calculate deltas
+        if (me.statsHistory.length > 0) {
+            var oldStats = me.statsHistory[me.statsHistory.length - 1];
+            for ( var category in stats) {
+                for ( var series in stats[category]) {
+                    var oldSeries = oldStats[category][series];
+                    for ( var metric in stats[category][series]) {
+                        if (!metric.endsWith('Delta')) {
+                            stats[category][series][metric + 'Delta'] = stats[category][series][metric] - ((oldSeries) ? oldSeries[metric] : 0);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Create "all" aggregate for each category
+        for ( var category in stats) {
+            var all = {};
+            for ( var series in stats[category]) {
+                for ( var metric in stats[category][series]) {
+                    if (metric == 'uptimeMs') {
+                        all[metric] = Math.max(all[metric] || 0, stats[category][series][metric]);
+                    } else {
+                        all[metric] = (all[metric] || 0) + stats[category][series][metric];
+                    }
+                }
+            }
+            stats[category].all = all;
+        }
+
+        // Record to history
+        me.statsHistory.splice(0, me.statsHistory.length - App.app.maxStatsHistory + 1);
+        me.statsHistory.push(stats);
+
+        // Update metric history stores with data
+        var timestamp = new Date(stats.timestamp);
+        var minTimestamp = new Date(timestamp.getTime() - App.app.refreshFrequencyMs * (App.app.maxStatsHistory - 1));
+        me.getStore('Metrics').each(function(metric) {
+            for ( var i = 0; i < 2; i++) {
+                var store = metric.get('historyStore' + i);
+                if (store) {
+                    var catStats = stats[metric.get('category' + i)];
+
+                    if (me.isModelMissingStatField(store.model, catStats)) {
+                        // Reconfigure fields 
+                        store.model.setFields(me.getFieldConfigs(catStats));
+                        store.fireEvent('metachange');
+                    }
+
+                    var metricName = metric.get('name');
+                    var record = {
+                        timestamp: timestamp
+                    };
+                    for ( var seriesName in catStats) {
+                        record[seriesName] = catStats[seriesName][metricName];
+                    }
+                    store.add(record);
+                    while (store.getCount() > App.app.maxStatsHistory || store.getAt(0).get('timestamp') < minTimestamp) {
+                        store.removeAt(0);
+                    }
+                }
+            }
+        });
+    },
+
     checkForHeavyLoad: function(instance) {
-    	var me = this;
+        var me = this;
         if (instance.cpuUtilization >= App.app.minHeavyCpuUtilizationPct) {
             me.application.fireEvent('heavyload', {
                 status: 500,
@@ -282,7 +327,7 @@ Ext.define('App.controller.Storefront', {
             }, instance);
         }
     },
-    
+
     instancesAvailableHaveChanged: function(stats) {
         var me = this;
 
@@ -303,7 +348,7 @@ Ext.define('App.controller.Storefront', {
 
         return false;
     },
-    
+
     aggregateInstanceStats: function(regionName, instanceStats, stats) {
         var me = this;
 

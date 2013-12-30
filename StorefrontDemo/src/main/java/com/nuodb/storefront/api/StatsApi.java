@@ -28,8 +28,13 @@ public class StatsApi extends BaseApi {
     @Produces(MediaType.APPLICATION_JSON)
     public StorefrontStatsReport getAllStatsReport(@QueryParam("sessionTimeoutSec") Integer sessionTimeoutSec,
             @QueryParam("includeStorefront") Boolean includeStorefront) {
-        return StorefrontFactory.getSimulatorService().getStorefrontStatsReport(sessionTimeoutSec,
+        
+        StorefrontStatsReport rpt = StorefrontFactory.getSimulatorService().getStorefrontStatsReport(sessionTimeoutSec,
                 includeStorefront != null && includeStorefront.booleanValue());
+        
+        clearWorkloadProperty(rpt.getWorkloadStats());
+        
+        return rpt;
     }
 
     @GET
@@ -51,7 +56,7 @@ public class StatsApi extends BaseApi {
     @Path("/workloads")
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, WorkloadStats> getWorkloadStats() {
-        return getSimulator().getWorkloadStats();
+        return clearWorkloadProperty(getSimulator().getWorkloadStats());
     }
 
     @GET
@@ -59,5 +64,14 @@ public class StatsApi extends BaseApi {
     @Produces(MediaType.APPLICATION_JSON)
     public Map<WorkloadStep, WorkloadStepStats> getWorkloadStepStats() {
         return getSimulator().getWorkloadStepStats();
+    }
+
+    protected Map<String, WorkloadStats> clearWorkloadProperty(Map<String, WorkloadStats> statsMap)
+    {
+        // Clear unnecessary workload property to reduce payload size by ~25%
+        for (WorkloadStats stats : statsMap.values()) {
+            stats.setWorkload(null);
+        }
+        return statsMap;
     }
 }
