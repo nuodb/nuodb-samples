@@ -13,8 +13,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Index;
 
-import com.nuodb.impl.util.StringUtils;
 import com.nuodb.storefront.model.type.Currency;
+import com.nuodb.storefront.util.StringUtils;
 
 @Entity
 public class AppInstance extends UuidEntity {
