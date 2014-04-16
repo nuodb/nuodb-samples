@@ -35,9 +35,9 @@ import java.sql.Statement;
  * Example:
  * <p/>
  * > DROP PROCEDURE [IF EXISTS] get_system_tables_proc;
- * > DROP JAVACLASS get_system_tables_class [IF EXISTS];
- * > CREATE JAVACLASS [IF NOT EXISTS] get_system_tables_class FROM 'target/java-stored-procedure-1.0-SNAPSHOT.jar';
- * > CREATE PROCEDURE get_system_tables_proc() RETURNS output (schema STRING, tablename STRING) LANGUAGE JAVA EXTERNAL 'get_system_tables_class:com.nuodb.samples.SystemTables.getSystemTables';
+ * > DROP JAVACLASS sample_java_stored_procedures [IF EXISTS];
+ * > CREATE JAVACLASS [IF NOT EXISTS] sample_java_stored_procedures FROM 'target/sample-java-stored-procedures-1.0-SNAPSHOT.jar';
+ * > CREATE PROCEDURE get_system_tables_proc() RETURNS output (schema STRING, tablename STRING) LANGUAGE JAVA EXTERNAL 'sample_java_stored_procedures:com.nuodb.samples.SystemTables.getSystemTables';
  * > CALL get_system_tables_proc()
  */
 public class SystemTables {
