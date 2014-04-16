@@ -1,0 +1,37 @@
+<assembly>
+    <id>standalone</id>
+    <formats>
+        <format>zip</format>
+        <format>tar.gz</format>
+    </formats>
+    <baseDirectory>sample-java-triggers</baseDirectory>
+    <fileSets>
+        <fileSet>
+            <directory>${project.basedir}</directory>
+            <fileMode>0644</fileMode>
+            <includes>
+                <include>README.md</include>
+                <include>LICENSE</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.scriptSourceDirectory}</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>install</include>
+                <include>manage</include>
+            </includes>
+            <fileMode>0755</fileMode>
+        </fileSet>
+    </fileSets>
+    <dependencySets>
+        <dependencySet>
+            <includes>
+                <include>com.nuodb.samples:sample-java-triggers</include>
+            </includes>
+            <outputDirectory>lib</outputDirectory>
+            <outputFileNameMapping>sample-java-triggers.jar</outputFileNameMapping>
+            <unpack>false</unpack>
+        </dependencySet>
+    </dependencySets>
+</assembly>

@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# resolve links - $0 may be a soft link
+PRG="$0"
+
+while [ -h "$PRG" ]; do
+  ls=`ls -ld "${PRG}"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG=`dirname "${PRG}"`/"$link"
+  fi
+done
+
+# Get standard environment variables
+PRGDIR=`dirname "${PRG}"`
+
+# Only set APPLICATION_HOME_DIR if not already set
+[ -z "${APPLICATION_HOME_DIR}" ] && APPLICATION_HOME_DIR=`cd "${PRGDIR}/.." >/dev/null; pwd`
+
+# Only set APPLICATION_BIN_DIR if not already set
+[ -z "${APPLICATION_BIN_DIR}" ] && APPLICATION_BIN_DIR=${APPLICATION_HOME_DIR}/bin
+
+# Only set APPLICATION_LIB_DIR if not already set
+[ -z "${APPLICATION_LIB_DIR}" ] && APPLICATION_LIB_DIR=${APPLICATION_HOME_DIR}/lib
+
+# generate the sql script using a here-document...
+
+SQL_SCRIPT=${APPLICATION_BIN_DIR}/install.sql
+rm -f ${SQL_SCRIPT}
+cat << __EOF__ > ${SQL_SCRIPT}
+
+-- clean up
+
+DROP TRIGGER IF EXISTS trg_record_unique_hash_on_create;
+DROP TRIGGER IF EXISTS trg_record_unique_hash_on_update;
+
+DROP JAVACLASS sample_java_triggers IF EXISTS;
+
+DROP SCHEMA test CASCADE;
+
+-- install the java based triggers
+
+CREATE JAVACLASS IF NOT EXISTS sample_java_triggers FROM '${APPLICATION_LIB_DIR}/sample-java-triggers.jar';
+
+-- set up the test tables
+
+CREATE TABLE test.account (id INT, address STRING NOT NULL, unique_hash STRING);
+
+-- set up the record unique hash trigger
+
+CREATE TRIGGER trg_record_unique_hash_on_create FOR test.account ACTIVE BEFORE INSERT LANGUAGE JAVA EXTERNAL 'sample_java_triggers:com.nuodb.samples.SetRecordUniqueHash.setUniqueHash';
+CREATE TRIGGER trg_record_unique_hash_on_update FOR test.account ACTIVE BEFORE UPDATE LANGUAGE JAVA EXTERNAL 'sample_java_triggers:com.nuodb.samples.SetRecordUniqueHash.setUniqueHash';
+
+-- test the record unique hash trigger
+
+INSERT INTO test.account (id, address, unique_hash) VALUES (2, 'support@nuodb.com', null);
+SELECT * FROM test.account;
+
+__EOF__
+
+# now run the sql script...
+
+NUOSQL_COMMAND="/opt/nuodb/bin/nuosql sample-java-triggers@localhost --user dba --password dba"
+
+${NUOSQL_COMMAND} < ${SQL_SCRIPT}
