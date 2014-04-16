@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# resolve links - $0 may be a soft link
+PRG="$0"
+
+while [ -h "$PRG" ]; do
+  ls=`ls -ld "${PRG}"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG=`dirname "${PRG}"`/"$link"
+  fi
+done
+
+# Get standard environment variables
+PRGDIR=`dirname "${PRG}"`
+
+# Only set APPLICATION_HOME_DIR if not already set
+[ -z "${APPLICATION_HOME_DIR}" ] && APPLICATION_HOME_DIR=`cd "${PRGDIR}/.." >/dev/null; pwd`
+
+# Only set APPLICATION_BIN_DIR if not already set
+[ -z "${APPLICATION_BIN_DIR}" ] && APPLICATION_BIN_DIR=${APPLICATION_HOME_DIR}/bin
+
+# Only set APPLICATION_LIB_DIR if not already set
+[ -z "${APPLICATION_LIB_DIR}" ] && APPLICATION_LIB_DIR=${APPLICATION_HOME_DIR}/lib
+
+# generate the sql script using a here-document...
+
+SQL_SCRIPT=${APPLICATION_BIN_DIR}/install.sql
+rm -f ${SQL_SCRIPT}
+cat << __EOF__ > ${SQL_SCRIPT}
+USE TEST;
+
+DROP PROCEDURE IF EXISTS get_system_tables_proc;
+DROP JAVACLASS sample_java_stored_procedures IF EXISTS;
+CREATE JAVACLASS IF NOT EXISTS sample_java_stored_procedures FROM '${APPLICATION_LIB_DIR}/sample-java-stored-procedures.jar';
+CREATE PROCEDURE get_system_tables_proc() RETURNS output (schema STRING, tablename STRING) LANGUAGE JAVA EXTERNAL 'sample_java_stored_procedures:com.nuodb.samples.SystemTables.getSystemTables';
+
+CALL get_system_tables_proc();
+
+__EOF__
+
+# now run the sql script...
+
+NUOSQL_COMMAND="/opt/nuodb/bin/nuosql sample-java-stored-procedures@localhost --user dba --password dba"
+
+${NUOSQL_COMMAND} < ${SQL_SCRIPT}

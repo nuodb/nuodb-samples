@@ -29,7 +29,7 @@ popd >/dev/null
 : ${BROKER_DOMAIN:="domain"}
 : ${BROKER_DOMAIN_PASSWORD:="bird"}
 : ${DATABASE_DDL:="create-tables.sql"}
-: ${DATABASE_NAME:="sample-java-triggers"}
+: ${DATABASE_NAME:="sample-java-stored-procedures"}
 : ${DATABASE_USER:="dba"}
 : ${DATABASE_PASSWORD="dba"}
 : ${DATABASE_SCHEMA="test"}
