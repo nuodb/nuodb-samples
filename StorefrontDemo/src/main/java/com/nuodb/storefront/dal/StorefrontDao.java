@@ -17,7 +17,8 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.exception.SQLGrammarException;
-import org.hibernate.transform.ResultTransformer;
+import org.hibernate.type.BigDecimalType;
+import org.hibernate.type.StringType;
 
 import com.googlecode.genericdao.dao.hibernate.GeneralDAOImpl;
 import com.googlecode.genericdao.search.SearchResult;
@@ -195,7 +196,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
         // Run query
         SQLQuery query = getSession()
                 .createSQLQuery(
-                        " SELECT 'productCount' AS METRIC_NAME, CAST((SELECT COUNT(*) FROM PRODUCT) AS DECIMAL(16,2)) AS METRIC_VALUE, '' AS REGION FROM DUAL"
+                        " SELECT 'productCount' AS METRIC_NAME, (SELECT COUNT(*) FROM PRODUCT) AS METRIC_VALUE, '' AS REGION FROM DUAL"
                                 + " UNION"
                                 + " SELECT 'categoryCount', (SELECT COUNT(*) FROM (SELECT DISTINCT CATEGORY FROM PRODUCT_CATEGORY AS T1) AS T2), '' FROM DUAL"
                                 + " UNION"
@@ -218,12 +219,15 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
                                 + " SELECT 'purchaseItemCount', SUM(QUANTITY), REGION FROM PURCHASE_SELECTION PS INNER JOIN PURCHASE P ON PS.PURCHASE_ID = P.ID GROUP BY REGION"
                                 + " UNION"
                                 + " SELECT 'purchaseValue', SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE), REGION FROM PURCHASE_SELECTION PS INNER JOIN PURCHASE P ON PS.PURCHASE_ID = P.ID GROUP BY REGION");
+        query.addScalar("METRIC_NAME", StringType.INSTANCE);
+        query.addScalar("METRIC_VALUE", BigDecimalType.INSTANCE);
+        query.addScalar("REGION", StringType.INSTANCE);
         setStorefrontStatsParameters(query, maxCustomerIdleTimeSec);
 
         // Fill stats
         for (Object[] row : (List<Object[]>) query.list()) {
-            String metric = row[0].toString();
-            Object value = row[1];
+            String metric = (String)row[0];
+            BigDecimal value = (BigDecimal)row[1];
             String region = (String) row[2];
 
             if (region == null) {
@@ -239,31 +243,31 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
             }
 
             if (metric.equals("productCount")) {
-                regionStats.setProductCount(getIntValue(value));
+                regionStats.setProductCount(value.intValue());
             } else if (metric.equals("categoryCount")) {
-                regionStats.setCategoryCount(getIntValue(value));
+                regionStats.setCategoryCount(value.intValue());
             } else if (metric.equals("dateStarted")) {
                 Calendar cal = Calendar.getInstance();
-                cal.setTimeInMillis(getLongValue(value));
+                cal.setTimeInMillis(value.longValue());
                 regionStats.setDateStarted(cal);
             } else if (metric.equals("productReviewCount")) {
-                regionStats.setProductReviewCount(getIntValue(value));
+                regionStats.setProductReviewCount(value.intValue());
             } else if (metric.equals("customerCount")) {
-                regionStats.setCustomerCount(getIntValue(value));
+                regionStats.setCustomerCount(value.intValue());
             } else if (metric.equals("activeCustomerCount")) {
-                regionStats.setActiveCustomerCount(getIntValue(value));
+                regionStats.setActiveCustomerCount(value.intValue());
             } else if (metric.equals("activeWebCustomerCount")) {
-                regionStats.setActiveWebCustomerCount(getIntValue(value));
+                regionStats.setActiveWebCustomerCount(value.intValue());
             } else if (metric.equals("cartItemCount")) {
-                regionStats.setCartItemCount(getIntValue(value));
+                regionStats.setCartItemCount(value.intValue());
             } else if (metric.equals("cartValue")) {
-                regionStats.setCartValue(new BigDecimal(toNumericString(value)));
+                regionStats.setCartValue(value);
             } else if (metric.equals("purchaseCount")) {
-                regionStats.setPurchaseCount(getIntValue(value));
+                regionStats.setPurchaseCount(value.intValue());
             } else if (metric.equals("purchaseItemCount")) {
-                regionStats.setPurchaseItemCount(getIntValue(value));
+                regionStats.setPurchaseItemCount(value.intValue());
             } else if (metric.equals("purchaseValue")) {
-                regionStats.setPurchaseValue(new BigDecimal(toNumericString(value)));
+                regionStats.setPurchaseValue(value);
             } else {
                 throw new RuntimeException("Unexpected metric: " + metric);
             }
@@ -312,47 +316,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
     public List<DbNode> getDbNodes() {
         SQLQuery query = getSession()
                 .createSQLQuery("SELECT SYSTEM.NODES.*, CASE WHEN ID = GETNODEID() THEN 1 ELSE 0 END AS LOCAL FROM SYSTEM.NODES");
-        query.setResultTransformer(new ResultTransformer() {
-            private static final long serialVersionUID = 211285415624172491L;
-
-            @SuppressWarnings("rawtypes")
-            @Override
-            public List transformList(List collection) {
-                return collection;
-            }
-
-            @Override
-            public Object transformTuple(Object[] tuple, String[] aliases) {
-                DbNode node = new DbNode();
-                for (int i = 0; i < aliases.length; i++) {
-                    String alias = aliases[i].toLowerCase();
-                    if (alias.equals("id")) {
-                        node.setId((Integer) tuple[i]);
-                    } else if (alias.equals("localid")) {
-                        node.setLocalId((Integer) tuple[i]);
-                    } else if (alias.equals("port")) {
-                        node.setPort((Integer) tuple[i]);
-                    } else if (alias.equals("address")) {
-                        node.setAddress((String) tuple[i]);
-                    } else if (alias.equals("state")) {
-                        node.setState((String) tuple[i]);
-                    } else if (alias.equals("type")) {
-                        node.setType((String) tuple[i]);
-                    } else if (alias.equals("connstate")) {
-                        node.setConnState((String) tuple[i]);
-                    } else if (alias.equals("msgqsize")) {
-                        node.setMsgQSize((Integer) tuple[i]);
-                    } else if (alias.equals("triptime")) {
-                        node.setTripTime((Integer) tuple[i]);
-                    } else if (alias.equals("georegion")) {
-                        node.setGeoRegion((String) tuple[i]);
-                    } else if (alias.equals("local")) {
-                        node.setLocal(tuple[i].toString().equals("1"));
-                    }
-                }
-                return node;
-            }
-        });
+        query.setResultTransformer(DbNodeTransformer.INSTANCE);
         return (List<DbNode>) query.list();
     }
 
