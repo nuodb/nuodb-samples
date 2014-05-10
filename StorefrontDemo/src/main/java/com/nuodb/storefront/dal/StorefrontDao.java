@@ -195,7 +195,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
         // Run query
         SQLQuery query = getSession()
                 .createSQLQuery(
-                        " SELECT 'productCount' AS METRIC_NAME, (SELECT COUNT(*) FROM PRODUCT) AS METRIC_VALUE, '' AS REGION FROM DUAL"
+                        " SELECT 'productCount' AS METRIC_NAME, CAST((SELECT COUNT(*) FROM PRODUCT) AS DECIMAL(16,2)) AS METRIC_VALUE, '' AS REGION FROM DUAL"
                                 + " UNION"
                                 + " SELECT 'categoryCount', (SELECT COUNT(*) FROM (SELECT DISTINCT CATEGORY FROM PRODUCT_CATEGORY AS T1) AS T2), '' FROM DUAL"
                                 + " UNION"
