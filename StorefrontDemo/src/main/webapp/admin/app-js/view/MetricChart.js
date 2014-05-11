@@ -6,6 +6,62 @@ Ext.define('App.view.MetricChart', {
 
     layout: 'card',
 
+    seriesConfigMap: {
+        line: {
+            type: 'line',
+            seriesPerField: true,
+            smooth: false,
+            showMarkers: true,
+            markerConfig: {
+                type: 'circle',
+                radius: 3
+            },
+            highlight: {
+                size: 6,
+                radius: 6
+            },
+            fill: false,
+            style: {
+                'stroke-width': 3
+            }
+        },
+        column: {
+            type: 'column',
+            groupGutter: 0.1
+        },
+        area: {
+            type: 'area',
+            highlight: {
+                stroke: '#000',
+                opacity: 1
+            },
+            style: {
+                'stroke-width': 1,
+                stroke: '#eee',
+                opacity: 0.5
+            },
+            tips: {}
+        },
+        common: {
+            xField: 'timestamp',
+            smooth: true,
+            showMarkers: false,
+            stacked: true,
+            axis: 'left',
+            fill: true,
+            tooltipFormat: '{0}:<br />{1} {2}',
+            tips: {
+                trackMouse: true,
+                minWidth: 150,
+                renderer: function(record, ctx) {
+                    var seriesName = ctx.storeField || ctx.yField || ctx.series.yField;
+                    this.setTitle(Ext.String.format(ctx.series.tooltipFormat, seriesName, Ext.util.Format.number(record.get(seriesName), '0.0'), ctx.series.tooltipUnit));
+                }
+
+            }
+        }
+    },
+
     /** @Override */
     initComponent: function() {
         var me = this;
@@ -15,7 +71,7 @@ Ext.define('App.view.MetricChart', {
             html: '<b>' + me.metric.get('title').toUpperCase() + '</b> &nbsp;&nbsp;'
         }, ' ', {
             xtype: 'button',
-            text: 'Total',
+            text: 'Overall',
             handler: me.onChangeGrouping,
             scope: me,
             categoryIdx: null
@@ -90,7 +146,6 @@ Ext.define('App.view.MetricChart', {
         var metricName = metric.get('name');
         var aggregate = categoryIdx == null;
         var unitName = metric.get('unit');
-        var unitNameLcase = unitName.toLowerCase();
 
         if (Ext.isArray(me.tbar)) {
             me.tbar[3].pressed = aggregate;
@@ -140,73 +195,32 @@ Ext.define('App.view.MetricChart', {
 
         // Build series configs
         var series = [];
-        var hasMultiSeries = (!aggregate);
-        var tooltipFormat = (hasMultiSeries) ? '{0}:<br />{1} {2}' : '{1} {2}';
-
-        if (!aggregate && metric.get('chartType') == 'line') {
-            for ( var i = 0; i < seriesNames.length; i++) {
-                series.push({
-                    type: 'line',
-                    xField: 'timestamp',
-                    yField: seriesNames[i],
-                    smooth: false,
-                    showMarkers: true,
-                    markerConfig: {
-                        type: 'circle',
-                        radius: 3
-                    },
-                    axis: 'left',
-                    highlight: {
-                        size: 6,
-                        radius: 6
-                    },
-                    fill: false,
-                    style: {
-                        'stroke-width': 3
-                    },
-                    tips: {
-                        trackMouse: true,
-                        minWidth: 150,
-                        renderer: function(record, ctx) {
-                            var seriesName = seriesNames[ctx.series.seriesIdx];
-                            this.setTitle(Ext.String.format(tooltipFormat, seriesName, Ext.util.Format.number(record.get(seriesName), '0.0'), unitNameLcase));
-                        }
-                    }
-                });
-            }
-        } else {
-            series.push({
-                type: metric.get('chartType') || 'area',
-                xField: 'timestamp',
-                yField: seriesNames,
-                smooth: true,
-                showMarkers: false,
-                axis: 'left',
-                fill: true,
-                highlight: true,
-                style: {
-                    'stroke-width': 1,
-                    stroke: '#eee',
-                    opacity: 1
-                },
-                tips: {
-                    trackMouse: true,
-                    minWidth: 150,
-                    renderer: function(record, ctx) {
-                        var seriesName = ctx.storeField || seriesNames[0];
-                        this.setTitle(Ext.String.format(tooltipFormat, seriesName, Ext.util.Format.number(record.get(seriesName), '0.0'), unitNameLcase));
-                    }
-                }
-            });
-        }
+        var seriesType = metric.get('chartType') || 'area';
+        var seriesConfig = $.extend(true, {
+            tooltipUnit: unitName.toLowerCase()
+        }, me.seriesConfigMap.common, me.seriesConfigMap[seriesType]);
 
         if (aggregate) {
-            series[0].type = 'line';
-            series[0].showMarkers = false;
-            series[0].style.fill = App.app.defaultFillColor;
-            series[0].style.stroke = App.app.defaultLineColor;
-            series[0].style['stroke-width'] = 4;
-            series[0].yField = series[0].yField[0];
+            series.push($.extend(seriesConfig, {
+                type: 'line',
+                yField: seriesNames[0],
+                showMarkers: false,
+                style: {
+                    fill: App.app.defaultFillColor,
+                    stroke: App.app.defaultLineColor,
+                    'stroke-width': 4
+                },
+                tooltipFormat: '{1} {2}'
+            }));
+        } else if (seriesConfig.seriesPerField) {
+            for ( var i = 0; i < seriesNames.length; i++) {
+                series.push($.extend(true, {
+                    yField: seriesNames[i]
+                }, seriesConfig));
+            }
+        } else {
+            seriesConfig.yField = seriesNames;
+            series.push(seriesConfig);
         }
 
         var dateRange = me.calcDateRange(store);
@@ -217,11 +231,12 @@ Ext.define('App.view.MetricChart', {
             theme: 'AppTheme',
             store: store,
             padding: '5 0 0 0',
+            shadow: false,
             legend: {
                 position: 'right',
                 boxFill: 'none',
                 boxStrokeWidth: 0,
-                visible: hasMultiSeries,
+                visible: !aggregate,
                 itemSpacing: 0,
                 labelFont: '11px Tahoma',
                 labelColor: '#958979'
