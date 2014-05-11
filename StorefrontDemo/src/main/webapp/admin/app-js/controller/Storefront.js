@@ -56,7 +56,7 @@ Ext.define('App.controller.Storefront', {
         for ( var seriesName in stats) {
             fields.push({
                 name: seriesName,
-                type: 'int'
+                useNull: true
             });
         }
         fields.sort(function(a, b) {
@@ -101,7 +101,8 @@ Ext.define('App.controller.Storefront', {
             });
             Ext.override(model, {
                 get: function(name) {
-                    return this.callOverridden(arguments) || 0;
+                    var val = this.callOverridden(arguments);
+                    return (val !== null) ? val || 0 : false;
                 }
             });
 
@@ -178,13 +179,13 @@ Ext.define('App.controller.Storefront', {
                 if (me.instancesAvailableHaveChanged(stats)) {
                     me.resetStats();
                 }
-                
+
                 // If we've received an out-of-sequence response, ignore it since deltas were already calculated.
                 stats.timestamp = Math.round(stats.timestamp / 1000) * 1000;
                 if (me.lastTimestamp && stats.timestamp <= me.lastTimestamp) {
                     return;
                 }
-                
+
                 me.lastTimestamp = stats.timestamp;
                 me.processStats(stats);
 
@@ -250,16 +251,24 @@ Ext.define('App.controller.Storefront', {
     addStats: function(stats) {
         var me = this;
 
-        // Calculate deltas
+        // Calculate deltas 
         if (me.statsHistory.length > 0) {
             var oldStats = me.statsHistory[me.statsHistory.length - 1];
             for ( var category in stats) {
-                for ( var series in stats[category]) {
-                    var oldSeries = oldStats[category][series];
-                    for ( var metric in stats[category][series]) {
+                var catStats = stats[category];
+                var oldCatStats = oldStats[category];
+
+                for ( var series in catStats) {
+                    var oldSeries = oldCatStats[series];
+                    for ( var metric in catStats[series]) {
                         if (!metric.endsWith('Delta')) {
-                            stats[category][series][metric + 'Delta'] = stats[category][series][metric] - ((oldSeries) ? oldSeries[metric] : 0);
+                            catStats[series][metric + 'Delta'] = catStats[series][metric] - ((oldSeries) ? oldSeries[metric] : 0);
                         }
+                    }
+
+                    // Calcualte derived fields
+                    if (category == 'transactionStats' || category == 'regionTransactionStats') {
+                        catStats[series].avgDurationCalc = (catStats[series].totalCountDelta == 0) ? null : catStats[series].totalDurationMsDelta / catStats[series].totalCountDelta;
                     }
                 }
             }
@@ -277,6 +286,12 @@ Ext.define('App.controller.Storefront', {
                     }
                 }
             }
+
+            // Calcualte derived fields
+            if (category == 'transactionStats') {
+                all.avgDurationCalc = (all.totalCountDelta == 0) ? null : all.totalDurationMsDelta / all.totalCountDelta;
+            }
+
             stats[category].all = all;
         }
 

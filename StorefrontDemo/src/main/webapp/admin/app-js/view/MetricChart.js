@@ -142,36 +142,67 @@ Ext.define('App.view.MetricChart', {
         var series = [];
         var hasMultiSeries = (!aggregate);
         var tooltipFormat = (hasMultiSeries) ? '{0}:<br />{1} {2}' : '{1} {2}';
-        series.push({
-            type: 'area',
-            smooth: true,
-            showMarkers: false,
-            markerConfig: {
-                radius: 2
-            },
-            axis: 'left',
-            xField: 'timestamp',
-            yField: seriesNames,
-            highlight: true,
-            fill: true,
-            style: {
-                'stroke-width': 1,
-                stroke: '#eee',
-                opacity: 0.8
-            },
-            tips: {
-                trackMouse: true,
-                minWidth: 150,
-                renderer: function(record, ctx) {
-                    var seriesName = ctx.storeField || seriesNames[0];
-                    this.setTitle(Ext.String.format(tooltipFormat, seriesName, record.get(seriesName), unitNameLcase));
-                }
+
+        if (!aggregate && metric.get('chartType') == 'line') {
+            for ( var i = 0; i < seriesNames.length; i++) {
+                series.push({
+                    type: 'line',
+                    xField: 'timestamp',
+                    yField: seriesNames[i],
+                    smooth: false,
+                    showMarkers: true,
+                    markerConfig: {
+                        type: 'circle',
+                        radius: 3
+                    },
+                    axis: 'left',
+                    highlight: {
+                        size: 6,
+                        radius: 6
+                    },
+                    fill: false,
+                    style: {
+                        'stroke-width': 3
+                    },
+                    tips: {
+                        trackMouse: true,
+                        minWidth: 150,
+                        renderer: function(record, ctx) {
+                            var seriesName = seriesNames[ctx.series.seriesIdx];
+                            this.setTitle(Ext.String.format(tooltipFormat, seriesName, Ext.util.Format.number(record.get(seriesName), '0.0'), unitNameLcase));
+                        }
+                    }
+                });
             }
-        });
+        } else {
+            series.push({
+                type: metric.get('chartType') || 'area',
+                xField: 'timestamp',
+                yField: seriesNames,
+                smooth: true,
+                showMarkers: false,
+                axis: 'left',
+                fill: true,
+                highlight: true,
+                style: {
+                    'stroke-width': 1,
+                    stroke: '#eee',
+                    opacity: 1
+                },
+                tips: {
+                    trackMouse: true,
+                    minWidth: 150,
+                    renderer: function(record, ctx) {
+                        var seriesName = ctx.storeField || seriesNames[0];
+                        this.setTitle(Ext.String.format(tooltipFormat, seriesName, Ext.util.Format.number(record.get(seriesName), '0.0'), unitNameLcase));
+                    }
+                }
+            });
+        }
 
         if (aggregate) {
             series[0].type = 'line';
-            series[0].highlight = false;
+            series[0].showMarkers = false;
             series[0].style.fill = App.app.defaultFillColor;
             series[0].style.stroke = App.app.defaultLineColor;
             series[0].style['stroke-width'] = 4;
