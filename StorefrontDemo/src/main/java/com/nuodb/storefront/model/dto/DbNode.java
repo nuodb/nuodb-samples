@@ -1,8 +1,10 @@
 package com.nuodb.storefront.model.dto;
 
 public class DbNode {
+    private String uid;
     private Integer id;
     private Integer localId;
+    private Integer pid;
     private Integer port;
     private String address;
     private String state;
@@ -12,8 +14,17 @@ public class DbNode {
     private Integer tripTime;
     private String geoRegion;
     private boolean local;
+    private String agentId;
 
     public DbNode() {
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public Integer getId() {
@@ -30,6 +41,14 @@ public class DbNode {
 
     public void setLocalId(Integer localId) {
         this.localId = localId;
+    }
+
+    public Integer getPid() {
+        return pid;
+    }
+
+    public void setPid(Integer pid) {
+        this.pid = pid;
     }
 
     public Integer getPort() {
@@ -102,5 +121,13 @@ public class DbNode {
 
     public void setLocal(boolean local) {
         this.local = local;
+    }
+
+    public String getAgentId() {
+        return agentId;
+    }
+
+    public void setAgentId(String agentId) {
+        this.agentId = agentId;
     }
 }
