@@ -27,7 +27,12 @@ Ext.define('App.view.MetricChart', {
         },
         column: {
             type: 'column',
-            groupGutter: 0.1
+            gutter: 0,
+            groupGutter: 0,
+            renderer: function(sprite, record, attr, index, store) {
+                attr.width += 1;
+                return attr;
+            }
         },
         area: {
             type: 'area',

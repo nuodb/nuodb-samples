@@ -248,6 +248,15 @@ Ext.define('App.controller.Storefront', {
         return gap;
     },
 
+    calcDerivedStats: function(category, stats) {
+        switch (category) {
+            case 'transactionStats':
+            case 'regionTransactionStats':
+                stats.avgDurationCalc = (stats.totalCountDelta == 0) ? 0 : stats.totalDurationMsDelta / stats.totalCountDelta;
+                break;
+        }
+    },
+
     addStats: function(stats) {
         var me = this;
 
@@ -265,11 +274,7 @@ Ext.define('App.controller.Storefront', {
                             catStats[series][metric + 'Delta'] = catStats[series][metric] - ((oldSeries) ? oldSeries[metric] : 0);
                         }
                     }
-
-                    // Calcualte derived fields
-                    if (category == 'transactionStats' || category == 'regionTransactionStats') {
-                        catStats[series].avgDurationCalc = (catStats[series].totalCountDelta == 0) ? null : catStats[series].totalDurationMsDelta / catStats[series].totalCountDelta;
-                    }
+                    me.calcDerivedStats(category, catStats[series]);
                 }
             }
         }
@@ -287,11 +292,7 @@ Ext.define('App.controller.Storefront', {
                 }
             }
 
-            // Calcualte derived fields
-            if (category == 'transactionStats') {
-                all.avgDurationCalc = (all.totalCountDelta == 0) ? null : all.totalDurationMsDelta / all.totalCountDelta;
-            }
-
+            me.calcDerivedStats(category, all);
             stats[category].all = all;
         }
 

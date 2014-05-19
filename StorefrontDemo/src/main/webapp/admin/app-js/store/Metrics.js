@@ -14,7 +14,7 @@ Ext.define('App.store.Metrics', {
            
            // Service metrics
            { category0: 'transactionStats', name: 'totalCountDelta', defaultCategoryIdx: null, view: 'metrics-service', title: 'Service Calls per Second', unit: 'Calls/second', groupBy0: 'Service Method', category1: 'regionTransactionStats', groupBy1: 'Region' },
-           { category0: 'transactionStats', name: 'avgDurationCalc', defaultCategoryIdx: 0, view: 'metrics-service', title: 'Avg. Service Processing Time', unit: 'Milliseconds/call', groupBy0: 'Service Method', category1: 'regionTransactionStats', groupBy1: 'Region', chartType: 'column' },
+           { category0: 'transactionStats', name: 'avgDurationCalc', defaultCategoryIdx: 0, view: 'metrics-service', title: 'Avg. Service Processing Time', unit: 'Milliseconds/call', groupBy0: 'Service Method', category1: 'regionTransactionStats', groupBy1: 'Region', chartType: 'area' },
            //{ category0: 'transactionStats', name: 'totalDurationMsDelta', defaultCategoryIdx: 0, view: 'metrics-service', title: 'Service Processing Time', unit: 'Milliseconds', groupBy0: 'Service Method', category1: 'regionTransactionStats', groupBy1: 'Region' },
            
            //{ category0: 'transactionStats', name: 'successCount', aggregate: true, view: 'metrics-service', title: 'Total Successful Calls', unit: 'Calls' },
