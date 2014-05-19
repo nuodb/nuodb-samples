@@ -96,7 +96,7 @@ public interface IStorefrontDao extends GeneralDAO {
 
     /**
      * Gets the "georegion" tag of the NuoDB transaction engine of the current database connection. Since the Storefront uses a thread pool and may
-     * communicate with multiple transaction engines, the return value may vary if called multiple times. A <code>null</code> value is returned if the
+     * communicate with multiple transaction engines, the return value may vary if called multiple times. An exception is thrown if the
      * underlying database does not support georegion metadata (e.g. NuoDB pre-2.0, MySQL, etc.).
      */
     public String getCurrentDbNodeRegion();

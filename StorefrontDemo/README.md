@@ -37,7 +37,7 @@ Getting Started (command line)
 		-Dstorefront.region=Default
 		
 	  > The name of the region in which this Storefront instance is running.  If you are using NuoDB 2.0 or greater
-	  > and don't explicity specify a region name here, the region name is auto-detected by querying the `NODES` table
+	  > and don't explicitly specify a region name here, the region name is auto-detected by querying the `NODES` table
 	  > (`GEOREGION` column).
 
 		-Dstorefront.db.name=name@host[:port]

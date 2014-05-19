@@ -16,7 +16,6 @@ import org.hibernate.Hibernate;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.exception.SQLGrammarException;
 import org.hibernate.type.BigDecimalType;
 import org.hibernate.type.StringType;
 
@@ -83,9 +82,20 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
     public <T> T runTransaction(TransactionType transactionType, String name, Callable<T> c) {
         long startTime = System.currentTimeMillis();
 
-        Transaction t = this.getSession().beginTransaction();
-        prepareSession(transactionType);
+        Session session = getSession();
+        Transaction t;
+        try {            
+            t = session.beginTransaction();
+        } catch (RuntimeException e) {
+            try {
+                session.close();
+            } catch (RuntimeException ei) {
+            }
+            throw e;
+        }
+        
         try {
+            prepareSession(transactionType);
             T result = c.call();
             t.commit();
             updateTransactionStats(name, startTime, true);
@@ -322,11 +332,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
 
     @Override
     public String getCurrentDbNodeRegion() {
-        try {
-            return getSession().createSQLQuery("SELECT GEOREGION FROM SYSTEM.NODES WHERE ID=GETNODEID()").uniqueResult().toString();
-        } catch (SQLGrammarException e) {
-            return null;
-        }
+        return getSession().createSQLQuery("SELECT GEOREGION FROM SYSTEM.NODES WHERE ID=GETNODEID()").uniqueResult().toString();
     }
 
     @Override
