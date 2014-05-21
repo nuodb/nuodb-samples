@@ -5,6 +5,8 @@ package com.nuodb.storefront;
 import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.io.FileInputStream;
+import java.util.Properties;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
@@ -41,11 +43,24 @@ public class StorefrontFactory {
         s_configuration.setNamingStrategy(new UpperCaseNamingStrategy());
         s_configuration.configure();
 
+	try {
+	    String propertyFile = System.getProperty("properties",null);
+	    if (propertyFile != null) {
+		Properties overrides = new Properties();
+		overrides.load(new FileInputStream(propertyFile));
+		System.getProperties().putAll(overrides);
+	    }
+	} catch (Exception x) {
+	    ;
+	}
+
         String dbName = System.getProperty("storefront.db.name");
         String dbUser = System.getProperty("storefront.db.user");
         String dbPassword = System.getProperty("storefront.db.password");
-
+	String dbOptions = System.getProperty("storefront.db.options");
         if (dbName != null) {
+	    dbName = dbName.replace("{domain.broker}",System.getProperty("domain.broker"));
+
             Matcher dbNameMatcher = Pattern.compile("([^@]*)@([^@:]*(?::\\d+|$))").matcher(dbName);
             if (!dbNameMatcher.matches()) {
                 throw new IllegalArgumentException("Database name must be of the format name@host[:port]");
@@ -54,7 +69,9 @@ public class StorefrontFactory {
             String host = dbNameMatcher.group(2);
 
             String url = "jdbc:com.nuodb://" + host + "/" + name;
-
+	    if (dbOptions != null) {
+		url = url + "?" + dbOptions;
+	    }
             s_configuration.setProperty(Environment.URL, url);
         }
         if (dbUser != null) {
