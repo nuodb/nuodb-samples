@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
+import org.apache.log4j.Logger;
+
 import org.hibernate.FlushMode;
 import org.hibernate.Hibernate;
 import org.hibernate.SQLQuery;
@@ -38,6 +40,7 @@ import com.nuodb.storefront.model.type.ProductSort;
  */
 public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
     private static final Map<String, TransactionStats> s_transactionStatsMap = new HashMap<String, TransactionStats>();
+	private static final Logger s_logger = Logger.getLogger(StorefrontDao.class.getName());
 
     public StorefrontDao() {
     }
@@ -82,31 +85,26 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
     public <T> T runTransaction(TransactionType transactionType, String name, Callable<T> c) {
         long startTime = System.currentTimeMillis();
 
-        Session session = getSession();
-        Transaction t;
-        try {            
-            t = session.beginTransaction();
-        } catch (RuntimeException e) {
-            try {
-                session.close();
-            } catch (RuntimeException ei) {
-            }
-            throw e;
-        }
-        
+		Session session = this.getSession();
+		Transaction t = null;
         try {
-            prepareSession(transactionType);
+			t = session.beginTransaction();
+			prepareSession(transactionType);
             T result = c.call();
             t.commit();
             updateTransactionStats(name, startTime, true);
             return result;
         } catch (Exception e) {
-            t.rollback();
-            updateTransactionStats(name, startTime, false);
-            if (e instanceof RuntimeException) {
-                throw (RuntimeException) e;
-            }
-            throw new RuntimeException(e);
+			if (t != null) {
+				t.rollback();
+			} else {
+				session.close();
+			}
+			updateTransactionStats(name, startTime, false);
+			if (e instanceof RuntimeException) {
+				throw (RuntimeException) e;
+			}
+			throw new RuntimeException(e);
         }
     }
 
@@ -226,9 +224,10 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
                                 + " UNION"
                                 + " SELECT 'purchaseCount', COUNT(*), REGION FROM PURCHASE GROUP BY REGION"
                                 + " UNION"
-                                + " SELECT 'purchaseItemCount', SUM(QUANTITY), REGION FROM PURCHASE_SELECTION PS INNER JOIN PURCHASE P ON PS.PURCHASE_ID = P.ID GROUP BY REGION"
-                                + " UNION"
-                                + " SELECT 'purchaseValue', SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE), REGION FROM PURCHASE_SELECTION PS INNER JOIN PURCHASE P ON PS.PURCHASE_ID = P.ID GROUP BY REGION");
+			//+ " SELECT 'purchaseItemCount', SUM(QUANTITY), REGION FROM PURCHASE_SELECTION PS INNER JOIN PURCHASE P ON PS.PURCHASE_ID = P.ID GROUP BY REGION"
+			+ " SELECT 'purchaseItemCount', SUM(QUANTITY), REGION FROM PURCHASE_SELECTION GROUP BY REGION");
+			//+ " UNION"
+			//+ " SELECT 'purchaseValue', SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE), REGION FROM PURCHASE_SELECTION PS INNER JOIN PURCHASE P ON PS.PURCHASE_ID = P.ID GROUP BY REGION");
         query.addScalar("METRIC_NAME", StringType.INSTANCE);
         query.addScalar("METRIC_VALUE", BigDecimalType.INSTANCE);
         query.addScalar("REGION", StringType.INSTANCE);
@@ -407,7 +406,7 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
 
         // Set sort
         ProductSort sort = filter.getSort();
-        if (sort != null) {
+        if (sort != null && !countOnly) {
             switch (sort) {
                 case AVG_CUSTOMER_REVIEW:
                     sql.append(" ORDER BY COALESCE(RATING, -1) DESC, REVIEW_COUNT DESC");

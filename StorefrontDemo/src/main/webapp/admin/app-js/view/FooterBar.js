@@ -23,7 +23,7 @@ Ext.define('App.view.FooterBar', {
         me.addLabelConfig('Reviews', 'lblReviews', 'storefrontStats.all.productReviewCount', me.formatNumber);
         me.addLabelConfig('Customers', 'lblCustomers', 'storefrontStats.all.customerCount', me.formatNumber);
         me.addLabelConfig('Purchases', 'lblPurchases', 'storefrontStats.all.purchaseCount', me.formatNumber);
-        me.addLabelConfig('Purchased value', 'lblPurchasedValue', 'storefrontStats.all.purchaseValue', Ext.util.Format.currency);
+        //me.addLabelConfig('Purchased value', 'lblPurchasedValue', 'storefrontStats.all.purchaseValue', Ext.util.Format.currency);
         me.addLabelConfig('Uptime', 'lblUptime', 'storefrontStats.all.uptimeMs', me.formatDuration);
         me.items.push('->');
         

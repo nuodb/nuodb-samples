@@ -19,9 +19,6 @@ public class CartSelection extends ProductSelection implements Serializable {
     @ManyToOne
     private Customer customer;
 
-    @NotNull
-    private String region;
-
     public CartSelection() {
     }
 
@@ -37,11 +34,4 @@ public class CartSelection extends ProductSelection implements Serializable {
         this.customer = null;
     }
 
-    public String getRegion() {
-        return region;
-    }
-
-    public void setRegion(String region) {
-        this.region = region;
-    }
 }
