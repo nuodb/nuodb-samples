@@ -55,8 +55,8 @@ Ext.define('App.controller.Storefront', {
         }];
         for ( var seriesName in stats) {
             fields.push({
-                name: seriesName,
-                useNull: true
+                //useNull: true,
+                name: seriesName
             });
         }
         fields.sort(function(a, b) {

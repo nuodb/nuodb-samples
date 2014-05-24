@@ -9,6 +9,9 @@
 	<logger name="com.nuodb.storefront">
 		<level value="info" />
 	</logger>
+	<logger name="org.hibernate">
+		<level value="error" />
+	</logger>
 	<root>
 		<level value="warn" />
 		<appender-ref ref="ConsoleAppender" />

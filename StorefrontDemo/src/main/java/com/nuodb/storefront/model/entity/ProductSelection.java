@@ -20,6 +20,9 @@ public abstract class ProductSelection {
     private int quantity;
 
     @NotNull
+    private String region;
+
+    @NotNull
     private Calendar dateAdded;
 
     @NotNull
@@ -78,6 +81,14 @@ public abstract class ProductSelection {
 
     public void setUnitPrice(BigDecimal unitPrice) {
         this.unitPrice = unitPrice;
+    }
+
+    public String getRegion()   {
+	return region;
+    }
+
+    public void setRegion(String region) {
+	this.region = region;
     }
 
     /** Overridden because we're using a composite key. Default semantics are still fine for our use cases. */

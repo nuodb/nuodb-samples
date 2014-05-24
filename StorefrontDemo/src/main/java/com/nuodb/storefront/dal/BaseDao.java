@@ -26,25 +26,20 @@ public class BaseDao extends GeneralDAOImpl implements IBaseDao {
         long startTime = System.currentTimeMillis();
 
         Session session = getSession();
-        Transaction t;
+        Transaction t = null;
         try {
             t = session.beginTransaction();
-        } catch (RuntimeException e) {
-            try {
-                session.close();
-            } catch (RuntimeException ei) {
-            }
-            throw e;
-        }
-
-        try {
             prepareSession(transactionType);
             T result = c.call();
             t.commit();
             onTransactionComplete(name, startTime, true);
             return result;
         } catch (Exception e) {
-            t.rollback();
+            if (t != null) {
+                t.rollback();
+            } else {
+                session.close();
+            }
             onTransactionComplete(name, startTime, false);
             if (e instanceof RuntimeException) {
                 throw (RuntimeException) e;

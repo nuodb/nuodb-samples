@@ -180,9 +180,12 @@ public class StorefrontDao extends BaseDao implements IStorefrontDao {
                                 + " UNION"
                                 + " SELECT 'purchaseCount', COUNT(*), REGION FROM PURCHASE GROUP BY REGION"
                                 + " UNION"
-                                + " SELECT 'purchaseItemCount', SUM(QUANTITY), REGION FROM PURCHASE_SELECTION PS INNER JOIN PURCHASE P ON PS.PURCHASE_ID = P.ID GROUP BY REGION"
-                                + " UNION"
-                                + " SELECT 'purchaseValue', SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE), REGION FROM PURCHASE_SELECTION PS INNER JOIN PURCHASE P ON PS.PURCHASE_ID = P.ID GROUP BY REGION");
+                                // +
+                                // " SELECT 'purchaseItemCount', SUM(QUANTITY), REGION FROM PURCHASE_SELECTION PS INNER JOIN PURCHASE P ON PS.PURCHASE_ID = P.ID GROUP BY REGION"
+                                + " SELECT 'purchaseItemCount', SUM(QUANTITY), REGION FROM PURCHASE_SELECTION GROUP BY REGION");
+        // + " UNION"
+        // +
+        // " SELECT 'purchaseValue', SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE), REGION FROM PURCHASE_SELECTION PS INNER JOIN PURCHASE P ON PS.PURCHASE_ID = P.ID GROUP BY REGION");
         query.addScalar("METRIC_NAME", StringType.INSTANCE);
         query.addScalar("METRIC_VALUE", BigDecimalType.INSTANCE);
         query.addScalar("REGION", StringType.INSTANCE);
@@ -361,7 +364,7 @@ public class StorefrontDao extends BaseDao implements IStorefrontDao {
 
         // Set sort
         ProductSort sort = filter.getSort();
-        if (sort != null) {
+        if (sort != null && !countOnly) {
             switch (sort) {
                 case AVG_CUSTOMER_REVIEW:
                     sql.append(" ORDER BY COALESCE(RATING, -1) DESC, REVIEW_COUNT DESC");

@@ -87,7 +87,7 @@ public class StorefrontService implements IStorefrontService {
                 Search productSearch = new Search(Product.class);
                 productSearch.addFilterEqual("id", productId);
                 productSearch.addFetch("categories");
-                productSearch.addFetch("reviews");
+                //productSearch.addFetch("reviews");
                 Product product = (Product) dao.searchUnique(productSearch);
                 if (product == null) {
                     throw new ProductNotFoundException();
@@ -95,9 +95,13 @@ public class StorefrontService implements IStorefrontService {
 
                 // Initialize customers associated with each review, but don't
                 // do a deep load
+
+		// limit to 10 reviews...
+		int i = 0;
                 Set<Customer> customers = new HashSet<Customer>();
                 for (ProductReview review : product.getReviews()) {
                     customers.add(review.getCustomer());
+		    if (i++ > 10) break;
                 }
                 for (Customer customer : customers) {
                     dao.initialize(customer);
@@ -162,7 +166,7 @@ public class StorefrontService implements IStorefrontService {
 
                 Search productSearch = new Search(Product.class);
                 productSearch.addFilterEqual("id", productId);
-                productSearch.addFetch("reviews");
+                //productSearch.addFetch("reviews");
                 Product product = (Product) dao.searchUnique(productSearch);
                 if (product == null) {
                     throw new ProductNotFoundException();
@@ -354,6 +358,7 @@ public class StorefrontService implements IStorefrontService {
                 for (CartSelection cartSelection : cart) {
                     PurchaseSelection selection = new PurchaseSelection(cartSelection);
                     transaction.addTransactionSelection(selection);
+		    selection.setRegion(StorefrontApp.APP_INSTANCE.getRegion());
                     selection.setUnitPrice(selection.getProduct().getUnitPrice());
 
                     // Increment purchase count. This is denormalized,
