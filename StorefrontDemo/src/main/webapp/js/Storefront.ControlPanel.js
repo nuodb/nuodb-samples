@@ -3,16 +3,20 @@
 (function() {
     "use strict";
 
-    var app;
-    var regionData = null;
-    var minHeavyCpuUtilizationPct = 90;
+    var MIN_HEAVY_CPU_UTILIZATION_PCT = 90;
+    var NODE_LIST_UPDATE_INTERVAL_MS = 1000;
+
+    var g_app;
+    var g_regionData = null;
+    var g_nodeUpdateTimerId = false;
+    var g_dbNodeData = null;
 
     Storefront.initControlPanelPage = function(cfg) {
         var pageData = cfg.pageData;
-        app = this;
-        regionData = initRegionData(app.regions, pageData.stats);
+        g_app = this;
+        g_regionData = initRegionData(g_app.regions, pageData.stats);
 
-        if (!jQuery.support.cors && regionData.instanceCount > 1) {
+        if (!jQuery.support.cors && g_regionData.instanceCount > 1) {
             cfg.messages
                     .push({
                         severity: 'WARNING',
@@ -29,7 +33,7 @@
 
     function initCustomersTab() {
         // Render regions table
-        app.TemplateMgr.applyTemplate('tpl-regions', '#regions', regionData);
+        g_app.TemplateMgr.applyTemplate('tpl-regions', '#regions', g_regionData);
 
         // Handle "Change" and "Hide" workload details buttons
         $('#regions').on('click', '.btn-change', function() {
@@ -98,8 +102,8 @@
         // Handle "Stop all" button
         $('#btn-stop-all').click(function() {
             var data = {};
-            for ( var i = 0; i < regionData.workloads.length; i++) {
-                data['workload-' + regionData.workloads[i].workload.name] = 0;
+            for ( var i = 0; i < g_regionData.workloads.length; i++) {
+                data['workload-' + g_regionData.workloads[i].workload.name] = 0;
             }
             updateWorkloadUsers(null, data, $('.btn-update'));
         });
@@ -123,7 +127,7 @@
     }
 
     function initProductsTab(productInfo) {
-        app.TemplateMgr.applyTemplate('tpl-product-info', '#product-info', productInfo);
+        g_app.TemplateMgr.applyTemplate('tpl-product-info', '#product-info', productInfo);
         $('#lbl-products').text((productInfo.productCount || 0).format(0));
     }
 
@@ -133,27 +137,117 @@
             $('#console-link').html('You can find the Console at <a href="consoleUrl">' + consoleUrl + '</a>.');
         }
 
-        // Sort by region, then address, then type
-        dbNodes.sort(function(a, b) {
-            var diff = compare(a.region, b.region);
-            if (diff == 0) {
-                diff = compare(a.address, b.address);
-                if (diff == 0) {
-                    diff = compare(a.type, b.type);
-                }
+        // Hook shutdown events
+        $('#node-list').on('click', '.btn-danger', function() {
+            if (!confirm('Are you sure you want to shut down this node?')) {
+                return;
             }
-            return diff;
+            var row$ = $(this).closest('tr');
+            var uid = row$.attr('data-uid');
+            $.ajax({
+                method: 'DELETE',
+                url: 'api/db-nodes/' + uid
+            }).fail(function(xhr, status, statusMsg) {
+                if (xhr.status == 200) {
+                    // Not actually an error, jQuery just couldn't parse the empty response
+                    row$.fadeOut();
+                    autoUpdateNodeList();
+                } else {
+                    var msg;
+                    try {
+                        msg = JSON.parse(xhr.responseText).message;
+                    } catch (e) {
+                    }
+                    alert(msg || statusMsg);
+                }
+            });
+        });
+
+        renderNodeList(dbNodes);
+
+        // Auto-update node list while the tab is active
+        $('#tabs a').on('show', function(e) {
+            if ($(e.target).attr('href') == '#node-info') {
+                autoUpdateNodeList();
+            } else {
+                stopUpdateNodeList();
+            }
+        });
+    }
+
+    function stopUpdateNodeList() {
+        if (g_nodeUpdateTimerId) {
+            clearTimeout(g_nodeUpdateTimerId);
+        }
+        g_nodeUpdateTimerId = false;
+    }
+
+    function autoUpdateNodeList() {
+        stopUpdateNodeList();
+        g_nodeUpdateTimerId = 0;
+        $.ajax({
+            method: 'GET',
+            url: 'api/db-nodes',
+            cache: false
+        }).success(function(dbNodes) {
+            renderNodeList(dbNodes);
+            if (g_nodeUpdateTimerId !== false) {
+                g_nodeUpdateTimerId = setTimeout(autoUpdateNodeList, NODE_LIST_UPDATE_INTERVAL_MS);
+            }
+        });
+    }
+
+    function renderNodeList(dbNodes) {
+        // Sort by region, then type, then address
+        dbNodes.sort(function(a, b) {
+            return compare(a.region, b.region) || compare(a.type, b.type) || compare(a.address, b.address);
         });
 
         // Apply icon based on type
         for ( var i = 0; i < dbNodes.length; i++) {
             var node = dbNodes[i];
-            node.icon = (node.type == 'Storage') ? 'icon-hdd' : 'icon-cog';
+            switch (node.type) {
+                case 'SM':
+                    node.typeName = 'Storage manager';
+                    node.icon = 'icon-hdd';
+                    break;
+
+                case 'TE':
+                    node.typeName = 'Transaction engine';
+                    node.icon = 'icon-cog';
+                    break;
+
+                default:
+                    node.typeName = node.type;
+                    node.icon = 'icon-question-sign';
+                    break;
+            }
         }
 
-        // Build list
-        app.TemplateMgr.applyTemplate('tpl-node-list', '#node-list', dbNodes);
-        $('#lbl-nodes').text(dbNodes.length.format(0));
+        if (!nodeListEquals(dbNodes, g_dbNodeData)) {
+            // Build list
+            g_app.TemplateMgr.applyTemplate('tpl-node-list', '#node-list', dbNodes);
+
+            // Sync node count in tab
+            $('#lbl-nodes').text(dbNodes.length.format(0));
+            g_dbNodeData = dbNodes;
+        }
+    }
+
+    function nodeListEquals(list1, list2) {
+        if (!list1 || !list2 || list1.length != list2.length) {
+            return false;
+        }
+        for ( var i = 0; i < list1.length; i++) {
+            var node1 = list1[i];
+            var node2 = list2[i];
+            for ( var key in node1) {
+                if (node1[key] != node2[key]) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     function initRegionData(regions, stats) {
@@ -190,8 +284,8 @@
     }
 
     function refreshStats(localStats) {
-        for ( var i = 0; i < regionData.regions.length; i++) {
-            var region = regionData.regions[i];
+        for ( var i = 0; i < g_regionData.regions.length; i++) {
+            var region = g_regionData.regions[i];
 
             for ( var j = 0; j < region.instances.length; j++) {
                 var instance = region.instances[j];
@@ -244,7 +338,7 @@
             }
         }
         if (stats.appInstance) {
-            instance.heavyLoad = stats.appInstance.cpuUtilization >= minHeavyCpuUtilizationPct;
+            instance.heavyLoad = stats.appInstance.cpuUtilization >= MIN_HEAVY_CPU_UTILIZATION_PCT;
         }
         if (stats.workloadStats) {
             instance.workloadStats = stats.workloadStats;
@@ -281,8 +375,8 @@
         var heavyLoadInstances = 0;
         var notRespondingInstances = 0;
 
-        for ( var i = 0; i < regionData.regions.length; i++) {
-            var region = regionData.regions[i];
+        for ( var i = 0; i < g_regionData.regions.length; i++) {
+            var region = g_regionData.regions[i];
 
             for ( var j = 0; j < region.instances.length; j++) {
                 var instance = region.instances[j];
@@ -306,8 +400,8 @@
         var totalSimulatedUserCount = 0;
         var totalWebCustomerCount = 0;
 
-        for ( var i = 0; i < regionData.regions.length; i++) {
-            var region = regionData.regions[i];
+        for ( var i = 0; i < g_regionData.regions.length; i++) {
+            var region = g_regionData.regions[i];
 
             // Accumulate real users (reported at region level)
             totalWebCustomerCount += region.webCustomerCount;
@@ -344,8 +438,8 @@
         }
 
         // Update bar charts
-        for ( var i = 0; i < regionData.regions.length; i++) {
-            var region = regionData.regions[i];
+        for ( var i = 0; i < g_regionData.regions.length; i++) {
+            var region = g_regionData.regions[i];
             var regionOverview$ = $('.region-overview[data-region="' + region.regionName + '"]');
             var bars$ = regionOverview$.find('.progress').children();
             var detailedBars$ = $('.region-details[data-region="' + region.regionName + '"] .progress .bar');
@@ -377,11 +471,11 @@
         }
 
         // Update global workload labels
-        for ( var j = 0; j < regionData.workloads.length; j++) {
-            var workload = regionData.workloads[j];
+        for ( var j = 0; j < g_regionData.workloads.length; j++) {
+            var workload = g_regionData.workloads[j];
             var count = 0;
-            for ( var i = 0; i < regionData.regions.length; i++) {
-                count += regionData.regions[i].workloads[j].activeWorkerCount;
+            for ( var i = 0; i < g_regionData.regions.length; i++) {
+                count += g_regionData.regions[i].workloads[j].activeWorkerCount;
             }
             $('.customer-summary [data-workload="' + workload.workload.name + '"]').html(count);
         }
@@ -422,9 +516,9 @@
     }
 
     function getRegionByName(name) {
-        for ( var i = 0; i < regionData.regions.length; i++) {
-            if (regionData.regions[i].regionName == name) {
-                return regionData.regions[i];
+        for ( var i = 0; i < g_regionData.regions.length; i++) {
+            if (g_regionData.regions[i].regionName == name) {
+                return g_regionData.regions[i];
             }
         }
         return null;
@@ -478,8 +572,8 @@
         $('#btn-stop-all').attr('disabled', 'disabled');
         btn$.attr('disabled', 'disabled').text('Updating...');
 
-        for ( var i = 0; i < regionData.regions.length; i++) {
-            var region = regionData.regions[i];
+        for ( var i = 0; i < g_regionData.regions.length; i++) {
+            var region = g_regionData.regions[i];
             if (targetRegion && region != targetRegion) {
                 continue;
             }

@@ -21,7 +21,7 @@ public class ProductServlet extends BaseServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             int productId = Integer.valueOf(req.getParameter("productId"));
-            Product product = getService().getProductDetails(productId);
+            Product product = getStorefrontService().getProductDetails(productId);
             showPage(req, resp, product.getName(), "product", product);
         } catch (ProductNotFoundException ex) {
             addErrorMessage(req, ex);

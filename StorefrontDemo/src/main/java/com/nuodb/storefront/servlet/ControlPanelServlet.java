@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.googlecode.genericdao.search.SearchResult;
-import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.model.dto.Category;
 import com.nuodb.storefront.model.dto.DbNode;
 import com.nuodb.storefront.model.dto.ProductFilter;
@@ -30,19 +29,18 @@ public class ControlPanelServlet extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            IStorefrontService svc = getService();
-
             // Fetch store stats
-            StorefrontStatsReport stats = StorefrontFactory.getSimulatorService().getStorefrontStatsReport(null, true);
+            StorefrontStatsReport stats = getSimulator().getStorefrontStatsReport(null, true);
 
             // Fetch product data (and add a warning if the Storefront has no products yet)
+            IStorefrontService svc = getStorefrontService();
             Map<String, Object> productInfo = new HashMap<String, Object>();
             SearchResult<Category> categoryList = svc.getCategories();
             SearchResult<Product> productList = svc.getProducts(new ProductFilter());
             addDataLoadMessage(req, categoryList, productList, productInfo);
 
             // Fetch nodes data
-            List<DbNode> dbNodes = svc.getDbNodes();
+            List<DbNode> dbNodes = getDbApiService().getDbNodes();
 
             // Fetch data the page needs
             Map<String, Object> pageData = new HashMap<String, Object>();

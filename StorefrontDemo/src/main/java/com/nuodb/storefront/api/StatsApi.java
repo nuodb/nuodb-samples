@@ -11,7 +11,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.nuodb.storefront.StorefrontApp;
-import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.model.dto.StorefrontStats;
 import com.nuodb.storefront.model.dto.StorefrontStatsReport;
 import com.nuodb.storefront.model.dto.TransactionStats;
@@ -29,7 +28,7 @@ public class StatsApi extends BaseApi {
     public StorefrontStatsReport getAllStatsReport(@QueryParam("sessionTimeoutSec") Integer sessionTimeoutSec,
             @QueryParam("includeStorefront") Boolean includeStorefront) {
         
-        StorefrontStatsReport rpt = StorefrontFactory.getSimulatorService().getStorefrontStatsReport(sessionTimeoutSec,
+        StorefrontStatsReport rpt = getSimulator().getStorefrontStatsReport(sessionTimeoutSec,
                 includeStorefront != null && includeStorefront.booleanValue());
         
         clearWorkloadProperty(rpt.getWorkloadStats());

@@ -55,6 +55,16 @@ Getting Started (command line)
 		
 	  > The password of the database account to use when connecting. 
 
+		-Dstorefront.dbapi.user=domain
+		-Dstorefront.dbapi.password=bird
+		-Dstorefront.dbapi.host=localhost
+		-Dstorefront.dbapi.port=8888
+		
+	  > Credentials and endpoint information for connecting to NuoDB's AutoConsole API.  The API is used to build the node list on the Control Panel 
+	  > page and shutdown nodes on demand.  The Storefront will attempt to connect to the API by default, falling back to querying system tables.
+	  > Note that without API connectivity, nodes cannot be shut down via the Storefront's Control Panel.  These API settings are ignored
+	  > if you're using the Storefront with a database other than NuoDB. 
+
 
    The Maven Tomcat plugin also supports [some settings](http://tomcat.apache.org/maven-plugin-2.1/tomcat7-maven-plugin/run-mojo.html), including:
    

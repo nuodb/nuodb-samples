@@ -36,7 +36,14 @@ public class DbNodeTransformer implements ResultTransformer {
             } else if (alias.equals("state")) {
                 node.setState((String) tuple[i]);
             } else if (alias.equals("type")) {
-                node.setType((String) tuple[i]);
+                String type = (String) tuple[i];
+                if ("Storage".equals(type)) {
+                    node.setType("SM");
+                } else if ("Transaction".equals(type)) {
+                    node.setType("TE");
+                } else {
+                    node.setType(type);
+                }
             } else if (alias.equals("connstate")) {
                 node.setConnState((String) tuple[i]);
             } else if (alias.equals("msgqsize")) {

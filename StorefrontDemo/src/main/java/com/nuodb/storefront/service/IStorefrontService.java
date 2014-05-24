@@ -12,7 +12,6 @@ import com.nuodb.storefront.exception.CartEmptyException;
 import com.nuodb.storefront.exception.CustomerNotFoundException;
 import com.nuodb.storefront.exception.ProductNotFoundException;
 import com.nuodb.storefront.model.dto.Category;
-import com.nuodb.storefront.model.dto.DbNode;
 import com.nuodb.storefront.model.dto.ProductFilter;
 import com.nuodb.storefront.model.dto.StorefrontStats;
 import com.nuodb.storefront.model.dto.TransactionStats;
@@ -200,6 +199,4 @@ public interface IStorefrontService {
     public Map<String, StorefrontStats> getStorefrontStatsByRegion(int maxCustomerIdleTimeSec);
 
     public List<AppInstance> getAppInstances(boolean activeOnly);
-
-    public List<DbNode> getDbNodes();
 }

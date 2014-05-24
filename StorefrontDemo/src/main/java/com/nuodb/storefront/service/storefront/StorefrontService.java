@@ -3,7 +3,6 @@
 package com.nuodb.storefront.service.storefront;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
@@ -23,7 +22,6 @@ import com.nuodb.storefront.exception.CartEmptyException;
 import com.nuodb.storefront.exception.CustomerNotFoundException;
 import com.nuodb.storefront.exception.ProductNotFoundException;
 import com.nuodb.storefront.model.dto.Category;
-import com.nuodb.storefront.model.dto.DbNode;
 import com.nuodb.storefront.model.dto.ProductFilter;
 import com.nuodb.storefront.model.dto.StorefrontStats;
 import com.nuodb.storefront.model.dto.TransactionStats;
@@ -43,7 +41,6 @@ import com.nuodb.storefront.service.IStorefrontService;
  */
 public class StorefrontService implements IStorefrontService {
     private final IStorefrontDao dao;
-    private boolean s_hasNodesTable = true;
 
     static {
         StorefrontDao.registerTransactionNames(new String[] { "addProduct", "addProductReview", "addToCart", "checkout", "getAppInstances",
@@ -447,25 +444,6 @@ public class StorefrontService implements IStorefrontService {
                 }
 
                 return instances;
-            }
-        });
-    }
-
-    @Override
-    public List<DbNode> getDbNodes() {
-        return dao.runTransaction(TransactionType.READ_ONLY, "getDbNodes", new Callable<List<DbNode>>() {
-            @Override
-            public List<DbNode> call() {
-                try {
-                    if (s_hasNodesTable) {
-                        return dao.getDbNodes();
-                    }
-                } catch (Exception e) {
-                    // Set a flag so we don't keep querying the DB with
-                    // something bogus
-                    s_hasNodesTable = false;
-                }
-                return new ArrayList<DbNode>();
             }
         });
     }

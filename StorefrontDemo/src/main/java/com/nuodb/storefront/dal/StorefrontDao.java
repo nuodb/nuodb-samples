@@ -11,15 +11,12 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
-import org.hibernate.FlushMode;
 import org.hibernate.Hibernate;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.type.BigDecimalType;
 import org.hibernate.type.StringType;
 
-import com.googlecode.genericdao.dao.hibernate.GeneralDAOImpl;
 import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.model.dto.Category;
@@ -36,7 +33,7 @@ import com.nuodb.storefront.model.type.ProductSort;
  * Data access object designed for storefront operations, built on top of a general-purpose DAO. The caller is responsible for wrapping DAO calls in
  * transactions, typically by using the {@link #runTransaction(Callable)} or {@link #runTransaction(Runnable)} method.
  */
-public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
+public class StorefrontDao extends BaseDao implements IStorefrontDao {
     private static final Map<String, TransactionStats> s_transactionStatsMap = new HashMap<String, TransactionStats>();
 
     public StorefrontDao() {
@@ -65,49 +62,6 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
     @Override
     public void evict(IEntity entity) {
         getSession().evict(entity);
-    }
-
-    @Override
-    public void runTransaction(TransactionType transactionType, String name, final Runnable r) {
-        runTransaction(transactionType, name, new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                r.run();
-                return null;
-            }
-        });
-    }
-
-    @Override
-    public <T> T runTransaction(TransactionType transactionType, String name, Callable<T> c) {
-        long startTime = System.currentTimeMillis();
-
-        Session session = getSession();
-        Transaction t;
-        try {            
-            t = session.beginTransaction();
-        } catch (RuntimeException e) {
-            try {
-                session.close();
-            } catch (RuntimeException ei) {
-            }
-            throw e;
-        }
-        
-        try {
-            prepareSession(transactionType);
-            T result = c.call();
-            t.commit();
-            updateTransactionStats(name, startTime, true);
-            return result;
-        } catch (Exception e) {
-            t.rollback();
-            updateTransactionStats(name, startTime, false);
-            if (e instanceof RuntimeException) {
-                throw (RuntimeException) e;
-            }
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
@@ -236,8 +190,8 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
 
         // Fill stats
         for (Object[] row : (List<Object[]>) query.list()) {
-            String metric = (String)row[0];
-            BigDecimal value = (BigDecimal)row[1];
+            String metric = (String) row[0];
+            BigDecimal value = (BigDecimal) row[1];
             String region = (String) row[2];
 
             if (region == null) {
@@ -473,30 +427,8 @@ public class StorefrontDao extends GeneralDAOImpl implements IStorefrontDao {
         return query;
     }
 
-    protected void prepareSession(TransactionType transactionType) {
-        switch (transactionType) {
-            case READ_ONLY:
-                Session session = getSession();
-
-                // FIXME: Can't mark transaction as read-only with NuoDB right
-                // now, or SQL exceptions get thrown even with select statements
-                // session.doWork(new Work() {
-                // @Override
-                // public void execute(Connection connection) throws
-                // SQLException {
-                // connection.setReadOnly(true);
-                // }
-                // });
-
-                session.setFlushMode(FlushMode.MANUAL);
-                break;
-
-            default:
-                break;
-        }
-    }
-
-    protected void updateTransactionStats(String transactionName, long startTimeMs, boolean success) {
+    @Override
+    protected void onTransactionComplete(String transactionName, long startTimeMs, boolean success) {
         if (transactionName == null) {
             return;
         }

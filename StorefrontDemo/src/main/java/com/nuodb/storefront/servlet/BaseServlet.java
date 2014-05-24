@@ -30,6 +30,7 @@ import com.nuodb.storefront.model.entity.AppInstance;
 import com.nuodb.storefront.model.entity.Customer;
 import com.nuodb.storefront.model.entity.Product;
 import com.nuodb.storefront.model.type.MessageSeverity;
+import com.nuodb.storefront.service.IDbApiService;
 import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
 
@@ -46,11 +47,12 @@ public abstract class BaseServlet extends HttpServlet {
     private static final long serialVersionUID = 1452096145544476070L;
     private static final Object s_svcLock = new Object();
     private static volatile IStorefrontService s_svc;
+    private static volatile IDbApiService s_dbApiSvc;
 
     protected BaseServlet() {
     }
 
-    public static IStorefrontService getService() {
+    public static IStorefrontService getStorefrontService() {
         if (s_svc == null) {
             synchronized (s_svcLock) {
                 if (s_svc == null) {
@@ -59,6 +61,17 @@ public abstract class BaseServlet extends HttpServlet {
             }
         }
         return s_svc;
+    }
+
+    public static IDbApiService getDbApiService() {
+        if (s_dbApiSvc == null) {
+            synchronized (s_svcLock) {
+                if (s_dbApiSvc == null) {
+                    s_dbApiSvc = StorefrontFactory.createDbApiService();
+                }
+            }
+        }
+        return s_dbApiSvc;
     }
 
     public static ISimulatorService getSimulator() {
@@ -86,7 +99,7 @@ public abstract class BaseServlet extends HttpServlet {
                 customerId = 0;
             }
 
-            customer = getService().getOrCreateCustomer(customerId, null);
+            customer = getStorefrontService().getOrCreateCustomer(customerId, null);
             req.getSession().setAttribute(SESSION_CUSTOMER_ID, customer.getId());
             req.setAttribute(ATTR_CUSTOMER, customer);
 
@@ -154,7 +167,7 @@ public abstract class BaseServlet extends HttpServlet {
         // Fetch app instance list for region dropdown menu
         List<AppInstance> appInstances;
         try {
-            appInstances = getService().getAppInstances(true);
+            appInstances = getStorefrontService().getAppInstances(true);
         } catch (Exception e) {
             appInstances = new ArrayList<AppInstance>();
             appInstances.add(StorefrontApp.APP_INSTANCE);

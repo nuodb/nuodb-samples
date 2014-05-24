@@ -26,19 +26,20 @@ Storefront.TemplateMgr = {
     hasTemplate: function(name) {
         return !!this.getTemplate(name);
     },
-
-    applyTemplate: function(name, selector, data, append) {
+    
+    applyTemplateStr: function(name, data) {
         var template = this.getTemplate(name);
-        
         if (data && !data.result) {
             data = {
                 result: data
             };
         }
-        data.append = append;
-        
+        return template(data);
+    },
+
+    applyTemplate: function(name, selector, data, append) {
+        var html = this.applyTemplateStr(name, data);        
         var el = $(selector);
-        var html = template(data);
         if (append) {
             el.append(html);
         } else {

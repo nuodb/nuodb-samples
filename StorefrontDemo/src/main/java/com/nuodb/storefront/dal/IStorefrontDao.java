@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import com.googlecode.genericdao.dao.hibernate.GeneralDAO;
 import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.model.dto.Category;
 import com.nuodb.storefront.model.dto.DbNode;
@@ -23,31 +22,13 @@ import com.nuodb.storefront.service.IStorefrontService;
  * General-purpose DAO with a few specialized methods to interact with the Storefront database. This interface and associated implementation(s) should
  * be used by Storefront services only.
  */
-public interface IStorefrontDao extends GeneralDAO {
+public interface IStorefrontDao extends IBaseDao {
     public void initialize(IEntity entity);
 
     /**
      * Evicts the model from a DAO session so that subsequent changes are not committed to the database.
      */
     public void evict(IEntity model);
-
-    /**
-     * Invokes the {@link Runnable#run()} method within the context of a transaction. Commits upon completion, or rolls back upon exception (and then
-     * throws it).
-     * 
-     * @param r
-     *            The instance to run.
-     */
-    public void runTransaction(TransactionType transactionType, String name, Runnable r);
-
-    /**
-     * Invokes the {@link Callable#call()} method within the context of a transaction. Commits upon completion (and returns call's value), or rolls
-     * back upon exception (and then throws it).
-     * 
-     * @param r
-     *            The instance to call.
-     */
-    public <T> T runTransaction(TransactionType transactionType, String name, Callable<T> c);
 
     /**
      * @see IStorefrontService#getCategories()
@@ -96,8 +77,8 @@ public interface IStorefrontDao extends GeneralDAO {
 
     /**
      * Gets the "georegion" tag of the NuoDB transaction engine of the current database connection. Since the Storefront uses a thread pool and may
-     * communicate with multiple transaction engines, the return value may vary if called multiple times. An exception is thrown if the
-     * underlying database does not support georegion metadata (e.g. NuoDB pre-2.0, MySQL, etc.).
+     * communicate with multiple transaction engines, the return value may vary if called multiple times. An exception is thrown if the underlying
+     * database does not support georegion metadata (e.g. NuoDB pre-2.0, MySQL, etc.).
      */
     public String getCurrentDbNodeRegion();
 

@@ -180,35 +180,37 @@
 			<div id="node-info" class="tab-pane">
 				<div id="node-list" class="tab-pane"></div>
 				<script id="tpl-node-list" type="text/template">
-					<table class="table table-bordered" id="table-regions">
+					<table class="table table-bordered table-hover">
 						<thead>
 							<tr>
 								<th>Region</th>
 								<th>Node type</th>
 								<th>Address</th>
+								<th title="Process ID">PID</th>
 								<th>State</th>
+								<th>Actions</th>
 							</tr>
 						</thead>
 						<tbody>
 							{{#result}}
-								   <tr>
-									   <td>
-										   {{#if geoRegion}}
-											   {{geoRegion}}
-										   {{else}}
-											   (Unspecified)
-										   {{/if}}
-									   </td>
-									   <td><i class="{{icon}}"></i> {{type}} engine</td>
-									   <td>
-										   {{address}}:{{port}}
-									   </td>
-									   <td>{{state}}</td>
-								   </tr>
-							   {{/result}}
-							  {{#unless result}}
+								<tr data-uid="{{uid}}">
+									<td>
+										{{#if geoRegion}}
+											{{geoRegion}}
+										{{else}}
+											(Unspecified)
+										{{/if}}
+									</td>
+									<td><i class="{{icon}}"></i> {{typeName}}</td>
+									<td>{{address}}:{{port}}</td>
+									<td>{{pid}}</td>									
+									<td>{{state}}</td>
+									<td><button class="btn btn-danger" {{#unless uid}}title="Feature unavailable without a connection to the AutoConsole API" disabled="disabled"{{/unless}}><i class="icon-off icon-white"></i> Shutdown</td>
+								</tr>
+							{{/result}}
+							{{#unless result}}
 								<tr><td colspan="4">Node information is not available.  You may not be connected to a running NuoDB database.</td></tr>                                
-							  {{/unless}}
+							{{/unless}}
 						</tbody>
 					</table>
 				</script>

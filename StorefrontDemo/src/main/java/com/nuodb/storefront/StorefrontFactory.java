@@ -14,17 +14,20 @@ import org.hibernate.tool.hbm2ddl.SchemaExport;
 
 import com.nuodb.storefront.dal.IStorefrontDao;
 import com.nuodb.storefront.dal.StorefrontDao;
-import com.nuodb.storefront.dal.TransactionType;
 import com.nuodb.storefront.dal.UpperCaseNamingStrategy;
+import com.nuodb.storefront.dbapi.DbApi;
+import com.nuodb.storefront.dbapi.IDbApi;
 import com.nuodb.storefront.model.dto.DbConnInfo;
 import com.nuodb.storefront.service.IDataGeneratorService;
+import com.nuodb.storefront.service.IDbApiService;
 import com.nuodb.storefront.service.IHeartbeatService;
 import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
 import com.nuodb.storefront.service.datagen.DataGeneratorService;
+import com.nuodb.storefront.service.dbapi.DbApiService;
 import com.nuodb.storefront.service.simulator.SimulatorService;
-import com.nuodb.storefront.service.storefront.HeartbeatService;
 import com.nuodb.storefront.service.storefront.AppInstanceInitService;
+import com.nuodb.storefront.service.storefront.HeartbeatService;
 import com.nuodb.storefront.service.storefront.StorefrontService;
 
 /**
@@ -107,6 +110,28 @@ public class StorefrontFactory {
         return s_simulator;
     }
 
+    public static IDbApiService createDbApiService() {
+        IDbApi api;
+        String dbName;
+        
+        String url = s_configuration.getProperty(Environment.URL);
+        Matcher dbNameMatcher = Pattern.compile("jdbc:com.nuodb://([^/:]+)(:[^/]*)?/(.+)$").matcher(url);
+        if (!dbNameMatcher.matches()) {
+            // Not a NuoDB-database.  The DB API is not supported.
+            api = null;
+            dbName = null;
+        } else {
+            dbName = dbNameMatcher.group(3);
+            String host = System.getProperty("storefront.dbapi.host", dbNameMatcher.group(1));
+            String user = System.getProperty("storefront.dbapi.user", "domain");
+            String password = System.getProperty("storefront.dbapi.password", "bird");
+            String port = System.getProperty("storefront.dbapi.port", "8888");
+            api = new DbApi("http://" + host + ":" + port, user, password);
+        }
+        
+        return new DbApiService(createStorefrontDao(), api, dbName);
+    }
+
     public static IStorefrontDao createStorefrontDao() {
         StorefrontDao dao = new StorefrontDao();
         dao.setSessionFactory(getOrCreateSessionFactory());
@@ -123,9 +148,7 @@ public class StorefrontFactory {
                 if (s_sessionFactory == null) {
                     s_sessionFactory = s_configuration.buildSessionFactory();
                     try {
-                        StorefrontDao dao = new StorefrontDao();
-                        dao.setSessionFactory(s_sessionFactory);
-                        dao.runTransaction(TransactionType.READ_ONLY, null, new AppInstanceInitService(dao));
+                        new AppInstanceInitService(createStorefrontDao()).init(StorefrontApp.APP_INSTANCE);
                     } catch (Exception e) {
                         s_sessionFactory = null;
                         throw (e instanceof RuntimeException) ? ((RuntimeException) e) : new RuntimeException(e);
