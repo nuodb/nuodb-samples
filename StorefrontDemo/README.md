@@ -65,9 +65,6 @@ Getting Started (command line)
 	  > Note that without API connectivity, nodes cannot be shut down via the Storefront's Control Panel.  These API settings are ignored
 	  > if you're using the Storefront with a database other than NuoDB. 
 
-   You may bundle these Storefront settings in a properties file containing the key=value pairs to use instead of, or as overrides to, 
-   the above command line arguments.
-   
 		-Dproperties={filename}
 
    The Maven Tomcat plugin also supports [some settings](http://tomcat.apache.org/maven-plugin-2.1/tomcat7-maven-plugin/run-mojo.html), including:
