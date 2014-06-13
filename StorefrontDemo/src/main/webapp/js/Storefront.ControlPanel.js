@@ -134,7 +134,7 @@
     function initNodesTab(dbNodes, isConsoleLocal) {
         if (isConsoleLocal) {
             var consoleUrl = location.protocol + '//' + location.host + '/console.html';
-            $('#console-link').html('You can find the Console at <a href="consoleUrl">' + consoleUrl + '</a>.');
+            $('#console-link').html('You can find the Console at <a href="' + consoleUrl + '" target="_top">' + consoleUrl + '</a>.');
         }
 
         // Hook shutdown events
