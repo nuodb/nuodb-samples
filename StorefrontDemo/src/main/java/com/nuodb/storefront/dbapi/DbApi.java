@@ -9,12 +9,12 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang3.text.WordUtils;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.codehaus.jackson.map.DeserializationConfig;
 
 import com.nuodb.storefront.exception.ApiProxyException;
 import com.nuodb.storefront.model.dto.DbNode;
-import com.nuodb.storefront.util.StringUtils;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.config.ClientConfig;
@@ -64,7 +64,7 @@ public class DbApi implements IDbApi {
                             dbNode.setMsgQSize(null);
                             dbNode.setPid(process.pid);
                             dbNode.setPort(process.port);
-                            dbNode.setState(StringUtils.toSentenceCase(process.status));
+                            dbNode.setState(WordUtils.capitalizeFully(process.status));
                             dbNode.setTripTime(null);
                             dbNode.setType(process.type);
                             dbNode.setUid(process.uid);

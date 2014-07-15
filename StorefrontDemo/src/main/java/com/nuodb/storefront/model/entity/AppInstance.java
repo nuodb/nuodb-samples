@@ -11,10 +11,10 @@ import javax.persistence.Enumerated;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Index;
 
 import com.nuodb.storefront.model.type.Currency;
-import com.nuodb.storefront.util.StringUtils;
 
 @Entity
 public class AppInstance extends UuidEntity {

@@ -5,6 +5,10 @@
 body {
 	overflow-y: scroll;
 	padding: 20px 6px 10px 6px;
+	
+	&.nuo-header-visible {
+		padding-top: 70px;
+	}
 }
 
 .dropdown > a {
@@ -97,6 +101,10 @@ th.text-center, td.text-center {
 		.badge {
 			margin-left: 10px;
 		}
+	}
+	
+	#logo {
+		max-width: none;	// prevent wrapping in IE8
 	}
 	
 	#admin-link {

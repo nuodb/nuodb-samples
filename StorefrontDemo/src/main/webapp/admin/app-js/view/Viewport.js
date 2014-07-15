@@ -16,6 +16,19 @@ Ext.define('App.view.Viewport', {
 
         me.frameMap = {};
 
+        if (window.NuoHeader) {
+            me.padding = '50 0 0 0';
+            NuoHeader.render({
+                appTitle: 'NuoDB Storefront Demo',
+                homeUrl: './',
+                sidebarClick: function() {
+                    document.location.href = '../';
+                },
+                sidebarTip: 'Hide control panel',
+                username: decodeURIComponent(Ext.util.Cookies.get('customerName') || '').replace(/\+/g, ' ')
+            });
+        }
+
         me.items = [{
             region: 'north',
             xtype: 'messagebar'

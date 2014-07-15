@@ -2,13 +2,13 @@
 
 package com.nuodb.storefront.service.storefront;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.nuodb.storefront.dal.IStorefrontDao;
 import com.nuodb.storefront.dal.TransactionType;
 import com.nuodb.storefront.model.entity.AppInstance;
 import com.nuodb.storefront.model.type.Currency;
-import com.nuodb.storefront.util.StringUtils;
 
 /**
  * Performs initialization of an {@class AppInstance} when a Hibernate session factory is created.

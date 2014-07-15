@@ -3,7 +3,7 @@
 
 <script id="tpl-region-menu" type="text/template">
 {{#result}}
-	<a data-toggle="dropdown" href="#"><img alt="Logo" src="img/shop-logo.png" /><span>
+	<a data-toggle="dropdown" href="#"><img alt="Logo" id="logo" src="img/shop-logo.png" /><span>
 	{{#regions}}
 		{{#if selected}}{{storeName}}{{/if}}
 	{{/regions}}

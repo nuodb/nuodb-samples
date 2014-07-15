@@ -5,7 +5,7 @@
  */
 
 var Storefront = {
-    init: function(cfg) {
+    init: function(cfg, showHeader) {
         var me = this;
 
         // Set basic app properties
@@ -17,7 +17,23 @@ var Storefront = {
         me.initSearchBox();
         if (window.self === window.top) {
             $('#admin-link').show();
+
+            if (showHeader && window.NuoHeader) {
+                NuoHeader.render({
+                    appTitle: 'NuoDB Storefront Demo',
+                    homeUrl: './',
+                    sidebarClick: function() {
+                        document.location.href = $('#admin-link a').attr('href');
+                    },
+                    sidebarTip: 'Show control panel',
+                    username: cfg.customer.displayName
+                });
+
+                // Don't show username, because it's in the shared header
+                $('#top-bar .username, #top-bar .divider-vertical').hide();
+            }
         }
+
         $('.alert .btn').click(function() {
             var buttons = $('.btn', $(this).closest('form'));
             setTimeout(function() {
@@ -47,7 +63,7 @@ var Storefront = {
                 me.initCartPage(cfg.pageData);
                 break;
         }
-        
+
         // Show accumulated messages
         me.TemplateMgr.applyTemplate('tpl-messages', '#messages', cfg.messages);
     },
@@ -73,7 +89,7 @@ var Storefront = {
 
     aggregateRegions: function(appInstances) {
         var me = this;
-        
+
         // Aggregate instances to region level
         var regionMap = {};
         var regions = [];
@@ -101,7 +117,7 @@ var Storefront = {
         regions.sort(function(a, b) {
             return (a.name < b.name) ? -1 : (a.name == b.name) ? 0 : 1;
         });
-        
+
         // Initialize region dropdown
         me.initRegionSelectorMenu(regions, regionMap);
 
@@ -261,26 +277,26 @@ var Storefront = {
                 document.location.href = "cart";
             });
         });
-        
+
         // Initialize review form fields
         $('form.add-review [name=emailAddress]').val(customer.emailAddress);
-        
+
         // Focus on first field when review dialog opens
         $('#dlg-add-review').on('shown', function() {
-        	$('[name=title]').focus();
+            $('[name=title]').focus();
         });
 
         // Handle "Add Review" form submit
         $('form.add-review').submit(function(event) {
             event.preventDefault();
-            
+
             // Validate form
-        	var rating = $('[name=rating]', this).val();
-        	if (!rating) {
-        		alert("Please select a star rating first.");
-        		return;
-        	}
-        	
+            var rating = $('[name=rating]', this).val();
+            if (!rating) {
+                alert("Please select a star rating first.");
+                return;
+            }
+
             $.ajax('api/products/' + encodeURIComponent(product.id) + '/reviews', {
                 cache: false,
                 data: {

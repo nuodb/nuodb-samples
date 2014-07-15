@@ -36,7 +36,7 @@
 
                 <div class="pull-right">
                     <ul class="nav pull-right">
-                        <li><p class="navbar-text">
+                        <li class="username"><p class="navbar-text">
                                 Hello, <b><%=cfg.getCustomer().getDisplayName()%></b>
                             </p></li>
                         <li class="divider-vertical"></li>
@@ -59,19 +59,20 @@
         <% } %>
     </div>
 
-    <script src="js/jquery-1.9.1.min.js"></script>
-    <script src="js/jquery.form.js"></script>
-    <script src="js/jquery.rateit.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/handlebars.js"></script>
-    <script src="js/date.format.js"></script>
-    <script src="js/Storefront.js?v=2.0"></script>
-    <script src="js/Storefront.ControlPanel.js?v=2.0"></script>
-    <script src="js/Storefront.Helpers.js?v=2.0"></script>
-    <script src="js/Storefront.TemplateMgr.js?v=2.0"></script>
+    <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/jquery.form.js"></script>
+    <script type="text/javascript" src="js/jquery.rateit.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/handlebars.js"></script>
+    <script type="text/javascript" src="js/date.format.js"></script>
+    <script type="text/javascript" src="header"></script>
+    <script type="text/javascript" src="js/Storefront.js?v=2.0"></script>
+    <script type="text/javascript" src="js/Storefront.ControlPanel.js?v=2.0"></script>
+    <script type="text/javascript" src="js/Storefront.Helpers.js?v=2.0"></script>
+    <script type="text/javascript" src="js/Storefront.TemplateMgr.js?v=2.0"></script>
     <script>
     	$(document).ready(function() {
-			Storefront.init(<%=cfg.toJson()%>);
+			Storefront.init(<%=cfg.toJson()%>, <%=(showHeader == null || showHeader == true) ? "true" : "false"%>);
     	});
 	</script>
 </body>

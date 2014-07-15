@@ -13,10 +13,11 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.service.IHeartbeatService;
-import com.nuodb.storefront.util.StringUtils;
 
 public class StorefrontWebApp implements ServletContextListener {
     private static final String ENV_PROP_REGION = "storefront.region";
