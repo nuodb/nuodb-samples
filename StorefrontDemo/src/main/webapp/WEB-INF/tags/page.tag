@@ -1,4 +1,4 @@
-<%-- Copyright (c) 2013 NuoDB, Inc. --%>
+<%-- Copyright (c) 2013-2014 NuoDB, Inc. --%>
 <%@tag description="Page template" pageEncoding="UTF-8" import="com.nuodb.storefront.StorefrontApp,com.nuodb.storefront.model.dto.PageConfig,com.nuodb.storefront.servlet.BaseServlet"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 <%@attribute name="showHeader" required="false" type="java.lang.Boolean" %>
@@ -65,7 +65,7 @@
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/handlebars.js"></script>
     <script type="text/javascript" src="js/date.format.js"></script>
-    <script type="text/javascript" src="/header"></script>
+    <t:shared-header />
     <script type="text/javascript" src="js/Storefront.js?v=2.0"></script>
     <script type="text/javascript" src="js/Storefront.ControlPanel.js?v=2.0"></script>
     <script type="text/javascript" src="js/Storefront.Helpers.js?v=2.0"></script>
