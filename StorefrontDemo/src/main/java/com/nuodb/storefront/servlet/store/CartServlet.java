@@ -1,6 +1,6 @@
 /* Copyright (c) 2013 NuoDB, Inc. */
 
-package com.nuodb.storefront.servlet;
+package com.nuodb.storefront.servlet.store;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.nuodb.storefront.model.entity.Cart;
 import com.nuodb.storefront.model.entity.Customer;
 import com.nuodb.storefront.model.type.MessageSeverity;
+import com.nuodb.storefront.servlet.BaseServlet;
 
 public class CartServlet extends BaseServlet {
     private static final long serialVersionUID = 4182284887959608220L;

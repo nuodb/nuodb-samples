@@ -3,6 +3,7 @@
 package com.nuodb.storefront.dbapi;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.core.HttpHeaders;
@@ -39,15 +40,9 @@ public class DbApi implements IDbApi {
     public List<DbNode> getDbNodes(String dbName) {
         try {
             List<DbNode> nodes = new ArrayList<DbNode>();
+            List<Region> regions = getRegions();
 
-            Region[] regions = Client.create(s_cfg)
-                    .resource(baseUrl + "/api/regions")
-                    .header(HttpHeaders.AUTHORIZATION, authHeader)
-                    .type(MediaType.APPLICATION_JSON)
-                    .get(Region[].class);
-
-            for (int regionIdx = 0; regionIdx < regions.length; regionIdx++) {
-                Region region = regions[regionIdx];
+            for (Region region : regions) {
                 for (int databaseIdx = 0; databaseIdx < region.databases.length; databaseIdx++) {
                     Database database = region.databases[databaseIdx];
                     if (dbName == null || dbName.equals(database.name)) {
@@ -90,6 +85,43 @@ public class DbApi implements IDbApi {
                     .header(HttpHeaders.AUTHORIZATION, authHeader)
                     .type(MediaType.APPLICATION_JSON)
                     .delete();
+        } catch (UniformInterfaceException e) {
+            throw new ApiProxyException(Status.fromStatusCode(e.getResponse().getStatus()));
+        } catch (Exception e) {
+            throw new ApiProxyException(Status.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    @Override
+    public Database createDatabase(String dbName, String username, String password, String template) {
+        try {
+            Database db = new Database();
+            db.name = dbName;
+            db.username = username;
+            db.password = password;
+            db.template = template;
+
+            return Client.create(s_cfg)
+                    .resource(baseUrl + "/api/databases/")
+                    .header(HttpHeaders.AUTHORIZATION, authHeader)
+                    .type(MediaType.APPLICATION_JSON)
+                    .post(Database.class, db);
+        } catch (UniformInterfaceException e) {
+            throw new ApiProxyException(Status.fromStatusCode(e.getResponse().getStatus()));
+        } catch (Exception e) {
+            throw new ApiProxyException(Status.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    @Override
+    public List<Region> getRegions() {
+        try {
+            Region[] regions = Client.create(s_cfg)
+                    .resource(baseUrl + "/api/regions")
+                    .header(HttpHeaders.AUTHORIZATION, authHeader)
+                    .type(MediaType.APPLICATION_JSON)
+                    .get(Region[].class);
+            return Arrays.asList(regions);
         } catch (UniformInterfaceException e) {
             throw new ApiProxyException(Status.fromStatusCode(e.getResponse().getStatus()));
         } catch (Exception e) {

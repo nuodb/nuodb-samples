@@ -8,4 +8,7 @@ public class Database {
     public String name;
     public Process[] processes;
     public String status;
+    public String username;
+    public String password;
+    public String template;
 }

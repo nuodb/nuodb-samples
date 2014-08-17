@@ -7,6 +7,8 @@ import java.util.List;
 import com.nuodb.storefront.model.dto.DbNode;
 
 public interface IDbApi {
+    public Database createDatabase(String dbName, String username, String password, String template);
+    
     /**
      * Fetches information about all the database nodes running in support of the underlying database schema. This method returns an empty list unless
      * NuoDB is running.
@@ -14,4 +16,6 @@ public interface IDbApi {
     public List<DbNode> getDbNodes(String dbName);
 
     public void shutdownDbNode(String uid);
+    
+    public List<Region> getRegions();
 }

@@ -1,6 +1,6 @@
 /* Copyright (c) 2013 NuoDB, Inc. */
 
-package com.nuodb.storefront.servlet;
+package com.nuodb.storefront.servlet.store;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,6 +15,7 @@ import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.model.dto.Category;
 import com.nuodb.storefront.model.dto.ProductFilter;
 import com.nuodb.storefront.model.entity.Product;
+import com.nuodb.storefront.servlet.BaseServlet;
 
 public class ProductsServlet extends BaseServlet {
     private static final long serialVersionUID = 4369262156023258885L;

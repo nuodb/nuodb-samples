@@ -1,6 +1,6 @@
-/* Copyright (c) 2013 NuoDB, Inc. */
+/* Copyright (c) 2013-2014 NuoDB, Inc. */
 
-package com.nuodb.storefront.servlet;
+package com.nuodb.storefront.servlet.controlpanel;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -19,9 +19,11 @@ import com.nuodb.storefront.model.dto.StorefrontStatsReport;
 import com.nuodb.storefront.model.entity.Customer;
 import com.nuodb.storefront.model.entity.Product;
 import com.nuodb.storefront.service.IStorefrontService;
+import com.nuodb.storefront.servlet.BaseServlet;
+import com.nuodb.storefront.servlet.StorefrontWebApp;
 
-public class ControlPanelServlet extends BaseServlet {
-    private static final long serialVersionUID = 89888972347145111L;
+public class UsersServlet extends BaseServlet {
+    private static final long serialVersionUID = 8435653806520224541L;
 
     /**
      * GET: Shows the control panel screen, including the list of simulated workloads.
@@ -49,7 +51,7 @@ public class ControlPanelServlet extends BaseServlet {
             pageData.put("dbNodes", dbNodes);
             pageData.put("isConsoleLocal", StorefrontWebApp.isConsoleLocal());
 
-            showPage(req, resp, "Control Panel", "control-panel", pageData, new Customer());
+            showPage(req, resp, "Control Panel", "control-panel/users", pageData, new Customer());
         } catch (Exception ex) {
             showCriticalErrorPage(req, resp, ex);
         }

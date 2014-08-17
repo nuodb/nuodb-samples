@@ -1,6 +1,6 @@
 /* Copyright (c) 2013 NuoDB, Inc. */
 
-package com.nuodb.storefront.servlet;
+package com.nuodb.storefront.servlet.store;
 
 import java.io.IOException;
 
@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.nuodb.storefront.exception.ProductNotFoundException;
 import com.nuodb.storefront.model.entity.Product;
+import com.nuodb.storefront.servlet.BaseServlet;
 
 public class ProductServlet extends BaseServlet {
     private static final long serialVersionUID = 7440733613054861406L;

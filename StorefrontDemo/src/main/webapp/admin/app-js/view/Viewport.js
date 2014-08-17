@@ -49,6 +49,9 @@ Ext.define('App.view.Viewport', {
                 padding: '20'
             }]
         }, {
+            region: 'west',
+            xtype: 'navbar'
+        }, {
             region: 'south',
             xtype: 'footerbar'
         }];
