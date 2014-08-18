@@ -7,7 +7,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -20,19 +19,16 @@ import org.apache.log4j.Logger;
 import org.hibernate.exception.GenericJDBCException;
 import org.hibernate.exception.SQLGrammarException;
 
-import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.StorefrontFactory;
-import com.nuodb.storefront.model.dto.Category;
+import com.nuodb.storefront.dbapi.IDbApi;
 import com.nuodb.storefront.model.dto.DbConnInfo;
 import com.nuodb.storefront.model.dto.Message;
 import com.nuodb.storefront.model.dto.PageConfig;
 import com.nuodb.storefront.model.dto.ProductFilter;
 import com.nuodb.storefront.model.entity.AppInstance;
 import com.nuodb.storefront.model.entity.Customer;
-import com.nuodb.storefront.model.entity.Product;
 import com.nuodb.storefront.model.type.MessageSeverity;
-import com.nuodb.storefront.service.IDbApiService;
 import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
 
@@ -50,7 +46,7 @@ public abstract class BaseServlet extends HttpServlet {
     private static final long serialVersionUID = 1452096145544476070L;
     private static final Object s_svcLock = new Object();
     private static volatile IStorefrontService s_svc;
-    private static volatile IDbApiService s_dbApiSvc;
+    private static volatile IDbApi s_dbApi;
 
     protected BaseServlet() {
     }
@@ -66,15 +62,15 @@ public abstract class BaseServlet extends HttpServlet {
         return s_svc;
     }
 
-    public static IDbApiService getDbApiService() {
-        if (s_dbApiSvc == null) {
+    public static IDbApi getDbApi() {
+        if (s_dbApi == null) {
             synchronized (s_svcLock) {
-                if (s_dbApiSvc == null) {
-                    s_dbApiSvc = StorefrontFactory.createDbApiService();
+                if (s_dbApi == null) {
+                    s_dbApi = StorefrontFactory.createDbApi();
                 }
             }
         }
-        return s_dbApiSvc;
+        return s_dbApi;
     }
 
     public static ISimulatorService getSimulator() {
@@ -216,55 +212,5 @@ public abstract class BaseServlet extends HttpServlet {
         showPage(req, resp, "Storefront Problem", "error", null, (customer == null) ? new Customer() : customer);
 
         s_logger.warn("Servlet handled critical error", ex);
-    }
-
-    /**
-     * Adds a message prompting the user to seed the database with data if it currently contains 0 products and 0 categories.
-     */
-    protected static void addDataLoadMessage(HttpServletRequest req, SearchResult<Category> categoryList, SearchResult<Product> productList,
-            Map<String, Object> productInfo) {
-        if (categoryList.getResult().isEmpty() && productList.getResult().isEmpty()) {
-            addMessage(
-                    req,
-                    MessageSeverity.INFO,
-                    "There are no products in the database.  Click a button below to seed the database with some sample products and reviews.  Note that the loading process may take around 10 seconds.",
-                    "Load 900 Real Products (with pictures served by Amazon.com)", "Generate 5,000 Fake Products (without pictures)");
-            if (productInfo != null) {
-                productInfo.put("hasData", false);
-            }
-        } else {
-            if (productInfo != null) {
-                productInfo.put("hasData", true);
-                productInfo.put("productCount", productList.getTotalCount());
-                productInfo.put("categoryCount", categoryList.getTotalCount());
-            }
-        }
-    }
-
-    protected static boolean handleDataLoadRequest(HttpServletRequest req) throws IOException {
-        String btnAction = req.getParameter("btn-msg");
-        if (btnAction == null) {
-            return false;
-        }
-
-        btnAction = btnAction.toLowerCase();
-        if (btnAction.contains("load")) {
-            StorefrontApp.loadData();
-            addMessage(req, MessageSeverity.INFO, "Product data loaded successfully.");
-            s_logger.info("Product data loaded");
-        } else if (btnAction.contains("generate")) {
-            StorefrontApp.generateData();
-            addMessage(req, MessageSeverity.INFO, "Product data generated successfully.");
-            s_logger.info("Product data generated");
-        } else if (btnAction.contains("remove")) {
-            // Now remove all data
-            try {
-                StorefrontApp.removeData();
-                s_logger.info("Product data removed");
-            } catch (Exception e) {
-                s_logger.error("Unable to remove product data", e);
-            }
-        }
-        return true;
     }
 }

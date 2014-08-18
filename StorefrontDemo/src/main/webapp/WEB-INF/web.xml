@@ -10,15 +10,11 @@
         <param-name>storefront.publicUrl</param-name>
         <param-value>http://{host}:{port}/{context}</param-value>
     </context-param>
-    
-    <!--
-    Default value is "false".  Commented out so Jetty embedded web app can override this with "true" when the app is hosted by the NuoDB Console's process.
-    <context-param>
-        <description>When true, indicates the heartbeat service should not start until the first HTTP request is received.  Otherwise heartbeating starts when the web app starts.</description>
-        <param-name>storefront.lazyLoad</param-name>
-        <param-value>false</param-value>
-    </context-param>
-    -->
+
+    <!-- Default value is "false". Commented out so Jetty embedded web app can override this with "true" when the app is 
+        hosted by the NuoDB Console's process. <context-param> <description>When true, indicates the heartbeat service should not 
+        start until the first HTTP request is received. Otherwise heartbeating starts when the web app starts.</description> <param-name>storefront.lazyLoad</param-name> 
+        <param-value>false</param-value> </context-param> -->
 
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
@@ -30,7 +26,7 @@
         <listener-class>com.nuodb.storefront.servlet.StorefrontWebApp</listener-class>
     </listener>
 
-    <!-- HTTP headers for cross-site AJAX support -->   
+    <!-- HTTP headers for cross-site AJAX support -->
     <filter>
         <filter-name>AccessControlFilter</filter-name>
         <filter-class>com.nuodb.storefront.servlet.AccessControlFilter</filter-class>
@@ -39,7 +35,7 @@
         <filter-name>AccessControlFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-    
+
     <!-- Servlets -->
     <servlet>
         <servlet-name>jersey-serlvet</servlet-name>
@@ -110,30 +106,62 @@
         <servlet-name>storefront-tour-noknobsadmin</servlet-name>
         <servlet-class>com.nuodb.storefront.servlet.tour.NoKnobsAdminServlet</servlet-class>
     </servlet>
-        
+
     <!-- URL mappings -->
     <servlet-mapping>
         <servlet-name>jersey-serlvet</servlet-name>
         <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>storefront-products</servlet-name>
-        <url-pattern>/products</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>storefront-product</servlet-name>
-        <url-pattern>/product</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>storefront-cart</servlet-name>
-        <url-pattern>/cart</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>storefront-welcome</servlet-name>
         <url-pattern>/welcome</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>storefront-control-panel</servlet-name>
-        <url-pattern>/control-panel</url-pattern>
+        <servlet-name>storefront-store-products</servlet-name>
+        <url-pattern>/store-products</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>storefront-store-product</servlet-name>
+        <url-pattern>/store-product</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>storefront-store-cart</servlet-name>
+        <url-pattern>/store-cart</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>storefront-controlpanel-processes</servlet-name>
+        <url-pattern>/control-panel-processes</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>storefront-controlpanel-products</servlet-name>
+        <url-pattern>/control-panel-products</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>storefront-controlpanel-regions</servlet-name>
+        <url-pattern>/control-panel-regions</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>storefront-controlpanel-users</servlet-name>
+        <url-pattern>/control-panel-users</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>storefront-tour-continuousavailability</servlet-name>
+        <url-pattern>/tour-continuous-availability</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>storefront-tour-geodistribution</servlet-name>
+        <url-pattern>/tour-geo-distribution</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>storefront-tour-horizscaleout</servlet-name>
+        <url-pattern>/tour-horiz-scale-out</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>storefront-tour-multitenancy</servlet-name>
+        <url-pattern>/tour-multi-tenancy</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>storefront-tour-noknobsadmin</servlet-name>
+        <url-pattern>/tour-no-knobs-admin</url-pattern>
     </servlet-mapping>
 </web-app>

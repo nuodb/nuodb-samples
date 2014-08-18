@@ -3,13 +3,11 @@
 package com.nuodb.storefront.dal;
 
 import java.util.Calendar;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
 import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.model.dto.Category;
-import com.nuodb.storefront.model.dto.DbNode;
 import com.nuodb.storefront.model.dto.ProductFilter;
 import com.nuodb.storefront.model.dto.StorefrontStats;
 import com.nuodb.storefront.model.dto.TransactionStats;
@@ -68,12 +66,6 @@ public interface IStorefrontDao extends IBaseDao {
      * Removes instances from the AppInstances table who have not sent a heartbeat since the specified time.
      */
     public int deleteDeadAppInstances(Calendar maxLastHeartbeat);
-
-    /**
-     * Fetches information about all the database nodes running in support of the underlying database schema. This method returns an empty list unless
-     * NuoDB is running.
-     */
-    public List<DbNode> getDbNodes();
 
     /**
      * Gets the "georegion" tag of the NuoDB transaction engine of the current database connection. Since the Storefront uses a thread pool and may

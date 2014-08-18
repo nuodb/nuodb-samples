@@ -20,7 +20,6 @@ import org.hibernate.type.StringType;
 import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.model.dto.Category;
-import com.nuodb.storefront.model.dto.DbNode;
 import com.nuodb.storefront.model.dto.ProductFilter;
 import com.nuodb.storefront.model.dto.StorefrontStats;
 import com.nuodb.storefront.model.dto.TransactionStats;
@@ -276,15 +275,6 @@ public class StorefrontDao extends BaseDao implements IStorefrontDao {
         SQLQuery query = getSession().createSQLQuery("DELETE FROM APP_INSTANCE WHERE LAST_HEARTBEAT <= :MAX_LAST_HEARTBEAT");
         query.setParameter("MAX_LAST_HEARTBEAT", maxLastHeartbeat);
         return query.executeUpdate();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<DbNode> getDbNodes() {
-        SQLQuery query = getSession()
-                .createSQLQuery("SELECT SYSTEM.NODES.*, CASE WHEN ID = GETNODEID() THEN 1 ELSE 0 END AS LOCAL FROM SYSTEM.NODES");
-        query.setResultTransformer(DbNodeTransformer.INSTANCE);
-        return (List<DbNode>) query.list();
     }
 
     @Override

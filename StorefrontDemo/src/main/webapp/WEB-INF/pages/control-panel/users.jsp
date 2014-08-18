@@ -4,27 +4,11 @@
 
 <t:page showHeader="false">
     <div id="control-panel">
-        <!-- Top nav -->
-        <div id="top-bar" class="navbar">
-            <div class="navbar-inner">
-	            <label>Control Panel &mdash; NuoDB Storefront Demo</label>
-                <ul class="nav pull-right">
-                    <t:admin-link />
-                </ul>
-            </div>
-        </div>
-
+        <h1>Users</h1>
         <t:messages />
-        
-        <ul class="nav nav-tabs" id="tabs">
-            <li class="active"><a href="#regions" data-toggle="tab">Customers <span class="label label-tab" id="lbl-customers">0</span></a></li>
-            <li><a href="#product-info" data-toggle="tab">Products <span class="label label-tab" id="lbl-products">0</span></a></li>
-            <li><a href="#node-info" data-toggle="tab">NuoDB Nodes <span class="label label-tab" id="lbl-nodes">0</span></a></li>
-        </ul>
-        <div class="tab-content">
-			<!-- Workload controls -->
-			<div id="regions" class="tab-pane active"></div>
-			<script id="tpl-regions" type="text/template">    
+      
+		<div id="regions" class="tab-pane active"></div>
+		<script id="tpl-regions" type="text/template">    
 				{{#result}}
 					<table class="table table-bordered" id="table-regions">
 						<col width="200" />
@@ -161,68 +145,6 @@
 						</tbody>
 					</table>
 				{{/result}}
-			</script>
-    
-			<div id="product-info" class="tab-pane"></div>
-			<script id="tpl-product-info" type="text/template">
-				{{#result}}
-					{{#if hasData}}
-						<form method="post" id="product-info">
-							<p>There are currently {{numberFormat productCount}} products across {{numberFormat categoryCount}} categories.</p>
-							<p><button class="btn btn-danger" name="btn-msg" type="submit" value="Remove All Data">Remove All Data</button>
-						</form>
-					{{else}}
-						<p>There are no products in the database.</p>
-					{{/if}}
-				{{/result}}
-			</script>
-        
-			<div id="node-info" class="tab-pane">
-				<div id="node-list" class="tab-pane"></div>
-				<script id="tpl-node-list" type="text/template">
-					<table class="table table-bordered table-hover">
-						<thead>
-							<tr>
-								<th>Region</th>
-								<th>Node type</th>
-								<th>Address</th>
-								<th title="Process ID">PID</th>
-								<th>State</th>
-								<th>Actions</th>
-							</tr>
-						</thead>
-						<tbody>
-							{{#result}}
-								<tr data-uid="{{uid}}">
-									<td>
-										{{#if geoRegion}}
-											{{geoRegion}}
-										{{else}}
-											(Unspecified)
-										{{/if}}
-									</td>
-									<td><i class="{{icon}}"></i> {{typeName}}</td>
-									<td>{{address}}:{{port}}</td>
-									<td>{{pid}}</td>									
-									<td>{{state}}</td>
-									<td><button class="btn btn-danger" {{#unless uid}}title="Feature unavailable without a connection to the AutoConsole API" disabled="disabled"{{/unless}}><i class="icon-off icon-white"></i> Shutdown</td>
-								</tr>
-							{{/result}}
-							{{#unless result}}
-								<tr><td colspan="4">Node information is not available.  You may not be connected to a running NuoDB database.</td></tr>                                
-							{{/unless}}
-						</tbody>
-					</table>
-				</script>
-                 
-				<h4>Adding Nodes</h4>       
-				<p>To add nodes to your NuoDB cluster, use the NuoDB Console.</p>
-				<p id="console-link">If you are running NuoDB locally with default settings, you can find the Console at <a href="http://localhost:8080/console.html" target="_top">http://localhost:8080/console.html</a>.</p>
-				<h4>Removing Nodes</h4>
-				<p>Try testing fault tolerance by killing any node while the Storefront is running.</p>
-			</div>
-		</div>
+		</script>
     </div>
-    
-    <div class="footer">Copyright &copy; 2013 NuoDB, Inc. All rights reserved.</div>
 </t:page>

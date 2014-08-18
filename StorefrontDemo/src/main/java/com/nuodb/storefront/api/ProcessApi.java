@@ -12,24 +12,27 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.nuodb.storefront.model.dto.DbNode;
+import com.nuodb.storefront.StorefrontFactory;
+import com.nuodb.storefront.dbapi.Process;
+import com.nuodb.storefront.model.dto.DbConnInfo;
 
 @Path("/db-nodes")
-public class DbNodeApi extends BaseApi {
-    public DbNodeApi() {
+public class ProcessApi extends BaseApi {
+    public ProcessApi() {
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<DbNode> getDbNodes() {
-        return getDbApiService().getDbNodes();
+    public List<Process> getProcesses() {
+        DbConnInfo connInfo = StorefrontFactory.getDbConnInfo();
+        return getDbApi().getProcesses(connInfo.getDbName());
     }
 
     @DELETE
     @Path("/{uid}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(@PathParam("uid") String uid) {
-        getDbApiService().shutdownDbNode(uid);
+        getDbApi().shutdownProcess(uid);
         return Response.ok().build();
     }
 }

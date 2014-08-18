@@ -31,6 +31,9 @@ public class StorefrontApp {
     public static final int DEFAULT_SESSION_TIMEOUT_SEC = 60 * 20;// 20 min
 
     public static final String DEFAULT_REGION_NAME = "Default";
+    public static final String DEFAULT_DB_NAME = "Storefront";
+    public static final String DEFAULT_DB_HOST = "localhost";
+    public static final String DEFAULT_DB_TEMPLATE = "Geo-distributed";
     public static final int DEFAULT_PORT = 8080;
     public static final String DEFAULT_URL = "http://{host}:{port}/{context}";
 

@@ -131,12 +131,7 @@
         $('#lbl-products').text((productInfo.productCount || 0).format(0));
     }
 
-    function initNodesTab(dbNodes, isConsoleLocal) {
-        if (isConsoleLocal) {
-            var consoleUrl = location.protocol + '//' + location.host + '/console.html';
-            $('#console-link').html('You can find the Console at <a href="' + consoleUrl + '" target="_top">' + consoleUrl + '</a>.');
-        }
-
+    function initNodesTab(dbNodes) {
         // Hook shutdown events
         $('#node-list').on('click', '.btn-danger', function() {
             if (!confirm('Are you sure you want to shut down this node?')) {

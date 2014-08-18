@@ -2,11 +2,11 @@
 
 package com.nuodb.storefront;
 
+import java.io.FileInputStream;
 import java.sql.SQLException;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.io.FileInputStream;
-import java.util.Properties;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
@@ -21,12 +21,10 @@ import com.nuodb.storefront.dbapi.DbApi;
 import com.nuodb.storefront.dbapi.IDbApi;
 import com.nuodb.storefront.model.dto.DbConnInfo;
 import com.nuodb.storefront.service.IDataGeneratorService;
-import com.nuodb.storefront.service.IDbApiService;
 import com.nuodb.storefront.service.IHeartbeatService;
 import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
 import com.nuodb.storefront.service.datagen.DataGeneratorService;
-import com.nuodb.storefront.service.dbapi.DbApiService;
 import com.nuodb.storefront.service.simulator.SimulatorService;
 import com.nuodb.storefront.service.storefront.AppInstanceInitService;
 import com.nuodb.storefront.service.storefront.HeartbeatService;
@@ -89,9 +87,21 @@ public class StorefrontFactory {
     }
 
     public static DbConnInfo getDbConnInfo() {
+        String url = s_configuration.getProperty(Environment.URL);
+        Matcher dbNameMatcher = Pattern.compile("jdbc:com.nuodb://([^/:]+)(:[^/]*)?/(.+)$").matcher(url);
+
         DbConnInfo info = new DbConnInfo();
-        info.setUrl(s_configuration.getProperty(Environment.URL));
+        info.setUrl(url);
+        if (dbNameMatcher.matches()) {
+            info.setHost(dbNameMatcher.group(1));
+            info.setDbName(dbNameMatcher.group(3));
+        } else {
+            info.setHost(StorefrontApp.DEFAULT_DB_HOST);
+            info.setDbName(StorefrontApp.DEFAULT_DB_NAME);
+        }
         info.setUsername(s_configuration.getProperty(Environment.USER));
+        info.setPassword(s_configuration.getProperty(Environment.PASS));
+        info.setTemplate(System.getProperty("storefront.db.template", StorefrontApp.DEFAULT_DB_TEMPLATE));
         return info;
     }
 
@@ -127,26 +137,13 @@ public class StorefrontFactory {
         return s_simulator;
     }
 
-    public static IDbApiService createDbApiService() {
-        IDbApi api;
-        String dbName;
-
-        String url = s_configuration.getProperty(Environment.URL);
-        Matcher dbNameMatcher = Pattern.compile("jdbc:com.nuodb://([^/:]+)(:[^/]*)?/(.+)$").matcher(url);
-        if (!dbNameMatcher.matches()) {
-            // Not a NuoDB-database. The DB API is not supported.
-            api = null;
-            dbName = null;
-        } else {
-            dbName = dbNameMatcher.group(3);
-            String host = System.getProperty("storefront.dbapi.host", dbNameMatcher.group(1));
-            String user = System.getProperty("storefront.dbapi.user", "domain");
-            String password = System.getProperty("storefront.dbapi.password", "bird");
-            String port = System.getProperty("storefront.dbapi.port", "8888");
-            api = new DbApi("http://" + host + ":" + port, user, password);
-        }
-
-        return new DbApiService(createStorefrontDao(), api, dbName);
+    public static IDbApi createDbApi() {
+        DbConnInfo connInfo = getDbConnInfo();
+        String host = System.getProperty("storefront.dbapi.host", connInfo.getHost());
+        String user = System.getProperty("storefront.dbapi.user", "domain");
+        String password = System.getProperty("storefront.dbapi.password", "bird");
+        String port = System.getProperty("storefront.dbapi.port", "8888");
+        return new DbApi("http://" + host + ":" + port, user, password);
     }
 
     public static IStorefrontDao createStorefrontDao() {

@@ -10,12 +10,10 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.commons.lang3.text.WordUtils;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.codehaus.jackson.map.DeserializationConfig;
 
 import com.nuodb.storefront.exception.ApiProxyException;
-import com.nuodb.storefront.model.dto.DbNode;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.config.ClientConfig;
@@ -37,9 +35,9 @@ public class DbApi implements IDbApi {
     }
 
     @Override
-    public List<DbNode> getDbNodes(String dbName) {
+    public List<Process> getProcesses(String dbName) {
         try {
-            List<DbNode> nodes = new ArrayList<DbNode>();
+            List<Process> nodes = new ArrayList<Process>();
             List<Region> regions = getRegions();
 
             for (Region region : regions) {
@@ -48,22 +46,8 @@ public class DbApi implements IDbApi {
                     if (dbName == null || dbName.equals(database.name)) {
                         for (int processIdx = 0; processIdx < database.processes.length; processIdx++) {
                             Process process = database.processes[processIdx];
-                            DbNode dbNode = new DbNode();
-                            dbNode.setAddress(process.address);
-                            dbNode.setAgentId(process.agentid);
-                            dbNode.setConnState(null);
-                            dbNode.setGeoRegion(region.region);
-                            dbNode.setId(process.nodeId);
-                            dbNode.setLocal(false);
-                            dbNode.setLocalId(null);
-                            dbNode.setMsgQSize(null);
-                            dbNode.setPid(process.pid);
-                            dbNode.setPort(process.port);
-                            dbNode.setState(WordUtils.capitalizeFully(process.status));
-                            dbNode.setTripTime(null);
-                            dbNode.setType(process.type);
-                            dbNode.setUid(process.uid);
-                            nodes.add(dbNode);
+                            process.region = region.region;
+                            nodes.add(process);
                         }
                     }
                 }
@@ -71,14 +55,14 @@ public class DbApi implements IDbApi {
 
             return nodes;
         } catch (UniformInterfaceException e) {
-            throw new ApiProxyException(Status.fromStatusCode(e.getResponse().getStatus()));
+            throw new ApiProxyException(e.getResponse());
         } catch (Exception e) {
             throw new ApiProxyException(Status.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
     @Override
-    public void shutdownDbNode(String uid) {
+    public void shutdownProcess(String uid) {
         try {
             Client.create(s_cfg)
                     .resource(baseUrl + "/api/processes/" + uid)
@@ -86,7 +70,7 @@ public class DbApi implements IDbApi {
                     .type(MediaType.APPLICATION_JSON)
                     .delete();
         } catch (UniformInterfaceException e) {
-            throw new ApiProxyException(Status.fromStatusCode(e.getResponse().getStatus()));
+            throw new ApiProxyException(e.getResponse());
         } catch (Exception e) {
             throw new ApiProxyException(Status.INTERNAL_SERVER_ERROR, e.getMessage());
         }
@@ -107,7 +91,7 @@ public class DbApi implements IDbApi {
                     .type(MediaType.APPLICATION_JSON)
                     .post(Database.class, db);
         } catch (UniformInterfaceException e) {
-            throw new ApiProxyException(Status.fromStatusCode(e.getResponse().getStatus()));
+            throw new ApiProxyException(e.getResponse());
         } catch (Exception e) {
             throw new ApiProxyException(Status.INTERNAL_SERVER_ERROR, e.getMessage());
         }
@@ -123,7 +107,7 @@ public class DbApi implements IDbApi {
                     .get(Region[].class);
             return Arrays.asList(regions);
         } catch (UniformInterfaceException e) {
-            throw new ApiProxyException(Status.fromStatusCode(e.getResponse().getStatus()));
+            throw new ApiProxyException(e.getResponse());
         } catch (Exception e) {
             throw new ApiProxyException(Status.INTERNAL_SERVER_ERROR, e.getMessage());
         }

@@ -48,22 +48,7 @@ public class ProductsServlet extends BaseServlet {
             pageData.put("categories", categoryList);
             pageData.put("filter", filter);
 
-            addDataLoadMessage(req, categoryList, productList, null);
-
             showPage(req, resp, null, "products", pageData);
-        } catch (Exception ex) {
-            showCriticalErrorPage(req, resp, ex);
-        }
-    }
-
-    /**
-     * POST: Same as GET, but also handles seeding the database
-     */
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try {
-            handleDataLoadRequest(req);
-            doGet(req, resp);
         } catch (Exception ex) {
             showCriticalErrorPage(req, resp, ex);
         }

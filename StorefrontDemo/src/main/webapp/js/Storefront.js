@@ -43,23 +43,19 @@ var Storefront = {
 
         // Initialize page-specific elements
         switch (cfg.pageName) {
-            case "welcome":
-                me.initWelcomePage(cfg.pageData);
-                break;
-
             case "control-panel":
                 me.initControlPanelPage(cfg);
                 break;
 
-            case "products":
+            case "store/products":
                 me.initProductsPage(cfg.pageData.products, cfg.pageData.categories, cfg.pageData.filter);
                 break;
 
-            case "product":
+            case "store/product":
                 me.initProductPage(cfg.pageData, cfg.customer);
                 break;
 
-            case "cart":
+            case "store/cart":
                 me.initCartPage(cfg.pageData);
                 break;
         }
@@ -156,40 +152,6 @@ var Storefront = {
             // Choose a random instance to navigate to
             var instance = region.instances[Math.floor(region.instances.length * Math.random())];
             document.location.href = instance.url;
-        });
-    },
-
-    initWelcomePage: function(pageData) {
-        var me = this;
-
-        if (!document.location.hash || document.location.hash == '#') {
-            // Move messages up if we're dealing with choices
-            $('#top-bar').after($('#messages').parent());
-        }
-
-        // Render DDL
-        $('#ddl textarea').attr('wrap', 'off');
-        me.TemplateMgr.applyTemplate('tpl-ddl', '#ddl textarea', pageData.ddl);
-
-        // Handle DDL toggling
-        $('#lnk-show-ddl').click(function(e) {
-            e.preventDefault();
-            var lnk = $(this);
-            lnk.toggleClass('active');
-            if (lnk.hasClass('active')) {
-                $('#ddl').slideDown({
-                    complete: function() {
-                        $('#ddl textarea').focus();
-                    }
-                })
-            } else {
-                $('#ddl').slideUp();
-            }
-        });
-
-        // Get the carousel moving
-        $('.carousel').carousel({
-            interval: 7000
         });
     },
 
