@@ -1,6 +1,6 @@
 /* Copyright (c) 2013-2014 NuoDB, Inc. */
 
-package com.nuodb.storefront.servlet.controlpanel;
+package com.nuodb.storefront.servlet;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -14,10 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.dbapi.Process;
 import com.nuodb.storefront.model.entity.Customer;
-import com.nuodb.storefront.servlet.BaseServlet;
-import com.nuodb.storefront.servlet.StorefrontWebApp;
 
-public class ProcessesServlet extends BaseServlet {
+public class ControlPanelProcessesServlet extends BaseServlet {
     private static final long serialVersionUID = 6321822277810614623L;
 
     /**
@@ -27,14 +25,14 @@ public class ProcessesServlet extends BaseServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             // Fetch nodes data
-            List<Process> dbNodes = getDbApi().getProcesses(StorefrontFactory.getDbConnInfo().getDbName());
+            List<Process> processes = getDbApi().getProcesses(StorefrontFactory.getDbConnInfo().getDbName());
 
             // Fetch data the page needs
             Map<String, Object> pageData = new HashMap<String, Object>();
-            pageData.put("dbNodes", dbNodes);
+            pageData.put("processes", processes);
             pageData.put("isConsoleLocal", StorefrontWebApp.isConsoleLocal());
 
-            showPage(req, resp, "Control Panel", "control-panel/processes", pageData, new Customer());
+            showPage(req, resp, "Control Panel", "control-panel-processes", pageData, new Customer());
         } catch (Exception ex) {
             showCriticalErrorPage(req, resp, ex);
         }

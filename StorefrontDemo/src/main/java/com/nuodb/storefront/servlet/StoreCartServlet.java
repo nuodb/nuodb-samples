@@ -1,6 +1,6 @@
 /* Copyright (c) 2013 NuoDB, Inc. */
 
-package com.nuodb.storefront.servlet.store;
+package com.nuodb.storefront.servlet;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -13,9 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.nuodb.storefront.model.entity.Cart;
 import com.nuodb.storefront.model.entity.Customer;
 import com.nuodb.storefront.model.type.MessageSeverity;
-import com.nuodb.storefront.servlet.BaseServlet;
 
-public class CartServlet extends BaseServlet {
+public class StoreCartServlet extends BaseServlet {
     private static final long serialVersionUID = 4182284887959608220L;
 
     /**
@@ -26,7 +25,7 @@ public class CartServlet extends BaseServlet {
         try {
             Customer customer = getOrCreateCustomer(req, resp);
             Cart cart = getStorefrontService().getCustomerCart(customer.getId());
-            showPage(req, resp, "Cart", "cart", cart, customer);
+            showPage(req, resp, "Cart", "store-cart", cart, customer);
         } catch (Exception ex) {
             showCriticalErrorPage(req, resp, ex);
         }
@@ -66,7 +65,7 @@ public class CartServlet extends BaseServlet {
 
                 // Forward to products page
                 customer.setCartItemCount(0);
-                resp.sendRedirect("products");
+                resp.sendRedirect("store-products");
             }
         } catch (Exception e) {
             addErrorMessage(req, e);

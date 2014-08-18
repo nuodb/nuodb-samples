@@ -62,7 +62,7 @@
                     <ul class="thumbnails thumbnails-prod">
                         {{#result}}
                             <li class="span3">
-                                <a href="product?productId={{id}}" class="thumbnail">
+                                <a href="store-product?productId={{id}}" class="thumbnail">
                                     <img src="{{productImage imageUrl}}" />
                                     <div class="prod-metadata">
                                         <div class="name">{{name}}</div>

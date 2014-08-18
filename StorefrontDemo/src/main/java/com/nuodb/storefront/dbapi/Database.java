@@ -10,5 +10,5 @@ public class Database {
     public String status;
     public String username;
     public String password;
-    public String template;
+    public Object template;
 }

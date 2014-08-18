@@ -16,24 +16,18 @@
 								<th>Node type</th>
 								<th>Address</th>
 								<th title="Process ID">PID</th>
-								<th>State</th>
+								<th>Status</th>
 								<th>Actions</th>
 							</tr>
 						</thead>
 						<tbody>
 							{{#result}}
 								<tr data-uid="{{uid}}">
-									<td>
-										{{#if geoRegion}}
-											{{geoRegion}}
-										{{else}}
-											(Unspecified)
-										{{/if}}
-									</td>
+									<td>{{region}}</td>
 									<td><i class="{{icon}}"></i> {{typeName}}</td>
 									<td>{{address}}:{{port}}</td>
 									<td>{{pid}}</td>									
-									<td>{{state}}</td>
+									<td>{{status}}</td>
 									<td><button class="btn btn-danger" {{#unless uid}}title="Feature unavailable without a connection to the AutoConsole API" disabled="disabled"{{/unless}}><i class="icon-off icon-white"></i> Shutdown</td>
 								</tr>
 							{{/result}}

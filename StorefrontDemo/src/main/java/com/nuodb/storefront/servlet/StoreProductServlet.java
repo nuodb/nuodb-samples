@@ -1,6 +1,6 @@
 /* Copyright (c) 2013 NuoDB, Inc. */
 
-package com.nuodb.storefront.servlet.store;
+package com.nuodb.storefront.servlet;
 
 import java.io.IOException;
 
@@ -10,9 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.nuodb.storefront.exception.ProductNotFoundException;
 import com.nuodb.storefront.model.entity.Product;
-import com.nuodb.storefront.servlet.BaseServlet;
 
-public class ProductServlet extends BaseServlet {
+public class StoreProductServlet extends BaseServlet {
     private static final long serialVersionUID = 7440733613054861406L;
 
     /**
@@ -23,10 +22,10 @@ public class ProductServlet extends BaseServlet {
         try {
             int productId = Integer.valueOf(req.getParameter("productId"));
             Product product = getStorefrontService().getProductDetails(productId);
-            showPage(req, resp, product.getName(), "product", product);
+            showPage(req, resp, product.getName(), "store-product", product);
         } catch (ProductNotFoundException ex) {
             addErrorMessage(req, ex);
-            resp.sendRedirect("products");
+            resp.sendRedirect("store-products");
         } catch (Exception ex) {
             showCriticalErrorPage(req, resp, ex);
         }

@@ -5,7 +5,7 @@
  */
 
 var Storefront = {
-    init: function(cfg, showHeader) {
+    init: function(cfg) {
         var me = this;
 
         // Set basic app properties
@@ -17,21 +17,6 @@ var Storefront = {
         me.initSearchBox();
         if (window.self === window.top) {
             $('#admin-link').show();
-
-            if (showHeader && window.NuoHeader) {
-                NuoHeader.render({
-                    appTitle: 'NuoDB Storefront Demo',
-                    homeUrl: './',
-                    sidebarClick: function() {
-                        document.location.href = $('#admin-link a').attr('href');
-                    },
-                    sidebarTip: 'Show control panel',
-                    username: cfg.customer.displayName
-                });
-
-                // Don't show username, because it's in the shared header
-                $('#top-bar .username, #top-bar .divider-vertical').hide();
-            }
         }
 
         $('.alert .btn').click(function() {
@@ -43,19 +28,30 @@ var Storefront = {
 
         // Initialize page-specific elements
         switch (cfg.pageName) {
-            case "control-panel":
-                me.initControlPanelPage(cfg);
+            case "control-panel-processes":
+                me.initControlPanelProcessesPage(cfg.pageData.processes);
+                break;
+                
+            case "control-panel-products":
+                me.initControlPanelProductsPage(cfg.pageData);
+                break;
+                
+            case "control-panel-regions":
+                break;
+                
+            case "control-panel-users":
+                me.initControlPanelUsersPage(cfg);                
                 break;
 
-            case "store/products":
+            case "store-products":
                 me.initProductsPage(cfg.pageData.products, cfg.pageData.categories, cfg.pageData.filter);
                 break;
 
-            case "store/product":
+            case "store-product":
                 me.initProductPage(cfg.pageData, cfg.customer);
                 break;
 
-            case "store/cart":
+            case "store-cart":
                 me.initCartPage(cfg.pageData);
                 break;
         }
@@ -151,7 +147,7 @@ var Storefront = {
 
             // Choose a random instance to navigate to
             var instance = region.instances[Math.floor(region.instances.length * Math.random())];
-            document.location.href = instance.url;
+            document.location.href = instance.url + '/store-products';
         });
     },
 
@@ -236,7 +232,7 @@ var Storefront = {
                 dataType: 'json',
                 type: 'PUT'
             }).done(function(responseData) {
-                document.location.href = "cart";
+                document.location.href = "store-cart";
             });
         });
 

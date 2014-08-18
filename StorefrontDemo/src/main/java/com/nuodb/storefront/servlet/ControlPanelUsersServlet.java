@@ -1,6 +1,6 @@
 /* Copyright (c) 2013-2014 NuoDB, Inc. */
 
-package com.nuodb.storefront.servlet.controlpanel;
+package com.nuodb.storefront.servlet;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -12,9 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.nuodb.storefront.model.dto.StorefrontStatsReport;
 import com.nuodb.storefront.model.entity.Customer;
-import com.nuodb.storefront.servlet.BaseServlet;
 
-public class UsersServlet extends BaseServlet {
+public class ControlPanelUsersServlet extends BaseServlet {
     private static final long serialVersionUID = 8435653806520224541L;
 
     /**
@@ -27,7 +26,7 @@ public class UsersServlet extends BaseServlet {
             Map<String, Object> pageData = new HashMap<String, Object>();
             pageData.put("stats", stats);
 
-            showPage(req, resp, "Control Panel", "control-panel/users", pageData, new Customer());
+            showPage(req, resp, "Control Panel", "control-panel-users", pageData, new Customer());
         } catch (Exception ex) {
             showCriticalErrorPage(req, resp, ex);
         }

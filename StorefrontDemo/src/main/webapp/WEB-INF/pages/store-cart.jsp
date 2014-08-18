@@ -24,7 +24,7 @@
             	                    <tr>
                 	                    <td>
                     	                    <div class="media">
-                        	                    <a class="pull-left" href="product?productId={{product.id}}"><img class="img-rounded pull-left" src="{{productImage product.imageUrl}}" width="130" /></a>
+                        	                    <a class="pull-left" href="store-product?productId={{product.id}}"><img class="img-rounded pull-left" src="{{productImage product.imageUrl}}" width="130" /></a>
                                 	            <div class="media-body">
                                     	            <h4 class="media-heading">{{product.name}}</h4>
 													<div class="prod-metadata">
@@ -62,7 +62,7 @@
     	        	</form>
 				{{/if}}
        	    	<p>
-           	    	<a href="products">Continue Shopping</a>
+           	    	<a href="store-products">Continue Shopping</a>
             	</p>
 	        </div>
 		</script>

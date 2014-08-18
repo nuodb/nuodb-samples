@@ -1,6 +1,6 @@
 /* Copyright (c) 2013 NuoDB, Inc. */
 
-package com.nuodb.storefront.servlet.store;
+package com.nuodb.storefront.servlet;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,9 +15,8 @@ import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.model.dto.Category;
 import com.nuodb.storefront.model.dto.ProductFilter;
 import com.nuodb.storefront.model.entity.Product;
-import com.nuodb.storefront.servlet.BaseServlet;
 
-public class ProductsServlet extends BaseServlet {
+public class StoreProductsServlet extends BaseServlet {
     private static final long serialVersionUID = 4369262156023258885L;
 
     /**
@@ -48,7 +47,7 @@ public class ProductsServlet extends BaseServlet {
             pageData.put("categories", categoryList);
             pageData.put("filter", filter);
 
-            showPage(req, resp, null, "products", pageData);
+            showPage(req, resp, null, "store-products", pageData);
         } catch (Exception ex) {
             showCriticalErrorPage(req, resp, ex);
         }

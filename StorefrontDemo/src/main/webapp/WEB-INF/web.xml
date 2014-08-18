@@ -60,51 +60,51 @@
     </servlet>
     <servlet>
         <servlet-name>storefront-store-products</servlet-name>
-        <servlet-class>com.nuodb.storefront.servlet.store.ProductsServlet</servlet-class>
+        <servlet-class>com.nuodb.storefront.servlet.StoreProductsServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>storefront-store-product</servlet-name>
-        <servlet-class>com.nuodb.storefront.servlet.store.ProductServlet</servlet-class>
+        <servlet-class>com.nuodb.storefront.servlet.StoreProductServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>storefront-store-cart</servlet-name>
-        <servlet-class>com.nuodb.storefront.servlet.store.CartServlet</servlet-class>
+        <servlet-class>com.nuodb.storefront.servlet.StoreCartServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>storefront-controlpanel-processes</servlet-name>
-        <servlet-class>com.nuodb.storefront.servlet.controlpanel.ProcessesServlet</servlet-class>
+        <servlet-class>com.nuodb.storefront.servlet.ControlPanelProcessesServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>storefront-controlpanel-products</servlet-name>
-        <servlet-class>com.nuodb.storefront.servlet.controlpanel.ProductsServlet</servlet-class>
+        <servlet-class>com.nuodb.storefront.servlet.ControlPanelProductsServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>storefront-controlpanel-regions</servlet-name>
-        <servlet-class>com.nuodb.storefront.servlet.controlpanel.RegionsServlet</servlet-class>
+        <servlet-class>com.nuodb.storefront.servlet.ControlPanelRegionsServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>storefront-controlpanel-users</servlet-name>
-        <servlet-class>com.nuodb.storefront.servlet.controlpanel.UsersServlet</servlet-class>
+        <servlet-class>com.nuodb.storefront.servlet.ControlPanelUsersServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>storefront-tour-continuousavailability</servlet-name>
-        <servlet-class>com.nuodb.storefront.servlet.tour.ContinuousAvailabilityServlet</servlet-class>
+        <servlet-class>com.nuodb.storefront.servlet.TourContinuousAvailabilityServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>storefront-tour-geodistribution</servlet-name>
-        <servlet-class>com.nuodb.storefront.servlet.tour.GeoDistributionServlet</servlet-class>
+        <servlet-class>com.nuodb.storefront.servlet.TourGeoDistributionServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>storefront-tour-horizscaleout</servlet-name>
-        <servlet-class>com.nuodb.storefront.servlet.tour.HorizScaleOutServlet</servlet-class>
+        <servlet-class>com.nuodb.storefront.servlet.TourHorizScaleOutServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>storefront-tour-multitenancy</servlet-name>
-        <servlet-class>com.nuodb.storefront.servlet.tour.MultiTenancyServlet</servlet-class>
+        <servlet-class>com.nuodb.storefront.servlet.TourMultiTenancyServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>storefront-tour-noknobsadmin</servlet-name>
-        <servlet-class>com.nuodb.storefront.servlet.tour.NoKnobsAdminServlet</servlet-class>
+        <servlet-class>com.nuodb.storefront.servlet.TourNoKnobsAdminServlet</servlet-class>
     </servlet>
 
     <!-- URL mappings -->

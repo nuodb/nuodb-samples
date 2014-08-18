@@ -15,7 +15,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet" />
     <link href="css/jquery.form.css" rel="stylesheet" />
     <link href="css/rateit.css" rel="stylesheet" />
-    <link href="css/Storefront.css?v=2.0" rel="stylesheet" />
+    <link href="css/Storefront.css?v=2.1" rel="stylesheet" />
     <link rel="icon" type="image/png" href="favicon.ico" />
 </head>
 <body>
@@ -40,8 +40,7 @@
                                 Hello, <b><%=cfg.getCustomer().getDisplayName()%></b>
                             </p></li>
                         <li class="divider-vertical"></li>
-                        <li class="cart"><a href="cart"><i class="icon icon-shopping-cart"></i> Cart <span class="badge badge-info"><%=cfg.getCustomer().getCartItemCount()%></span></a></li>
-                        <t:admin-link />
+                        <li class="cart"><a href="store-cart"><i class="icon icon-shopping-cart"></i> Cart <span class="badge badge-info"><%=cfg.getCustomer().getCartItemCount()%></span></a></li>
                     </ul>
                 </div>
             </div>
@@ -65,14 +64,13 @@
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/handlebars.js"></script>
     <script type="text/javascript" src="js/date.format.js"></script>
-    <t:shared-header />
-    <script type="text/javascript" src="js/Storefront.js?v=2.0"></script>
-    <script type="text/javascript" src="js/Storefront.ControlPanel.js?v=2.0"></script>
-    <script type="text/javascript" src="js/Storefront.Helpers.js?v=2.0"></script>
-    <script type="text/javascript" src="js/Storefront.TemplateMgr.js?v=2.0"></script>
+    <script type="text/javascript" src="js/Storefront.js?v=2.1"></script>
+    <script type="text/javascript" src="js/Storefront.ControlPanel.js?v=2.1"></script>
+    <script type="text/javascript" src="js/Storefront.Helpers.js?v=2.1"></script>
+    <script type="text/javascript" src="js/Storefront.TemplateMgr.js?v=2.1"></script>
     <script>
     	$(document).ready(function() {
-			Storefront.init(<%=cfg.toJson()%>, <%=(showHeader == null || showHeader == true) ? "true" : "false"%>);
+			Storefront.init(<%=cfg.toJson()%>);
     	});
 	</script>
 </body>

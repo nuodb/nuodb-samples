@@ -11,7 +11,7 @@
     var g_nodeUpdateTimerId = false;
     var g_dbNodeData = null;
 
-    Storefront.initControlPanelPage = function(cfg) {
+    Storefront.initControlPanelUsersPage = function(cfg) {
         var pageData = cfg.pageData;
         g_app = this;
         g_regionData = initRegionData(g_app.regions, pageData.stats);
@@ -24,14 +24,15 @@
                     });
         }
 
-        initCustomersTab();
-        initProductsTab(pageData.productInfo);
-        initNodesTab(pageData.dbNodes, pageData.isConsoleLocal);
+        initCustomersList();
 
         refreshStats(pageData.stats);
+        
+        //initProductsTab(pageData.productInfo);
+        //initNodesTab(pageData.dbNodes, pageData.isConsoleLocal);
     }
 
-    function initCustomersTab() {
+    function initCustomersList() {
         // Render regions table
         g_app.TemplateMgr.applyTemplate('tpl-regions', '#regions', g_regionData);
 
@@ -126,12 +127,15 @@
         $('form').form();
     }
 
-    function initProductsTab(productInfo) {
+    Storefront.initControlPanelProductsPage = function(productInfo) {
+        g_app = this;
         g_app.TemplateMgr.applyTemplate('tpl-product-info', '#product-info', productInfo);
         $('#lbl-products').text((productInfo.productCount || 0).format(0));
     }
 
-    function initNodesTab(dbNodes) {
+    Storefront.initControlPanelProcessesPage = function(dbNodes) {
+        g_app = this;
+        
         // Hook shutdown events
         $('#node-list').on('click', '.btn-danger', function() {
             if (!confirm('Are you sure you want to shut down this node?')) {

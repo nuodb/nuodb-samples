@@ -1,6 +1,6 @@
 /* Copyright (c) 2013-2014 NuoDB, Inc. */
 
-package com.nuodb.storefront.servlet.controlpanel;
+package com.nuodb.storefront.servlet;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -11,9 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.nuodb.storefront.model.entity.Customer;
-import com.nuodb.storefront.servlet.BaseServlet;
 
-public class RegionsServlet extends BaseServlet {
+public class ControlPanelRegionsServlet extends BaseServlet {
     private static final long serialVersionUID = 5256928309793336181L;
 
     /**
@@ -23,7 +22,7 @@ public class RegionsServlet extends BaseServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Map<String, Object> pageData = new HashMap<String, Object>();
 
-        showPage(req, resp, "Control Panel", "control-panel/regions", pageData, new Customer());
+        showPage(req, resp, "Control Panel", "control-panel-regions", pageData, new Customer());
     }
 
     /**
