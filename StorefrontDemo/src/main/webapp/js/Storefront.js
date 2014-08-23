@@ -37,6 +37,7 @@ var Storefront = {
                 break;
                 
             case "control-panel-regions":
+                me.initControlPanelRegionsPage(cfg.pageData.regions);
                 break;
                 
             case "control-panel-users":

@@ -28,6 +28,7 @@ Ext.define('App.view.HeaderBar', {
             metric: 'workloadStats.all.activeWorkerCount',
             itemId: 'metrics-users',
             input: 'spinner',
+            flex: 0.7,
             listeners: {
                 click: clickHandler
             }
@@ -38,6 +39,7 @@ Ext.define('App.view.HeaderBar', {
             metric: 'workloadStats.all.activeWorkerCount',
             itemId: 'metrics-hosts',
             input: 'slider',
+            flex: 0.7,
             listeners: {
                 click: clickHandler
             }
@@ -48,6 +50,7 @@ Ext.define('App.view.HeaderBar', {
             metric: 'workloadStats.all.activeWorkerCount',
             itemId: 'metrics-regions',
             input: 'slider',
+            flex: 0.7,
             listeners: {
                 click: clickHandler
             }

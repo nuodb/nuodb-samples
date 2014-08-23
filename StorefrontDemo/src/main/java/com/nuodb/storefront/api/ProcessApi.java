@@ -16,7 +16,7 @@ import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.dbapi.Process;
 import com.nuodb.storefront.model.dto.DbConnInfo;
 
-@Path("/db-nodes")
+@Path("/processes")
 public class ProcessApi extends BaseApi {
     public ProcessApi() {
     }

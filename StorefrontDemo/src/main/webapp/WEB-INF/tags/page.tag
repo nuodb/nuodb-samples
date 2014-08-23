@@ -65,7 +65,8 @@
     <script type="text/javascript" src="js/handlebars.js"></script>
     <script type="text/javascript" src="js/date.format.js"></script>
     <script type="text/javascript" src="js/Storefront.js?v=2.1"></script>
-    <script type="text/javascript" src="js/Storefront.ControlPanel.js?v=2.1"></script>
+    <script type="text/javascript" src="js/Storefront.ControlPanel.Users.js?v=2.1"></script>
+    <script type="text/javascript" src="js/Storefront.ControlPanel.List.js?v=2.1"></script>
     <script type="text/javascript" src="js/Storefront.Helpers.js?v=2.1"></script>
     <script type="text/javascript" src="js/Storefront.TemplateMgr.js?v=2.1"></script>
     <script>
