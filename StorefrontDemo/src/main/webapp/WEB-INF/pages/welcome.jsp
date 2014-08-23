@@ -14,7 +14,7 @@
                 <p>Get started here – by seeing how the Storefront showcases NuoDB’s value propositions in your environment.</p>
 
                 <p>
-                    The Storefront demo is an open source application written in Java. It uses Hibernate for data access with NuoDB’s JDBC driver and DataSource for connection pooling. <a href="https://github.com/nuodb/nuodb-samples/tree/master/StorefrontDemo">Check it out on GitHub</a>.
+                    The Storefront demo is an open source application written in Java. It uses Hibernate for data access with NuoDB’s JDBC driver and DataSource for connection pooling. <a href="https://github.com/nuodb/nuodb-samples/tree/master/StorefrontDemo" target="_blank">Check it out on GitHub</a>.
                 </p>
             </div>
             <div class="span4">

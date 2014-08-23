@@ -7,23 +7,18 @@
  */
 Ext.define('App.view.Viewport', {
     extend: 'Ext.container.Viewport',
-    requires: ['App.view.HeaderBar', 'App.view.MessageBar', 'App.view.FooterBar', 'App.view.MetricDashboard', 'Ext.ux.IFrame'],
+    requires: ['App.view.HeaderBar', 'App.view.MessageBar', 'App.view.NavBar', 'App.view.FooterBar', 'App.view.MetricDashboard', 'Ext.ux.IFrame'],
 
     layout: 'border',
 
     initComponent: function() {
         var me = this;
 
-        me.frameMap = {};
-
         if (window.NuoHeader) {
             me.padding = '50 0 0 0';
             NuoHeader.render({
                 appTitle: 'NuoDB Storefront Demo',
                 homeUrl: './',
-                sidebarClick: function() {
-                    document.location.href = '../';
-                },
                 sidebarTip: 'Hide control panel',
                 username: decodeURIComponent(Ext.util.Cookies.get('customerName') || '').replace(/\+/g, ' ')
             });
@@ -34,15 +29,25 @@ Ext.define('App.view.Viewport', {
             xtype: 'messagebar'
         }, {
             region: 'north',
-            xtype: 'headerbar',
-            listeners: {
-                viewchange: Ext.bind(me.onViewChange, me)
-            }
+            xtype: 'headerbar'
         }, {
             region: 'center',
             layout: 'card',
             itemId: 'center',
             items: [{
+                xtype: 'uxiframe',
+                itemId: 'frameView',
+                src: '../welcome',
+                listeners: {
+                    load: function() {
+                        try {
+                            var url = this.getWin().document.location.href.split('/');
+                            App.app.fireEvent('viewchange', '/' + url[url.length - 1], false)
+                        } catch (e) {                            
+                        }
+                    }
+                }
+            }, {
                 region: 'center',
                 layout: 'card',
                 itemId: 'metricsView',
@@ -51,50 +56,30 @@ Ext.define('App.view.Viewport', {
         }, {
             region: 'west',
             xtype: 'navbar'
-        }, {
-            region: 'south',
-            xtype: 'footerbar'
         }];
 
         me.callParent(arguments);
 
         me.center = me.down('[itemId=center]');
         me.metricsView = me.down('[itemId=metricsView]');
+        me.frameView = me.down('[itemId=frameView]');
 
-        var viewName = me.down('headerbar').getActiveViewName();
-        if (viewName) {
-            me.onViewChange(viewName);
-        }
-    },
-    
-    refreshView: function(viewName) {
-        var me = this;
-        if (me.frameMap[viewName]) {
-            me.frameMap[viewName].load(me.getViewUrl(viewName));
-        }
+        App.app.on('viewchange', Ext.bind(me.onViewChange, me));
     },
 
-    onViewChange: function(viewName) {
+    onViewChange: function(viewName, isUserInitiated) {
         var me = this;
         var centerLayout = me.center.getLayout();
-        var viewUrl = me.getViewUrl(viewName);
 
-        if (viewUrl) {
+        if (viewName[0] == '/') {
             // Show URL of the view in an iframe
-            
-            if (!me.frameMap[viewName]) {
-                me.frameMap[viewName] = me.center.add({
-                    xtype: 'uxiframe',
-                    itemId: 'storefrontView',
-                    src: viewUrl
-                });
-            } else {
-                me.frameMap[viewName].load(viewUrl);
+            var url = '..' + viewName;
+            if (isUserInitiated !== false) {
+                me.frameView.load(url);
             }
-            centerLayout.setActiveItem(me.frameMap[viewName]);
+            centerLayout.setActiveItem(me.frameView);
         } else {
             // Show metrics associated with the view
-            
             var view = me.metricsView.items.get(viewName);
             if (!view) {
                 view = {
@@ -104,7 +89,7 @@ Ext.define('App.view.Viewport', {
                 };
                 view = me.metricsView.add(view);
             }
-            centerLayout.setActiveItem(0);
+            centerLayout.setActiveItem(me.metricsView);
             me.metricsView.getLayout().setActiveItem(view);
         }
     },
@@ -116,7 +101,7 @@ Ext.define('App.view.Viewport', {
 
             case 'control-panel':
                 return '../control-panel';
-                
+
             case 'storefront':
                 return '../products';
 

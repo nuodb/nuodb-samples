@@ -21,8 +21,7 @@ Ext.define('App.view.MetricDashboard', {
         // Divide charts into two columns
         var col1EndIdx = Math.ceil(me.metrics.length / 2);
         var col1 = me.createColumnConfig(me.metrics, 0, col1EndIdx);
-        var col2 = me.createColumnConfig(me.metrics, col1EndIdx, me.metrics.length);
-        me.items = [col1, col2];
+        me.items = (me.metrics.length == 1) ? col1 : [col1, me.createColumnConfig(me.metrics, col1EndIdx, me.metrics.length)];
 
         me.callParent(arguments);
     },

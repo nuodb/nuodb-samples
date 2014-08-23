@@ -8,13 +8,18 @@ Ext.define('App.view.MetricWell', {
     /** {@cfg} {Number} value */
     value: 0,
 
-    margin: '0 5',
+    flex: 1,
+    margin: '0 8',
+    minWidth: 150,
 
     maxHistory: 20,
 
-    cls: 'metric-well x-btn x-btn-default-medium',
-    width: 185,
-    allowDepress: false,
+    layout: {
+        type: 'hbox',
+        align: 'stretch'
+    },
+
+    cls: 'metric-well',
 
     /*
      * width: 150, height: 55,
@@ -37,67 +42,101 @@ Ext.define('App.view.MetricWell', {
             value: 0,
             border: 1
         });
+
         me.valueHistory = [];
         for ( var i = 0; i < me.maxHistory; i++) {
             me.valueHistory.push(null);
         }
-        
-        if (me.pressed) {
-            me.cls += ' x-btn-default-medium-pressed';
-        }
 
-        me.items = {
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            },
+        me.items = [{
+            layout: 'absolute',
+            cls: 'btn' + (me.input ? ' btn-with-input' : ''),
+            itemId: 'btn',
+            height: 80,
+            flex: 1,
             items: [{
+                xtype: 'container',
+                itemId: 'graphContainer',
+                cls: 'graph-container',
+                html: '<div id="' + me.graphId + '"></div>',
+                hidden: me.graphVisible === false
+            }, {
                 xtype: 'label',
-                html: me.text,
+                html: '<img src="img/' + me.icon + '" width="16" height="16" />' + me.text,
                 cls: 'label-metric'
             }, {
-                layout: 'absolute',
-                height: 40,
-                items: [{
-                    xtype: 'container',
-                    itemId: 'graphContainer',
-                    cls: 'graph-container',
-                    html: '<div id="' + me.graphId + '"></div>',
-                    hidden: me.graphVisible === false
-                }, {
-                    width: '100%',
-                    xtype: 'label',
-                    html: '&nbsp;',
-                    cls: 'label-value',
-                    itemId: 'value'
-                }]
+                width: '100%',
+                xtype: 'label',
+                html: '&nbsp;',
+                cls: 'label-value',
+                itemId: 'value'
             }]
-        };
+        }];
+
+        switch (me.input) {
+            case 'slider':
+                me.items.push({
+                    xtype: 'container',
+                    layout: 'fit',
+                    cls: 'btn-input',
+                    items: {
+                        xtype: 'slider',
+                        padding: '7 3 7 3',
+                        vertical: true,
+                        increment: 1,
+                        minValue: 0,
+                        maxValue: 5,
+                        layout: 'fit'
+                    }
+                });
+                break;
+
+            case 'spinner':
+                me.items.push({
+                    xtype: 'toolbar',
+                    cls: 'btn-input',
+                    vertical: true,
+                    items: [{
+                        iconCls: 'ico-up',
+                        tooltip: 'Increase simulated users by 5%'
+                    }, {
+                        iconCls: 'ico-down',
+                        tooltip: 'Decrease simulated users by 5%'
+                    }, ' ', {
+                        iconCls: 'ico-cancel',
+                        tooltip: 'Stop all simulated users'
+                    }],
+                    padding: '2 2 0 2'
+                });
+                break;
+        }
 
         me.callParent(arguments);
-        me.on('afterrender', function() {
-            var el = me.getEl();
-            el.on('mouseenter', function() {
-                el.addCls('x-btn-default-medium-over');
-            });
-            el.on('mouseleave', function() {
-                el.removeCls('x-btn-default-medium-over');
-                if (!me.pressed) {
-                    el.removeCls('x-btn-default-medium-pressed');
-                }
-            });
-            el.on('mousedown', function() {
-                el.addCls('x-btn-default-medium-pressed');
-            });
-            el.on('mouseup', function() {
-                if (!me.pressed || me.allowDepress) {
-                    me.toggle(!me.pressed);
-                }
-            });            
-        });
 
         me.lblValue = me.down('[itemId=value]');
         me.graphContainer = me.down('[itemId=graphContainer]');
+        me.btn = me.down('[itemId=btn]');
+        me.btn.on('afterrender', function() {
+            var el = me.btn.getEl();
+            el.on('mouseenter', function() {
+                el.addCls('hover');
+            });
+            el.on('mouseleave', function() {
+                el.removeCls('hover');
+                if (!me.pressed) {
+                    el.removeCls('active');
+                }
+            });
+            el.on('mousedown', function() {
+                el.addCls('active');
+            });
+            el.on('mouseup', function() {
+                if (!me.pressed) {
+                    me.toggle(!me.pressed);
+                }
+            });
+        });
+
         me.setValue(me.value);
         App.app.on('statschange', me.onStatsChange, me);
     },
@@ -129,17 +168,16 @@ Ext.define('App.view.MetricWell', {
         var me = this;
         me.callParent(arguments);
         me.syncGraph();
-        me.getEl().dom.setAttribute('data-qtip', me.tooltip);
     },
-    
+
     toggle: function(state, suppressEvent) {
         var me = this;
         if (me.pressed != state) {
             me.pressed = state;
             if (me.pressed) {
-                me.getEl().addCls('x-btn-default-medium-pressed');
+                me.btn.getEl().addCls('active');
             } else {
-                me.getEl().removeCls('x-btn-default-medium-pressed');
+                me.btn.getEl().removeCls('active');
             }
             if (suppressEvent !== true) {
                 me.fireEvent('click', me);
@@ -164,7 +202,7 @@ Ext.define('App.view.MetricWell', {
             spotColor: '',
             maxSpotColor: '',
             minSpotColor: '',
-            height: '40',
+            height: '35',
             width: '100%',
             highlightLineColor: '#000',
             highlightSpotColor: '#000',

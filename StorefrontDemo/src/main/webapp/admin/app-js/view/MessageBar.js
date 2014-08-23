@@ -8,7 +8,7 @@ Ext.define('App.view.MessageBar', {
     alias: 'widget.messagebar',
 
     border: false,
-    cls: 'message',
+    id: 'messagebar',
     hidden: true,
 
     /** @Override */
