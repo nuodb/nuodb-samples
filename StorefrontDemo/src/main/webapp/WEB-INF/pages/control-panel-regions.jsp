@@ -22,9 +22,9 @@
                             {{#result}}
                                 <tr>
                                     <td>{{region}}</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>                                    
+                                    <td>{{usedHostCount}} of {{hostCount}}</td>
+                                    <td>{{transactionManagerCount}}</td>
+                                    <td>{{storageManagerCount}}</td>                                    
                                 </tr>
                             {{/result}}
                         </tbody>

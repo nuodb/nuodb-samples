@@ -14,18 +14,12 @@ import com.sun.jersey.api.client.ClientResponse;
 public class ApiProxyException extends StorefrontException {
     private static final long serialVersionUID = 347845891781234711L;
 
-    public ApiProxyException(ClientResponse resp) {
-        super(Status.fromStatusCode(resp.getStatus()), readResponseMessage(resp));
+    public ApiProxyException(ClientResponse resp, Throwable cause) {
+        super(Status.fromStatusCode(resp.getStatus()), readResponseMessage(resp), cause);
     }
 
-    public ApiProxyException(Status errorCode, String message) {
-        super(errorCode, message);
-    }
-
-    @Override
-    public String toString() {
-        // TODO Auto-generated method stub
-        return super.toString();
+    public ApiProxyException(Status errorCode, String message, Throwable cause) {
+        super(errorCode, message, cause);
     }
 
     private static String readResponseMessage(ClientResponse resp)
@@ -40,7 +34,7 @@ public class ApiProxyException extends StorefrontException {
             }
             reader.close();
             in.close();
-            return out.toString();
+            return out.toString() + " (response code " + resp.getStatus() + ")";
         } catch (IOException e) {
             return null;
         }

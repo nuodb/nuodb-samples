@@ -10,7 +10,7 @@
 		<level value="info" />
 	</logger>
 	<logger name="org.hibernate">
-		<level value="error" />
+		<level value="off" />
 	</logger>
 	<root>
 		<level value="warn" />

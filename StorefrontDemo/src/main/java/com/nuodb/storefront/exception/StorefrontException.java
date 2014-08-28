@@ -9,13 +9,17 @@ public abstract class StorefrontException extends RuntimeException {
 
     private final Status errorCode;
 
-    public StorefrontException(Status errorCode, String message) {
-        super(message);
+    public StorefrontException(Status errorCode, String message, Throwable cause) {
+        super(message, cause);
         this.errorCode = errorCode;
+    }
+    
+    public StorefrontException(Status errorCode, String message) {
+        this(errorCode, message, null);
     }
 
     public StorefrontException(Status errorCode) {
-        this(errorCode, null);
+        this(errorCode, null, null);
     }
 
     public Status getErrorCode() {

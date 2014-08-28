@@ -32,7 +32,7 @@
 								</tr>
 							{{/result}}
 							{{#unless result}}
-								<tr><td colspan="4">Node information is not available.  You may not be connected to a running NuoDB database.</td></tr>                                
+								<tr><td colspan="4">No processes associated with the Storefront database are currently running.</td></tr>                                
 							{{/unless}}
 						</tbody>
 					</table>

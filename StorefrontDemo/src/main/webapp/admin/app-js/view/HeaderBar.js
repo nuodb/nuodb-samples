@@ -20,44 +20,50 @@ Ext.define('App.view.HeaderBar', {
     initComponent: function() {
         var me = this;
         var clickHandler = Ext.bind(me.onViewButtonClick, me);
+        var changeHandler = Ext.bind(me.onChange, me);
 
         me.items = [{
             xtype: 'metricwell',
             text: '<b>Users</b>',
-            icon: 'ico-users.png',            
+            icon: 'ico-users.png',
             metric: 'workloadStats.all.activeWorkerCount',
             itemId: 'metrics-users',
             input: 'spinner',
             flex: 0.7,
             listeners: {
-                click: clickHandler
+                click: clickHandler,
+                change: changeHandler
             }
         }, {
             xtype: 'metricwell',
             text: '<b>Hosts</b><br />per region',
-            icon: 'ico-process.png',            
-            metric: 'workloadStats.all.activeWorkerCount',
+            icon: 'ico-process.png',
+            metric: 'dbStats.usedHostCount',
             itemId: 'metrics-hosts',
             input: 'slider',
+            inputMaxMetric: 'dbStats.hostCount',
             flex: 0.7,
             listeners: {
-                click: clickHandler
+                click: clickHandler,
+                change: changeHandler
             }
         }, {
             xtype: 'metricwell',
             text: '<b>Regions</b>',
-            icon: 'ico-pin.png',            
-            metric: 'workloadStats.all.activeWorkerCount',
+            icon: 'ico-pin.png',
+            metric: 'dbStats.usedRegionCount',
             itemId: 'metrics-regions',
             input: 'slider',
+            inputMaxMetric: 'dbStats.regionCount',
             flex: 0.7,
             listeners: {
-                click: clickHandler
+                click: clickHandler,
+                change: changeHandler
             }
         }, {
             xtype: 'metricwell',
             text: '<b>Throughput</b><br />transactions/sec',
-            icon: 'ico-dashboard.png',            
+            icon: 'ico-dashboard.png',
             format: ',.0',
             metric: 'transactionStats.all.totalCountDelta',
             itemId: 'metrics-throughput',
@@ -80,13 +86,15 @@ Ext.define('App.view.HeaderBar', {
             icon: 'ico-product.png',
             metric: 'storefrontStats.all.cartItemCount',
             itemId: 'metrics-storefront',
+            flex: 0.7,
             listeners: {
                 click: clickHandler
             }
         }];
 
         me.callParent(arguments);
-        me.btnShowStore = me.down('#btnShowStore');
+        me.btnHosts = me.down('[itemId=metrics-hosts]');
+        me.btnRegions = me.down('[itemId=metrics-regions]');
         me.viewButtons = Ext.ComponentQuery.query('button, metricwell', me);
 
         App.app.on('viewchange', function(viewName) {
@@ -102,5 +110,35 @@ Ext.define('App.view.HeaderBar', {
         var me = this;
         var viewName = btnActive.getItemId();
         App.app.fireEvent('viewchange', viewName);
+    },
+
+    onChange: function(btn, value) {
+        var me = this;
+        switch (btn.itemId) {
+            case 'metrics-users':
+                d = Ext.ComponentQuery.query('uxiframe')[0].getDoc()
+                $('input[type=number]:not([readonly])', d).each(function() {
+                    var currentVal = Math.max(0, parseInt($(this).val()));
+                    $(this).val((value > 0) ? currentVal + 10 : (value < 0) ? Math.max(0, currentVal - 10) : 0);
+                });
+                $('.btn-update', d).click();
+                
+                break;
+
+            case 'metrics-hosts':
+            case 'metrics-regions':
+                Ext.Ajax.request({
+                    url: App.app.apiBaseUrl + '/api/stats/db?numRegions=' + me.btnRegions.getInputValue() + "&numHosts=" + me.btnHosts.getInputValue(),
+                    method: 'PUT',
+                    scope: this,
+                    failure: function(response) {
+                        App.app.fireEvent('error', response, null);
+                    }
+                });
+                break;
+
+            default:
+                break;
+        }
     }
 });

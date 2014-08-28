@@ -70,10 +70,11 @@ Ext.define('App.view.Viewport', {
     onViewChange: function(viewName, isUserInitiated) {
         var me = this;
         var centerLayout = me.center.getLayout();
+        
+        url = me.getViewUrl(viewName);
 
-        if (viewName[0] == '/') {
+        if (url) {
             // Show URL of the view in an iframe
-            var url = '..' + viewName;
             if (isUserInitiated !== false) {
                 me.frameView.load(url);
             }
@@ -95,16 +96,20 @@ Ext.define('App.view.Viewport', {
     },
 
     getViewUrl: function(viewName) {
+        if (viewName[0] == '/') {
+            return '..' + viewName;
+        }
+        
         switch (viewName) {
             case 'welcome':
                 return '../welcome';
 
-            case 'control-panel':
-                return '../control-panel';
+            case 'metrics-hosts':
+                return '../control-panel-processes';
 
-            case 'storefront':
-                return '../products';
-
+            case 'metrics-regions':
+                return '../control-panel-regions';
+                
             default:
                 return null;
         }

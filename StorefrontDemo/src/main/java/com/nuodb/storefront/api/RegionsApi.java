@@ -19,7 +19,6 @@ public class RegionsApi extends BaseApi {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Region> getRegions() {
-        //DbConnInfo connInfo = StorefrontFactory.getDbConnInfo();
         return getDbApi().getRegions();
     }
 }

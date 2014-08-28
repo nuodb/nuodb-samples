@@ -11,7 +11,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.dbapi.Process;
 import com.nuodb.storefront.model.entity.Customer;
 
@@ -25,7 +24,7 @@ public class ControlPanelProcessesServlet extends BaseServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             // Fetch nodes data
-            List<Process> processes = getDbApi().getProcesses(StorefrontFactory.getDbConnInfo().getDbName());
+            List<Process> processes = getDbApi().getDbProcesses();
 
             // Fetch data the page needs
             Map<String, Object> pageData = new HashMap<String, Object>();

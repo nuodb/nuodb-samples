@@ -34,6 +34,7 @@ public class StorefrontApp {
     public static final String DEFAULT_DB_NAME = "Storefront";
     public static final String DEFAULT_DB_HOST = "localhost";
     public static final String DEFAULT_DB_TEMPLATE = "Geo-distributed";
+    public static final String DEFAULT_DB_PROCESS_TAG = "Storefront";
     public static final int DEFAULT_PORT = 8080;
     public static final String DEFAULT_URL = "http://{host}:{port}/{context}";
 

@@ -14,9 +14,7 @@ import org.apache.log4j.Logger;
 
 import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.StorefrontApp;
-import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.model.dto.Category;
-import com.nuodb.storefront.model.dto.DbConnInfo;
 import com.nuodb.storefront.model.dto.ProductFilter;
 import com.nuodb.storefront.model.entity.Customer;
 import com.nuodb.storefront.model.entity.Product;
@@ -58,6 +56,7 @@ public class ControlPanelProductsServlet extends BaseServlet {
                 doPostAction(req, resp, btnAction);
             }
         } catch (Exception ex) {
+            s_logger.error("Post failed", ex);
             addErrorMessage(req, ex);
         }
 
@@ -65,10 +64,7 @@ public class ControlPanelProductsServlet extends BaseServlet {
     }
     
     protected void doPostAction(HttpServletRequest req, HttpServletResponse resp, String btnAction) throws IOException {
-        if (btnAction.contains("create")) {
-            DbConnInfo connInfo = StorefrontFactory.getDbConnInfo();
-            getDbApi().createDatabase(connInfo.getDbName(), connInfo.getUsername(), connInfo.getPassword(), connInfo.getTemplate());
-        } else if (btnAction.contains("load")) {
+        if (btnAction.contains("load")) {
             StorefrontApp.loadData();
             addMessage(req, MessageSeverity.INFO, "Product data loaded successfully.");
             s_logger.info("Product data loaded");

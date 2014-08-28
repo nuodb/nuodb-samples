@@ -44,13 +44,18 @@ Ext.define('App.view.MetricWell', {
         });
 
         me.valueHistory = [];
+
+        if (me.input) {
+            me.cls += ' well-with-input';
+        }
+
         for ( var i = 0; i < me.maxHistory; i++) {
             me.valueHistory.push(null);
         }
 
         me.items = [{
             layout: 'absolute',
-            cls: 'btn' + (me.input ? ' btn-with-input' : ''),
+            cls: 'btn',
             itemId: 'btn',
             height: 80,
             flex: 1,
@@ -84,9 +89,15 @@ Ext.define('App.view.MetricWell', {
                         padding: '7 3 7 3',
                         vertical: true,
                         increment: 1,
-                        minValue: 0,
-                        maxValue: 5,
-                        layout: 'fit'
+                        minValue: 1,
+                        maxValue: 1,
+                        disabled: true,
+                        layout: 'fit',
+                        listeners: {
+                            changecomplete: function(slider, newValue) {
+                                me.fireEvent('change', me, newValue);
+                            }
+                        }
                     }
                 });
                 break;
@@ -98,13 +109,28 @@ Ext.define('App.view.MetricWell', {
                     vertical: true,
                     items: [{
                         iconCls: 'ico-up',
-                        tooltip: 'Increase simulated users by 5%'
+                        tooltip: 'Increase simulated users by 10 per workload, per region',
+                        listeners: {
+                            click: function() {
+                                me.fireEvent('change', me, 1);
+                            }
+                        }
                     }, {
                         iconCls: 'ico-down',
-                        tooltip: 'Decrease simulated users by 5%'
+                        tooltip: 'Decrease simulated users by 10 per workload, per region',
+                        listeners: {
+                            click: function() {
+                                me.fireEvent('change', me, -1);
+                            }
+                        }
                     }, ' ', {
                         iconCls: 'ico-cancel',
-                        tooltip: 'Stop all simulated users'
+                        tooltip: 'Stop all simulated users',
+                        listeners: {
+                            click: function() {
+                                me.fireEvent('change', me, 0);
+                            }
+                        }
                     }],
                     padding: '2 2 0 2'
                 });
@@ -123,12 +149,9 @@ Ext.define('App.view.MetricWell', {
             });
             el.on('mouseleave', function() {
                 el.removeCls('hover');
-                if (!me.pressed) {
-                    el.removeCls('active');
-                }
             });
             el.on('mousedown', function() {
-                el.addCls('active');
+                me.getEl().addCls('active');
             });
             el.on('mouseup', function() {
                 if (!me.pressed) {
@@ -136,6 +159,8 @@ Ext.define('App.view.MetricWell', {
                 }
             });
         });
+
+        me.inputSlider = me.down('[xtype=slider]');
 
         me.setValue(me.value);
         App.app.on('statschange', me.onStatsChange, me);
@@ -150,6 +175,10 @@ Ext.define('App.view.MetricWell', {
 
     getValue: function() {
         return this.value;
+    },
+
+    getInputValue: function() {
+        return !this.inputSlider ? null : this.inputSlider.getValue();
     },
 
     setValue: function(value) {
@@ -175,9 +204,9 @@ Ext.define('App.view.MetricWell', {
         if (me.pressed != state) {
             me.pressed = state;
             if (me.pressed) {
-                me.btn.getEl().addCls('active');
+                me.getEl().addCls('active');
             } else {
-                me.btn.getEl().removeCls('active');
+                me.getEl().removeCls('active');
             }
             if (suppressEvent !== true) {
                 me.fireEvent('click', me);
@@ -187,7 +216,15 @@ Ext.define('App.view.MetricWell', {
 
     onStatsChange: function(stats) {
         var me = this;
-        me.setValue(stats.getLatestValue(me.metric));
+        val = stats.getLatestValue(me.metric);
+        me.setValue(val);
+        if (me.inputSlider) {
+            var max = stats.getLatestValue(me.inputMaxMetric);
+            me.inputSlider.setMaxValue(max);
+            me.inputSlider.setDisabled(max <= 1);
+            me.inputSlider.setValue(val);
+        }
+
     },
 
     syncGraph: function() {

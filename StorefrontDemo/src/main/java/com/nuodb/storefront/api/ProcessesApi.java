@@ -12,9 +12,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.dbapi.Process;
-import com.nuodb.storefront.model.dto.DbConnInfo;
 
 @Path("/processes")
 public class ProcessesApi extends BaseApi {
@@ -24,8 +22,7 @@ public class ProcessesApi extends BaseApi {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Process> getProcesses() {
-        DbConnInfo connInfo = StorefrontFactory.getDbConnInfo();
-        return getDbApi().getProcesses(connInfo.getDbName());
+        return getDbApi().getDbProcesses();
     }
 
     @DELETE

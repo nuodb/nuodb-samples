@@ -7,6 +7,7 @@ public class DbConnInfo {
     private String username;
     private String password;
     private String template;
+    private String dbProcessTag;
 
     public DbConnInfo() {
     }
@@ -57,5 +58,13 @@ public class DbConnInfo {
 
     public void setTemplate(String template) {
         this.template = template;
+    }
+
+    public String getDbProcessTag() {
+        return dbProcessTag;
+    }
+
+    public void setDbProcessTag(String dbProcessTag) {
+        this.dbProcessTag = dbProcessTag;
     }
 }

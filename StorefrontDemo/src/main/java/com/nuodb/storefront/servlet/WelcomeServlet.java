@@ -13,6 +13,10 @@ import org.hibernate.exception.GenericJDBCException;
 import org.hibernate.exception.SQLGrammarException;
 
 import com.nuodb.storefront.StorefrontFactory;
+import com.nuodb.storefront.exception.ApiProxyException;
+import com.nuodb.storefront.exception.ApiUnavailableException;
+import com.nuodb.storefront.exception.DataValidationException;
+import com.nuodb.storefront.exception.DatabaseNotFoundException;
 import com.nuodb.storefront.model.dto.DbConnInfo;
 import com.nuodb.storefront.model.entity.Customer;
 import com.nuodb.storefront.model.type.MessageSeverity;
@@ -27,19 +31,20 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
         showPage(req, resp, "Welcome", "welcome", null, new Customer());
     }
 
-
     @Override
     protected void doPostAction(HttpServletRequest req, HttpServletResponse resp, String btnAction) throws IOException {
         if (btnAction.contains("create")) {
-            DbConnInfo connInfo = StorefrontFactory.getDbConnInfo();
-            getDbApi().createDatabase(connInfo.getDbName(), connInfo.getUsername(), connInfo.getPassword(), connInfo.getTemplate());
-        } else {
-            super.doPostAction(req, resp, btnAction);
+            getDbApi().createDatabase();
+        } else if (btnAction.contains("reconfigure")) {
+            getDbApi().fixDbSetup();
         }
+        super.doPostAction(req, resp, btnAction);
     }
 
     protected void doHealthCheck(HttpServletRequest req) {
         try {
+            getDbApi().validateDbSetup();
+
             try {
                 checkForProducts(req);
             } catch (SQLGrammarException e) {
@@ -52,15 +57,28 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
                     throw e;
                 }
             }
+        } catch (DatabaseNotFoundException e) {
+            DbConnInfo dbInfo = StorefrontFactory.getDbConnInfo();
+            addMessage(req, MessageSeverity.WARNING, "The " + dbInfo.getDbName() + " database does not yet exist.", "Create database");
+        } catch (DataValidationException e) {
+            addMessage(req, MessageSeverity.WARNING, e.getMessage(), "Reconfigure database");
         } catch (GenericJDBCException e) {
             s_logger.warn("Servlet handled JDBC error", e);
 
             // Database may not exist. Inform the user
             DbConnInfo dbInfo = StorefrontFactory.getDbConnInfo();
-            addMessage(req, MessageSeverity.INFO,
-                    "The Storefront database may not yet exist.  The Storefront is trying to connect to \""
+            addMessage(req, MessageSeverity.WARNING,
+                    "The " + dbInfo.getDbName() + " database may not yet exist.  The Storefront is trying to connect to \""
                             + dbInfo.getUrl() + "\" with the username \"" + dbInfo.getUsername() + "\".", "Create database");
 
+        } catch (ApiUnavailableException e) {
+            s_logger.error("Health check failed", e);
+            addMessage(req, MessageSeverity.ERROR,
+                    "Cannot connect to NuoDB RESTful API.  The Storefront is trying to connect to \""
+                            + getDbApi().getBaseUrl() + "\" with the username \"" + getDbApi().getAuthUser() + "\".");
+        } catch (ApiProxyException e) {
+            s_logger.error("Health check failed", e);
+            addMessage(req, MessageSeverity.ERROR, "NuoDB RESTful API at " + getDbApi().getBaseUrl() + " returned an error:  " + e.getMessage());
         }
     }
 }

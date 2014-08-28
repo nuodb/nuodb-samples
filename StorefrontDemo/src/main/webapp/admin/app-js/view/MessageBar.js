@@ -64,7 +64,8 @@ Ext.define('App.view.MessageBar', {
 
         App.app.on('statschange', me.onStatsChange, me);
         App.app.on('statsfail', me.onStatsFail, me);
-        App.app.on('heavyload', me.onHeavyLoad, me);
+        App.app.on('heavyload', me.onError, me);
+        App.app.on('error', me.onError, me);
     },
 
     onStatsChange: function() {
@@ -89,11 +90,18 @@ Ext.define('App.view.MessageBar', {
         }
     },
 
-    onHeavyLoad: function(response, instance) {
+    onError: function(response, instance) {
         var me = this;
-        me.addMessage(response.responseJson.message, instance, response.responseJson.ttl);
+        var msg = '';
+        var ttl = null;
+        try {
+            msg = (response.responseJson || Ext.decode(response.responseText)).message;
+            ttl = (response.responseJson) ? response.responseJson.ttl : 0;
+        } catch (e) {
+        }        
+        me.addMessage(msg, instance, ttl);
     },
-
+    
     addMessage: function(msg, instance, ttl) {
         var me = this;
 

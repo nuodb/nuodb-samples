@@ -52,5 +52,5 @@ public interface ISimulatorService {
 
     public Map<WorkloadStep, WorkloadStepStats> getWorkloadStepStats();
 
-    public StorefrontStatsReport getStorefrontStatsReport(Integer sessionTimeoutSec, boolean includeStorefront);
+    public StorefrontStatsReport getStorefrontStatsReport(Integer sessionTimeoutSec);
 }

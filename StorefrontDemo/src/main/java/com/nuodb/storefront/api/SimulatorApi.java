@@ -63,7 +63,7 @@ public class SimulatorApi extends BaseApi {
                 Workload workload = simulator.getWorkload(workloadName);
                 if (workload != null) {
                     if (workload.getMaxWorkers() > 0 && quantity > workload.getMaxWorkers()) {
-                        messages.add(new Message(MessageSeverity.ALERT, workload.getName() + " is limited to " + workload.getMaxWorkers()
+                        messages.add(new Message(MessageSeverity.WARNING, workload.getName() + " is limited to " + workload.getMaxWorkers()
                                 + " users; number of users set accordingly."));
                         quantity = workload.getMaxWorkers();
                         alertCount++;

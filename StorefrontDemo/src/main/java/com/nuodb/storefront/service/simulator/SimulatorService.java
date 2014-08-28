@@ -168,7 +168,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     }
 
     @Override
-    public StorefrontStatsReport getStorefrontStatsReport(Integer sessionTimeoutSec, boolean includeStorefront) {
+    public StorefrontStatsReport getStorefrontStatsReport(Integer sessionTimeoutSec) {
         StorefrontStatsReport report = new StorefrontStatsReport();
 
         StorefrontApp.APP_INSTANCE.setCpuUtilization(PerformanceUtil.getCpuUtilization());
@@ -178,12 +178,6 @@ public class SimulatorService implements ISimulator, ISimulatorService {
         report.setTransactionStats(svc.getTransactionStats());
         report.setWorkloadStats(getWorkloadStats());
         report.setWorkloadStepStats(getWorkloadStepStats());
-
-        // Storefront stats are expensive to fetch (DB query required), so only fetch them if specifically requested
-        if (includeStorefront) {
-            int maxCustomerIdleTimeSec = (sessionTimeoutSec == null) ? StorefrontApp.DEFAULT_SESSION_TIMEOUT_SEC : sessionTimeoutSec;
-            report.setStorefrontStats(svc.getStorefrontStatsByRegion(maxCustomerIdleTimeSec));
-        }
 
         return report;
     }

@@ -26,12 +26,11 @@
             var uid = row$.attr('data-uid');
             $.ajax({
                 method: 'DELETE',
-                url: 'api/db-nodes/' + uid
+                url: 'api/processes/' + uid
             }).fail(function(xhr, status, statusMsg) {
                 if (xhr.status == 200) {
                     // Not actually an error, jQuery just couldn't parse the empty response
                     row$.fadeOut();
-                    autoUpdateNodeList();
                 } else {
                     var msg;
                     try {
@@ -44,9 +43,9 @@
         });
 
         var transformProcessList = function(processes) {
-            // Sort by region, then type, then address
+            // Sort by region, then host, then type
             processes.sort(function(a, b) {
-                return compare(a.region, b.region) || compare(a.type, b.type) || compare(a.address, b.address);
+                return compare(a.region, b.region) || compare(a.address, b.address) || compare(a.type, b.type);
             });
 
             // Apply icon based on type
@@ -97,9 +96,9 @@
                 method: 'GET',
                 url: updateUrl,
                 cache: false
-            }).success(function(items) {
+            }).done(function(items) {
                 render(items);
-            }).done(function() {
+            }).always(function() {
                 setTimeout(autoUpdate, LIST_UPDATE_INTERVAL_MS);
             });
         };

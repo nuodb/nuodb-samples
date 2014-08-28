@@ -202,14 +202,14 @@ public abstract class BaseServlet extends HttpServlet {
             // Tables could be missing or bad. This could happen if a user re-creates the Storefront DB while it's running. Try repairing.
             try {
                 StorefrontFactory.createSchema();
-                addMessage(req, MessageSeverity.ALERT, "The Storefront schema has been updated.  One or more tables were missing or out of date.",
+                addMessage(req, MessageSeverity.WARNING, "The Storefront schema has been updated.  One or more tables were missing or out of date.",
                         "Refresh page");
             } catch (Exception e) {
                 // Repair didn't work
             }
         }
         Customer customer = (Customer) req.getAttribute(ATTR_CUSTOMER);
-        showPage(req, resp, "Storefront Problem", "error", null, (customer == null) ? new Customer() : customer);
+        showPage(req, resp, "Storefront Problem", "welcome", null, (customer == null) ? new Customer() : customer);
 
         s_logger.warn("Servlet handled critical error", ex);
     }

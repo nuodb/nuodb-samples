@@ -60,7 +60,7 @@ public class StorefrontFactory {
         String dbPassword = System.getProperty("storefront.db.password");
         String dbOptions = System.getProperty("storefront.db.options");
         if (dbName != null) {
-            dbName = dbName.replace("{domain.broker}", System.getProperty("domain.broker"));
+            dbName = dbName.replace("{domain.broker}", System.getProperty("domain.broker", "localhost"));
 
             Matcher dbNameMatcher = Pattern.compile("([^@]*)@([^@:]*(?::\\d+|$))").matcher(dbName);
             if (!dbNameMatcher.matches()) {
@@ -102,6 +102,7 @@ public class StorefrontFactory {
         info.setUsername(s_configuration.getProperty(Environment.USER));
         info.setPassword(s_configuration.getProperty(Environment.PASS));
         info.setTemplate(System.getProperty("storefront.db.template", StorefrontApp.DEFAULT_DB_TEMPLATE));
+        info.setDbProcessTag(System.getProperty("storefront.db.processTag", StorefrontApp.DEFAULT_DB_PROCESS_TAG));
         return info;
     }
 
@@ -143,7 +144,7 @@ public class StorefrontFactory {
         String user = System.getProperty("storefront.dbapi.user", "domain");
         String password = System.getProperty("storefront.dbapi.password", "bird");
         String port = System.getProperty("storefront.dbapi.port", "8888");
-        return new DbApi("http://" + host + ":" + port, user, password);
+        return new DbApi("http://" + host + ":" + port + "/api/1", user, password, connInfo);
     }
 
     public static IStorefrontDao createStorefrontDao() {

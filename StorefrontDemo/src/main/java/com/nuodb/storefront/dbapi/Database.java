@@ -2,13 +2,16 @@
 
 package com.nuodb.storefront.dbapi;
 
+import java.util.Map;
+
 public class Database {
+    public String name;
     public boolean active;
     public boolean ismet;
-    public String name;
     public Process[] processes;
-    public String status;
+    public String status;    
     public String username;
     public String password;
-    public Object template;
+    public Object template;  // string on POST/PUT, map on GET
+    public Map<String, String> variables;
 }

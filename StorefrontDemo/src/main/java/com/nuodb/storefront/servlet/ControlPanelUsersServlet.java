@@ -22,7 +22,7 @@ public class ControlPanelUsersServlet extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            StorefrontStatsReport stats = getSimulator().getStorefrontStatsReport(null, true);
+            StorefrontStatsReport stats = getSimulator().getStorefrontStatsReport(null);
             Map<String, Object> pageData = new HashMap<String, Object>();
             pageData.put("stats", stats);
 

@@ -2,6 +2,9 @@
 
 @import "../../css/prefixer";
 
+@activeBorderColor: #555;
+@inactiveBorderColor: #ccc;
+
 .x-body {
     background-color: #fff;
 }
@@ -69,17 +72,8 @@
 		.border-radius(5px);
 		cursor: pointer;		
 		
-		&.active {
-			border-color: #444;
-			.box-shadow(inset 0 15px 20px -10px rgba(0,0,0,0.2));
-		}		
-		
 		&.hover {
 			background-color: #fafafa;
-		}
-		
-		&.btn-with-input {
-			.border-radius(5px 0 0 5px);
 		}
 	}
 	
@@ -142,10 +136,32 @@
 	}
 	
 	.btn-input {
-		border: 1px solid #ccc;
+		border: 1px solid @inactiveBorderColor;
 		border-left-width: 0;
 		background-color: #eee;
 		.border-radius(0 5px 5px 0);
+	}
+	
+	&.active .btn {
+		border-color: @activeBorderColor;
+		.box-shadow(inset 0 15px 20px -10px rgba(0,0,0,0.2));
+	}
+		
+	&.well-with-input {
+		.btn {
+			.border-radius(5px 0 0 5px);
+			border-right-color: @inactiveBorderColor;
+		}
+		
+		&.active {
+			.btn {
+				border-right-color: @inactiveBorderColor;
+			}
+			
+			.btn-input {
+				border-color: @activeBorderColor;
+			}
+		}	
 	}
 }
 

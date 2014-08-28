@@ -7,14 +7,12 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-import org.apache.log4j.Logger;
-
 import com.nuodb.storefront.exception.StorefrontException;
 import com.nuodb.storefront.model.dto.Message;
 
 @Provider
 public class ExceptionProvider implements ExceptionMapper<RuntimeException> {
-    private static final Logger s_logger = Logger.getLogger(ExceptionProvider.class.getName());
+    //private static final Logger s_logger = Logger.getLogger(ExceptionProvider.class.getName());
 
     public ExceptionProvider() {
     }
@@ -31,7 +29,7 @@ public class ExceptionProvider implements ExceptionMapper<RuntimeException> {
             errorCode = Status.INTERNAL_SERVER_ERROR;
         }
 
-        s_logger.warn("API exception provider handling RuntimeException with HTTP status " + errorCode.getStatusCode(), exception);
+        //s_logger.warn("API exception provider handling RuntimeException with HTTP status " + errorCode.getStatusCode(), exception);
 
         return Response.status(errorCode).entity(new Message(exception)).build();
     }
