@@ -116,13 +116,12 @@ Ext.define('App.view.HeaderBar', {
         var me = this;
         switch (btn.itemId) {
             case 'metrics-users':
-                d = Ext.ComponentQuery.query('uxiframe')[0].getDoc()
-                $('input[type=number]:not([readonly])', d).each(function() {
-                    var currentVal = Math.max(0, parseInt($(this).val()));
-                    $(this).val((value > 0) ? currentVal + 10 : (value < 0) ? Math.max(0, currentVal - 10) : 0);
-                });
-                $('.btn-update', d).click();
-                
+                if (!me.adjustUserLoad(value)) {
+                    App.app.fireEvent('viewchange', '/control-panel-users');
+                    App.app.on('viewchange', function(viewName) {
+                        me.adjustUserLoad(value);
+                    }, me, { single: true });
+                }
                 break;
 
             case 'metrics-hosts':
@@ -139,6 +138,26 @@ Ext.define('App.view.HeaderBar', {
 
             default:
                 break;
+        }
+    },
+    
+    adjustUserLoad: function(value) {
+        try {
+            var doc = Ext.ComponentQuery.query('uxiframe')[0].getDoc();
+            if ($('#table-regions', doc).length == 0) {
+                return false;
+            }
+            
+            $('input[type=number]:not([readonly])', doc).each(function() {
+                var currentVal = Math.max(0, parseInt($(this).val()));
+                $(this).val((value > 0) ? currentVal + 10 : (value < 0) ? Math.max(0, currentVal - 10) : 0);
+            });
+            
+            App.app.fireEvent('viewchange', '/control-panel-users', false);  // show the page but don't load it
+            $('.btn-update', doc).click();
+            return true;
+        } catch (e) {
+            return false;
         }
     }
 });

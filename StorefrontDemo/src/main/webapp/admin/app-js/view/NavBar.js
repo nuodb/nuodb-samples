@@ -45,7 +45,7 @@ Ext.define('App.view.NavBar', {
     }, {
         title: 'Control Panel'
     }, {
-        title: 'Users',
+        title: 'Simulated users',
         href: '/control-panel-users',
         icon: 'ico-users.png'
     }, {

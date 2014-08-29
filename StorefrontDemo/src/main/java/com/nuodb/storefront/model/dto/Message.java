@@ -8,6 +8,7 @@ public class Message {
     private MessageSeverity severity;
     private String message;
     private String[] buttons;
+    private MessageLink[] links;
 
     public Message() {
     }
@@ -44,5 +45,21 @@ public class Message {
 
     public void setButtons(String[] buttons) {
         this.buttons = buttons;
+    }
+
+    public MessageLink[] getLinks() {
+        return links;
+    }
+
+    public void setLinks(MessageLink[] links) {
+        this.links = links;
+    }
+    
+    public void setLink(MessageLink link) {
+        if (link == null) {
+            this.links = null;
+        } else {
+            this.links = new MessageLink[] { link };
+        }
     }
 }

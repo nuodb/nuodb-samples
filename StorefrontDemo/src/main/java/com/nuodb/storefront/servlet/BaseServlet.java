@@ -128,12 +128,16 @@ public abstract class BaseServlet extends HttpServlet {
         return filter;
     }
 
-    public static void addErrorMessage(HttpServletRequest req, Exception e) {
-        getMessages(req).add(new Message(e));
+    public static Message addErrorMessage(HttpServletRequest req, Exception e) {
+        Message msg = new Message(e);
+        getMessages(req).add(msg);
+        return msg;
     }
 
-    public static void addMessage(HttpServletRequest req, MessageSeverity severity, String message, String... buttons) {
-        getMessages(req).add(new Message(severity, message, buttons));
+    public static Message addMessage(HttpServletRequest req, MessageSeverity severity, String message, String... buttons) {
+        Message msg = new Message(severity, message, buttons);
+        getMessages(req).add(msg);
+        return msg;
     }
 
     public static List<Message> getMessages(HttpServletRequest req) {

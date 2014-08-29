@@ -24,6 +24,14 @@
 							{{/buttons}}
 						</p>
 					{{/if}}
+
+					{{#if links}}
+						<p>
+							{{#links}}
+								<a class="btn btn-{{lowerCaseFormat ../severity}}" href="{{href}}" target="_blank">{{text}}</a>
+							{{/links}}
+						</p>
+					{{/if}}
                 </div>
 
 				{{#if buttons}}

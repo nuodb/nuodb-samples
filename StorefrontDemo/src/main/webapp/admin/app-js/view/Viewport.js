@@ -42,13 +42,12 @@ Ext.define('App.view.Viewport', {
                     load: function() {
                         try {
                             var url = this.getWin().document.location.href.split('/');
-                            App.app.fireEvent('viewchange', '/' + url[url.length - 1], false)
+                            App.app.fireEvent('viewchange', '/' + url[url.length - 1], false);
                         } catch (e) {                            
                         }
                     }
                 }
             }, {
-                region: 'center',
                 layout: 'card',
                 itemId: 'metricsView',
                 padding: '20'

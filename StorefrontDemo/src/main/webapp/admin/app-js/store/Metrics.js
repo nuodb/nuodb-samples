@@ -29,8 +29,8 @@ Ext.define('App.store.Metrics', {
            //{ category0: 'storefrontStats', name: 'purchaseItemCount', aggregate: true, view: 'metrics-storefront', title: 'Total Items Purchased', unit: 'Items' },
            
            // Simulator metrics
-           { category0: 'workloadStats', name: 'activeWorkerCount', defaultCategoryIdx: 1, view: 'metrics-users', title: 'Active Simulated Users', unit: 'Users', groupBy0: 'Workload', category1: 'regionWorkloadStats', groupBy1: 'Region' },
-           { category0: 'workloadStepStats', name: 'completionCountDelta', defaultCategoryIdx: 1, view: 'metrics-users', title: 'Simulated Steps per Second', unit: 'Steps/second', groupBy0: 'Workload Step', category1: 'regionWorkloadStepStats', groupBy1: 'Region'  }
+           { category0: 'workloadStats', name: 'activeWorkerCount', defaultCategoryIdx: 0, view: 'metrics-users', title: 'Active Simulated Users', unit: 'Users', groupBy0: 'Workload', category1: 'regionWorkloadStats', groupBy1: 'Region' },
+           { category0: 'workloadStepStats', name: 'completionCountDelta', defaultCategoryIdx: 0, view: 'metrics-users', title: 'Simulated Steps per Second', unit: 'Steps/second', groupBy0: 'Workload Step', category1: 'regionWorkloadStepStats', groupBy1: 'Region'  }
            //{ category0: 'workloadStepStats', name: 'completionCount', aggregate: false, view: 'metrics-simulator', title: 'Total Steps Completed', unit: 'Steps' },
            //{ category0: 'workloadStats', name: 'avgWorkTimeMs', aggregate: false, view: 'metrics-simulator', title: 'Average Seconds per Step', unit: 'Seconds/step' }
     ]

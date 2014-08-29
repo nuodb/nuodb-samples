@@ -470,7 +470,9 @@
                         instance.workloadStats = data.workloadStats;
                         recalcCustomerStats();
                     }).fail(function() {
-                        failedInstances.push(instance.url);
+                        if (response.status != 0) { // ignore aborts due to page reloading
+                            failedInstances.push(instance.url);
+                        }
                     }).always(function() {
                         if (--changeCounts[region.regionName] == 0) {
                             btn$.removeAttr('disabled').text('Update');

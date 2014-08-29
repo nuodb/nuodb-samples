@@ -542,3 +542,81 @@ th.text-center, td.text-center {
 .label-color-13 	{ background-color: #97aea0 !important; }
 .label-color-14 	{ background-color: #b0c3c9 !important; }
 .label-color-real  	{ background-color: #777 !important; }
+
+.tour-figure {
+	margin-bottom: 50px;
+	
+	h3 {
+		font-size: 15px;
+		line-height: 20px;
+		text-align: center;
+		height: 40px;
+		margin-bottom: 15px;
+	}
+	
+	.thumbnail {
+		position: relative;
+		
+		> .caption { 
+			text-transform: uppercase;
+			color: #769fc3;
+			font-weight: bold;
+			font-size: 12px;
+			position: absolute;
+			left: 0;
+			top: -5px;
+			
+			&.text-right {
+				right: 0;
+				left: auto;
+			}
+			
+			&.text-center {
+				right: 0;
+			}
+		}
+	}
+	
+	.span1 {
+		height: 155px;
+		background: transparent url(../img/tour-arrow.png) 50% bottom no-repeat;
+	}
+
+	&.tall {
+		h3 { 
+			height: 60px;
+		}
+		
+		.span1 {
+			height: 175px;
+		}
+	}	
+}
+
+.tour-steps {
+	list-item-style: none;
+    counter-reset: li;
+	
+	> li {
+		margin-top: 15px;
+	    position:relative;
+	    list-style:none;
+	    padding-left: 2px;
+	    
+	    &:before {
+		    content: counter(li);
+		    counter-increment: li;
+		    position:absolute;
+		    top:-2px;
+		    left:-2em;
+		    background-color: #444;
+		    color: #eee;
+		    .border-radius(9px);
+		    width: 18px;
+		    height: 18px;
+		    text-align: center;
+		    font-weight: bold;
+		    font-size: 12px;    
+	    }
+	}
+}
