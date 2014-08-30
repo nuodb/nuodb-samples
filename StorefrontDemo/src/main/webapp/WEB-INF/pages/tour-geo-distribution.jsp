@@ -5,7 +5,7 @@
 <t:page showHeader="false">
     <h1>Geo-distribution</h1>
     
-    <div class="row-fluid tour-figure">
+    <div class="row-fluid tour-figure tall">
         <div class="span2">
             <h3>When you add regions...</h3>
             <div class="thumbnail">

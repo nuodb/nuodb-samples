@@ -309,6 +309,7 @@ public class DbApi implements IDbApi {
             while (!unusedHosts.isEmpty() && usedHosts.size() < numHosts) {
                 Host addedHost = unusedHosts.remove(rnd.nextInt(unusedHosts.size()));
                 addHostTag(addedHost, dbProcessTag, "1");
+                usedHosts.add(addedHost);
             }
         }
 
@@ -316,7 +317,7 @@ public class DbApi implements IDbApi {
     }
 
     protected void addHostTag(Host host, String tagName, String tagValue) {
-        s_logger.info("Adding tag '" + tagName + "' from host " + host.address + " (id=" + host.id + ")");
+        s_logger.info("Adding tag '" + tagName + "' to host " + host.address + " (id=" + host.id + ")");
 
         Tag tag = new Tag();
         tag.key = tagName;
@@ -390,7 +391,7 @@ public class DbApi implements IDbApi {
         for (Region region : regions) {
             dbStats.hostCount = Math.max(region.hostCount, dbStats.hostCount);
             dbStats.usedHostCount = Math.max(region.usedHostCount, dbStats.usedHostCount);
-            if (dbStats.usedHostCount > 0) {
+            if (region.usedHostCount > 0) {
                 dbStats.usedRegionCount++;
             }
         }
