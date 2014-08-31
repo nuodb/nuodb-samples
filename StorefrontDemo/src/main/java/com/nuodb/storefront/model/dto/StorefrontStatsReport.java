@@ -14,7 +14,7 @@ public class StorefrontStatsReport {
     private Map<String, TransactionStats> transactionStats;
     private Map<String, WorkloadStats> workloadStats;
     private Map<WorkloadStep, WorkloadStepStats> workloadStepStats;
-    private DbStats dbStats;
+    private DbFootprint dbStats;
 
     public StorefrontStatsReport() {
     }
@@ -67,11 +67,11 @@ public class StorefrontStatsReport {
         this.workloadStepStats = workloadStepStats;
     }
 
-    public DbStats getDbStats() {
+    public DbFootprint getDbStats() {
         return dbStats;
     }
 
-    public void setDbStats(DbStats dbStats) {
+    public void setDbStats(DbFootprint dbStats) {
         this.dbStats = dbStats;
     }
 }

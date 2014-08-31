@@ -8,6 +8,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.hibernate.cfg.Configuration;
@@ -17,7 +18,7 @@ import org.hibernate.tool.hbm2ddl.SchemaExport;
 import com.nuodb.storefront.dal.IStorefrontDao;
 import com.nuodb.storefront.dal.StorefrontDao;
 import com.nuodb.storefront.dal.UpperCaseNamingStrategy;
-import com.nuodb.storefront.dbapi.DbApi;
+import com.nuodb.storefront.dbapi.DbApiProxy;
 import com.nuodb.storefront.dbapi.IDbApi;
 import com.nuodb.storefront.model.dto.DbConnInfo;
 import com.nuodb.storefront.service.IDataGeneratorService;
@@ -29,6 +30,7 @@ import com.nuodb.storefront.service.simulator.SimulatorService;
 import com.nuodb.storefront.service.storefront.AppInstanceInitService;
 import com.nuodb.storefront.service.storefront.HeartbeatService;
 import com.nuodb.storefront.service.storefront.StorefrontService;
+import com.nuodb.storefront.servlet.WelcomeServlet;
 
 /**
  * Factory for creating Storefront services and schema managers. To keep code in this demo straightforward, this factory is used in lieu of dependency
@@ -38,7 +40,8 @@ public class StorefrontFactory {
     private static final Configuration s_configuration;
     private static volatile SessionFactory s_sessionFactory;
     private static volatile ISimulatorService s_simulator;
-
+    private static final Logger s_logger = Logger.getLogger(WelcomeServlet.class.getName());
+    
     static {
         s_configuration = new Configuration();
         s_configuration.setNamingStrategy(new UpperCaseNamingStrategy());
@@ -51,8 +54,8 @@ public class StorefrontFactory {
                 overrides.load(new FileInputStream(propertyFile));
                 System.getProperties().putAll(overrides);
             }
-        } catch (Exception x) {
-            ;
+        } catch (Exception e) {
+            s_logger.warn("Failed to read properties file", e);
         }
 
         String dbName = System.getProperty("storefront.db.name");
@@ -101,7 +104,6 @@ public class StorefrontFactory {
         }
         info.setUsername(s_configuration.getProperty(Environment.USER));
         info.setPassword(s_configuration.getProperty(Environment.PASS));
-        info.setTemplate(System.getProperty("storefront.db.template", StorefrontApp.DEFAULT_DB_TEMPLATE));
         info.setDbProcessTag(System.getProperty("storefront.db.processTag", StorefrontApp.DEFAULT_DB_PROCESS_TAG));
         return info;
     }
@@ -144,7 +146,7 @@ public class StorefrontFactory {
         String user = System.getProperty("storefront.dbapi.user", "domain");
         String password = System.getProperty("storefront.dbapi.password", "bird");
         String port = System.getProperty("storefront.dbapi.port", "8888");
-        return new DbApi("http://" + host + ":" + port + "/api/1", user, password, connInfo);
+        return new DbApiProxy("http://" + host + ":" + port + "/api/1", user, password, connInfo);
     }
 
     public static IStorefrontDao createStorefrontDao() {

@@ -2,13 +2,9 @@
 
 package com.nuodb.storefront.dbapi;
 
-public class Region {
-    public String region;
+import com.nuodb.storefront.model.dto.RegionStats;
+
+public class Region extends RegionStats {
     public Database[] databases;
     public Host[] hosts;
-    
-    public int usedHostCount;
-    public int hostCount;
-    public int transactionManagerCount;
-    public int storageManagerCount;
 }

@@ -2,6 +2,7 @@
 
 package com.nuodb.storefront.api;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.GET;
@@ -12,7 +13,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.nuodb.storefront.StorefrontApp;
-import com.nuodb.storefront.model.dto.DbStats;
+import com.nuodb.storefront.model.dto.DbFootprint;
+import com.nuodb.storefront.model.dto.RegionStats;
 import com.nuodb.storefront.model.dto.StorefrontStats;
 import com.nuodb.storefront.model.dto.StorefrontStatsReport;
 import com.nuodb.storefront.model.dto.TransactionStats;
@@ -40,7 +42,7 @@ public class StatsApi extends BaseApi {
             }
         }
 
-        rpt.setDbStats(getDbApi().getDbStats());
+        rpt.setDbStats(getDbApi().getDbFootprint());
 
         clearWorkloadProperty(rpt.getWorkloadStats());
 
@@ -79,17 +81,24 @@ public class StatsApi extends BaseApi {
     @GET
     @Path("/db")
     @Produces(MediaType.APPLICATION_JSON)
-    public DbStats getDbStats() {
-        return getDbApi().getDbStats();
+    public DbFootprint getDbStats() {
+        return getDbApi().getDbFootprint();
     }
 
     @PUT
     @Path("/db")
     @Produces(MediaType.APPLICATION_JSON)
-    public DbStats getDbStats(@QueryParam("numRegions") Integer numRegions, @QueryParam("numHosts") Integer numHosts) {
+    public DbFootprint getDbStats(@QueryParam("numRegions") Integer numRegions, @QueryParam("numHosts") Integer numHosts) {
         return getDbApi().setDbFootprint(numRegions.intValue(), numHosts.intValue());
     }
 
+    @GET
+    @Path("/regions")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<RegionStats> getRegionStats() {
+        return getDbApi().getRegionStats();
+    }
+    
     protected Map<String, WorkloadStats> clearWorkloadProperty(Map<String, WorkloadStats> statsMap)
     {
         // Clear unnecessary workload property to reduce payload size by ~25%

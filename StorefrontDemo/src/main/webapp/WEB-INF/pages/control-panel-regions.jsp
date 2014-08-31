@@ -13,18 +13,18 @@
                         <thead>
                             <tr>
                                 <th>Region</th>
-                                <th>Hosts in use</th>
-                                <th>Transaction engines</th>
-                                <th>Storage managers</th>
+                                <th class="text-center">Hosts in use</th>
+                                <th class="text-center">Transaction engines</th>
+                                <th class="text-center">Storage managers</th>
                             </tr>
                         </thead>
                         <tbody>
                             {{#result}}
                                 <tr>
                                     <td>{{region}}</td>
-                                    <td>{{usedHostCount}} of {{hostCount}}</td>
-                                    <td>{{transactionManagerCount}}</td>
-                                    <td>{{storageManagerCount}}</td>                                    
+                                    <td class="text-center">{{progressBar usedHostCount hostCount}} &nbsp; {{usedHostCount}} of {{hostCount}}</td>
+                                    <td class="text-center">{{transactionManagerCount}}</td>
+                                    <td class="text-center">{{storageManagerCount}}</td>                                    
                                 </tr>
                             {{/result}}
                         </tbody>

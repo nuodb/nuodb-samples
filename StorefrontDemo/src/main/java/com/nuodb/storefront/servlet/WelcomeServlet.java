@@ -15,7 +15,6 @@ import org.hibernate.exception.SQLGrammarException;
 import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.exception.ApiProxyException;
 import com.nuodb.storefront.exception.ApiUnavailableException;
-import com.nuodb.storefront.exception.DataValidationException;
 import com.nuodb.storefront.exception.DatabaseNotFoundException;
 import com.nuodb.storefront.model.dto.DbConnInfo;
 import com.nuodb.storefront.model.entity.Customer;
@@ -34,16 +33,14 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
     @Override
     protected void doPostAction(HttpServletRequest req, HttpServletResponse resp, String btnAction) throws IOException {
         if (btnAction.contains("create")) {
-            getDbApi().createDatabase();
-        } else if (btnAction.contains("reconfigure")) {
-            getDbApi().fixDbSetup();
+            getDbApi().fixDbSetup(true);
         }
         super.doPostAction(req, resp, btnAction);
     }
 
     protected void doHealthCheck(HttpServletRequest req) {
         try {
-            getDbApi().validateDbSetup();
+            getDbApi().fixDbSetup(false);
 
             try {
                 checkForProducts(req);
@@ -60,8 +57,6 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
         } catch (DatabaseNotFoundException e) {
             DbConnInfo dbInfo = StorefrontFactory.getDbConnInfo();
             addMessage(req, MessageSeverity.WARNING, "The " + dbInfo.getDbName() + " database does not yet exist.", "Create database");
-        } catch (DataValidationException e) {
-            addMessage(req, MessageSeverity.WARNING, e.getMessage(), "Reconfigure database");
         } catch (GenericJDBCException e) {
             s_logger.warn("Servlet handled JDBC error", e);
 

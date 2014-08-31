@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 NuoDB, Inc. */
+/* Copyright (c) 2013-2014 NuoDB, Inc. */
 
 /**
  * This file defines custom formatting "helpers" for use with the Handlebars template system, as well as other prototype and global methods.
@@ -84,6 +84,11 @@ Handlebars.registerHelper('priceFormat', function(price) {
     }
 
     return symbol + price.format(2);
+});
+
+Handlebars.registerHelper('progressBar', function(val1, val2) {
+    var pct = val1 / val2 * 100;
+    return new Handlebars.SafeString('<div class="progress progress-inline"><div class="bar" style="width:' + pct + '%"></div></div>');
 });
 
 Handlebars.registerHelper('currencyFormat', function(currency) {

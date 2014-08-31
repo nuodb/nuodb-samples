@@ -6,7 +6,6 @@ public class DbConnInfo {
     private String dbName;
     private String username;
     private String password;
-    private String template;
     private String dbProcessTag;
 
     public DbConnInfo() {
@@ -50,14 +49,6 @@ public class DbConnInfo {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getTemplate() {
-        return template;
-    }
-
-    public void setTemplate(String template) {
-        this.template = template;
     }
 
     public String getDbProcessTag() {

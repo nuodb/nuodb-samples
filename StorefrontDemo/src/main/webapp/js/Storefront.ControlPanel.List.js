@@ -77,7 +77,7 @@
 
     Storefront.initControlPanelRegionsPage = function(regions) {
         g_app = this;
-        renderList(regions, 'api/regions', null);
+        renderList(regions, 'api/stats/regions', null);
     }
 
     function renderList(origItems, updateUrl, transformFunc) {

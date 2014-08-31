@@ -2,7 +2,7 @@
 
 package com.nuodb.storefront.model.dto;
 
-public class DbStats {
+public class DbFootprint {
     public int hostCount;
     public int usedHostCount;
     public int regionCount;
