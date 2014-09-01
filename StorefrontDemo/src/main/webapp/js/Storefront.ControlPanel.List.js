@@ -8,11 +8,13 @@
     var g_app;
     var g_lastItems = null;
 
-    Storefront.initControlPanelProductsPage = function(productInfo) {
+    Storefront.initControlPanelProductsPage = function(stats) {
         g_app = this;
-        g_app.TemplateMgr.applyTemplate('tpl-product-info', '#product-info', productInfo);
-        $('#lbl-products').text((productInfo.productCount || 0).format(0));
-    }
+        g_app.TemplateMgr.applyTemplate('tpl-product-info', '#product-info', stats);
+        $('#btn-delete').click(function() {
+            return confirm('Are you sure you want to delete all product and customer data?\n\nIf you proceed, you\'ll be able to recreate the product catalog from several sources.');
+        });
+    };
 
     Storefront.initControlPanelProcessesPage = function(processes) {
         g_app = this;
@@ -32,7 +34,7 @@
                     // Not actually an error, jQuery just couldn't parse the empty response
                     row$.fadeOut();
                 } else {
-                    var msg;
+                    var msg = null;
                     try {
                         msg = JSON.parse(xhr.responseText).message;
                     } catch (e) {

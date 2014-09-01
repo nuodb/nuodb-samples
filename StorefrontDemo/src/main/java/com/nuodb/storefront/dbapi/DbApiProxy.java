@@ -37,6 +37,7 @@ public class DbApiProxy implements IDbApi {
 
     private static final String DBVAR_TE_HOST_TAG = "TE_HOST_TAG";
     private static final String DBVAR_SM_HOST_TAG = "SM_HOST_TAG";
+    private static final String DBVAR_SM_MAX = "SM_MAX";
     private static final String DBVAR_HOST = "HOST";
     private static final String DBVAR_REGION = "REGION";
 
@@ -280,10 +281,11 @@ public class DbApiProxy implements IDbApi {
                 }
                 boolean updateDb = fixDatabaseTemplate(database, footprint.usedRegionCount, footprint.usedHostCount, usedRegions.get(0).region, firstUsedHost.id);
                 if (createDb) {
-                    s_logger.info("Creating DB '" + database.name + "' with template '" + database.template + "' and vars " + database.variables);
                     database.name = dbConnInfo.getDbName();
                     database.username = dbConnInfo.getUsername();
                     database.password = dbConnInfo.getPassword();
+                    
+                    s_logger.info("Creating DB '" + database.name + "' with template '" + database.template + "' and vars " + database.variables);
                     Client.create(s_cfg)
                             .resource(baseUrl + "/databases/")
                             .header(HttpHeaders.AUTHORIZATION, authHeader)
@@ -396,14 +398,17 @@ public class DbApiProxy implements IDbApi {
             templateName = "Geo-distributed";
             vars.put(DBVAR_REGION, null);
             vars.put(DBVAR_HOST, null);
+            vars.put(DBVAR_SM_MAX, null);
         } else if (targetHosts > 1) {
             templateName = "Multi Host";
             vars.put(DBVAR_REGION, firstRegion);
             vars.put(DBVAR_HOST, null);
+            vars.put(DBVAR_SM_MAX, "1");
         } else {
             templateName = "Single Host";
             vars.put(DBVAR_REGION, null);
             vars.put(DBVAR_HOST, firstHostId);
+            vars.put(DBVAR_SM_MAX, null);
         }
 
         // Apply template name

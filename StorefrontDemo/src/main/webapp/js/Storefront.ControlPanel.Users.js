@@ -184,7 +184,7 @@
         syncInstanceStatusIndicator(region, instance);
 
         $.ajax({
-            url: instance.url + '/api/stats?includeStorefront=true',
+            url: instance.url + '/api/stats',
             cache: false
         }).done(function(stats) {
             instance.notResponding = false;

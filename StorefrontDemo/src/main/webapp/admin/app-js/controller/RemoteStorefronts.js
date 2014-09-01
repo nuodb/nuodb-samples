@@ -111,7 +111,7 @@ Ext.define('App.controller.RemoteStorefronts', {
 
         try {
             Ext.Ajax.request({
-                url: instance.url + '/api/stats?includeStorefront=false',
+                url: instance.url + '/api/stats',
                 method: 'GET',
                 callback: function() {
                     instance.outstandingRequestCount--;

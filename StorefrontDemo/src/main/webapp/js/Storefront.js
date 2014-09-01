@@ -33,7 +33,7 @@ var Storefront = {
                 break;
                 
             case "control-panel-products":
-                me.initControlPanelProductsPage(cfg.pageData);
+                me.initControlPanelProductsPage(cfg.pageData.stats);
                 break;
                 
             case "control-panel-regions":

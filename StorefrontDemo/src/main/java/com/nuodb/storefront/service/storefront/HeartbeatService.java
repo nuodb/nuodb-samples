@@ -46,7 +46,12 @@ public class HeartbeatService implements IHeartbeatService {
                     // Send the heartbeat with the latest "last heartbeat time"
                     appInstance.setCpuUtilization(PerformanceUtil.getCpuUtilization());
                     appInstance.setLastHeartbeat(now);
+                    if (!appInstance.getRegionOverride()) {
+                        appInstance.setRegion(dao.getCurrentDbNodeRegion());
+                    }
                     dao.save(StorefrontApp.APP_INSTANCE); // this will create or update as appropriate
+
+                    // System.err.println(dao.getCurrentDbNodeRegion());
 
                     // If enough time has elapsed, also delete rows of instances that are no longer sending heartbeats
                     if (secondsUntilNextPurge <= 0) {

@@ -19,8 +19,7 @@ Ext.define('App.view.Viewport', {
             NuoHeader.render({
                 appTitle: 'NuoDB Storefront Demo',
                 homeUrl: './',
-                sidebarTip: 'Hide control panel',
-                username: decodeURIComponent(Ext.util.Cookies.get('customerName') || '').replace(/\+/g, ' ')
+                sidebarTip: 'Hide control panel'
             });
         }
 

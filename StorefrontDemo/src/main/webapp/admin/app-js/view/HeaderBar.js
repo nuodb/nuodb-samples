@@ -65,6 +65,7 @@ Ext.define('App.view.HeaderBar', {
             text: '<b>Throughput</b><br />transactions/sec',
             icon: 'ico-dashboard.png',
             format: ',.0',
+            displayAvg: true,
             metric: 'transactionStats.all.totalCountDelta',
             itemId: 'metrics-throughput',
             listeners: {
@@ -75,18 +76,9 @@ Ext.define('App.view.HeaderBar', {
             text: '<b>Latency</b><br />ms/transactions',
             icon: 'ico-dashboard.png',
             format: ',.0',
+            displayAvg: true,
             metric: 'transactionStats.all.avgDurationCalc',
             itemId: 'metrics-latency',
-            listeners: {
-                click: clickHandler
-            }
-        }, {
-            xtype: 'metricwell',
-            text: '<b>Storefront</b><br />items in carts',
-            icon: 'ico-product.png',
-            metric: 'storefrontStats.all.cartItemCount',
-            itemId: 'metrics-storefront',
-            flex: 0.7,
             listeners: {
                 click: clickHandler
             }
@@ -107,7 +99,6 @@ Ext.define('App.view.HeaderBar', {
 
     /** @private event handler */
     onViewButtonClick: function(btnActive) {
-        var me = this;
         var viewName = btnActive.getItemId();
         App.app.fireEvent('viewchange', viewName);
     },

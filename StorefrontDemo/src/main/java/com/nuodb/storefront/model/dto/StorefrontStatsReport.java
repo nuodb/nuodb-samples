@@ -10,7 +10,6 @@ import com.nuodb.storefront.model.entity.AppInstance;
 public class StorefrontStatsReport {
     private Calendar timestamp;
     private AppInstance appInstance;
-    private Map<String, StorefrontStats> storefrontStats;
     private Map<String, TransactionStats> transactionStats;
     private Map<String, WorkloadStats> workloadStats;
     private Map<WorkloadStep, WorkloadStepStats> workloadStepStats;
@@ -33,14 +32,6 @@ public class StorefrontStatsReport {
 
     public void setAppInstance(AppInstance appInstance) {
         this.appInstance = appInstance;
-    }
-
-    public Map<String, StorefrontStats> getStorefrontStats() {
-        return storefrontStats;
-    }
-
-    public void setStorefrontStats(Map<String, StorefrontStats> storefrontStats) {
-        this.storefrontStats = storefrontStats;
     }
 
     public Map<String, TransactionStats> getTransactionStats() {

@@ -79,7 +79,7 @@ Handlebars.registerHelper('priceFormat', function(price) {
             break;
 
         default:
-            symbol = '$'
+            symbol = '$';
             break;
     }
 

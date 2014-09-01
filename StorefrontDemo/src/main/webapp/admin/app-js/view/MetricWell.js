@@ -11,8 +11,11 @@ Ext.define('App.view.MetricWell', {
     flex: 1,
     margin: '0 8',
     minWidth: 150,
+    displayAvg: false,
 
     maxHistory: 20,
+    valueSum: 0,
+    valueCount: 0,
 
     layout: {
         type: 'hbox',
@@ -184,9 +187,24 @@ Ext.define('App.view.MetricWell', {
     setValue: function(value) {
         var me = this;
         me.value = value || 0;
-        me.valueHistory.splice(0, me.valueHistory.length - me.maxHistory);
+        var removedValues = me.valueHistory.splice(0, me.valueHistory.length - me.maxHistory);
         me.valueHistory.push(me.value);
-        me.lblValue.setText(me.formatter(me.value, me.format));
+
+        // Adjust sum & count for averages
+        if (me.displayAvg) {
+            for ( var i = 0; i < removedValues.length; i++) {
+                if (removedValues[i] != null) {
+                    me.valueSum -= removedValues[i];
+                    me.valueCount--;
+                }
+            }
+            me.valueCount++;
+            me.valueSum += value || 0;
+            me.lblValue.setText(me.formatter(me.valueSum / me.valueCount, me.format));
+        } else {
+            me.lblValue.setText(me.formatter(value, me.format));
+        }
+
         if (me.rendered) {
             me.syncGraph();
         }

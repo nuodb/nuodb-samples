@@ -29,23 +29,10 @@ public class StatsApi extends BaseApi {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public StorefrontStatsReport getAllStatsReport(@QueryParam("sessionTimeoutSec") Integer sessionTimeoutSec,
-            @QueryParam("includeStorefront") Boolean includeStorefront) {
-
+    public StorefrontStatsReport getAllStatsReport(@QueryParam("sessionTimeoutSec") Integer sessionTimeoutSec) {
         StorefrontStatsReport rpt = getSimulator().getStorefrontStatsReport(sessionTimeoutSec);
-
-        // Storefront stats are expensive to fetch (DB query required), so only fetch them if specifically requested
-        if (includeStorefront != null && includeStorefront.booleanValue()) {
-            if (includeStorefront) {
-                int maxCustomerIdleTimeSec = (sessionTimeoutSec == null) ? StorefrontApp.DEFAULT_SESSION_TIMEOUT_SEC : sessionTimeoutSec;
-                rpt.setStorefrontStats(getService().getStorefrontStatsByRegion(maxCustomerIdleTimeSec));
-            }
-        }
-
         rpt.setDbStats(getDbApi().getDbFootprint());
-
         clearWorkloadProperty(rpt.getWorkloadStats());
-
         return rpt;
     }
 
@@ -98,7 +85,7 @@ public class StatsApi extends BaseApi {
     public List<RegionStats> getRegionStats() {
         return getDbApi().getRegionStats();
     }
-    
+
     protected Map<String, WorkloadStats> clearWorkloadProperty(Map<String, WorkloadStats> statsMap)
     {
         // Clear unnecessary workload property to reduce payload size by ~25%

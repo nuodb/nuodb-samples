@@ -21,10 +21,10 @@ Ext.define('App.store.Metrics', {
            //{ category0: 'transactionStats', name: 'failureCount', aggregate: true, view: 'metrics-service', title: 'Total Failed Calls', unit: 'Calls' },
            
            // Storefront metrics
-           { category0: 'storefrontStats', name: 'cartItemCount', defaultCategoryIdx: 0, view: 'metrics-storefront', title: 'Total Items in Shopping Carts', unit: 'Items', groupBy0: 'Region' },
-           { category0: 'storefrontStats', name: 'activeCustomerCount', defaultCategoryIdx: 0, view: 'metrics-storefront', title: 'Active Customer Sessions (20 min expiry)', unit: 'Sessions', groupBy0: 'Region' },
-           { category0: 'storefrontStats', name: 'purchaseItemCountDelta', defaultCategoryIdx: 0, view: 'metrics-storefront', title: 'Items Purchased per Second', unit: 'Items/second', groupBy0: 'Region' },
-           { category0: 'storefrontStats', name: 'productReviewCountDelta', defaultCategoryIdx: 0, view: 'metrics-storefront', title: 'Reviews Written per Second', unit: 'Reviews/second', groupBy0: 'Region' },
+           //{ category0: 'storefrontStats', name: 'cartItemCount', defaultCategoryIdx: 0, view: 'metrics-storefront', title: 'Total Items in Shopping Carts', unit: 'Items', groupBy0: 'Region' },
+           //{ category0: 'storefrontStats', name: 'activeCustomerCount', defaultCategoryIdx: 0, view: 'metrics-storefront', title: 'Active Customer Sessions (20 min expiry)', unit: 'Sessions', groupBy0: 'Region' },
+           //{ category0: 'storefrontStats', name: 'purchaseItemCountDelta', defaultCategoryIdx: 0, view: 'metrics-storefront', title: 'Items Purchased per Second', unit: 'Items/second', groupBy0: 'Region' },
+           //{ category0: 'storefrontStats', name: 'productReviewCountDelta', defaultCategoryIdx: 0, view: 'metrics-storefront', title: 'Reviews Written per Second', unit: 'Reviews/second', groupBy0: 'Region' },
            //{ category0: 'storefrontStats', name: 'cartItemCount', aggregate: true, view: 'metrics-storefront', title: 'Total Items in Shopping Carts', unit: 'Items' },
            //{ category0: 'storefrontStats', name: 'purchaseItemCount', aggregate: true, view: 'metrics-storefront', title: 'Total Items Purchased', unit: 'Items' },
            

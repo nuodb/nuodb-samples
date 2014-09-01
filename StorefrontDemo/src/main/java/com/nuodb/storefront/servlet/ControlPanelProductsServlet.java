@@ -12,14 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.StorefrontApp;
-import com.nuodb.storefront.model.dto.Category;
-import com.nuodb.storefront.model.dto.ProductFilter;
+import com.nuodb.storefront.model.dto.StorefrontStats;
 import com.nuodb.storefront.model.entity.Customer;
-import com.nuodb.storefront.model.entity.Product;
 import com.nuodb.storefront.model.type.MessageSeverity;
-import com.nuodb.storefront.service.IStorefrontService;
 
 public class ControlPanelProductsServlet extends BaseServlet {
     private static final long serialVersionUID = -1224032390706203080L;
@@ -31,16 +27,8 @@ public class ControlPanelProductsServlet extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            // Fetch product data (and add a warning if the Storefront has no products yet)
-            IStorefrontService svc = getStorefrontService();
-            SearchResult<Category> categoryList = svc.getCategories();
-            SearchResult<Product> productList = svc.getProducts(new ProductFilter());
-            checkForProducts(req); // FIXME: Consolidate
             Map<String, Object> pageData = new HashMap<String, Object>();
-            pageData.put("hasData", productList.getTotalCount() > 0);
-            pageData.put("productCount", productList.getTotalCount());
-            pageData.put("categoryCount", categoryList.getTotalCount());
-
+            pageData.put("stats", checkForProducts(req));
             showPage(req, resp, "Control Panel", "control-panel-products", pageData, new Customer());
         } catch (Exception ex) {
             showCriticalErrorPage(req, resp, ex);
@@ -83,21 +71,17 @@ public class ControlPanelProductsServlet extends BaseServlet {
         }
     }
     
-    protected void checkForProducts(HttpServletRequest req) {
-        // Fetch product data (and add a warning if the Storefront has no products yet)
-        IStorefrontService svc = getStorefrontService();
-        Map<String, Object> productInfo = new HashMap<String, Object>();
-        SearchResult<Category> categoryList = svc.getCategories();
-        SearchResult<Product> productList = svc.getProducts(new ProductFilter());
-        if (categoryList.getResult().isEmpty() && productList.getResult().isEmpty()) {
+    protected StorefrontStats checkForProducts(HttpServletRequest req) {
+        StorefrontStats stats = getStorefrontService().getStorefrontStats(StorefrontApp.DEFAULT_SESSION_TIMEOUT_SEC);
+        
+        if (stats.getProductCount() == 0) {
             addMessage(
                     req,
                     MessageSeverity.INFO,
                     "There are no products in the database.  Click a button below to seed the database with some sample products and reviews.  Note that the loading process may take around 10 seconds.",
                     "Load 900 Real Products (with pictures served by Amazon.com)", "Generate 5,000 Fake Products (without pictures)");
-            if (productInfo != null) {
-                productInfo.put("hasData", false);
-            }
         }
+        
+        return stats;
     }
 }

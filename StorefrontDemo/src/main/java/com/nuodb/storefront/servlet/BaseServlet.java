@@ -3,8 +3,6 @@
 package com.nuodb.storefront.servlet;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +37,6 @@ public abstract class BaseServlet extends HttpServlet {
     private static final Logger s_logger = Logger.getLogger(BaseServlet.class.getName());
     private static final String ATTR_CUSTOMER = "customer";
     private static final String COOKIE_CUSTOMER_ID = "customerId";
-    private static final String COOKIE_CUSTOMER_NAME = "customerName";
     private static final String SESSION_MESSAGES = "messages";
     private static final String SESSION_CUSTOMER_ID = "customerId";
     private static final int COOKIE_MAX_AGE_SEC = 60 * 60 * 24 * 31; // 1 month
@@ -106,14 +103,6 @@ public abstract class BaseServlet extends HttpServlet {
             Cookie customerCookie = new Cookie(COOKIE_CUSTOMER_ID, String.valueOf(customer.getId()));
             customerCookie.setMaxAge(COOKIE_MAX_AGE_SEC);
             resp.addCookie(customerCookie);
-
-            // Add customer name cookie (for optional display in the admin header)
-            try {
-                Cookie customerNameCookie = new Cookie(COOKIE_CUSTOMER_NAME, URLEncoder.encode(customer.getDisplayName(), "UTF-8"));
-                customerNameCookie.setMaxAge(COOKIE_MAX_AGE_SEC);
-                resp.addCookie(customerNameCookie);
-            } catch (UnsupportedEncodingException e) {
-            }
         }
         return customer;
     }
