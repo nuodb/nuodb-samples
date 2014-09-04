@@ -23,7 +23,7 @@ public class TourGeoDistributionServlet extends BaseServlet {
                         "You cannot see this feature in action because you have no additional regions available. "
                                 + "An easy way to run NuoDB with multiple regions is to use the NuoDB AWS Script with your Amazon Web Services (AWS) account. "
                                 + "NuoDB automatically provisions everything you need in the cloud.")
-                                .setLink(new MessageLink("Get the script", "https://github.com/nuodb/cloudformation")); 
+                                .setLink(new MessageLink("Get the script", "https://github.com/nuodb/nuodbTools")); 
             }
                         
             showPage(req, resp, "Geo-Distribution", "tour-geo-distribution", null, new Customer());

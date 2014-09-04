@@ -23,7 +23,7 @@ public class TourHorizScaleOutServlet extends BaseServlet {
                         "You cannot see this feature in action because you have no additional hosts available. "
                                 + "An easy way to run NuoDB with multiple hosts is to use the NuoDB AWS Script with your Amazon Web Services (AWS) account. "
                                 + "NuoDB automatically provisions everything you need in the cloud.")
-                                .setLink(new MessageLink("Get the script", "https://github.com/nuodb/cloudformation"));
+                                .setLink(new MessageLink("Get the script", "https://github.com/nuodb/nuodbTools"));
             }
 
             showPage(req, resp, "Horizontal Scale-Out", "tour-horiz-scale-out", null, new Customer());
