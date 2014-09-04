@@ -51,35 +51,39 @@
         <div id="reviews" class="row">
             <div class="span12">
                 <h3>Customer Reviews</h3>
-
-			{{#if reviews}}
-				{{#reviews}}
-                <div class="media media-review">
-                    <div class="pull-left">
-                        <img class="media-object img-polaroid img-rounded img-gravitar" src="http://www.gravatar.com/avatar/{{gravitarHash}}?s=64&d=mm" />
-                    </div>
-                    <div class="media-body">
-                        <h4 class="media-heading">
-                            <div class="rateit" data-rateit-value="{{rating}}" data-rateit-ispreset="true" data-rateit-readonly="true"></div>
-                            {{title}}
-                        </h4>
-                        <div class="date">{{dateFormat dateAdded}}</div>
-                        <div class="byline">
-                            By <b>{{customer.displayName}}</b>
-                        </div>
-                        <p class="comment">{{comments}}</p>
-                    </div>
-                </div>
-				{{/reviews}}
-			{{else}}
-				<div class="alert alert-info">There are no reviews of this product yet.</div>
-			{{/if}}
                 <p>
                     Do you have this product? <a href="#dlg-add-review" data-toggle="modal">Submit your review</a>.
                 </p>
+
+				{{#if reviewCount}}
+					<div id="review-content"></div>
+				{{else}}
+					<div class="alert alert-info">There are no reviews of this product yet.</div>
+				{{/if}}
             </div>
         </div>
 	{{/result}}
+    </script>
+    
+    <script id="tpl-reviews" type="text/template">
+    	{{#result}}
+        	<div class="media media-review">
+        		<div class="pull-left">
+        			<img class="media-object img-polaroid img-rounded img-gravitar" src="http://www.gravatar.com/avatar/{{gravitarHash}}?s=64&d=mm" />
+        		</div>
+        		<div class="media-body">
+        			<h4 class="media-heading">
+        				<div class="rateit" data-rateit-value="{{rating}}" data-rateit-ispreset="true" data-rateit-readonly="true"></div>
+        				{{title}}
+        			</h4>
+        			<div class="date">{{dateFormat dateAdded}}</div>
+        			<div class="byline">
+        				By <b>{{customer.displayName}}</b>
+        			</div>
+        			<p class="comment">{{comments}}</p>
+        		</div>
+        	</div>
+    	{{/result}}
     </script>
 
     <!--  "Review this Product" dialog -->

@@ -3,21 +3,16 @@
 package com.nuodb.storefront.model.entity;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
@@ -43,11 +38,6 @@ public class Product extends AutoIdEntity {
     @Column(precision = 8, scale = 2)
     @NotNull
     private BigDecimal unitPrice;
-
-    @OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY, orphanRemoval = true)
-    @JoinColumn(name = "product_id")
-    @OrderBy("dateAdded")
-    private List<ProductReview> reviews = new ArrayList<ProductReview>();
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "Product_Category", joinColumns = @JoinColumn(name = "product_id"), uniqueConstraints = { @UniqueConstraint(columnNames = {
@@ -107,7 +97,7 @@ public class Product extends AutoIdEntity {
     public Integer getReviewCount() {
         return reviewCount;
     }
-
+    
     public Calendar getDateAdded() {
         return dateAdded;
     }
@@ -122,20 +112,6 @@ public class Product extends AutoIdEntity {
 
     public void setDateModified(Calendar dateModified) {
         this.dateModified = dateModified;
-    }
-
-    public List<ProductReview> getReviews() {
-        return reviews;
-    }
-
-    public void clearReviews() {
-        reviews = null;
-    }
-
-    public void addReview(ProductReview review) {
-        review.setProduct(this);
-        reviews.add(review);
-        syncRatingAndReviewCount();
     }
 
     public Set<String> getCategories() {
@@ -156,20 +132,13 @@ public class Product extends AutoIdEntity {
     public void setPurchaseCount(long purchaseCount) {
         this.purchaseCount = purchaseCount;
     }
-
-    /**
-     * Updates the denormalized reviewCount and rating properties based on the collection of reviews associated with this product.
-     */
-    protected void syncRatingAndReviewCount() {
-        reviewCount = getReviews().size();
-        if (reviewCount > 0) {
-            int totalRating = 0;
-            for (ProductReview review : reviews) {
-                totalRating += review.getRating();
-            }
-            rating = (float) totalRating / reviewCount;
+    
+    public void addRating(int newRating) {
+        if (this.rating == null) {
+            this.rating = new Float(newRating);
         } else {
-            rating = null;
+            this.rating = (this.rating * this.reviewCount + newRating) / (this.reviewCount + 1);
         }
+        ++this.reviewCount;        
     }
 }

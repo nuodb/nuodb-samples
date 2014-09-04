@@ -56,7 +56,7 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
             }
         } catch (DatabaseNotFoundException e) {
             DbConnInfo dbInfo = StorefrontFactory.getDbConnInfo();
-            addMessage(req, MessageSeverity.WARNING, "The " + dbInfo.getDbName() + " database does not yet exist.", "Create database");
+            addMessage(req, MessageSeverity.INFO, "The " + dbInfo.getDbName() + " database does not yet exist.", "Create database");
         } catch (GenericJDBCException e) {
             s_logger.warn("Servlet handled JDBC error", e);
 
@@ -67,7 +67,7 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
                             + dbInfo.getUrl() + "\" with the username \"" + dbInfo.getUsername() + "\".", "Create database");
 
         } catch (ApiUnavailableException e) {
-            s_logger.error("Health check failed", e);
+            s_logger.error("Can't connect to API", e);
             addMessage(req, MessageSeverity.ERROR,
                     "Cannot connect to NuoDB RESTful API.  The Storefront is trying to connect to \""
                             + getDbApi().getBaseUrl() + "\" with the username \"" + getDbApi().getAuthUser() + "\".");

@@ -19,29 +19,22 @@ var Storefront = {
             $('#admin-link').show();
         }
 
-        $('.alert .btn').click(function() {
-            var buttons = $('.btn', $(this).closest('form'));
-            setTimeout(function() {
-                buttons.attr('disabled', 'disabled');
-            }, 0);
-        });
-
         // Initialize page-specific elements
         switch (cfg.pageName) {
             case "control-panel-processes":
                 me.initControlPanelProcessesPage(cfg.pageData.processes);
                 break;
-                
+
             case "control-panel-products":
                 me.initControlPanelProductsPage(cfg.pageData.stats);
                 break;
-                
+
             case "control-panel-regions":
                 me.initControlPanelRegionsPage(cfg.pageData.regions);
                 break;
-                
+
             case "control-panel-users":
-                me.initControlPanelUsersPage(cfg);                
+                me.initControlPanelUsersPage(cfg);
                 break;
 
             case "store-products":
@@ -59,10 +52,18 @@ var Storefront = {
 
         // Show accumulated messages
         me.TemplateMgr.applyTemplate('tpl-messages', '#messages', cfg.messages);
+
+        // Disable buttons after form submission
+        $(document).on('submit', 'form', function() {
+            // disable *after* form submit, otherwise values are not sent
+            var btns$ = $(this).find('button');
+            setTimeout(function() {
+                btns$.attr('disabled', 'disabled');
+            }, 0);
+        });
     },
 
     initSearchBox: function() {
-        var me = this;
         $('.search').click(function(event) {
             var txt = $('.search-query', this);
             if ($(event.target).hasClass('search-clear')) {
@@ -220,6 +221,14 @@ var Storefront = {
         var me = this;
 
         me.TemplateMgr.applyTemplate('tpl-product', '#product', product);
+        
+        // Load reviews
+        $.ajax('api/products/' + encodeURIComponent(product.id) + '/reviews?page=1&pageSize=30', {
+            type: 'GET',
+            dataType: 'json'
+        }).done(function(reviews) {
+            me.TemplateMgr.applyTemplate('tpl-reviews', '#review-content', reviews);
+        });
 
         // Handle "Add to Cart" form submit
         $('form.add-to-cart').submit(function(event) {

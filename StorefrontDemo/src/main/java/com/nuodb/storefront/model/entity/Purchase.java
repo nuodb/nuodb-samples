@@ -37,7 +37,7 @@ public class Purchase extends AutoIdEntity {
         return customer;
     }
 
-    void setCustomer(Customer customer) {
+    public void setCustomer(Customer customer) {
         this.customer = customer;
     }
 
@@ -65,5 +65,4 @@ public class Purchase extends AutoIdEntity {
     public void setRegion(String region) {
         this.region = region;
     }
-
 }

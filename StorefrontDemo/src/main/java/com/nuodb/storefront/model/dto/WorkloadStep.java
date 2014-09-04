@@ -27,17 +27,30 @@ public enum WorkloadStep {
 
     ADMIN_RUN_REPORT,
 
-    @WorkloadFlow(steps = { WorkloadStep.BROWSE, WorkloadStep.BROWSE_SORT, WorkloadStep.BROWSE_NEXT_PAGE, WorkloadStep.BROWSE_SEARCH,
-            WorkloadStep.BROWSE_CATEGORY, WorkloadStep.PRODUCT_VIEW_DETAILS })
+    @WorkloadFlow(steps = {
+            WorkloadStep.BROWSE,
+            WorkloadStep.BROWSE_SORT,
+            WorkloadStep.BROWSE_NEXT_PAGE,
+            WorkloadStep.BROWSE_SEARCH,
+            WorkloadStep.BROWSE_CATEGORY,
+            WorkloadStep.PRODUCT_VIEW_DETAILS })
     MULTI_BROWSE,
 
-    @WorkloadFlow(steps = { WorkloadStep.BROWSE, WorkloadStep.BROWSE_NEXT_PAGE, WorkloadStep.PRODUCT_VIEW_DETAILS, WorkloadStep.PRODUCT_ADD_TO_CART,
-
-    WorkloadStep.BROWSE_SEARCH, WorkloadStep.PRODUCT_VIEW_DETAILS, WorkloadStep.PRODUCT_ADD_TO_CART,
-
-    WorkloadStep.BROWSE_CATEGORY, WorkloadStep.BROWSE_NEXT_PAGE, WorkloadStep.PRODUCT_VIEW_DETAILS, WorkloadStep.PRODUCT_ADD_TO_CART,
-
-    WorkloadStep.CART_VIEW, WorkloadStep.CART_UPDATE, WorkloadStep.CART_CHECKOUT })
+    @WorkloadFlow(steps = {
+            WorkloadStep.BROWSE,
+            WorkloadStep.BROWSE_NEXT_PAGE,
+            WorkloadStep.PRODUCT_VIEW_DETAILS,
+            WorkloadStep.PRODUCT_ADD_TO_CART,
+            WorkloadStep.BROWSE_SEARCH,
+            WorkloadStep.PRODUCT_VIEW_DETAILS,
+            WorkloadStep.PRODUCT_ADD_TO_CART,
+            WorkloadStep.BROWSE_CATEGORY,
+            WorkloadStep.BROWSE_NEXT_PAGE,
+            WorkloadStep.PRODUCT_VIEW_DETAILS,
+            WorkloadStep.PRODUCT_ADD_TO_CART,
+            WorkloadStep.CART_VIEW,
+            WorkloadStep.CART_UPDATE,
+            WorkloadStep.CART_CHECKOUT })
     MULTI_SHOP,
 
     @WorkloadFlow(steps = { WorkloadStep.MULTI_BROWSE, WorkloadStep.PRODUCT_ADD_REVIEW })

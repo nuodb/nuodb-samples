@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 NuoDB, Inc. */
+/* Copyright (c) 2013-2014 NuoDB, Inc. */
 
 package com.nuodb.storefront.api;
 
@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response.Status;
 import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.exception.ProductNotFoundException;
 import com.nuodb.storefront.model.dto.ProductFilter;
+import com.nuodb.storefront.model.dto.ProductReviewFilter;
 import com.nuodb.storefront.model.entity.Customer;
 import com.nuodb.storefront.model.entity.Product;
 import com.nuodb.storefront.model.entity.ProductReview;
@@ -35,10 +36,14 @@ public class ProductsApi extends BaseApi {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public SearchResult<Product> search(@Context HttpServletRequest req, @QueryParam("matchText") String matchText,
-            @QueryParam("categories") List<String> categories, @QueryParam("page") Integer page, @QueryParam("pageSize") Integer pageSize,
+    public SearchResult<Product> search(
+            @Context HttpServletRequest req,
+            @QueryParam("page") Integer page,
+            @QueryParam("pageSize") Integer pageSize,
+            @QueryParam("matchText") String matchText,
+            @QueryParam("categories") List<String> categories,
             @QueryParam("sort") ProductSort sort) {
-        ProductFilter filter = new ProductFilter(matchText, categories, page, pageSize, sort);
+        ProductFilter filter = new ProductFilter(page, pageSize, matchText, categories, sort);
         req.getSession().setAttribute(BaseServlet.SESSION_PRODUCT_FILTER, filter);
         return getService().getProducts(filter);
     }
@@ -53,6 +58,18 @@ public class ProductsApi extends BaseApi {
         } catch (ProductNotFoundException e) {
             return Response.status(Status.NOT_FOUND).build();
         }
+    }
+
+    @GET
+    @Path("/{productId}/reviews")
+    @Produces(MediaType.APPLICATION_JSON)
+    public SearchResult<ProductReview> getReviews(
+            @Context HttpServletRequest req, 
+            @PathParam("productId") int productId, 
+            @QueryParam("page") Integer page,
+            @QueryParam("pageSize") Integer pageSize) {
+        ProductReviewFilter filter = new ProductReviewFilter(page, pageSize, productId);
+        return getService().getProductReviews(filter);
     }
 
     @POST

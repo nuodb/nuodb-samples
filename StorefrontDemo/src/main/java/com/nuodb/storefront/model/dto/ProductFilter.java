@@ -4,24 +4,20 @@ package com.nuodb.storefront.model.dto;
 
 import java.util.Collection;
 
-import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.model.type.ProductSort;
 
-public class ProductFilter {
+public class ProductFilter extends PaginationFilter {
     private String matchText = null;
     private Collection<String> categories = null;
-    private Integer page = 1;
-    private Integer pageSize = 30;
     private ProductSort sort = ProductSort.RELEVANCE;
 
     public ProductFilter() {
     }
 
-    public ProductFilter(String matchText, Collection<String> categories, Integer page, Integer pageSize, ProductSort sort) {
+    public ProductFilter(Integer page, Integer pageSize, String matchText, Collection<String> categories, ProductSort sort) {
+        super(page, pageSize);
         this.matchText = matchText;
         this.categories = categories;
-        this.page = page;
-        this.pageSize = pageSize;
         this.sort = sort;
     }
 
@@ -47,30 +43,7 @@ public class ProductFilter {
     public void setCategories(Collection<String> categories) {
         this.categories = categories;
     }
-
-    /**
-     * When non-null, specifies the max number of items to return. If only a subset of products is returned, you can still determine the total number
-     * of products matching the criteria by using the {@link SearchResult#getTotalCount()} property.
-     */
-    public Integer getPage() {
-        return page;
-    }
-
-    public void setPage(Integer page) {
-        this.page = page;
-    }
-
-    /**
-     * When non-null, indicates the first item to return from the resultset (offset is page * pageSize), so the page parameter is also required.
-     */
-    public Integer getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(Integer pageSize) {
-        this.pageSize = pageSize;
-    }
-
+    
     /**
      * The order in which items should be returned. Leave null for an undefined ordering.
      */

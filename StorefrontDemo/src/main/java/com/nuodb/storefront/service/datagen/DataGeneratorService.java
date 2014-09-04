@@ -63,10 +63,20 @@ public class DataGeneratorService implements IDataGeneratorService {
                 Calendar now = Calendar.getInstance();
                 product.setDateAdded(now);
                 product.setDateModified(now);
-                gen.addProductReviews(product, maxReviewsPerProduct);
+            }
+            saveProducts(products);
+
+            // Insert product reviews
+            for (ProductReview review : gen.createProductReviews(products, maxReviewsPerProduct)) {
+                session.insert(review);
             }
 
-            saveProducts(products);
+            // Sync review stats
+            session.connection().prepareStatement(
+                    "UPDATE PRODUCT P SET" +
+                            "   REVIEW_COUNT=(SELECT COUNT(*) FROM PRODUCT_REVIEW WHERE PRODUCT_ID=P.ID), " +
+                            "   RATING=(SELECT AVG(RATING) FROM PRODUCT_REVIEW WHERE PRODUCT_ID=P.ID)")
+                    .execute();
 
         } catch (SQLException e) {
             throw new IOException(e);
@@ -75,8 +85,15 @@ public class DataGeneratorService implements IDataGeneratorService {
 
     @Override
     public void removeAll() throws IOException {
-        String[] statements = new String[] { "DELETE FROM CART_SELECTION", "DELETE FROM PURCHASE_SELECTION", "DELETE FROM PURCHASE",
-                "DELETE FROM PRODUCT_REVIEW", "DELETE FROM CUSTOMER", "DELETE FROM PRODUCT_CATEGORY", "DELETE FROM PRODUCT" };
+        String[] statements = new String[] {
+                "DELETE FROM CART_SELECTION",
+                "DELETE FROM PURCHASE_SELECTION",
+                "DELETE FROM PURCHASE",
+                "DELETE FROM PRODUCT_REVIEW",
+                "DELETE FROM CUSTOMER",
+                "DELETE FROM PRODUCT_CATEGORY",
+                "DELETE FROM PRODUCT"
+        };
 
         for (String statement : statements) {
             for (int i = 0;; i++) {
@@ -104,11 +121,6 @@ public class DataGeneratorService implements IDataGeneratorService {
         // Insert products
         for (Product product : products) {
             session.insert(product);
-
-            // Insert product reviews
-            for (ProductReview review : product.getReviews()) {
-                session.insert(review);
-            }
         }
 
         // Insert product categories

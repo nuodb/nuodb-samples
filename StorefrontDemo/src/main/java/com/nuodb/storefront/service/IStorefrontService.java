@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 NuoDB, Inc. */
+/* Copyright (c) 2013-2014 NuoDB, Inc. */
 
 package com.nuodb.storefront.service;
 
@@ -13,6 +13,7 @@ import com.nuodb.storefront.exception.CustomerNotFoundException;
 import com.nuodb.storefront.exception.ProductNotFoundException;
 import com.nuodb.storefront.model.dto.Category;
 import com.nuodb.storefront.model.dto.ProductFilter;
+import com.nuodb.storefront.model.dto.ProductReviewFilter;
 import com.nuodb.storefront.model.dto.StorefrontStats;
 import com.nuodb.storefront.model.dto.TransactionStats;
 import com.nuodb.storefront.model.dto.Workload;
@@ -40,6 +41,8 @@ public interface IStorefrontService {
      */
     public SearchResult<Product> getProducts(ProductFilter filter);
 
+    public SearchResult<ProductReview> getProductReviews(ProductReviewFilter filter);
+    
     /**
      * Gets information on a specific product, including the reviews associated with it (and the customers associated with each review).
      * 

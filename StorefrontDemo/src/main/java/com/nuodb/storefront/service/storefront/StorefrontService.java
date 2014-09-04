@@ -23,6 +23,7 @@ import com.nuodb.storefront.exception.CustomerNotFoundException;
 import com.nuodb.storefront.exception.ProductNotFoundException;
 import com.nuodb.storefront.model.dto.Category;
 import com.nuodb.storefront.model.dto.ProductFilter;
+import com.nuodb.storefront.model.dto.ProductReviewFilter;
 import com.nuodb.storefront.model.dto.StorefrontStats;
 import com.nuodb.storefront.model.dto.TransactionStats;
 import com.nuodb.storefront.model.dto.Workload;
@@ -44,8 +45,9 @@ public class StorefrontService implements IStorefrontService {
 
     static {
         StorefrontDao.registerTransactionNames(new String[] { "addProduct", "addProductReview", "addToCart", "checkout", "getAppInstances",
-                "getCategories", "getCustomerCart", "getDbNodes", "getOrCreateCustomer", "getProductDetails", "getProducts", "getStorefrontStats",
-                "getStorefrontStatsByRegion", "updateCart" });
+                "getCategories", "getCustomerCart", "getDbNodes", "getOrCreateCustomer", "getProductDetails", "getProductReviews", "getProducts",
+                "getStorefrontStats",
+                "updateCart" });
     }
 
     public StorefrontService(IStorefrontDao dao) {
@@ -80,6 +82,41 @@ public class StorefrontService implements IStorefrontService {
     }
 
     @Override
+    public SearchResult<ProductReview> getProductReviews(final ProductReviewFilter filter) {
+        return dao.runTransaction(TransactionType.READ_ONLY, "getProductReviews", new Callable<SearchResult<ProductReview>>() {
+            @Override
+            public SearchResult<ProductReview> call() throws Exception {
+                // Build search
+                Search search = new Search();
+                search.setSearchClass(ProductReview.class);
+                search.addSort("dateAdded", true);
+                search.addFetch("customer");
+                if (filter.getPage() != null && filter.getPage() > 0) {
+                    search.setPage(filter.getPage() - 1);
+                }
+                if (filter.getPageSize() != null) {
+                    search.setMaxResults(filter.getPageSize());
+                }
+                if (filter.getProductId() != null) {
+                    search.addFilterEqual("product.id", filter.getProductId());
+                }
+
+                // Do search
+                @SuppressWarnings("unchecked")
+                SearchResult<ProductReview> result = dao.searchAndCount(search);
+
+                // Prep results
+                for (ProductReview review : result.getResult()) {
+                    dao.evict(review);
+                    review.getCustomer().clearCartSelections();
+                    review.setProduct(null);
+                }
+                return result;
+            }
+        });
+    }
+
+    @Override
     public Product getProductDetails(final int productId) {
         return dao.runTransaction(TransactionType.READ_ONLY, "getProductDetails", new Callable<Product>() {
             @Override
@@ -87,33 +124,9 @@ public class StorefrontService implements IStorefrontService {
                 Search productSearch = new Search(Product.class);
                 productSearch.addFilterEqual("id", productId);
                 productSearch.addFetch("categories");
-                //productSearch.addFetch("reviews");
                 Product product = (Product) dao.searchUnique(productSearch);
                 if (product == null) {
                     throw new ProductNotFoundException();
-                }
-
-                // Initialize customers associated with each review, but don't
-                // do a deep load
-
-		// limit to 10 reviews...
-		int i = 0;
-                Set<Customer> customers = new HashSet<Customer>();
-                for (ProductReview review : product.getReviews()) {
-                    customers.add(review.getCustomer());
-		    if (i++ > 10) break;
-                }
-                for (Customer customer : customers) {
-                    dao.initialize(customer);
-                    dao.evict(customer);
-                    customer.clearCartSelections();
-                    customer.clearTransactions();
-                }
-
-                // Break circular references so items are serialized properly
-                for (ProductReview review : product.getReviews()) {
-                    dao.evict(review);
-                    review.clearProduct();
                 }
 
                 dao.evict(product);
@@ -143,6 +156,7 @@ public class StorefrontService implements IStorefrontService {
                 product.getCategories().addAll(categories);
 
                 dao.save(product);
+                dao.evict(product);
                 return product;
             }
         });
@@ -166,12 +180,12 @@ public class StorefrontService implements IStorefrontService {
 
                 Search productSearch = new Search(Product.class);
                 productSearch.addFilterEqual("id", productId);
-                //productSearch.addFetch("reviews");
                 Product product = (Product) dao.searchUnique(productSearch);
                 if (product == null) {
                     throw new ProductNotFoundException();
                 }
 
+                // Add review
                 Calendar now = Calendar.getInstance();
                 ProductReview review = new ProductReview();
                 review.setCustomer(customer);
@@ -180,24 +194,23 @@ public class StorefrontService implements IStorefrontService {
                 review.setRating(rating);
                 review.setDateAdded(now);
                 review.setRegion(StorefrontApp.APP_INSTANCE.getRegion());
+                review.setProduct(product);
+                dao.save(review);
 
-                // Update and save product (cascading save to review)
-                product.addReview(review);
+                // Update product
+                product.addRating(rating);
                 dao.save(product);
 
+                // Update customer
                 if (emailAddress != null && !emailAddress.isEmpty()) {
                     customer.setEmailAddress(emailAddress);
                     dao.save(customer);
                 }
 
-                ProductReview standaloneRev = new ProductReview();
-                standaloneRev.setId(review.getId());
-                standaloneRev.setRating(review.getRating());
-                standaloneRev.setComments(review.getComments());
-                standaloneRev.setDateAdded(review.getDateAdded());
-                standaloneRev.setTitle(review.getTitle());
-
-                return standaloneRev;
+                dao.evict(review);
+                review.setCustomer(null);
+                review.setProduct(null);
+                return review;
             }
         });
     }
@@ -224,7 +237,6 @@ public class StorefrontService implements IStorefrontService {
                 dao.flush();
                 dao.evict(customer);
                 customer.clearCartSelections();
-                customer.clearTransactions();
                 return customer;
             }
         });
@@ -243,7 +255,6 @@ public class StorefrontService implements IStorefrontService {
                 if (customer == null) {
                     throw new CustomerNotFoundException();
                 }
-                customer.clearTransactions();
 
                 BigDecimal totalPrice = new BigDecimal(0);
                 for (CartSelection selection : customer.getCartSelections()) {
@@ -251,7 +262,6 @@ public class StorefrontService implements IStorefrontService {
 
                     Product product = selection.getProduct();
                     product.clearCategories();
-                    product.clearReviews();
                     totalPrice = totalPrice.add(selection.getUnitPrice().multiply(BigDecimal.valueOf(selection.getQuantity())));
                 }
 
@@ -352,13 +362,13 @@ public class StorefrontService implements IStorefrontService {
                 Purchase transaction = new Purchase();
                 transaction.setDatePurchased(now);
                 transaction.setRegion(StorefrontApp.APP_INSTANCE.getRegion());
-                customer.addTransaction(transaction);
+                transaction.setCustomer(customer);
 
                 // Move items from cart to transaction
                 for (CartSelection cartSelection : cart) {
                     PurchaseSelection selection = new PurchaseSelection(cartSelection);
                     transaction.addTransactionSelection(selection);
-		    selection.setRegion(StorefrontApp.APP_INSTANCE.getRegion());
+                    selection.setRegion(StorefrontApp.APP_INSTANCE.getRegion());
                     selection.setUnitPrice(selection.getProduct().getUnitPrice());
 
                     // Increment purchase count. This is denormalized,
@@ -372,7 +382,8 @@ public class StorefrontService implements IStorefrontService {
                 }
                 customer.getCartSelections().clear();
 
-                dao.save(customer);
+                dao.save(customer); // for cart clearing
+                dao.save(transaction);
                 return transaction;
             }
         });
@@ -395,7 +406,7 @@ public class StorefrontService implements IStorefrontService {
 
     @Override
     public Map<String, StorefrontStats> getStorefrontStatsByRegion(final int maxCustomerIdleTimeSec) {
-        return dao.runTransaction(TransactionType.READ_ONLY, "getStorefrontStatsByRegion", new Callable<Map<String, StorefrontStats>>() {
+        return dao.runTransaction(TransactionType.READ_ONLY, "getStorefrontStats", new Callable<Map<String, StorefrontStats>>() {
             @Override
             public Map<String, StorefrontStats> call() {
                 return dao.getStorefrontStatsByRegion(maxCustomerIdleTimeSec);
@@ -421,10 +432,8 @@ public class StorefrontService implements IStorefrontService {
                 List<AppInstance> instances = (List<AppInstance>) dao.search(search);
 
                 // Perform instance list cleanup:
-                // 1) For the local instance, use in-memory object (newer)
-                // rather than what's in DB (updated with every heartbeat)
-                // 2) Remove extra instances with the same URL (instance with
-                // most recent heartbeat wins)
+                // 1) For the local instance, use in-memory object (newer) rather than what's in DB (updated with every heartbeat)
+                // 2) Remove extra instances with the same URL (instance with most recent heartbeat wins)
                 String localUuid = StorefrontApp.APP_INSTANCE.getUuid();
                 boolean foundLocal = false;
                 for (int i = 0; i < instances.size();) {
@@ -441,10 +450,8 @@ public class StorefrontService implements IStorefrontService {
                 }
 
                 if (!foundLocal) {
-                    // Avoid race condition whereby the instance list is being
-                    // requested before the first heartbeat
-                    // by ensuring the local instance is always present in the
-                    // list
+                    // Avoid race condition whereby the instance list is being requested before the first heartbeat
+                    // by ensuring the local instance is always present in the list
                     instances.add(StorefrontApp.APP_INSTANCE);
                 }
 

@@ -93,7 +93,6 @@ public class StorefrontDao extends BaseDao implements IStorefrontDao {
 
         for (Product p : result.getResult()) {
             session.evict(p);
-            p.clearReviews();
         }
         return result;
     }

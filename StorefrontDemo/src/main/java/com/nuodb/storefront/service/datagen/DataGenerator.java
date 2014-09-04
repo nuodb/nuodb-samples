@@ -36,10 +36,17 @@ public class DataGenerator {
         return products;
     }
 
-    public void addProductReviews(Product product, int maxReviewsPerProduct) {
-        for (int i = 0; i < rnd.nextInt(maxReviewsPerProduct); i++) {
-            addProductReview(product);
+    public List<ProductReview> createProductReviews(List<Product> products, int maxReviewsPerProduct) {
+        List<ProductReview> reviews = new ArrayList<ProductReview>();
+        for (Product product : products) {
+            for (int i = 0; i < rnd.nextInt(maxReviewsPerProduct); i++) {
+                ProductReview review = createProductReview(product);
+                if (review != null) {
+                    reviews.add(review);
+                }
+            }
         }
+        return reviews;
     }
 
     protected Customer createCustomer() {
@@ -69,17 +76,14 @@ public class DataGenerator {
             product.getCategories().add("Category " + (char) ('A' + rnd.nextInt(26)));
         }
 
-        // Add reviews
-        addProductReviews(product, maxReviewsPerProduct);
-
         return product;
     }
 
-    protected void addProductReview(Product product) {
+    protected ProductReview createProductReview(Product product) {
         Calendar now = Calendar.getInstance();
         Customer customer = pickRandomCustomer();
         if (customer == null) {
-            return;
+            return null;
         }
 
         ProductReview review = new ProductReview();
@@ -89,7 +93,8 @@ public class DataGenerator {
         review.setRating(rnd.nextInt(5) + 1);
         review.setCustomer(customer);
         review.setRegion(StorefrontApp.APP_INSTANCE.getRegion());
-        product.addReview(review);
+        review.setProduct(product);
+        return review;
     }
 
     protected Customer pickRandomCustomer() {

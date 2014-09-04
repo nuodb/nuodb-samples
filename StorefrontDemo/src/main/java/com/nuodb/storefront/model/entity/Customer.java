@@ -20,10 +20,6 @@ public class Customer extends AutoIdEntity {
     @OrderBy("dateAdded")
     private List<CartSelection> cartSelections = new ArrayList<CartSelection>();
 
-    @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true, mappedBy = "customer")
-    @OrderBy("datePurchased")
-    private List<Purchase> transactions = new ArrayList<Purchase>();
-
     private String emailAddress;
 
     @NotNull
@@ -52,11 +48,7 @@ public class Customer extends AutoIdEntity {
     public List<CartSelection> getCartSelections() {
         return cartSelections;
     }
-
-    public List<Purchase> getTransactions() {
-        return transactions;
-    }
-
+    
     public String getEmailAddress() {
         return emailAddress;
     }
@@ -84,15 +76,6 @@ public class Customer extends AutoIdEntity {
     public void addCartSelection(CartSelection selection) {
         selection.setCustomer(this);
         cartSelections.add(selection);
-    }
-
-    public void addTransaction(Purchase transaction) {
-        transaction.setCustomer(this);
-        transactions.add(transaction);
-    }
-
-    public void clearTransactions() {
-        transactions = null;
     }
 
     public void clearCartSelections() {

@@ -20,6 +20,7 @@ import com.nuodb.storefront.exception.ProductNotFoundException;
 import com.nuodb.storefront.exception.UnsupportedStepException;
 import com.nuodb.storefront.model.dto.Category;
 import com.nuodb.storefront.model.dto.ProductFilter;
+import com.nuodb.storefront.model.dto.ProductReviewFilter;
 import com.nuodb.storefront.model.dto.Workload;
 import com.nuodb.storefront.model.dto.WorkloadStep;
 import com.nuodb.storefront.model.entity.Cart;
@@ -84,12 +85,12 @@ public class SimulatedUser implements IWorker {
                 long retryDelay = getRetryDelay();
                 s_log.info("Encountered recoverable exception with simulated user \"" + getWorkload().getName() + "\".  Will retry in " + retryDelay
                         + " ms.", e);
-				// sleep as we don't want this thread to process for awhile.
-				try {
-					Thread.sleep(1000);
-				} catch (Exception x) {
-					;	
-				}
+                // sleep as we don't want this thread to process for awhile.
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception x) {
+                    ;
+                }
                 return retryDelay;
             }
             throw e;
@@ -135,7 +136,7 @@ public class SimulatedUser implements IWorker {
             isCartEmpty = true;
             selectedProductId = null;
         } else if (e instanceof ProductNotFoundException) {
-            // Product is missing.  Just reset product-related stats.
+            // Product is missing. Just reset product-related stats.
             productIds = null;
             selectedProductId = null;
             filter = null;
@@ -256,6 +257,7 @@ public class SimulatedUser implements IWorker {
         if (getOrFetchProductList()) {
             selectedProductId = pickRandomProductId();
             simulator.getService().getProductDetails(selectedProductId);
+            simulator.getService().getProductReviews(new ProductReviewFilter(selectedProductId, 1, 10));
         }
     }
 

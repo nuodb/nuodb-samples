@@ -77,7 +77,7 @@ public class ProductReview extends AutoIdEntity {
         return product;
     }
 
-    void setProduct(Product product) {
+    public void setProduct(Product product) {
         this.product = product;
     }
 
