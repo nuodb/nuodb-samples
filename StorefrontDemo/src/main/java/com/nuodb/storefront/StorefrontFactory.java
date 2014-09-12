@@ -40,6 +40,7 @@ public class StorefrontFactory {
     private static final Configuration s_configuration;
     private static volatile SessionFactory s_sessionFactory;
     private static volatile ISimulatorService s_simulator;
+    private static volatile boolean s_initializedApp = false;
     private static final Logger s_logger = Logger.getLogger(WelcomeServlet.class.getName());
     
     static {
@@ -150,26 +151,30 @@ public class StorefrontFactory {
     }
 
     public static IStorefrontDao createStorefrontDao() {
-        StorefrontDao dao = new StorefrontDao();
-        dao.setSessionFactory(getOrCreateSessionFactory());
-        return dao;
+        return createStorefrontDao(getOrCreateSessionFactory());
     }
 
     public static IHeartbeatService createHeartbeatService() {
         return new HeartbeatService();
     }
+    
+    public static IStorefrontDao createStorefrontDao(SessionFactory sessionFactory) {
+        StorefrontDao dao = new StorefrontDao();
+        dao.setSessionFactory(sessionFactory);
+        return dao;
+    }
 
     private static SessionFactory getOrCreateSessionFactory() {
-        if (s_sessionFactory == null) {
+        if (!s_initializedApp) {
             synchronized (s_configuration) {
                 if (s_sessionFactory == null) {
                     s_sessionFactory = s_configuration.buildSessionFactory();
-                    try {
-                        new AppInstanceInitService(createStorefrontDao()).init(StorefrontApp.APP_INSTANCE);
-                    } catch (Exception e) {
-                        s_sessionFactory = null;
-                        throw (e instanceof RuntimeException) ? ((RuntimeException) e) : new RuntimeException(e);
-                    }
+                }
+                try {
+                    new AppInstanceInitService(createStorefrontDao(s_sessionFactory)).init(StorefrontApp.APP_INSTANCE);
+                    s_initializedApp = true;
+                } catch (Exception e) {
+                    throw (e instanceof RuntimeException) ? ((RuntimeException) e) : new RuntimeException(e);
                 }
             }
         }
