@@ -34,6 +34,7 @@
     <t:messages />
     
     <ol class="tour-steps">
+        <li>Verify you've configured all participating hosts with the setting <code>balancer=RegionBalancer</code> in NouDB&rsquo;s <code>default.properties</code> file.  Without this setting, Storefront instances are not confined to communicating with specific regions, which will skew the metrics you see.</li> 
         <li>Increase regions by clicking the up arrow within the &ldquo;Regions&rdquo; block in the header above. Each click activates an additional region.  You are limited only by the number of pre-configured regions.</li>
         <li>Add users in the new regions using the <a href="control-panel-users">simulated users page</a> or by clicking the up arrow within the &ldquo;Users&rdquo; block above.</li>
     </ol>
