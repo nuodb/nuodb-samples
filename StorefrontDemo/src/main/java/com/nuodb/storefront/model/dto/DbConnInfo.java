@@ -1,5 +1,7 @@
 package com.nuodb.storefront.model.dto;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 public class DbConnInfo {
     private String url;
     private String host;
@@ -43,6 +45,7 @@ public class DbConnInfo {
         this.username = username;
     }
 
+    @JsonIgnore
     public String getPassword() {
         return password;
     }

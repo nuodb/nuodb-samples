@@ -2,6 +2,8 @@
 
 package com.nuodb.storefront.dbapi;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -65,6 +67,20 @@ public class DbApiProxy implements IDbApi {
     @Override
     public String getAuthUser() {
         return apiUsername;
+    }
+
+    @Override
+    public Database getDb() throws ApiProxyException, ApiUnavailableException {
+        try {
+            String dbName = dbConnInfo.getDbName();
+            return Client.create(s_cfg)
+                    .resource(baseUrl + "/databases/" + urlEncode(dbName))
+                    .header(HttpHeaders.AUTHORIZATION, authHeader)
+                    .type(MediaType.APPLICATION_JSON)
+                    .get(Database.class);
+        } catch (Exception e) {
+            throw toApiException(e);
+        }
     }
 
     @Override
@@ -148,7 +164,7 @@ public class DbApiProxy implements IDbApi {
         }
         return stats;
     }
-    
+
     protected List<Region> getRegions() {
         try {
             String dbName = dbConnInfo.getDbName();
@@ -269,7 +285,7 @@ public class DbApiProxy implements IDbApi {
                 }
                 usedRegion.usedHostCount = usedHosts.size();
             }
-            
+
             DbFootprint footprint = getDbFootprint(regions);
 
             // Update template if current one doesn't match desired footprint
@@ -279,12 +295,13 @@ public class DbApiProxy implements IDbApi {
                 if (createDb) {
                     database = new Database();
                 }
-                boolean updateDb = fixDatabaseTemplate(database, footprint.usedRegionCount, footprint.usedHostCount, usedRegions.get(0).region, firstUsedHost.id);
+                boolean updateDb = fixDatabaseTemplate(database, footprint.usedRegionCount, footprint.usedHostCount, usedRegions.get(0).region,
+                        firstUsedHost.id);
                 if (createDb) {
                     database.name = dbConnInfo.getDbName();
                     database.username = dbConnInfo.getUsername();
                     database.password = dbConnInfo.getPassword();
-                    
+
                     s_logger.info("Creating DB '" + database.name + "' with template '" + database.template + "' and vars " + database.variables);
                     Client.create(s_cfg)
                             .resource(baseUrl + "/databases/")
@@ -294,13 +311,13 @@ public class DbApiProxy implements IDbApi {
                 } else if (updateDb) {
                     s_logger.info("Updating DB '" + database.name + "' with template '" + database.template + "' and vars " + database.variables);
                     Client.create(s_cfg)
-                            .resource(baseUrl + "/databases/" + database.name)
+                            .resource(baseUrl + "/databases/" + urlEncode(database.name))
                             .header(HttpHeaders.AUTHORIZATION, authHeader)
                             .type(MediaType.APPLICATION_JSON)
                             .put(Database.class, database);
                 }
             }
-            
+
             return footprint;
         } catch (Exception e) {
             throw toApiException(e);
@@ -326,7 +343,7 @@ public class DbApiProxy implements IDbApi {
         s_logger.info("Removing tag '" + tagName + "' from host " + host.address + " (id=" + host.id + ")");
 
         Client.create(s_cfg)
-                .resource(baseUrl + "/hosts/" + host.id + "/tags/" + tagName)
+                .resource(baseUrl + "/hosts/" + host.id + "/tags/" + urlEncode(tagName))
                 .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .type(MediaType.APPLICATION_JSON).delete();
 
@@ -415,7 +432,7 @@ public class DbApiProxy implements IDbApi {
         int changeCount = 0;
         String oldTemplateName = null;
         if (database.template instanceof Map) {
-            oldTemplateName = ((Map<String, String>)database.template).get("name");
+            oldTemplateName = ((Map<String, String>) database.template).get("name");
         } else if (database.template != null) {
             oldTemplateName = String.valueOf(database.template);
         }
@@ -441,5 +458,13 @@ public class DbApiProxy implements IDbApi {
         }
 
         return changeCount > 0;
+    }
+
+    private static final String urlEncode(String str) {
+        try {
+            return URLEncoder.encode(str, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

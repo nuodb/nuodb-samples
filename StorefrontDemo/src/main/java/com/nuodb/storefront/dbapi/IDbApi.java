@@ -27,9 +27,13 @@ public interface IDbApi {
     public String getAuthUser();
 
     /**
+     * Fetches information about the Storefront DB.
+     */
+    public Database getDb() throws ApiProxyException, ApiUnavailableException;
+
+    /**
      * Fetches information about all the database processes running in support of the Storefront DB. This method returns an empty list if the
      * Storefront DB not running.
-     * 
      */
     public List<Process> getDbProcesses() throws ApiProxyException, ApiUnavailableException;
 
@@ -58,9 +62,9 @@ public interface IDbApi {
      * @return Database metadata
      */
     public Database fixDbSetup(boolean createIfDne) throws DatabaseNotFoundException, ApiProxyException, ApiUnavailableException;
-    
+
     /**
      * Gets stats for all regions, including ones where the Storefront DB is not currently running.
      */
-    public List<RegionStats> getRegionStats() throws ApiProxyException, ApiUnavailableException;    
+    public List<RegionStats> getRegionStats() throws ApiProxyException, ApiUnavailableException;
 }

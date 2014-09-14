@@ -9,35 +9,34 @@
 
 		<div id="list" class="tab-pane"></div>
 		<script id="tpl-list" type="text/template">
-					<table class="table table-bordered table-hover">
-						<thead>
-							<tr>
-								<th>Host</th>
-								<th title="Process ID">PID</th>
-								<th>Node type</th>
-								<th>Status</th>
-								<th>Region</th>
-								<th>Actions</th>
-							</tr>
-						</thead>
-						<tbody>
-							{{#result}}
-								<tr data-uid="{{uid}}">
-									<td>{{address}}:{{port}}</td>
-									<td>{{pid}}</td>									
-									<td><i class="{{icon}}"></i> {{typeName}}</td>
-									<td>{{status}}</td>
-									<td>{{region}}</td>
-									<td><button class="btn btn-danger" {{#unless uid}}title="Feature unavailable without a connection to the AutoConsole API" disabled="disabled"{{/unless}}><i class="icon-off icon-white"></i> Shutdown</td>
-								</tr>
-							{{/result}}
-							{{#unless result}}
-								<tr><td colspan="4">No processes associated with the Storefront database are currently running.</td></tr>                                
-							{{/unless}}
-						</tbody>
-					</table>
+			<table class="table table-bordered table-hover">
+				<thead>
+					<tr>
+						<th>Host</th>
+						<th title="Process ID">PID</th>
+						<th>Node type</th>
+						<th>Status</th>
+						<th>Region</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{#result}}
+						<tr data-uid="{{uid}}">
+							<td>{{address}}:{{port}}</td>
+							<td>{{pid}}</td>									
+							<td><i class="{{icon}}"></i> {{typeName}}</td>
+							<td>{{status}}</td>
+							<td>{{region}}</td>
+							<td><button class="btn btn-danger" {{#unless uid}}title="Feature unavailable without a connection to the AutoConsole API" disabled="disabled"{{/unless}}><i class="icon-off icon-white"></i> Shutdown</td>
+						</tr>
+					{{/result}}
+					{{#unless result}}
+						<tr><td colspan="4">No processes associated with the Storefront database are currently running.</td></tr>                                
+					{{/unless}}
+				</tbody>
+			</table>
 		</script>
-
     </div>
 
 </t:page>

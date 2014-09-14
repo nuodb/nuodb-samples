@@ -71,6 +71,10 @@
         <servlet-class>com.nuodb.storefront.servlet.StoreCartServlet</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>storefront-controlpanel-database</servlet-name>
+        <servlet-class>com.nuodb.storefront.servlet.ControlPanelDatabaseServlet</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>storefront-controlpanel-processes</servlet-name>
         <servlet-class>com.nuodb.storefront.servlet.ControlPanelProcessesServlet</servlet-class>
     </servlet>
@@ -127,6 +131,10 @@
     <servlet-mapping>
         <servlet-name>storefront-store-cart</servlet-name>
         <url-pattern>/store-cart</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>storefront-controlpanel-database</servlet-name>
+        <url-pattern>/control-panel-database</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>storefront-controlpanel-processes</servlet-name>

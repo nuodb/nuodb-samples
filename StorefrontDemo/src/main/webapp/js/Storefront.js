@@ -28,6 +28,10 @@ var Storefront = {
             case "control-panel-products":
                 me.initControlPanelProductsPage(cfg.pageData.stats);
                 break;
+                
+            case "control-panel-database":
+                me.initControlPanelDatabasePage(cfg.pageData);
+                break;
 
             case "control-panel-regions":
                 me.initControlPanelRegionsPage(cfg.pageData.regions);
@@ -47,6 +51,12 @@ var Storefront = {
 
             case "store-cart":
                 me.initCartPage(cfg.pageData);
+                break;
+                
+            case "tour-multi-tenancy":
+            case "tour-no-knobs-admin":
+                $('#lnk-console').attr('href', cfg.pageData.adminConsoleUrl);
+                $('#lnk-explorer').attr('href', cfg.pageData.sqlExplorerUrl);
                 break;
         }
 

@@ -25,14 +25,12 @@ public class StorefrontWebApp implements ServletContextListener {
     private static final String ENV_MAVEN_TOMCAT_PORT = "maven.tomcat.port";
     private static final String CONTEXT_INIT_PARAM_PUBLIC_URL = "storefront.publicUrl";
     private static final String CONTEXT_INIT_PARAM_LAZY_LOAD = "storefront.lazyLoad";
-    private static final String CONTEXT_INIT_PARAM_IS_CONSOLE_LOCAL = "storefront.isConsoleLocal";
 
     private static ScheduledExecutorService s_executor;
     private static int s_port;
     private static IHeartbeatService s_heartbeatSvc;
     private static final Object s_heartbeatSvcLock = new Object();
     private static boolean s_initialized = false;
-    private static boolean s_isConsoleLocal;
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
@@ -43,7 +41,6 @@ public class StorefrontWebApp implements ServletContextListener {
 
         ServletContext context = sce.getServletContext();
         s_executor = Executors.newSingleThreadScheduledExecutor();
-        s_isConsoleLocal = isInitParameterTrue(CONTEXT_INIT_PARAM_IS_CONSOLE_LOCAL, context, false);
 
         // Get external URL of this web app
         String url = buildWebAppUrl(context, guessWebAppPort());
@@ -64,10 +61,6 @@ public class StorefrontWebApp implements ServletContextListener {
         s_initialized = true;
     }
     
-    public static boolean isConsoleLocal() {
-        return s_isConsoleLocal;
-    }
-
     protected static boolean isInitParameterTrue(String name, ServletContext context, boolean defaultValue) {
         String val = context.getInitParameter(name);
         if (StringUtils.isEmpty(val)) {

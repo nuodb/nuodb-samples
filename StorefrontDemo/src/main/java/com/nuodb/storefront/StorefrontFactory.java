@@ -108,6 +108,20 @@ public class StorefrontFactory {
         info.setDbProcessTag(System.getProperty("storefront.db.processTag", StorefrontApp.DEFAULT_DB_PROCESS_TAG));
         return info;
     }
+    
+    public static String getAdminConsoleUrl() {
+        DbConnInfo connInfo = getDbConnInfo();
+        String host = System.getProperty("storefront.dbapi.host", connInfo.getHost());
+        String port = System.getProperty("storefront.dbapi.port", "8888");
+        return "http://" + host + ":" + port + "/console";
+    }
+    
+    public static String getSqlExplorerUrl() {
+        DbConnInfo connInfo = getDbConnInfo();
+        String host = System.getProperty("storefront.dbapi.host", connInfo.getHost());
+        String port = System.getProperty("storefront.sqlexplorer.port", "9001");
+        return "http://" + host + ":" + port + "/explorer.jsp";
+    }
 
     public static SchemaExport createSchemaExport() {
         return new SchemaExport(s_configuration);

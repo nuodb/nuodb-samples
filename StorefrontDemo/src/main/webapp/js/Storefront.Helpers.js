@@ -117,3 +117,20 @@ Handlebars.registerHelper('productImage', function(value) {
 Handlebars.registerHelper('urlEncode', function(value) {
     return encodeURIComponent(value);
 });
+
+Handlebars.registerHelper('eachInMap', function(map, block) {
+    var out = [];
+    var keys = [];
+    for (var key in map) {
+        keys.push(key);
+    }
+    keys.sort();
+    for (var i = 0; i < keys.length; i++) {
+        key = keys[i];
+        out.push(block.fn({
+            key: key,
+            value: map[key]
+        }));
+    }
+    return out.join('');
+});

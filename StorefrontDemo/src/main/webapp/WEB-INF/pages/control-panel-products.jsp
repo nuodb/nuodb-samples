@@ -28,7 +28,6 @@
 						<td class="text-right">{{numberFormat categoryCount}}
 						<td>Product categories</td>
 					</tr>
-
 					<tr>
 						<td class="text-right">{{numberFormat productReviewCount}}
 						<td>Products reviews</td>

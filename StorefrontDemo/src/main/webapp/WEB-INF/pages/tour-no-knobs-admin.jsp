@@ -37,14 +37,16 @@
             </div>
         </div>
     </div>
-    
+
     <h3>Try it yourself:</h3>
     <t:messages />
     
     <ol class="tour-steps">
-        <li>Open the Automation Console.</li>
+        <li>Open the <a id="lnk-console" target="_blank">Automation Console</a>.</li>
         <li>Create a database using one of NuoDB&rsquo;s managed templates.</li>
         <li>Obsere how NuoDB ensures the template&rsquo;s conditions are met automatically.</li>
     </ol>
+
+    <p>The Storefront also leverages NuoDB&rsquo;s template system to automatically manage NuoDB processes across hosts.<br />For details, see the <a href="control-panel-database">database page</a>.</p>
     
 </t:page>

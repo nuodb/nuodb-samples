@@ -37,8 +37,8 @@
     <t:messages />
     
     <ol class="tour-steps">
-        <li>Create a second database on the same hosts using the Automation Console.</li>
-        <li>Alter the schema and run queries on that database using SQL Explorer.</li>
+        <li>Create a second database on the same hosts using the <a id="lnk-console" target="_blank">Automation Console</a>.</li>
+        <li>Alter the schema and run queries on that database using <a id="lnk-explorer" target="_blank">SQL Explorer</a>.</li>
         <li>Observe that the throughput and latency of the Storefront database remains stable.</li>
     </ol>
     
