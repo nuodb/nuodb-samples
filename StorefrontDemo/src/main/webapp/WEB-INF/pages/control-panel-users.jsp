@@ -4,6 +4,11 @@
 
 <t:page showHeader="false">
     <div id="control-panel">
+        <div class="pull-right">
+            <button id="btn-refresh" class="btn"><i class="icon icon-refresh"></i> Refresh</button>
+            <button class="btn btn-danger" id="btn-stop-all" title="Sets the number of simulated users to 0 across all workloads and regions">Stop All</button>
+        </div>
+
         <h1>Users</h1>
         <t:messages />
       
@@ -29,11 +34,6 @@
 									</ul>
 								</th>
 								<th colspan="3" class="customer-summary">
-									<div class="btn-group pull-right">
-										<button id="btn-refresh" class="btn" href="#"><i class="icon icon-refresh"></i> Refresh</button>
-										<button class="btn btn-danger" id="btn-stop-all" title="Sets the number of simulated users to 0 across all workloads and regions">Stop All</button>
-									</div>
-                            
 									<h3>Customers</h3>
 
 									<h4><span id="summary-users-simulated">0 simulated customers</span>:</h4>
@@ -109,9 +109,9 @@
 													{{#workloads}}
 														<tr>
 															<td><div title="Steps:{{#workload.steps}}
-	{{addOne @index}}. {{this}}{{/workload.steps}}
+{{addOne @index}}. {{this}}{{/workload.steps}}
 
-	Think time: {{{msFormat workload.avgThinkTimeMs}} (stdev {{sqrtMsFormat workload.thinkTimeVariance}})"><span class="label label-color-{{@index}}">&nbsp;</span> {{workload.name}}</div></td>
+Think time: {{{msFormat workload.avgThinkTimeMs}} (stdev {{sqrtMsFormat workload.thinkTimeVariance}})"><span class="label label-color-{{@index}}">&nbsp;</span> {{workload.name}}</div></td>
 															<td>
 																<div class="progress">
 																	<div class="bar empty" style="width: 0%;"></div>

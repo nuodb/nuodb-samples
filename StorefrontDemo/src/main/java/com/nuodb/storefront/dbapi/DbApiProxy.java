@@ -78,6 +78,9 @@ public class DbApiProxy implements IDbApi {
                     .header(HttpHeaders.AUTHORIZATION, authHeader)
                     .type(MediaType.APPLICATION_JSON)
                     .get(Database.class);
+        } catch (ClientHandlerException e) {
+            // DB not found
+            return null;
         } catch (Exception e) {
             throw toApiException(e);
         }

@@ -46,6 +46,9 @@ public class AppInstance extends UuidEntity {
     @Enumerated(EnumType.STRING)
     private Currency currency = Currency.US_DOLLAR;
 
+    @NotNull
+    private int nodeId;
+
     public AppInstance() {
     }
 
@@ -138,5 +141,13 @@ public class AppInstance extends UuidEntity {
 
     public void setRegionOverride(boolean regionOverride) {
         this.regionOverride = regionOverride;
+    }
+
+    public int getNodeId() {
+        return nodeId;
+    }
+
+    public void setNodeId(int nodeId) {
+        this.nodeId = nodeId;
     }
 }

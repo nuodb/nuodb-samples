@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 NuoDB, Inc. */
+/* Copyright (c) 2013-2014 NuoDB, Inc. */
 
 /**
  * @class App.view.HeaderBar
@@ -117,12 +117,16 @@ Ext.define('App.view.HeaderBar', {
 
             case 'metrics-hosts':
             case 'metrics-regions':
+                btn.noInputSyncUntil = -1;
                 Ext.Ajax.request({
                     url: App.app.apiBaseUrl + '/api/stats/db?numRegions=' + me.btnRegions.getInputValue() + "&numHosts=" + me.btnHosts.getInputValue(),
                     method: 'PUT',
                     scope: this,
                     failure: function(response) {
                         App.app.fireEvent('error', response, null);
+                    },
+                    complete: function() {
+                        btn.noInputSyncUntil = new Date().getTime() + 1000 * 3;
                     }
                 });
                 break;

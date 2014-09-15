@@ -45,13 +45,17 @@ Ext.define('App.view.NavBar', {
     }, {
         title: 'Control Panel'
     }, {
-        title: 'Database',
-        href: '/control-panel-database',
-        icon: 'ico-db.png'
+        title: 'Products',
+        href: '/control-panel-products',
+        icon: 'ico-product.png'
     }, {
         title: 'Simulated users',
         href: '/control-panel-users',
         icon: 'ico-users.png'
+    }, {
+        title: 'Database',
+        href: '/control-panel-database',
+        icon: 'ico-db.png'
     }, {
         title: 'Hosts & processes',
         href: '/control-panel-processes',
@@ -60,10 +64,6 @@ Ext.define('App.view.NavBar', {
         title: 'Regions',
         href: '/control-panel-regions',
         icon: 'ico-pin.png'
-    }, {
-        title: 'Products',
-        href: '/control-panel-products',
-        icon: 'ico-product.png'
     }],
 
     /** @Override */

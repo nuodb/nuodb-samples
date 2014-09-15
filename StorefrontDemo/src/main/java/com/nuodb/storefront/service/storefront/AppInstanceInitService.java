@@ -1,12 +1,12 @@
-/* Copyright (c) 2013 NuoDB, Inc. */
+/* Copyright (c) 2013-2014 NuoDB, Inc. */
 
 package com.nuodb.storefront.service.storefront;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.nuodb.storefront.dal.IStorefrontDao;
 import com.nuodb.storefront.dal.TransactionType;
+import com.nuodb.storefront.model.dto.DbRegionInfo;
 import com.nuodb.storefront.model.entity.AppInstance;
 import com.nuodb.storefront.model.type.Currency;
 
@@ -33,17 +33,18 @@ public class AppInstanceInitService {
 
                 // Init region name
                 if (!app.getRegionOverride()) {
-                    String region;
+                    DbRegionInfo region;
                     try {
                         region = dao.getCurrentDbNodeRegion();
                     } catch (Exception e) {
                         region = null;
                     }
 
-                    if (StringUtils.isEmpty(region)) {
+                    if (region == null) {
                         s_log.warn("Your database version does not support regions.  Upgrade to NouDB 2.0 or greater.");
-                    } else if (!region.isEmpty()) {
-                        app.setRegion(region);
+                    } else {
+                        app.setRegion(region.regionName);
+                        app.setNodeId(region.nodeId);
                     }
                 }
             };

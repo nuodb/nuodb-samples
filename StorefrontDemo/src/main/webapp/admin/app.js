@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 NuoDB, Inc. */
+/* Copyright (c) 2013-2014 NuoDB, Inc. */
 
 String.prototype.endsWith = function(suffix) {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
@@ -40,9 +40,7 @@ Ext.application({
 
             constructor: function(config) {
                 var valueFont = '11px Tahoma';
-                var titleFont = '11px Tahoma bold';
                 var gray = '#958979';
-                var dkGray = '#444';
 
                 this.callParent([Ext.apply({
                     colors: ['#26a9e0', '#24e0cc', '#4be123', '#d7db22', '#cca61b', '#c76424', '#e5624d', '#ff4b5c', '#e650af', '#bd50e5', '#8e6892', '#6084a9', '#88979d', '#97aea0', '#b0c3c9'],
@@ -56,7 +54,7 @@ Ext.application({
                     },
                     axisTitleLeft: {
                         fill: gray,
-                        font: titleFont
+                        font: valueFont
                     },
                     axisLabelBottom: {
                         fill: gray,

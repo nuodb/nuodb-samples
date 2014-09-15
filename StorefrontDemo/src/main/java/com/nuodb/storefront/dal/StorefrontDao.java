@@ -20,6 +20,7 @@ import org.hibernate.type.StringType;
 import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.model.dto.Category;
+import com.nuodb.storefront.model.dto.DbRegionInfo;
 import com.nuodb.storefront.model.dto.ProductFilter;
 import com.nuodb.storefront.model.dto.StorefrontStats;
 import com.nuodb.storefront.model.dto.TransactionStats;
@@ -273,8 +274,12 @@ public class StorefrontDao extends BaseDao implements IStorefrontDao {
     }
 
     @Override
-    public String getCurrentDbNodeRegion() {
-        return getSession().createSQLQuery("SELECT GEOREGION FROM SYSTEM.NODES WHERE ID=GETNODEID()").uniqueResult().toString();
+    public DbRegionInfo getCurrentDbNodeRegion() {
+        DbRegionInfo info = new DbRegionInfo();
+        Object[] result = (Object[])getSession().createSQLQuery("SELECT GETNODEID(), GEOREGION FROM SYSTEM.NODES WHERE ID=GETNODEID()").uniqueResult();
+        info.nodeId = ((Number)result[0]).intValue();
+        info.regionName = result[1].toString();
+        return info;
     }
 
     @Override

@@ -23,7 +23,13 @@
 				<tbody>
 					{{#result}}
 						<tr data-uid="{{uid}}">
-							<td>{{address}}:{{port}}</td>
+							<td>
+								{{address}}:{{port}}
+								{{#if appInstances.length}}
+									<i class="icon-{{#if currentConnection}}star{{else}}star-empty{{/if}}" title="{{appInstances.length}} Storefront instance(s) connected here{{#if currentConnection}} (including this instance){{/if}}:{{#appInstances}}
+- {{this}}{{/appInstances}}"></i>
+								{{/if}}
+							</td>
 							<td>{{pid}}</td>									
 							<td><i class="{{icon}}"></i> {{typeName}}</td>
 							<td>{{status}}</td>

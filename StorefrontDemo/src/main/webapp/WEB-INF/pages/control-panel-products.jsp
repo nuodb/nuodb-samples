@@ -4,8 +4,17 @@
 
 <t:page showHeader="false">
     <div id="control-panel">
-        <form method="post" class="btn-group pull-right">
+        <form method="post" class="pull-right">
             <a id="btn-refresh" class="btn" href="control-panel-products"><i class="icon icon-refresh"></i> Refresh</a>
+            <div class="btn-group">
+                <button class="btn dropdown-toggle" data-toggle="dropdown">
+                    Add more products <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu pull-right">
+                    <li><a href="#" class="command">Load 900 Real Products (with pictures served by Amazon.com)</a></li>
+                    <li><a href="#" class="command">Generate 5,000 Fake Products (without pictures)</a></li>
+                </ul>
+            </div>
             <button id="btn-delete" class="btn btn-danger" name="btn-msg" type="submit" value="Remove All Data">Remove All Data</button>
         </form>
 

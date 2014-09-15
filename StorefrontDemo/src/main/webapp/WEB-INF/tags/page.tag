@@ -57,6 +57,12 @@
         <div class="footer">Copyright &copy; 2013-2014 NuoDB, Inc. All rights reserved.</div>
         <% } %>
     </div>
+    
+    <div id="progress-container" class="hide">
+        <div class="progress progress-striped active">
+            <div class="bar" style="width: 0%;"></div>
+        </div>
+    </div>
 
     <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="js/jquery.form.js"></script>

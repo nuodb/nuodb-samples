@@ -37,7 +37,6 @@
         <li>Choose one or more processes to shut down using the <a href="control-panel-processes">hosts &amp; processes page</a>.
             Alternatively, you can connect to one of your hosts (via SSH, Remote Desktop, etc.) and kill a NuoDB process directly.</li>
         <li>Observe how throughput recovers to its steady state.</li>
-    </ol>
-    
+    </ol>    
     
 </t:page>

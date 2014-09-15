@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 NuoDB, Inc. */
+/* Copyright (c) 2013-2014 NuoDB, Inc. */
 
 Ext.define('App.view.MetricWell', {
     extend: 'Ext.container.Container',
@@ -16,6 +16,7 @@ Ext.define('App.view.MetricWell', {
     maxHistory: 20,
     valueSum: 0,
     valueCount: 0,
+    noInputSyncUntil: 0,
 
     layout: {
         type: 'hbox',
@@ -234,13 +235,16 @@ Ext.define('App.view.MetricWell', {
 
     onStatsChange: function(stats) {
         var me = this;
+        
         val = stats.getLatestValue(me.metric);
         me.setValue(val);
         if (me.inputSlider) {
-            var max = stats.getLatestValue(me.inputMaxMetric);
-            me.inputSlider.setMaxValue(max);
-            me.inputSlider.setDisabled(max <= 1);
-            me.inputSlider.setValue(val);
+            if (me.noInputSyncUntil == 0 || me.noInputSyncUntil >= new Date().getTime()) {
+                var max = stats.getLatestValue(me.inputMaxMetric);
+                me.inputSlider.setMaxValue(max);
+                me.inputSlider.setDisabled(max <= 1);
+                me.inputSlider.setValue(val);
+            }
         }
 
     },

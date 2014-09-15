@@ -4,7 +4,6 @@ package com.nuodb.storefront.servlet;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -12,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.nuodb.storefront.StorefrontFactory;
-import com.nuodb.storefront.dbapi.Process;
+import com.nuodb.storefront.api.ProcessesApi;
 import com.nuodb.storefront.model.entity.Customer;
 
 public class ControlPanelProcessesServlet extends BaseServlet {
@@ -24,12 +23,8 @@ public class ControlPanelProcessesServlet extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            // Fetch nodes data
-            List<Process> processes = getDbApi().getDbProcesses();
-
-            // Fetch data the page needs
             Map<String, Object> pageData = new HashMap<String, Object>();
-            pageData.put("processes", processes);
+            pageData.put("processes", new ProcessesApi().getProcesses());
             pageData.put("adminConsoleUrl", StorefrontFactory.getAdminConsoleUrl());
 
             showPage(req, resp, "Control Panel", "control-panel-processes", pageData, new Customer());

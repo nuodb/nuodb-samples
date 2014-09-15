@@ -19,12 +19,16 @@
     Storefront.initControlPanelDatabasePage = function(data) {
         g_app = this;
         
-        var dbName = data.db.name;
+        var dbName = data.dbConnInfo.dbName;
         data.apiUrl += '/databases/' + encodeURIComponent(dbName);
-        data.dbStatusColor = (data.db.status == 'RUNNING') ? 'success' : '';
-        
-        $('#btn-console').attr('href', data.adminConsoleUrl + '?#databases/' + encodeURIComponent(dbName));
-        $('#btn-explorer').attr('href', data.sqlExplorerUrl + "?db=" + encodeURIComponent(dbName));
+        if (data.db) {
+            data.dbStatusColor = (data.db.status == 'RUNNING') ? 'success' : '';
+            $('#btn-console').attr('href', data.adminConsoleUrl + '?#databases/' + encodeURIComponent(dbName));
+            $('#btn-explorer').attr('href', data.sqlExplorerUrl + "?db=" + encodeURIComponent(dbName));
+        } else {
+            data.dbStatusColor = 'important';
+            $('#btn-console, #btn-explorer').hide();
+        }
         
         g_app.TemplateMgr.applyTemplate('tpl-db-info', '#db-info', data);
     };
@@ -131,7 +135,9 @@
             var item2 = list2[i];
             for ( var key in item1) {
                 if (item1[key] != item2[key]) {
-                    return false;
+                    if (!$.isArray(item1[key]) || !areListsEqual(item1[key], item2[key])) {
+                        return false;
+                    }
                 }
             }
         }

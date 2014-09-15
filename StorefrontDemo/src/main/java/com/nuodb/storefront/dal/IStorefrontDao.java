@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 
 import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.model.dto.Category;
+import com.nuodb.storefront.model.dto.DbRegionInfo;
 import com.nuodb.storefront.model.dto.ProductFilter;
 import com.nuodb.storefront.model.dto.StorefrontStats;
 import com.nuodb.storefront.model.dto.TransactionStats;
@@ -72,7 +73,7 @@ public interface IStorefrontDao extends IBaseDao {
      * communicate with multiple transaction engines, the return value may vary if called multiple times. An exception is thrown if the underlying
      * database does not support georegion metadata (e.g. NuoDB pre-2.0, MySQL, etc.).
      */
-    public String getCurrentDbNodeRegion();
+    public DbRegionInfo getCurrentDbNodeRegion();
 
     /**
      * Gets the currency currently associated with a specified region. This is determined by looking at the most recent Storefront instance (by last

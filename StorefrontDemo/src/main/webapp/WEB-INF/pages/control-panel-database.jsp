@@ -23,11 +23,11 @@
                     <tbody>
     					<tr>
         					<td>Database name:
-        					<td>{{db.name}}</td>
+        					<td>{{dbConnInfo.dbName}}</td>
         				</tr>
     					<tr>
         					<td>Status:</td>
-        					<td><span class="label label-{{dbStatusColor}}">{{db.status}}</span></td>
+        					<td><span class="label label-{{dbStatusColor}}">{{#if db.active}}{{db.status}}{{else}}INACTIVE{{/if}}</span></td>
         				</tr>
     					<tr>
         					<td>JDBC URL:</td>
@@ -48,36 +48,38 @@
         			</tbody>
         		</table>
 
-				<h3>Database template</h3>
-				<p>The Storefront reconfigures the template name and variables based on the number of hosts and regions you select.</p>
-                <table class="table table-bordered table-hover">
-    				<colgroup>
-        				<col width="30%" />
-        				<col />
-        			</colgroup>
-                    <tbody>        				
-    					<tr>
-        					<td>Active template:</td>
-        					<td>{{db.template.name}}</td>
-        				</tr>
-        				<tr>
-        					<td>Template description:</td>
-        					<td>{{db.template.summary}}</td>
-        				</tr>
-						<tr>
-        					<td>Requirements met:</td>
-        					<td>
-        						{{#if db.ismet}}<span class="label label-success">Yes</span>{{else}}<span class="label label-important">No</span>{{/if}}
-        					</td>
-        				</tr>
-    					{{#eachInMap db.variables}}
+				{{#if db.template}}
+    				<h3>Database template</h3>
+    				<p>The Storefront reconfigures the template name and variables based on the number of hosts and regions you select.</p>
+                    <table class="table table-bordered table-hover">
+        				<colgroup>
+            				<col width="30%" />
+            				<col />
+            			</colgroup>
+                        <tbody>        				
+        					<tr>
+            					<td>Active template:</td>
+            					<td>{{db.template.name}}</td>
+            				</tr>
+            				<tr>
+            					<td>Template description:</td>
+            					<td>{{db.template.summary}}</td>
+            				</tr>
     						<tr>
-    							<td>{{key}}:</td>
-    							<td>{{value}}</td>
-    						</tr>
-    					{{/eachInMap}}
-    				</tbody>
-    			</table>                
+            					<td>Requirements met:</td>
+            					<td>
+            						{{#if db.ismet}}<span class="label label-success">Yes</span>{{else}}<span class="label label-important">No</span>{{/if}}
+            					</td>
+            				</tr>
+        					{{#eachInMap db.variables}}
+        						<tr>
+        							<td>{{key}}:</td>
+        							<td>{{value}}</td>
+        						</tr>
+        					{{/eachInMap}}
+        				</tbody>
+        			</table>    
+				{{/if}}            
             {{/result}}
 		</script>
     </div>

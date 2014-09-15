@@ -11,6 +11,7 @@ import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.dal.IStorefrontDao;
 import com.nuodb.storefront.dal.StorefrontDao;
 import com.nuodb.storefront.dal.TransactionType;
+import com.nuodb.storefront.model.dto.DbRegionInfo;
 import com.nuodb.storefront.model.entity.AppInstance;
 import com.nuodb.storefront.service.IHeartbeatService;
 import com.nuodb.storefront.service.simulator.SimulatorService;
@@ -47,7 +48,9 @@ public class HeartbeatService implements IHeartbeatService {
                     appInstance.setCpuUtilization(PerformanceUtil.getCpuUtilization());
                     appInstance.setLastHeartbeat(now);
                     if (!appInstance.getRegionOverride()) {
-                        appInstance.setRegion(dao.getCurrentDbNodeRegion());
+                        DbRegionInfo region = dao.getCurrentDbNodeRegion();
+                        appInstance.setRegion(region.regionName);
+                        appInstance.setNodeId(region.nodeId);
                     }
                     dao.save(StorefrontApp.APP_INSTANCE); // this will create or update as appropriate
 

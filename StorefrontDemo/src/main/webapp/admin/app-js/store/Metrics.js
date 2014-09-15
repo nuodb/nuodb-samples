@@ -13,8 +13,8 @@ Ext.define('App.store.Metrics', {
            //{ category0: 'dbStats', name: 'commitCount', aggregate: true, view: 'metrics-db', title: 'Commits per Second', unit: 'Commits/second' },
            
            // Service metrics
-           { category0: 'transactionStats', name: 'totalCountDelta', defaultCategoryIdx: 0, view: 'metrics-throughput', title: 'Service Calls per Second', unit: 'Calls/second', groupBy0: 'Service Method', category1: 'regionTransactionStats', groupBy1: 'Region' },
-           { category0: 'transactionStats', name: 'avgDurationCalc', defaultCategoryIdx: 0, view: 'metrics-latency', title: 'Avg. Service Processing Time', unit: 'Milliseconds/call', groupBy0: 'Service Method', category1: 'regionTransactionStats', groupBy1: 'Region', chartType: 'area' },
+           { category0: 'transactionStats', name: 'totalCountDelta', defaultCategoryIdx: 0, view: 'metrics-throughput', title: 'Throughput', unit: 'Calls/second', groupBy0: 'Service Method', category1: 'regionTransactionStats', groupBy1: 'Region' },
+           { category0: 'transactionStats', name: 'avgDurationCalc', defaultCategoryIdx: 0, view: 'metrics-latency', title: 'Latency', unit: 'Milliseconds/call', groupBy0: 'Service Method', category1: 'regionTransactionStats', groupBy1: 'Region', chartType: 'area' },
            //{ category0: 'transactionStats', name: 'totalDurationMsDelta', defaultCategoryIdx: 0, view: 'metrics-service', title: 'Service Processing Time', unit: 'Milliseconds', groupBy0: 'Service Method', category1: 'regionTransactionStats', groupBy1: 'Region' },
            
            //{ category0: 'transactionStats', name: 'successCount', aggregate: true, view: 'metrics-service', title: 'Total Successful Calls', unit: 'Calls' },

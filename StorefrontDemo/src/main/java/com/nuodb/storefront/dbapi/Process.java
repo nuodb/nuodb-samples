@@ -3,6 +3,23 @@
 package com.nuodb.storefront.dbapi;
 
 public class Process {
+    public Process() {
+    }
+
+    public Process(Process process) {
+        this.address = process.address;
+        this.agentid = process.agentid;
+        this.dbname = process.dbname;
+        this.hostname = process.hostname;
+        this.nodeId = process.nodeId;
+        this.pid = process.pid;
+        this.port = process.port;
+        this.status = process.status;
+        this.type = process.type;
+        this.uid = process.uid;
+        this.region = process.region;
+    }
+
     public String address;
     public String agentid;
     public String dbname;

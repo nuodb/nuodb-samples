@@ -183,7 +183,9 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     protected static void showCriticalErrorPage(HttpServletRequest req, HttpServletResponse resp, Exception ex) throws ServletException, IOException {
+        getMessages(req).clear();
         addErrorMessage(req, ex);
+        
         if (ex instanceof GenericJDBCException) {
             DbConnInfo dbInfo = StorefrontFactory.getDbConnInfo();
             addMessage(

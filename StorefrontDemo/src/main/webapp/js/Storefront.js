@@ -70,7 +70,27 @@ var Storefront = {
             setTimeout(function() {
                 btns$.attr('disabled', 'disabled');
             }, 0);
+            me.startProgressBar();
         });
+        
+        // Hook commands
+        $('a.command').click(function() {
+            me.submitCommand($(this).text());
+        });
+    },
+    
+    startProgressBar: function() {
+        $('#progress-container').fadeIn();
+        var pct = 0;
+        var interval = 2; 
+        setInterval(function() {
+            $('#progress-container .bar').css('width', Math.min(100, (pct += 2)) + '%');
+        }, 500);
+    },
+    
+    submitCommand: function(cmd) {
+        var form$ = $('<form method="POST"><button name="btn-msg" type="submit" value="' + cmd + '"></form>');
+        form$.appendTo('body').find('button').click();
     },
 
     initSearchBox: function() {

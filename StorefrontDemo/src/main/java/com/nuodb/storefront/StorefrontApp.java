@@ -41,6 +41,11 @@ public class StorefrontApp {
 
     private static final int BENCHMARK_DURATION_MS = 10000;
     private static final int SIMULATOR_STATS_DISPLAY_INTERVAL_MS = 5000;
+    
+    static {
+        //  For JSP page compilation, use Jetty compiler when available to avoid JDK dependency
+        System.setProperty("org.apache.jasper.compiler.disablejsr199", "true");
+    }
 
     /**
      * Command line utility to perform various actions related to the Storefront application.
@@ -143,10 +148,12 @@ public class StorefrontApp {
     }
 
     public static void benchmark() throws InterruptedException {
+        Workload shoppersWithNoWait = new Workload("Customer:  Instant purchaser", true, 0, 0, Workload.DEFAULT_MAX_WORKERS, WorkloadStep.MULTI_SHOP);
+
         ISimulatorService simulator = StorefrontFactory.getSimulatorService();
-        simulator.addWorkers(Workload.SHOPPER_SUPER_FAST, 100, 0);
+        simulator.addWorkers(shoppersWithNoWait, 100, 0);
         Thread.sleep(BENCHMARK_DURATION_MS);
-        System.out.println(simulator.getWorkloadStats().get(Workload.SHOPPER_SUPER_FAST.getName()).getWorkCompletionCount());
+        System.out.println(simulator.getWorkloadStats().get(shoppersWithNoWait.getName()).getWorkCompletionCount());
         simulator.removeAll();
     }
 
@@ -167,7 +174,8 @@ public class StorefrontApp {
 
     private static void printSimulatorStats(ISimulatorService simulator, PrintStream out) {
         out.println();
-        out.println(String.format("%-30s %8s %8s %8s %8s | %7s %9s %7s %9s", "Workload", "Active", "Failed", "Killed", "Complete", "Steps", "Avg (s)", "Work", "Avg (s)"));
+        out.println(String.format("%-30s %8s %8s %8s %8s | %7s %9s %7s %9s", "Workload", "Active", "Failed", "Killed", "Complete", "Steps",
+                "Avg (s)", "Work", "Avg (s)"));
         for (Map.Entry<String, WorkloadStats> statsEntry : simulator.getWorkloadStats().entrySet()) {
             String workloadName = statsEntry.getKey();
             WorkloadStats stats = statsEntry.getValue();

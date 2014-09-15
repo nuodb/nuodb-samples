@@ -8,7 +8,7 @@ import java.util.List;
 import com.nuodb.storefront.util.Randoms;
 
 public class Workload {
-    private static final int DEFAULT_MAX_WORKERS = 50000;
+    public static final int DEFAULT_MAX_WORKERS = 50000;
 
     public static final Workload BROWSER = new Workload("Customer:  Browsing only", true, 2000, 1000, DEFAULT_MAX_WORKERS,
             WorkloadStep.MULTI_BROWSE);
@@ -16,8 +16,6 @@ public class Workload {
             WorkloadStep.MULTI_BROWSE_AND_REVIEW);
     public static final Workload SHOPPER = new Workload("Customer:  Slow purchaser", true, 2000, 1000, DEFAULT_MAX_WORKERS, WorkloadStep.MULTI_SHOP);
     public static final Workload SHOPPER_FAST = new Workload("Customer:  Fast purchaser", true, 500, 250, DEFAULT_MAX_WORKERS,
-            WorkloadStep.MULTI_SHOP);
-    public static final Workload SHOPPER_SUPER_FAST = new Workload("Customer:  Instant purchaser", true, 0, 0, DEFAULT_MAX_WORKERS,
             WorkloadStep.MULTI_SHOP);
     public static final Workload ANALYST = new Workload("Back office analyst", true, 2000, 1000, DEFAULT_MAX_WORKERS, WorkloadStep.ADMIN_RUN_REPORT);
 
