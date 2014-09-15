@@ -1,5 +1,5 @@
 Storefront Demo
-Copyright (c) 2013 NuoDB
+Copyright (c) 2013-2014 NuoDB
 
 MIT License (MIT)
 

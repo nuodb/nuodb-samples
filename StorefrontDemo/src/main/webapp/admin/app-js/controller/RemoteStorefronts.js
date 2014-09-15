@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 NuoDB, Inc. */
+/* Copyright (c) 2013-2014 NuoDB, Inc. */
 
 /**
  * @class App.controller.RemoteStorefronts

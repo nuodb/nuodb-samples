@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 NuoDB, Inc. */
+/* Copyright (c) 2013-2014 NuoDB, Inc. */
 
 Ext.define('App.view.MetricChart', {
     extend: 'Ext.panel.Panel',

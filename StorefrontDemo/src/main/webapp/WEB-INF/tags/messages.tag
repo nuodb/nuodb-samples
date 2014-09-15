@@ -1,4 +1,4 @@
-<%-- Copyright (c) 2013 NuoDB, Inc. --%>
+<%-- Copyright (c) 2013-2014 NuoDB, Inc. --%>
 <%@tag description="Messages" pageEncoding="UTF-8"%>
 
 <!-- Status messages -->

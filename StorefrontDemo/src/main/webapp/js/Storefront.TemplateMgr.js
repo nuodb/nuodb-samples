@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 NuoDB, Inc. */
+/* Copyright (c) 2013-2014 NuoDB, Inc. */
 
 /**
  * This file provides a lightweight wrapper of the Handlebars templating system, leveraging jQuery.
