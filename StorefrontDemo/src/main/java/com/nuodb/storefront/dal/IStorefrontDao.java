@@ -80,4 +80,6 @@ public interface IStorefrontDao extends IBaseDao {
      * heartbeat time) associated with this region. If no such instance exists, <code>null</code> is returned instead.
      */
     public Currency getRegionCurrency(String region);
+
+    public int getActiveAppInstanceCount(Calendar idleThreshold);
 }

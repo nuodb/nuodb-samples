@@ -48,6 +48,9 @@ public class AppInstance extends UuidEntity {
 
     @NotNull
     private int nodeId;
+    
+    @NotNull
+    private Calendar lastApiActivity;
 
     public AppInstance() {
     }
@@ -149,5 +152,13 @@ public class AppInstance extends UuidEntity {
 
     public void setNodeId(int nodeId) {
         this.nodeId = nodeId;
+    }
+
+    public Calendar getLastApiActivity() {
+        return lastApiActivity;
+    }
+
+    public void setLastApiActivity(Calendar lastApiActivity) {
+        this.lastApiActivity = lastApiActivity;
     }
 }

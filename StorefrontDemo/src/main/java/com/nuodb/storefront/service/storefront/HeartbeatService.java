@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 NuoDB, Inc. */
+/* Copyright (c) 2013-2014 NuoDB, Inc. */
 
 package com.nuodb.storefront.service.storefront;
 
@@ -42,6 +42,7 @@ public class HeartbeatService implements IHeartbeatService {
 
                     if (appInstance.getFirstHeartbeat() == null) {
                         appInstance.setFirstHeartbeat(now);
+                        appInstance.setLastApiActivity(now);
                     }
 
                     // Send the heartbeat with the latest "last heartbeat time"
@@ -54,14 +55,27 @@ public class HeartbeatService implements IHeartbeatService {
                     }
                     dao.save(StorefrontApp.APP_INSTANCE); // this will create or update as appropriate
 
-                    // System.err.println(dao.getCurrentDbNodeRegion());
-
                     // If enough time has elapsed, also delete rows of instances that are no longer sending heartbeats
                     if (secondsUntilNextPurge <= 0) {
                         Calendar maxLastHeartbeat = Calendar.getInstance();
                         maxLastHeartbeat.add(Calendar.SECOND, -StorefrontApp.MIN_INSTANCE_PURGE_AGE_SEC);
                         dao.deleteDeadAppInstances(maxLastHeartbeat);
                         secondsUntilNextPurge = StorefrontApp.PURGE_FREQUENCY_SEC;
+                    }
+
+                    // If interactive user has left the app, shut down any active workloads
+                    Calendar idleThreshold = Calendar.getInstance();
+                    idleThreshold.add(Calendar.SECOND, -StorefrontApp.STOP_USERS_AFTER_IDLE_UI_SEC);
+                    if (appInstance.getLastApiActivity().before(idleThreshold)) {
+                        // Don't do any heavy lifting if there are no simulated workloads in progress
+                        int activeWorkerCount = StorefrontFactory.getSimulatorService().getActiveWorkerLimit();
+                        if (activeWorkerCount > 0) {
+                            // Check for idleness across *all* instances
+                            if (dao.getActiveAppInstanceCount(idleThreshold) == 0) {
+                                s_log.info("Stopping all " + activeWorkerCount + " simulated users due to idle app instances.");
+                                StorefrontFactory.getSimulatorService().stopAll();
+                            }
+                        }
                     }
 
                     consecutiveFailureCount = 0;

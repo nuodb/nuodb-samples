@@ -133,6 +133,28 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     }
 
     @Override
+    public int getActiveWorkerLimit() {
+        int limit = 0;
+        synchronized (workloadStatsMap) {
+            for (WorkloadStats workload : workloadStatsMap.values()) {
+                if (workload.getActiveWorkerLimit() != null) {
+                    limit += workload.getActiveWorkerLimit();
+                }
+            }
+        }
+        return limit;
+    }
+
+    @Override
+    public void stopAll() {
+        synchronized (workloadStatsMap) {
+            for (WorkloadStats workload : workloadStatsMap.values()) {
+                workload.setActiveWorkerLimit(0);
+            }
+        }
+    }
+
+    @Override
     public Map<WorkloadStep, WorkloadStepStats> getWorkloadStepStats() {
         Map<WorkloadStep, WorkloadStepStats> map = new TreeMap<WorkloadStep, WorkloadStepStats>(ToStringComparator.getComparator());
         for (Map.Entry<WorkloadStep, AtomicInteger> stepEntry : stepCompletionCounts.entrySet()) {

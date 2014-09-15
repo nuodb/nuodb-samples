@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 NuoDB, Inc. */
+/* Copyright (c) 2013-2014 NuoDB, Inc. */
 
 package com.nuodb.storefront.service;
 
@@ -47,6 +47,16 @@ public interface ISimulatorService {
      * Removes all workers across all workloads, including those currently running, and sets the active worker limit to 0 across all workloads.
      */
     public void removeAll();
+    
+    /**
+     * Gets the sum of active worker limits across all workloads.  Workloads without limits do not contribute to this count.
+     */
+    public int getActiveWorkerLimit();
+    
+    /**
+     * Sets the active worker limit of all workloads to 0.  Any workers in progress are drained asynchronously.
+     */
+    public void stopAll();
 
     public Map<String, WorkloadStats> getWorkloadStats();
 

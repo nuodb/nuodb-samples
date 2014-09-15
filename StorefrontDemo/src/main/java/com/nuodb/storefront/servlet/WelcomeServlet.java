@@ -38,7 +38,7 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
         super.doPostAction(req, resp, btnAction);
     }
 
-    protected void doHealthCheck(HttpServletRequest req) {
+    protected void doHealthCheck(HttpServletRequest req) throws ServletException {
         try {
             getDbApi().fixDbSetup(false);
 

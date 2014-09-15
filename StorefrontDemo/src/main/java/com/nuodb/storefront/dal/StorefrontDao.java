@@ -272,6 +272,13 @@ public class StorefrontDao extends BaseDao implements IStorefrontDao {
         query.setParameter("MAX_LAST_HEARTBEAT", maxLastHeartbeat);
         return query.executeUpdate();
     }
+    
+    @Override
+    public int getActiveAppInstanceCount(Calendar idleThreshold) {
+        SQLQuery query = getSession().createSQLQuery("SELECT COUNT(*) FROM APP_INSTANCE WHERE LAST_API_ACTIVITY > :IDLE_THRESHOLD");
+        query.setParameter("IDLE_THRESHOLD", idleThreshold);
+        return ((Number)query.uniqueResult()).intValue();
+    }
 
     @Override
     public DbRegionInfo getCurrentDbNodeRegion() {

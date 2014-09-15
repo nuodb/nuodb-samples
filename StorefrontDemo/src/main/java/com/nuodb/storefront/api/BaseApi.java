@@ -2,9 +2,12 @@
 
 package com.nuodb.storefront.api;
 
+import java.util.Calendar;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.dbapi.IDbApi;
 import com.nuodb.storefront.model.entity.Customer;
 import com.nuodb.storefront.service.ISimulatorService;
@@ -24,6 +27,7 @@ public abstract class BaseApi {
     }
 
     protected ISimulatorService getSimulator() {
+        StorefrontApp.APP_INSTANCE.setLastApiActivity(Calendar.getInstance());
         return BaseServlet.getSimulator();
     }
 
