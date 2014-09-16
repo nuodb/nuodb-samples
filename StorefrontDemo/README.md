@@ -85,7 +85,7 @@ Getting Started (Eclipse)
 
 See the [Storefront Demo Developer Setup Guide](doc/NuoDB-Storefront.ppt) for step-by-step instructions with screenshots.
 
-StorefrontApp command line utility
+StorefrontApp Command Line Utility
 -----------------------------------
 
 `com.nuodb.storefront.StorefrontApp` supports the following actions via command line arguments.  
@@ -102,7 +102,7 @@ StorefrontApp command line utility
 If you specify multiple actions, they are executed in sequence.  For example, to recreate the schema,  initialize it with about 1,000 products, and then stress test the app with simulated load for 1 minute, specify the command line "drop create load simulate".
 
 
-Storefront components
+Storefront Components
 -------
 The store itself has 4 pages:
 
@@ -128,7 +128,7 @@ Finally, there are several "control panel" pages for detailed information on Nuo
 5. Regions
 
 
-Key libraries used by this project
+Key Libraries Used
 ----------------------------------
 Server side librares:
 - **Jersey** -- JSON-based RESTful API
