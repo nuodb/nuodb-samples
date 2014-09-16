@@ -1,11 +1,20 @@
 NuoDB Storefront Demo
 =====================
 
-This web application implements a mock storefront to highlight some of NuoDB's great features.  You can browse products, add items to you cart, write reviews, and checkout.  You can also simulate thousands of concurrent (simulated) shoppers with customizable workload characteristics.  
+This mock storefront web application showcases NuoDB's 5 value propositions:  horizontal scale-out, continuous availability, geo-distribution, multi-tenancy, and no-knobs administration.  You can browse products, add items to you cart, write reviews, and checkout.  You can also simulate thousands of concurrent (simulated) shoppers with customizable workload characteristics. While the store itself is not really open for business, the queries being run under the hood are quite real!  
 
-![ScreenShot](https://raw.github.com/nuodb/nuodb-samples/master/StorefrontDemo/doc/home.png)
+![ScreenShot](doc/home.png)
 
-While the store itself is not really open for business, the queries being run under the hood are quite real!
+
+Prerequisites
+-------------
+
+1. NuoDB 2.1 or higher.  Earlier versions of Storefront supported MySQL and other RDBMSs, which you can find in the [rel/2.0.6 branch](https://github.com/nuodb/nuodb-samples/tree/rel/2.0.6/StorefrontDemo) (or earlier).
+
+2. NuoDB Rest Service.  This exposes the NuoDB API used by the Storefront its Control Panel features.
+
+3. [Apache Maven 3](http://maven.apache.org/download.cgi) or higher.  This tool is used to build the Storefront
+   from source and run it using a Tomcat web server.  Maven fetches all the other dependencies you need automatically.
 
 Getting Started (command line)
 ---------------
@@ -14,8 +23,8 @@ Getting Started (command line)
 
         git clone git://github.com/nuodb/nuodb-samples.git
 
-2. Create a NuoDB "Storefront" database with "StorefrontUser" as the username and "StorefrontUser" as the password.  If you want to change these defaults, edit the `nuodb-samples/StorefrontDemo/src/main/resources/hibernate.cfg.xml` file 
-   or specify overrides using command line arguments described in step 3.
+2. Download and install [Apache Maven 3](http://maven.apache.org/download.cgi) or higher.  This tool is used to build the Storefront
+   from source and run it using a Tomcat web server.  Maven fetches all the other dependencies you need automatically.
    
 3. Run the Storefront web app:
 
@@ -34,36 +43,30 @@ Getting Started (command line)
       > If you do not specify a command line value, the default is pulled from the `public-url` context param of web.xml.
       > The default is `http://{host}:{port}/{context}`. 
                                                               
-		-Dstorefront.region=Default
+		-Dstorefront.db.name=dbname@host[:port]
 		
-	  > The name of the region in which this Storefront instance is running.  If you are using NuoDB 2.0 or greater
-	  > and don't explicitly specify a region name here, the region name is auto-detected by querying the `NODES` table
-	  > (`GEOREGION` column).
-
-		-Dstorefront.db.name=name@host[:port]
-		
-	  > The name, hostname/IP, and port of the NuoDB instance to connect to.  If you'd like to run the Storefront with MySQL 
-	  > instead, swap the `nuodb-samples/StorefrontDemo/src/main/resources/hibernate.cfg.xml` file with
-	  > `nuodb-samples/StorefrontDemo/src/main/resources/hibernate-mysql.cfg.xml` and add necessary dependencies to the pom.xml file.
-	  > The MySQL dependencies already exist in the pom.xml file but need to be uncommented.      
+	  > The database name (dbname) and NuoDB broker hostname or IP address (host).  The Storefront creates its database and schema automatically at startup,
+	  > so you need not create the database in advance.       
 	  
 		-Dstorefront.db.user=StorefrontUser
 		
-	  > The username of the database account to use when connecting.
+	  > The username of the database account to use when connecting.  If the database does not yet exist, Storefront will add this user when creating the database.
 
 		-Dstorefront.db.password=StorefrontUser
 		
 	  > The password of the database account to use when connecting. 
+
+		-Dstorefront.db.options=
+		
+	  > Querystring parameters to include as part of the JDBC connection string.  
 
 		-Dstorefront.dbapi.user=domain
 		-Dstorefront.dbapi.password=bird
 		-Dstorefront.dbapi.host=localhost
 		-Dstorefront.dbapi.port=8888
 		
-	  > Credentials and endpoint information for connecting to NuoDB's AutoConsole API.  The API is used to build the node list on the Control Panel 
-	  > page and shutdown nodes on demand.  The Storefront will attempt to connect to the API by default, falling back to querying system tables.
-	  > Note that without API connectivity, nodes cannot be shut down via the Storefront's Control Panel.  These API settings are ignored
-	  > if you're using the Storefront with a database other than NuoDB. 
+	  > Credentials and endpoint information for connecting to NuoDB's AutoConsole API (with defaults shown above).  The API is used for Control Panel tasks, such
+	  > as creating the database, adding/removing hosts and regions, shutting down nodes on demand, etc.  
 
    You may bundle these Storefront settings in a properties file containing the key=value pairs to use instead of, or as overrides to, 
    the above command line arguments.
@@ -80,7 +83,7 @@ Getting Started (command line)
 Getting Started (Eclipse)
 ---------------
 
-See the [Storefront Demo Developer Setup Guide](NuoDB-Storefront.ppt) for step-by-step instructions with screenshots.
+See the [Storefront Demo Developer Setup Guide](doc/NuoDB-Storefront.ppt) for step-by-step instructions with screenshots.
 
 StorefrontApp command line utility
 -----------------------------------
@@ -99,30 +102,31 @@ StorefrontApp command line utility
 If you specify multiple actions, they are executed in sequence.  For example, to recreate the schema,  initialize it with about 1,000 products, and then stress test the app with simulated load for 1 minute, specify the command line "drop create load simulate".
 
 
-Web app
+Storefront components
 -------
-The storefront web app features 3 pages:
+The store itself has 4 pages:
 
 1. Product listing page (as shown above)
 2. Product details page
-   ![ScreenShot](https://raw.github.com/nuodb/nuodb-samples/master/StorefrontDemo/doc/product.png)
 3. Product review form
-   ![ScreenShot](https://raw.github.com/nuodb/nuodb-samples/master/StorefrontDemo/doc/review.png)
 4. Cart contents and checkout page
-   ![ScreenShot](https://raw.github.com/nuodb/nuodb-samples/master/StorefrontDemo/doc/cart.png)
 
-Admin interface
----------------
+There are guided tour pages that demonstrate NuoDB's 5 value propositions using Storefront functionality:
 
-You can use the admin interface to view database, service, storefront, and simulator statistics, and access a "control panel" to adjust how many users of each simulated workload are active.
+1. Horizontal scale-out
+2. Continuous availability
+3. Geo-distribution
+4. Multi-tenancy
+5. No-knobs administration
 
-The interface is accessible by browing to the web app and going to the "/admin" subdirectory.
+Finally, there are several "control panel" pages for detailed information on NuoDB and fine-grained control over behavior:
 
-   ![ScreenShot](https://raw.github.com/nuodb/nuodb-samples/master/StorefrontDemo/doc/admin-simulator.png)
+1. Products
+2. Simulated users
+3. Database
+4. Hosts & processes
+5. Regions
 
-   ![ScreenShot](https://raw.github.com/nuodb/nuodb-samples/master/StorefrontDemo/doc/admin-service.png)
-   
-   ![ScreenShot](https://raw.github.com/nuodb/nuodb-samples/master/StorefrontDemo/doc/admin-store.png)
 
 Key libraries used by this project
 ----------------------------------
