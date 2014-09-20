@@ -5,7 +5,7 @@
 <t:page showHeader="false">
     <div id="control-panel">
         <div class="btn-grou2p pull-right">
-            <a id="btn-console" class="btn" target="_blank">Open in Auto Console</a>
+            <a id="btn-console" class="btn" target="_blank">Open in Automation Console</a>
             <a id="btn-explorer" class="btn" target="_blank"><i class="icon icon-search"></i> Open in SQL Explorer</a>
         </div>
     
