@@ -10,7 +10,6 @@ var Storefront = {
 
         // Set basic app properties
         me.currency = cfg.currency;
-        me.appInstanceUuid = cfg.appInstanceUuid;
         me.regions = me.aggregateRegions(cfg.appInstances);
 
         // Initialize elements shared across pages
@@ -130,7 +129,7 @@ var Storefront = {
                 regions.push(regionObj);
             }
             regionObj.instances.push(instance);
-            if (Storefront.appInstanceUuid == instance.uuid) {
+            if (instance.local) {
                 regionObj.selected = true;
             } else if (instance.currency != regionObj.currency) {
                 instance.currency = 'MIXED';

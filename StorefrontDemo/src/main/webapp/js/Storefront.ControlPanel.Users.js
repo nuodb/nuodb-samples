@@ -23,7 +23,7 @@
 
         initCustomersList();
         refreshStats(pageData.stats);
-    }
+    };
 
     function initCustomersList() {
         // Render regions table
@@ -163,7 +163,7 @@
                     break;
                 }
 
-                if (localStats && instance.uuid == Storefront.appInstanceUuid) {
+                if (localStats && instance.local) {
                     // We already have the local stats on hand, so don't bother doing an AJAX request to re-fetch them
                     refreshInstanceStatsComplete(region, instance, localStats);
                 } else {
@@ -184,17 +184,17 @@
         syncInstanceStatusIndicator(region, instance);
 
         $.ajax({
-            url: instance.url + '/api/stats',
+            url: buildInstanceUrl(instance, '/api/stats'),
             cache: false
         }).done(function(stats) {
             instance.notResponding = false;
-            refreshInstanceStatsComplete(region, instance, stats)
+            refreshInstanceStatsComplete(region, instance, stats);
         }).fail(function() {
             instance.notResponding = true;
             refreshInstanceStatsComplete(region, instance, {
                 storefrontStats: {},
                 workloadStats: {}
-            })
+            });
         });
     }
 
@@ -406,7 +406,7 @@
             (function(instance) {
                 $.ajax({
                     method: 'PUT',
-                    url: instance.url + '/api/app-instances',
+                    url: buildInstanceUrl(instance, '/api/app-instances'),
                     data: {
                         currency: currency
                     },
@@ -463,7 +463,7 @@
                 (function(region, instance) {
                     $.ajax({
                         method: 'PUT',
-                        url: instance.url + '/api/simulator/workloads',
+                        url: buildInstanceUrl(instance, '/api/simulator/workloads'),
                         data: instanceData,
                         cache: false
                     }).success(function(data) {
@@ -489,5 +489,9 @@
                 })(region, instance);
             }
         }
+    }
+    
+    function buildInstanceUrl(instance, url) {
+        return ((instance.local) ? '.' : instance.url) + url;
     }
 })();
