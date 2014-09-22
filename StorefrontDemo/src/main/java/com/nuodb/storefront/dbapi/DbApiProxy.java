@@ -298,8 +298,7 @@ public class DbApiProxy implements IDbApi {
                 if (createDb) {
                     database = new Database();
                 }
-                boolean updateDb = fixDatabaseTemplate(database, footprint.usedRegionCount, footprint.usedHostCount, usedRegions.get(0).region,
-                        firstUsedHost.id);
+                boolean updateDb = fixDatabaseTemplate(database, footprint.usedRegionCount, footprint.usedHostCount, usedRegions.get(0).region, firstUsedHost.id);
                 if (createDb) {
                     database.name = dbConnInfo.getDbName();
                     database.username = dbConnInfo.getUsername();
@@ -441,8 +440,8 @@ public class DbApiProxy implements IDbApi {
         }
         if (!templateName.equals(oldTemplateName)) {
             changeCount++;
-            database.template = templateName;
         }
+        database.template = templateName;  // always set DB template to a string since any update request needs this as a string, not an object
 
         // Apply variables
         if (database.variables == null) {
