@@ -150,7 +150,7 @@ public abstract class BaseServlet extends HttpServlet {
     protected static void showPage(HttpServletRequest req, HttpServletResponse resp, String pageTitle, String pageName, Object pageData,
             Customer customer) throws ServletException, IOException {
 
-        StorefrontWebApp.updateWebAppPort(req);
+        StorefrontWebApp.updateWebAppUrl(req);
 
         // Build full page title
         String storeName = StorefrontApp.APP_INSTANCE.getName() + " - NuoDB Storefront Demo";

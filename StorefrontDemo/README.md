@@ -33,15 +33,15 @@ Getting Started (command line)
         
    The following (optional) Storefront environment settings may be provided:
    
-        -Dstorefront.url=http://{host}:{port}/{context} 
+        -Dstorefront.url={protocol}://{host}:{port}/{context} 
         
       >	The externally-accessible URL of the Storefront.  Web browsers should be able to access the Storefront
       >	web app using this URL.  The URL is used by the Storefront front-end for communication and switching among instances.
-      > You may use `{host}`, `{port}`, and `{context}` fields as placeholders for auto-detected values, 
-      > or specify a completely custom URL with no placeholders.
+      > You may use leave any or all of the `{protocol}, `{host}`, `{port}`, and `{context}` placeholders verbatim for auto-detected values, 
+      > or specify a completely custom URL with no placeholders.  Example: `http://192.168.1.50/{context}`
       >    
       > If you do not specify a command line value, the default is pulled from the `public-url` context param of web.xml.
-      > The default is `http://{host}:{port}/{context}`. 
+      > The default is `{protocol}://{host}:{port}/{context}`. 
                                                               
 		-Dstorefront.db.name=dbname@host[:port]
 		

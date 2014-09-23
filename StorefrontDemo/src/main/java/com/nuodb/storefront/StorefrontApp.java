@@ -36,7 +36,7 @@ public class StorefrontApp {
     public static final String DEFAULT_DB_HOST = "localhost";
     public static final String DEFAULT_DB_PROCESS_TAG = "Storefront";
     public static final int DEFAULT_PORT = 8080;
-    public static final String DEFAULT_URL = "http://{host}:{port}/{context}";
+    public static final String DEFAULT_URL = "{protocol}://{host}:{port}/{context}";
 
     public static final AppInstance APP_INSTANCE = new AppInstance(DEFAULT_REGION_NAME, true);
 

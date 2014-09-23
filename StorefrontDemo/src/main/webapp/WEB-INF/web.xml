@@ -6,9 +6,9 @@
     <display-name>NuoDB Storefront Demo</display-name>
 
     <context-param>
-        <description>Externally-accessible URL for remote Storefront instances to communicate with this one.  The {host}, {port} and {context} placeholders may be used for auto-detected values.</description>
+        <description>Externally-accessible URL for remote Storefront instances to communicate with this one.  The {protocol}, {host}, {port} and {context} placeholders may be used for auto-detected values.</description>
         <param-name>storefront.publicUrl</param-name>
-        <param-value>http://{host}:{port}/{context}</param-value>
+        <param-value>{protocol}://{host}:{port}/{context}</param-value>
     </context-param>
 
     <!-- Default value is "false". Commented out so Jetty embedded web app can override this with "true" when the app is 

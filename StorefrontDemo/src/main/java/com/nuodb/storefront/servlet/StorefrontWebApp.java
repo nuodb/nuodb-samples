@@ -27,10 +27,10 @@ public class StorefrontWebApp implements ServletContextListener {
     private static final String CONTEXT_INIT_PARAM_LAZY_LOAD = "storefront.lazyLoad";
 
     private static ScheduledExecutorService s_executor;
-    private static int s_port;
     private static IHeartbeatService s_heartbeatSvc;
     private static final Object s_heartbeatSvcLock = new Object();
     private static boolean s_initialized = false;
+    private static String s_webAppUrlTemplate;
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
@@ -43,8 +43,7 @@ public class StorefrontWebApp implements ServletContextListener {
         s_executor = Executors.newSingleThreadScheduledExecutor();
 
         // Get external URL of this web app
-        String url = buildWebAppUrl(context, guessWebAppPort());
-        StorefrontApp.APP_INSTANCE.setUrl(url);
+        initWebAppUrl(context);
 
         // Handle region override (if provided)
         String region = System.getProperty(ENV_PROP_REGION);
@@ -60,7 +59,7 @@ public class StorefrontWebApp implements ServletContextListener {
 
         s_initialized = true;
     }
-    
+
     protected static boolean isInitParameterTrue(String name, ServletContext context, boolean defaultValue) {
         String val = context.getInitParameter(name);
         if (StringUtils.isEmpty(val)) {
@@ -84,26 +83,27 @@ public class StorefrontWebApp implements ServletContextListener {
         s_executor.shutdown();
     }
 
-    public static void updateWebAppPort(HttpServletRequest req) {
-        if (s_port == req.getServerPort()) {
-            // URL is up to date
-            return;
-        }
-
-        // Update URL
-        StorefrontApp.APP_INSTANCE.setUrl(buildWebAppUrl(req.getServletContext(), req.getServerPort()));
+    public static void updateWebAppUrl(HttpServletRequest req) {
+        updateWebAppUrl(req.isSecure(), req.getHeader("HOST").split(":")[0], req.getServerPort(), req.getServletContext().getContextPath());
     }
 
-    public static String buildWebAppUrl(ServletContext context, int port) {
-        // Remember port
-        s_port = port;
-
+    public static void initWebAppUrl(ServletContext context) {
         // Get URL from command line argument
-        String url = System.getProperty(ENV_PROP_URL);
-        if (StringUtils.isEmpty(url)) {
-            url = context.getInitParameter(CONTEXT_INIT_PARAM_PUBLIC_URL);
-            if (StringUtils.isEmpty(url)) {
-                url = StorefrontApp.DEFAULT_URL;
+        s_webAppUrlTemplate = System.getProperty(ENV_PROP_URL);
+        if (StringUtils.isEmpty(s_webAppUrlTemplate)) {
+            s_webAppUrlTemplate = context.getInitParameter(CONTEXT_INIT_PARAM_PUBLIC_URL);
+            if (StringUtils.isEmpty(s_webAppUrlTemplate)) {
+                s_webAppUrlTemplate = StorefrontApp.DEFAULT_URL;
+            }
+        }
+        
+        // Guess port
+        String portStr = System.getProperty(ENV_MAVEN_TOMCAT_PORT);
+        int port = StorefrontApp.DEFAULT_PORT;
+        if (!StringUtils.isEmpty(portStr)) {
+            try {
+                port = Integer.valueOf(portStr).intValue();
+            } catch (Exception e) {
             }
         }
 
@@ -117,24 +117,21 @@ public class StorefrontWebApp implements ServletContextListener {
 
         // Get context path
         String contextPath = context.getContextPath();
+
+        updateWebAppUrl(port == 443, ipAddress, port, contextPath);
+    }
+
+    public static void updateWebAppUrl(boolean isSecure, String hostname, int port, String contextPath) {
         if (StringUtils.isEmpty(contextPath)) {
             contextPath = "";
         } else if (contextPath.startsWith("/")) {
             contextPath = contextPath.substring(1);
         }
 
-        return url.replace("{host}", ipAddress).replace("{port}", String.valueOf(port)).replace("{context}", contextPath);
-    }
-
-    private static int guessWebAppPort() {
-        String portStr = System.getProperty(ENV_MAVEN_TOMCAT_PORT);
-        if (!StringUtils.isEmpty(portStr)) {
-            try {
-
-                return Integer.valueOf(portStr).intValue();
-            } catch (Exception e) {
-            }
-        }
-        return StorefrontApp.DEFAULT_PORT;
+        StorefrontApp.APP_INSTANCE.setUrl(s_webAppUrlTemplate
+                .replace("{protocol}", isSecure ? "https" : "http")
+                .replace("{host}", hostname)
+                .replace("{port}", String.valueOf(port))
+                .replace("{context}", contextPath));
     }
 }

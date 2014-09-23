@@ -32,10 +32,6 @@ public class PageConfig {
         this.appInstances = appInstances;
     }
 
-    public String getAppInstanceUuid() {
-        return StorefrontApp.APP_INSTANCE.getUuid();
-    }
-
     public Currency getCurrency() {
         return StorefrontApp.APP_INSTANCE.getCurrency();
     }
