@@ -54,8 +54,8 @@ var Storefront = {
                 
             case "tour-multi-tenancy":
             case "tour-no-knobs-admin":
-                $('#lnk-console').attr('href', cfg.pageData.adminConsoleUrl);
-                $('#lnk-explorer').attr('href', cfg.pageData.sqlExplorerUrl);
+                $('#lnk-console').attr('href', me.fixupHostname(cfg.pageData.adminConsoleUrl));
+                $('#lnk-explorer').attr('href', me.fixupHostname(cfg.pageData.sqlExplorerUrl));
                 break;
         }
 
@@ -81,7 +81,6 @@ var Storefront = {
     startProgressBar: function() {
         $('#progress-container').fadeIn();
         var pct = 0;
-        var interval = 2; 
         setInterval(function() {
             $('#progress-container .bar').css('width', Math.min(100, (pct += 2)) + '%');
         }, 500);
@@ -363,5 +362,15 @@ var Storefront = {
             me.filter.page = 1;
         }
         me.updateRequest = me.TemplateMgr.autoFillTemplate('product-list', 'api/products', me.filter, $.proxy(me.syncProductsPage, me), append);
+    },
+    
+    fixupHostname: function(url) {
+        var prefixToReplace = "http://localhost" ;
+        if (url.substr(0, prefixToReplace.length) != prefixToReplace) {
+            return url;
+        }
+        
+        var l = window.location;
+        return l.protocol + '//' + l.hostname + url.substr(prefixToReplace.length);
     }
 };
