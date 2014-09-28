@@ -5,61 +5,35 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.reflect.Method;
 
 public class PerformanceUtil {
-    private static final OperatingSystemMXBean s_osInfo;
-    private static final int s_availableProcessors;
-    private static final Method s_getProcessCpuTime;
-
-    private static long s_lastSystemTime;
-    private static long s_lastProcessCpuTime;
+    private static final OperatingSystemMXBean s_osInfo = ManagementFactory.getOperatingSystemMXBean();
+    private static final Method s_getSystemCpuLoad = lookupNoArgMethod(s_osInfo.getClass(), "getSystemCpuLoad");
 
     private PerformanceUtil() {
     }
 
-    static {
-        s_osInfo = ManagementFactory.getOperatingSystemMXBean();
-        s_availableProcessors = s_osInfo.getAvailableProcessors();
-
-        if (s_osInfo.getSystemLoadAverage() < 0) {
-            Method getProcessCpuTime;
-            try {
-                getProcessCpuTime = s_osInfo.getClass().getMethod("getProcessCpuTime", (Class<?>[]) null);
-                getProcessCpuTime.setAccessible(true);
-                s_lastProcessCpuTime = (Long) getProcessCpuTime.invoke(s_osInfo, (Object[]) null);
-                s_lastSystemTime = System.nanoTime();
-            } catch (Exception e) {
-                getProcessCpuTime = null;
-            }
-            s_getProcessCpuTime = getProcessCpuTime;
-        } else {
-            s_getProcessCpuTime = null; // not available or not needed
+    private static Method lookupNoArgMethod(Class<?> clazz, String methodName) {
+        try {
+            Method method = clazz.getMethod(methodName, (Class<?>[]) null);
+            method.setAccessible(true);
+            return method;
+        } catch (Exception e) {
+            return null;
         }
     }
 
     /**
-     * @return number between 0 and 100 indicating average CPU utilization (%) across all processors.
+     * @return number between 0 and 100 indicating current CPU utilization (%) across all processors.
+     * 
+     *         For systems not running Java 7, always returns * 0.
      */
     public static int getCpuUtilization() {
-        double load;
-        if (s_getProcessCpuTime != null) {
-            synchronized (s_getProcessCpuTime) {
-                long systemTime = System.nanoTime();
-                long processCpuTime;
-                try {
-                    processCpuTime = (Long) s_getProcessCpuTime.invoke(s_osInfo, (Object[]) null);
-                    load = (double) (processCpuTime - s_lastProcessCpuTime) / (systemTime - s_lastSystemTime);
-                    s_lastProcessCpuTime = processCpuTime;
-                    s_lastSystemTime = systemTime;
-                } catch (Exception e) {
-                    load = 0;
-                }
+        if (s_getSystemCpuLoad != null) {
+            try {
+                double cpuUtil = (Double) s_getSystemCpuLoad.invoke(s_osInfo, (Object[]) null);
+                return (int) Math.round(cpuUtil * 100);
+            } catch (Exception e) {
             }
-        } else {
-            load = s_osInfo.getSystemLoadAverage();
         }
-
-        if (load < 0) {
-            return 0;
-        }
-        return (int) Math.round(load / s_availableProcessors * 100);
+        return 0;
     }
 }
