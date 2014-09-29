@@ -337,7 +337,7 @@ Ext.define('App.controller.Storefront', {
             me.application.fireEvent('heavyload', {
                 status: 500,
                 responseJson: {
-                    message: "Instance " + instance.url + " is under heavy load.  Reduce simulated users here or add instances to this region.",
+                    message: "CPU utilization is greater than 90%.  Consider reducing load here or adding hosts to the <b>" + instance.region + "</b> region.",
                     ttl: App.app.refreshFrequencyMs + App.app.refreshGracePeriodMs
                 }
             }, instance);

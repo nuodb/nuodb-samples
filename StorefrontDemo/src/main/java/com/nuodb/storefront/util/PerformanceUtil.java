@@ -24,7 +24,7 @@ public class PerformanceUtil {
     /**
      * @return number between 0 and 100 indicating current CPU utilization (%) across all processors.
      * 
-     *         For systems not running Java 7, always returns * 0.
+     *         For systems not running Java 7 or later, always returns * 0.
      */
     public static int getCpuUtilization() {
         if (s_getSystemCpuLoad != null) {

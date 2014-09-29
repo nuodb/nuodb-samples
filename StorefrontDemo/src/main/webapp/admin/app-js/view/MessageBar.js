@@ -18,22 +18,18 @@ Ext.define('App.view.MessageBar', {
         me.msgList = [];
         me.msgIndex = -1;
 
-        me.items = ['->', {
+        me.items = [{
             xtype: 'tbtext',
             itemId: 'lblMessage',
             frame: true,
-            width: 830,
-            text: 'This is the message'
+            text: '',
+            flex: 1
         }, {
             xtype: 'container',
-            width: 100,
             layout: {
                 type: 'hbox'
             },
             items: [{
-                flex: 1,
-                xtype: 'container'
-            }, {
                 xtype: 'button',
                 text: '&lt;',
                 itemId: 'btnPrev',
@@ -52,7 +48,7 @@ Ext.define('App.view.MessageBar', {
                 handler: me.onNextMessage,
                 scope: me
             }]
-        }, '->'];
+        }];
 
         me.callParent(arguments);
 
@@ -76,7 +72,7 @@ Ext.define('App.view.MessageBar', {
     onStatsFail: function(response, instance) {
         var me = this;
         if (response.status == 0) {
-            me.addMessage('Unable to connect to the Storefront API.  Verify the web application is still running.  Retries will continue automatically.', instance);
+            me.addMessage('Unable to connect to the Storefront API.  Verify Storefront is still running.  Retries will continue automatically.', instance);
         } else {
             var msg = '';
             var ttl = null;
@@ -85,7 +81,7 @@ Ext.define('App.view.MessageBar', {
                 ttl = (response.responseJson) ? response.responseJson.ttl : 0;
             } catch (e) {
             }
-            msg = msg || (' HTTP status ' + response.status);
+            msg = Ext.String.htmlEncode(msg) || (' HTTP status ' + response.status);
             me.addMessage(Ext.String.format('{0}.  Retries will continue automatically.', msg), instance, ttl);
         }
     },
@@ -108,8 +104,7 @@ Ext.define('App.view.MessageBar', {
         // Prepend instance/region info (if available)
         var prefix = '';
         if (instance) {
-            regionSuffix = (instance.region.toLowerCase().endsWith('region')) ? '' : ' region';
-            prefix = Ext.String.format('<a href="{0}" title="{0}" target="_blank">{1}{2}</a>: &nbsp;', instance.url, instance.region, regionSuffix);
+            prefix = Ext.String.format('<a href="{0}" title="Reported by Storefront running at {0} ({1} region)">{2}</a>: &nbsp;', instance.url, instance.region, me.extractHost(instance.url));
         } else {
             prefix = '<b>The Storefront has a problem:</b> &nbsp;';
         }
@@ -199,5 +194,10 @@ Ext.define('App.view.MessageBar', {
                 me.msgList.splice(i, 1);
             }
         }
+    },
+    
+    extractHost: function(url) {
+        var match = /http(?:s)?\:\/\/([^\:\/]+)/.exec(url);
+        return (match) ? match[1] : url;
     }
 });
