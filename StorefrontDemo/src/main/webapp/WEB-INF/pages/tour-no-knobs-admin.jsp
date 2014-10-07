@@ -4,49 +4,39 @@
 
 <t:page showHeader="false">
     <h1>No-Knobs Administration</h1>
-    
-    <div class="row-fluid tour-figure">
-        <div class="span2">
-            <h3>When network partitions arise</h3>
-            <div class="thumbnail">
-                <img src="img/tour-disconnect.png" height="80" />
-            </div>
-        </div>
-        <div class="span2">
-            <h3>or other problems occur...</h3>
-            <div class="thumbnail">
-                <img src="img/tour-caution.png" height="80" />
-            </div>
-        </div>        
-        <div class="span1"></div>
-        <div class="span4">
-            <h3>...the database recovers automatically based on preconfigured templates</h3>
-            <div class="row-fluid">
-                <div class="span6">
-                    <div class="thumbnail">
-                        <div class="caption">Throughput</div>
-                        <img src="img/tour-sawtooth.png" height="100" />
-                    </div>
-                </div>
-                <div class="span6">
-                    <div class="thumbnail">
-                        <div class="caption">Latency</div>
-                        <img src="img/tour-sawtooth.png" height="100" />
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+
+    <p class="tour-text">When a database is created, a Template is applied, which specifies the level of redundancy, number of host and regions required for that database.</p>
+
+    <p class="tour-text">NuoDB monitors the database to ensure that its Template requirements are always being met and takes actions if not.</p>
+
+    <p class="tour-text">For instance, if a host fails, NuoDB will start replacement processes on another host if necessary.</p>
+    <p>&nbsp;</p>
+
 
     <h3>Try it yourself:</h3>
     <t:messages />
-    
+
     <ol class="tour-steps">
         <li>Open the <a id="lnk-console" target="_blank">Automation Console</a>.</li>
-        <li>Create a database using one of NuoDB&rsquo;s managed templates.</li>
-        <li>Obsere how NuoDB ensures the template&rsquo;s conditions are met automatically.</li>
+        <li>Click on &ldquo;Databases&rdquo; (on the left menu bar) and then click on &ldquo;Storefront.&rdquo; Explore the Regions and Processes for the Storefront database. Note the Template in effect. Click on &ldquo;Metrics&rdquo; on the upper right to view various operational statistics for the database.</li>
     </ol>
 
-    <p>The Storefront also leverages NuoDB&rsquo;s template system to automatically manage NuoDB processes across hosts.<br />For details, see the <a href="control-panel-database">database page</a>.</p>
-    
+    <p>Or follow these steps to create a new database:</p>
+
+    <ol class="tour-steps">
+        <li>Open the <a id="lnk-console" target="_blank">Automation Console</a>.</li>
+        <li>Click on &ldquo;Databases&rdquo; (on the left menu bar)</li>
+        <li>Click on &ldquo;Actions&rdquo; (top-right) and then &ldquo;Add Database&rdquo;.</li>
+        <li>Enter a name for the new database, the DBA user name and password, and select a template specifying the SLA for this database.</li>
+        <li>Select your new database to view its processes and metrics.</li>
+        <li>Change the Template in effect with the Actions &gt; Edit option.</li>
+    </ol>
+
+    <h3>To learn more:</h3>
+    <ul class="tour-links">
+        <li>See <a href="http://doc.nuodb.com/display/21V/Templates+and+Automation" target="_blank">NuoDB documentation</a> to learn more about templates</li>
+        <li>Storefront also leverages NuoDB&rsquo;s template system to automatically manage NuoDB processes across hosts.<br />For details, see the <a href="control-panel-processes">Hosts &amp; Processes</a> and <a href="control-panel-database">Database</a> sections in the Storefront Control Panel.
+        </li>
+    </ul>
+
 </t:page>

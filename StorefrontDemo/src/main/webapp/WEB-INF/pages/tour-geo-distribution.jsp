@@ -3,18 +3,18 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <t:page showHeader="false">
-    <h1>Geo-distribution</h1>
+    <h1>Geo-Distribution</h1>
     
     <div class="row-fluid tour-figure tall">
         <div class="span2">
-            <h3>When you add regions...</h3>
+            <h3><br />When you add regions...</h3>
             <div class="thumbnail">
                 <div class="caption">Regions</div>
                 <img src="img/tour-add.png" height="80" />
             </div>
         </div>
         <div class="span2">
-            <h3>and add users to each region...</h3>
+            <h3><br />and add users to each region...</h3>
             <div class="thumbnail">
                 <div class="caption">Users</div>
                 <img src="img/tour-add.png" height="100" />
@@ -34,9 +34,15 @@
     <t:messages />
     
     <ol class="tour-steps">
-        <li>Verify you've configured all participating hosts with the setting <code>balancer=RegionBalancer</code> in NouDB&rsquo;s <code>default.properties</code> file.  Without this setting, Storefront instances are not confined to communicating with specific regions, which will skew the metrics you see.</li> 
-        <li>Increase regions by clicking the up arrow within the &ldquo;Regions&rdquo; block in the header above. Each click activates an additional region.  You are limited only by the number of pre-configured regions.</li>
-        <li>Add users in the new regions using the <a href="control-panel-users">simulated users page</a> or by clicking the up arrow within the &ldquo;Users&rdquo; block above.</li>
+        <li>Verify you&rsquo;ve configured all participating hosts with the setting <code>balancer=RegionBalancer</code> in NouDB&rsquo;s <code>default.properties</code> file.  Without this setting, Storefront instances are not confined to communicating with specific regions, which will skew the metrics you see.</li> 
+        <li>Increase the number of regions by clicking the up arrow within &ldquo;Regions&rdquo; above. Each click activates an additional region.  You are limited only by the number of pre-configured regions.</li>
+        <li>Add users in the new regions using the <a href="control-panel-users">simulated users page</a> or by clicking the up arrow within &ldquo;Users&rdquo; above.</li>
     </ol>
+    
+    <h3>To learn more:</h3>
+    <ul class="tour-links">
+        <li>See <a href="http://doc.nuodb.com/display/21V/Start+and+Stop+NuoDB+Services" target="_blank">NuoDB documentation</a> to learn how to increase the number of available hosts</li>
+        <li>See <a href="control-panel-regions">Regions</a> in the Storefront Control Panel</li>
+    </ul>    
         
 </t:page>

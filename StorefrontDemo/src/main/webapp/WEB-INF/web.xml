@@ -99,12 +99,12 @@
         <servlet-class>com.nuodb.storefront.servlet.TourGeoDistributionServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>storefront-tour-horizscaleout</servlet-name>
-        <servlet-class>com.nuodb.storefront.servlet.TourHorizScaleOutServlet</servlet-class>
+        <servlet-name>storefront-tour-scaleout</servlet-name>
+        <servlet-class>com.nuodb.storefront.servlet.TourScaleOutServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>storefront-tour-multitenancy</servlet-name>
-        <servlet-class>com.nuodb.storefront.servlet.TourMultiTenancyServlet</servlet-class>
+        <servlet-name>storefront-tour-multitenant</servlet-name>
+        <servlet-class>com.nuodb.storefront.servlet.TourMultiTenantServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>storefront-tour-noknobsadmin</servlet-name>
@@ -161,12 +161,12 @@
         <url-pattern>/tour-geo-distribution</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>storefront-tour-horizscaleout</servlet-name>
-        <url-pattern>/tour-horiz-scale-out</url-pattern>
+        <servlet-name>storefront-tour-scaleout</servlet-name>
+        <url-pattern>/tour-scale-out</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>storefront-tour-multitenancy</servlet-name>
-        <url-pattern>/tour-multi-tenancy</url-pattern>
+        <servlet-name>storefront-tour-multitenant</servlet-name>
+        <url-pattern>/tour-multi-tenant</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>storefront-tour-noknobsadmin</servlet-name>

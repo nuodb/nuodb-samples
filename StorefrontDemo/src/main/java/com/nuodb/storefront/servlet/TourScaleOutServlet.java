@@ -12,7 +12,7 @@ import com.nuodb.storefront.model.dto.MessageLink;
 import com.nuodb.storefront.model.entity.Customer;
 import com.nuodb.storefront.model.type.MessageSeverity;
 
-public class TourHorizScaleOutServlet extends BaseServlet {
+public class TourScaleOutServlet extends BaseServlet {
     private static final long serialVersionUID = 8555464129927540059L;
 
     @Override
@@ -20,13 +20,13 @@ public class TourHorizScaleOutServlet extends BaseServlet {
         try {
             if (getDbApi().getDbFootprint().hostCount <= 1) {
                 addMessage(req, MessageSeverity.WARNING,
-                        "You cannot see this feature in action because you have no additional hosts available. "
-                                + "An easy way to run NuoDB with multiple hosts is to use the NuoDB AWS Script with your Amazon Web Services (AWS) account. "
+                        "You cannot see Scale Out Performance in action on Storefront because you have no additional hosts available. "
+                                + "An easy way to run NuoDB with multiple hosts is to use the NuoDB AWS Quickstart kit with your Amazon Web Services (AWS) account. "
                                 + "NuoDB automatically provisions everything you need in the cloud.")
-                                .setLink(new MessageLink("Get the script", "https://github.com/nuodb/nuodbTools"));
+                                .setLink(new MessageLink("Get the kit", "https://github.com/nuodb/nuodbTools"));
             }
 
-            showPage(req, resp, "Horizontal Scale-Out", "tour-horiz-scale-out", null, new Customer());
+            showPage(req, resp, "Scale-Out Performance", "tour-scale-out", null, new Customer());
         } catch (Exception ex) {
             showCriticalErrorPage(req, resp, ex);
         }

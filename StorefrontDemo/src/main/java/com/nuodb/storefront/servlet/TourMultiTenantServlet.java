@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.model.entity.Customer;
 
-public class TourMultiTenancyServlet extends BaseServlet {
+public class TourMultiTenantServlet extends BaseServlet {
     private static final long serialVersionUID = -128151977569715735L;
 
     @Override
@@ -23,7 +23,7 @@ public class TourMultiTenancyServlet extends BaseServlet {
             pageData.put("adminConsoleUrl", StorefrontFactory.getAdminConsoleUrl());
             pageData.put("sqlExplorerUrl", StorefrontFactory.getSqlExplorerUrl());
             
-            showPage(req, resp, "Multi-Tenancy", "tour-multi-tenancy", pageData, new Customer());
+            showPage(req, resp, "Multi-Tenant", "tour-multi-tenant", pageData, new Customer());
         } catch (Exception ex) {
             showCriticalErrorPage(req, resp, ex);
         }

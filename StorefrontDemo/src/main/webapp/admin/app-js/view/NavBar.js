@@ -13,33 +13,33 @@ Ext.define('App.view.NavBar', {
     autoScroll: true,
 
     links: [{
-        title: 'Demo overview',
+        title: 'Demo Overview',
         href: '/welcome',
         icon: 'ico-home.png'
     }, {
-        title: 'Storefront website',
+        title: 'Storefront Website',
         href: '/store-products',
         icon: 'ico-cart.png'
     }, {
-        title: 'Guided tours',
+        title: 'Guided Tours',
     }, {
-        title: 'Horizontal scale-out',
-        href: '/tour-horiz-scale-out',
+        title: 'Scale Out Performance',
+        href: '/tour-scale-out',
         prefix: '1.'
     }, {
-        title: 'Continuous availability',
+        title: 'Continuous Availability',
         href: '/tour-continuous-availability',
         prefix: '2.'
     }, {
-        title: 'Geo-distribution',
+        title: 'Geo-Distribution',
         href: '/tour-geo-distribution',
         prefix: '3.'
     }, {
-        title: 'Multi-tenancy',
-        href: '/tour-multi-tenancy',
+        title: 'Multi-Tenant',
+        href: '/tour-multi-tenant',
         prefix: '4.'
     }, {
-        title: 'No-knobs administration',
+        title: 'No-Knobs Administration',
         href: '/tour-no-knobs-admin',
         prefix: '5.'
     }, {
@@ -49,7 +49,7 @@ Ext.define('App.view.NavBar', {
         href: '/control-panel-products',
         icon: 'ico-product.png'
     }, {
-        title: 'Simulated users',
+        title: 'Simulated Users',
         href: '/control-panel-users',
         icon: 'ico-users.png'
     }, {
@@ -57,7 +57,7 @@ Ext.define('App.view.NavBar', {
         href: '/control-panel-database',
         icon: 'ico-db.png'
     }, {
-        title: 'Hosts & processes',
+        title: 'Hosts & Processes',
         href: '/control-panel-processes',
         icon: 'ico-process.png'
     }, {
