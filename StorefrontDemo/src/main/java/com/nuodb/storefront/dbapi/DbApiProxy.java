@@ -219,7 +219,7 @@ public class DbApiProxy implements IDbApi {
             throw new DataValidationException("Number of regions must be positive");
         }
         if (numHosts < 1) {
-            throw new DataValidationException("Number of regions must be positive");
+            throw new DataValidationException("Number of hosts must be positive");
         }
 
         try {

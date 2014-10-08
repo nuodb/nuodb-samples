@@ -9,7 +9,7 @@ public class PerformanceUtil {
     private static final OperatingSystemMXBean s_osInfo = ManagementFactory.getOperatingSystemMXBean();
     private static final Method s_getSystemCpuLoad = lookupNoArgMethod(s_osInfo.getClass(), "getSystemCpuLoad");
     private static Sampler s_sampler;
-    private static final int NUM_SAMPLES = 10;
+    private static final int NUM_SAMPLES = 30;
 
     private PerformanceUtil() {
     }
