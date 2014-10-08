@@ -174,6 +174,7 @@ Ext.define('App.controller.Storefront', {
                 }
 
                 me.checkForHeavyLoad(stats.appInstance);
+                me.checkForRegionCoverage(stats.appInstance, stats.dbStats.usedRegions);
 
                 // If we're talking to a new Storefront instance (maybe service was bounced), throw away old data so deltas aren't bogus
                 if (me.instancesAvailableHaveChanged(stats)) {
@@ -338,6 +339,40 @@ Ext.define('App.controller.Storefront', {
                 status: 500,
                 responseJson: {
                     message: "CPU utilization is greater than 90%.  Consider reducing load here or adding hosts to the <b>" + instance.region + "</b> region.",
+                    ttl: App.app.refreshFrequencyMs + App.app.refreshGracePeriodMs
+                }
+            }, instance);
+        }
+    },
+
+    checkForRegionCoverage: function(instance, regions) {
+        var me = this;
+        if (me.getLatestValue('workloadStats.all.activeWorkerCount') == 0) {
+            // Coverage doesn't matter if there's no load
+            return;
+        }
+        
+        var missingRegions = null;
+        for ( var i = 0; i < regions.length; i++) {
+            var region = regions[i];
+            if (instance.region == region) {
+                continue;
+            }
+            for ( var key in me.regionStats[region]) {
+                hasInstance = true;
+                continue;
+            }
+
+            if (!missingRegions) {
+                missingRegions = [];
+            }
+            missingRegions.push(region);
+        }
+        if (missingRegions) {
+            me.application.fireEvent('error', {
+                status: 500,
+                responseJson: {
+                    message: "You aren't using all of the regions activated. " + ((missingRegions.length == 1) ? ("Start a Storefront in the " + missingRegions[0] + " region.") : ("Start Storefronts in these regions: " + missingRegions.join(', '))),
                     ttl: App.app.refreshFrequencyMs + App.app.refreshGracePeriodMs
                 }
             }, instance);

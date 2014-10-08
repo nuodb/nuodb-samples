@@ -246,7 +246,6 @@ Ext.define('App.view.MetricWell', {
                 me.inputSlider.setValue(val);
             }
         }
-
     },
 
     syncGraph: function() {

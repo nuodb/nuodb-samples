@@ -384,6 +384,7 @@ public class DbApiProxy implements IDbApi {
             dbStats.hostCount = Math.max(region.hostCount, dbStats.hostCount);
             dbStats.usedHostCount = Math.max(region.usedHostCount, dbStats.usedHostCount);
             if (region.usedHostCount > 0) {
+                dbStats.usedRegions.add(region.region);
                 dbStats.usedRegionCount++;
             }
         }
