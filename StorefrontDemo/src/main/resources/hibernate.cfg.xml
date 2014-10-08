@@ -13,10 +13,10 @@
         <property name="hibernate.connection.username">StorefrontUser</property>
         <property name="hibernate.connection.password">StorefrontUser</property>
         <property name="hibernate.connection.initialSize">2</property>
-        <property name="hibernate.connection.maxActive">100</property>
+        <property name="hibernate.connection.maxActive">0</property>
         <property name="hibernate.connection.maxIdle">30</property>
         <property name="hibernate.connection.maxWait">10000</property>
-        <property name="hibernate.connection.maxAge">60000</property>
+        <property name="hibernate.connection.maxAge">30000</property>
         <property name="hibernate.connection.defaultSchema">Storefront</property>
         <property name="hibernate.connection.defaultReadOnly">false</property>
         <property name="hibernate.connection.defaultAutoCommit">true</property>
