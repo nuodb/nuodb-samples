@@ -24,8 +24,9 @@ import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
 
 public class StorefrontApp {
-    public static final int HEARTBEAT_INTERVAL_SEC = 10; // 10 sec
-    public static final int MAX_HEARTBEAT_AGE_SEC = 20; // 20 sec
+    public static final int HEARTBEAT_INTERVAL_SEC = 10;
+    public static final int CPU_SAMPLING_INTERVAL_SEC = 1;
+    public static final int MAX_HEARTBEAT_AGE_SEC = 20;
     public static final int PURGE_FREQUENCY_SEC = 60 * 30; // 30 min
     public static final int STOP_USERS_AFTER_IDLE_UI_SEC = 60 * 10; // 10 min
     public static final int MIN_INSTANCE_PURGE_AGE_SEC = 60 * 60; // 1 hour

@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.service.IHeartbeatService;
+import com.nuodb.storefront.util.PerformanceUtil;
 
 public class StorefrontWebApp implements ServletContextListener {
     private static final String ENV_PROP_REGION = "storefront.region";
@@ -73,6 +74,11 @@ public class StorefrontWebApp implements ServletContextListener {
             if (s_heartbeatSvc == null) {
                 s_heartbeatSvc = StorefrontFactory.createHeartbeatService();
                 s_executor.scheduleAtFixedRate(s_heartbeatSvc, 0, StorefrontApp.HEARTBEAT_INTERVAL_SEC, TimeUnit.SECONDS);
+                
+                Runnable sampler = PerformanceUtil.createSampler();
+                if (sampler != null) {
+                    s_executor.scheduleAtFixedRate(sampler, 0, StorefrontApp.CPU_SAMPLING_INTERVAL_SEC, TimeUnit.SECONDS);
+                }
             }
         }
     }

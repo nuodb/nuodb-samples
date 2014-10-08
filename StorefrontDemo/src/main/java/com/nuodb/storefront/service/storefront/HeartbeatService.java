@@ -46,7 +46,7 @@ public class HeartbeatService implements IHeartbeatService {
                     }
 
                     // Send the heartbeat with the latest "last heartbeat time"
-                    appInstance.setCpuUtilization(PerformanceUtil.getCpuUtilization());
+                    appInstance.setCpuUtilization(PerformanceUtil.getAvgCpuUtilization());
                     appInstance.setLastHeartbeat(now);
                     if (!appInstance.getRegionOverride()) {
                         DbRegionInfo region = dao.getCurrentDbNodeRegion();

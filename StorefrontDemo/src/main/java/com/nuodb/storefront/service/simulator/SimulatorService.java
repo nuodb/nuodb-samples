@@ -193,7 +193,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     public StorefrontStatsReport getStorefrontStatsReport(Integer sessionTimeoutSec) {
         StorefrontStatsReport report = new StorefrontStatsReport();
 
-        StorefrontApp.APP_INSTANCE.setCpuUtilization(PerformanceUtil.getCpuUtilization());
+        StorefrontApp.APP_INSTANCE.setCpuUtilization(PerformanceUtil.getAvgCpuUtilization());
 
         report.setTimestamp(Calendar.getInstance());
         report.setAppInstance(StorefrontApp.APP_INSTANCE);

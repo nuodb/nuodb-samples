@@ -3,10 +3,13 @@ package com.nuodb.storefront.util;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 public class PerformanceUtil {
     private static final OperatingSystemMXBean s_osInfo = ManagementFactory.getOperatingSystemMXBean();
     private static final Method s_getSystemCpuLoad = lookupNoArgMethod(s_osInfo.getClass(), "getSystemCpuLoad");
+    private static Sampler s_sampler;
+    private static final int NUM_SAMPLES = 10;
 
     private PerformanceUtil() {
     }
@@ -35,5 +38,52 @@ public class PerformanceUtil {
             }
         }
         return 0;
+    }
+
+    /**
+     * @return Average CPU utilization over a sampling period, which is determined by the frequency with which the sampler is invoked and the number
+     *         of samples retained ({@link #NUM_SAMPLES}).
+     */
+    public static int getAvgCpuUtilization() {
+        if (s_sampler == null) {
+            return getCpuUtilization();
+        } else {
+            return s_sampler.getAvgCpuUtilization();
+        }
+    }
+
+    public static Runnable createSampler() {
+        if (s_getSystemCpuLoad == null) {
+            return null;
+        }
+        return s_sampler = new Sampler(NUM_SAMPLES);
+    }
+
+    private static class Sampler implements Runnable {
+        private int[] samples;
+        private int sampleIdx = 0;
+        private float total;
+
+        public Sampler(int numSamples) {
+            if (numSamples <= 0) {
+                throw new IllegalArgumentException();
+            }
+            samples = new int[numSamples];
+            Arrays.fill(samples, getCpuUtilization());
+            total = samples[0] * samples.length;
+        }
+
+        public int getAvgCpuUtilization() {
+            return (int) Math.round(total / samples.length);
+        }
+
+        @Override
+        public void run() {
+            total -= samples[sampleIdx];
+            total += samples[sampleIdx++] = getCpuUtilization();
+            if (sampleIdx >= samples.length) {
+                sampleIdx = 0;
+            }
+        }
     }
 }
