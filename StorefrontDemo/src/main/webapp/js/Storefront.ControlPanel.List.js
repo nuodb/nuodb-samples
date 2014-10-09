@@ -23,7 +23,7 @@
         data.apiUrl += '/databases/' + encodeURIComponent(dbName);
         if (data.db) {
             data.dbStatusColor = (data.db.status == 'RUNNING') ? 'success' : '';
-            $('#btn-console').attr('href', g_app.fixupHostname(data.adminConsoleUrl) + '?#databases/' + encodeURIComponent(dbName));
+            $('#btn-console').attr('href', g_app.fixupHostname(data.adminConsoleUrl) + '#databases/' + encodeURIComponent(dbName));
             $('#btn-explorer').attr('href', g_app.fixupHostname(data.sqlExplorerUrl) + "?db=" + encodeURIComponent(dbName));
         } else {
             data.dbStatusColor = 'important';
