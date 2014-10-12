@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import org.apache.log4j.Logger;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.codehaus.jackson.map.DeserializationConfig;
 
+import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.exception.ApiProxyException;
 import com.nuodb.storefront.exception.ApiUnavailableException;
 import com.nuodb.storefront.exception.DataValidationException;
@@ -42,6 +44,13 @@ public class DbApiProxy implements IDbApi {
     private static final String DBVAR_SM_MAX = "SM_MAX";
     private static final String DBVAR_HOST = "HOST";
     private static final String DBVAR_REGION = "REGION";
+    
+    private static final String TEMPLATE_GEO_DISTRIBUTED = "Geo-distributed";
+    private static final String TEMPLATE_MULTI_HOST = "Multi Host";
+    private static final String TEMPLATE_SINGLE_HOST = "Single Host";
+    
+    private static final String PROCESS_TYPE_TE = "TE";
+    private static final String PROCESS_TYPE_SM = "SM";
 
     private final String baseUrl;
     private final String authHeader;
@@ -186,9 +195,9 @@ public class DbApiProxy implements IDbApi {
                         region.usedHostCount++;
                         for (Process process : host.processes) {
                             if (process.dbname.equals(dbName)) {
-                                if ("TE".equals(process.type)) {
+                                if (PROCESS_TYPE_TE.equals(process.type)) {
                                     region.transactionManagerCount++;
-                                } else if ("SM".equals(process.type)) {
+                                } else if (PROCESS_TYPE_SM.equals(process.type)) {
                                     region.storageManagerCount++;
                                 }
                             }
@@ -241,12 +250,23 @@ public class DbApiProxy implements IDbApi {
                     unusedRegions.add(region);
                 }
             }
+            
+            // Ensure home region is used
+            Region homeRegion = findHomeRegion(regions);
+            if (unusedRegions.remove(homeRegion)) {
+                usedRegions.add(homeRegion);
+            }
 
-            // Pick regions to add/remove from used list
+            // Pick regions to remove from used list (but home region is not eligible for removal)
             Random rnd = new Random();
             while (usedRegions.size() > numRegions) {
-                unusedRegions.add(usedRegions.remove(rnd.nextInt(usedRegions.size())));
+                int idx = rnd.nextInt(usedRegions.size());
+                if (usedRegions.get(idx) != homeRegion) {
+                    unusedRegions.add(usedRegions.remove(idx));
+                }
             }
+            
+            // Pick regions to add to the list
             while (!unusedRegions.isEmpty() && usedRegions.size() < numRegions) {
                 usedRegions.add(unusedRegions.remove(rnd.nextInt(unusedRegions.size())));
             }
@@ -298,7 +318,8 @@ public class DbApiProxy implements IDbApi {
                 if (createDb) {
                     database = new Database();
                 }
-                boolean updateDb = fixDatabaseTemplate(database, footprint.usedRegionCount, footprint.usedHostCount, usedRegions.get(0).region, firstUsedHost.id);
+                boolean updateDb = fixDatabaseTemplate(database, footprint.usedRegionCount, footprint.usedHostCount, usedRegions.get(0).region,
+                        firstUsedHost.id);
                 if (createDb) {
                     database.name = dbConnInfo.getDbName();
                     database.username = dbConnInfo.getUsername();
@@ -354,7 +375,7 @@ public class DbApiProxy implements IDbApi {
         String dbName = dbConnInfo.getDbName();
         for (Process process : host.processes) {
             if (process.dbname.equals(dbName)) {
-                if (shutdownSMs || !"SM".equals(process.type)) {
+                if (shutdownSMs || !PROCESS_TYPE_SM.equals(process.type)) {
                     s_logger.info("Shutting down " + process.type + " process on host " + host.address + " (uid=" + process.uid + ")");
                     shutdownProcess(process.uid);
                 }
@@ -362,7 +383,19 @@ public class DbApiProxy implements IDbApi {
         }
     }
 
-    protected Database findStorefrontDatabase(List<Region> regions) {
+    protected Region findHomeRegion(Collection<Region> regions) {
+        String homeRegion = StorefrontApp.APP_INSTANCE.getRegion();
+        
+        for (Region region : regions) {
+            if (homeRegion.equals(region.region)) {
+                return region;
+            }
+        }
+        
+        return null;
+    }
+    
+    protected Database findStorefrontDatabase(Collection<Region> regions) {
         String dbName = dbConnInfo.getDbName();
 
         for (Region region : regions) {
@@ -376,7 +409,7 @@ public class DbApiProxy implements IDbApi {
         return null;
     }
 
-    protected DbFootprint getDbFootprint(List<Region> regions) {
+    protected DbFootprint getDbFootprint(Collection<Region> regions) {
         DbFootprint dbStats = new DbFootprint();
         dbStats.regionCount = regions.size();
 
@@ -415,17 +448,17 @@ public class DbApiProxy implements IDbApi {
         // Determine which template to use, and add template-specific variables
         String templateName;
         if (targetRegions > 1) {
-            templateName = "Geo-distributed";
+            templateName = TEMPLATE_GEO_DISTRIBUTED;
             vars.put(DBVAR_REGION, null);
             vars.put(DBVAR_HOST, null);
             vars.put(DBVAR_SM_MAX, null);
         } else if (targetHosts > 1) {
-            templateName = "Multi Host";
+            templateName = TEMPLATE_MULTI_HOST;
             vars.put(DBVAR_REGION, firstRegion);
             vars.put(DBVAR_HOST, null);
             vars.put(DBVAR_SM_MAX, "1");
         } else {
-            templateName = "Single Host";
+            templateName = TEMPLATE_SINGLE_HOST;
             vars.put(DBVAR_REGION, null);
             vars.put(DBVAR_HOST, firstHostId);
             vars.put(DBVAR_SM_MAX, null);
@@ -442,7 +475,7 @@ public class DbApiProxy implements IDbApi {
         if (!templateName.equals(oldTemplateName)) {
             changeCount++;
         }
-        database.template = templateName;  // always set DB template to a string since any update request needs this as a string, not an object
+        database.template = templateName; // always set DB template to a string since any update request needs this as a string, not an object
 
         // Apply variables
         if (database.variables == null) {

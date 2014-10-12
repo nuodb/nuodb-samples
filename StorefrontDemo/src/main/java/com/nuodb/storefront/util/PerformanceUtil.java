@@ -3,7 +3,6 @@ package com.nuodb.storefront.util;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 public class PerformanceUtil {
     private static final OperatingSystemMXBean s_osInfo = ManagementFactory.getOperatingSystemMXBean();
@@ -69,7 +68,7 @@ public class PerformanceUtil {
                 throw new IllegalArgumentException();
             }
             samples = new int[numSamples];
-            Arrays.fill(samples, getCpuUtilization());
+            samples[0] = getCpuUtilization();
             total = samples[0] * samples.length;
         }
 
