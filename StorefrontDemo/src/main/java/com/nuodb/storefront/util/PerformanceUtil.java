@@ -69,7 +69,7 @@ public class PerformanceUtil {
             }
             samples = new int[numSamples];
             samples[0] = getCpuUtilization();
-            total = samples[0] * samples.length;
+            total = samples[0];
         }
 
         public int getAvgCpuUtilization() {

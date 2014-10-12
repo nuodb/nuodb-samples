@@ -54,8 +54,7 @@ var Storefront = {
                 
             case "tour-multi-tenancy":
             case "tour-no-knobs-admin":
-                $('#lnk-console').attr('href', me.fixupHostname(cfg.pageData.adminConsoleUrl));
-                $('#lnk-explorer').attr('href', me.fixupHostname(cfg.pageData.sqlExplorerUrl));
+                $('.lnk-console').attr('href', me.fixupHostname(cfg.pageData.adminConsoleUrl));
                 break;
         }
 

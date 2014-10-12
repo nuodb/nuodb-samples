@@ -358,15 +358,19 @@ Ext.define('App.controller.Storefront', {
             if (instance.region == region) {
                 continue;
             }
+            
+            var hasInstance = false;
             for ( var key in me.regionStats[region]) {
                 hasInstance = true;
-                continue;
+                break;
             }
 
-            if (!missingRegions) {
-                missingRegions = [];
+            if (!hasInstance) {
+                if (!missingRegions) {
+                    missingRegions = [];
+                }
+                missingRegions.push(region);
             }
-            missingRegions.push(region);
         }
         if (missingRegions) {
             me.application.fireEvent('error', {

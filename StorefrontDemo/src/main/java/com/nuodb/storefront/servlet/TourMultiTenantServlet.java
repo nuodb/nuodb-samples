@@ -21,7 +21,6 @@ public class TourMultiTenantServlet extends BaseServlet {
         try {
             Map<String, Object> pageData = new HashMap<String, Object>();
             pageData.put("adminConsoleUrl", StorefrontFactory.getAdminConsoleUrl());
-            pageData.put("sqlExplorerUrl", StorefrontFactory.getSqlExplorerUrl());
             
             showPage(req, resp, "Multi-Tenant", "tour-multi-tenant", pageData, new Customer());
         } catch (Exception ex) {

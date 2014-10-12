@@ -37,7 +37,7 @@
         <li>Verify at least one Storefront is running on a host in each region.  You must explicitly visit the URL of a Storefront in each region for them to start.  Use the App Menu of the Automation Console on a host in each region, and choose the Storefront app.  This way, the simulated user load is originating from multiple regions and targeted to specific regions.  If you proceed without additional Storefronts running, you'll see a warning message in the header above telling you which region(s) are not covered.</li>  
         <li>Verify you&rsquo;ve configured all participating hosts with the setting <code>balancer=RegionBalancer</code> in NouDB&rsquo;s <code>default.properties</code> file.  Without this setting, Storefront instances are not confined to communicating with specific regions, which will skew the metrics you see.</li>
         <li>Increase the number of regions by clicking the up arrow within &ldquo;Regions&rdquo; above. Each click activates an additional region.  You are limited only by the number of pre-configured regions.</li>
-        <li>Add users in the new regions using the <a href="control-panel-users">simulated users page</a> or by clicking the up arrow within &ldquo;Users&rdquo; above.</li>
+        <li>Add users in the new regions using the <a href="control-panel-users">Simulated Users page</a> or by clicking the up arrow within &ldquo;Users&rdquo; above.</li>
     </ol>
     
     <h3>To learn more:</h3>

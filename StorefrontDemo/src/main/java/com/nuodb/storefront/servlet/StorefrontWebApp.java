@@ -32,6 +32,7 @@ public class StorefrontWebApp implements ServletContextListener {
     private static final Object s_heartbeatSvcLock = new Object();
     private static boolean s_initialized = false;
     private static String s_webAppUrlTemplate;
+    private static String s_hostname;
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
@@ -128,6 +129,13 @@ public class StorefrontWebApp implements ServletContextListener {
     }
 
     public static void updateWebAppUrl(boolean isSecure, String hostname, int port, String contextPath) {
+        if (s_hostname != null && ("localhost".equals(hostname) || "127.0.0.1".equals(hostname) || "::1".equals(hostname))) {
+            // Not helpful to update to a local address
+            hostname = s_hostname;
+        } else {
+            s_hostname = hostname;
+        }
+        
         if (StringUtils.isEmpty(contextPath)) {
             contextPath = "";
         } else if (contextPath.startsWith("/")) {

@@ -54,7 +54,7 @@
 
     <h3>To learn more:</h3>
     <ul class="tour-links">
-        <li>You may also create your own databases using the <a target="_blank" id="lnk-console">Automation Console</a></li>
+        <li>You may also create your own databases using the <a target="_blank" class="lnk-console">Automation Console</a></li>
         <li>Read the <a href="http://www.nuodb.com/about-us/newsql-cloud-database-customers/multi-tenant-apps" target="_blank">&ldquo;HP Moonshot&rdquo; Multi-Tenant Case Study</a></li>
     </ul>
     

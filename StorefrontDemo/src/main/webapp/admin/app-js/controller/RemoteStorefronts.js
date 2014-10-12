@@ -12,7 +12,7 @@ Ext.define('App.controller.RemoteStorefronts', {
     init: function() {
         var me = this;
         me.callParent(arguments);
-        me.appInstances = [];
+        me.appInstanceMap = {}; // uuid-to-AppInstance map
     },
 
     /** @Override */
@@ -48,24 +48,10 @@ Ext.define('App.controller.RemoteStorefronts', {
             method: 'GET',
             scope: this,
             success: function(response) {
-                // Get old instance request counts
-                var instanceRequestCountMap = {};
-                for ( var i = 0; i < me.appInstances.length; i++) {
-                    var instance = me.appInstances[i];
-                    instanceRequestCountMap[instance.uuid] = instance.outstandingRequestCount;
-                }
                 try {
-                    me.appInstances = Ext.decode(response.responseText);
+                    me.appInstanceMap = me.buildAppInstanceMap(Ext.decode(response.responseText));
                 } catch (e) {
                     return;
-                }
-
-                // Discover valid IDs
-                var uuidMap = {};
-                for ( var i = 0; i < me.appInstances.length; i++) {
-                    var uuid = me.appInstances[i].uuid;
-                    uuidMap[uuid] = true;
-                    me.appInstances[i].outstandingRequestCount = instanceRequestCountMap[uuid] || 0;
                 }
 
                 // Delete instances that are no longer alive
@@ -74,7 +60,7 @@ Ext.define('App.controller.RemoteStorefronts', {
                 for ( var regionName in regionStats) {
                     var region = regionStats[regionName];
                     for ( var uuid in region) {
-                        if (!uuidMap[uuid]) {
+                        if (!me.appInstanceMap[uuid] || me.appInstanceMap[uuid].region != regionName) {
                             delete region[uuid];
                             delete me.storefrontController.seenInstanceUuidMap[uuid];
                             removeCount++;
@@ -93,12 +79,25 @@ Ext.define('App.controller.RemoteStorefronts', {
         });
     },
 
+    buildAppInstanceMap: function(appInstances) {
+        var me = this;
+        var map = {};
+        for ( var i = 0; i < appInstances.length; i++) {
+            var appInstance = appInstances[i];
+            map[appInstance.uuid] = appInstance;
+            var oldInstance = me.appInstanceMap[appInstance.uuid];
+            appInstance.outstandingRequestCount = (oldInstance) ? oldInstance.outstandingRequestCount : 0;
+        }
+        
+        return map;
+    },
+
     /** @private interval handler */
     onRefreshStats: function() {
         var me = this;
 
-        for ( var i = 0; i < me.appInstances.length; i++) {
-            var instance = me.appInstances[i];
+        for ( var uuid in me.appInstanceMap) {
+            var instance = me.appInstanceMap[uuid];
             if (!instance.local && instance.outstandingRequestCount < App.app.maxOutstandingRequestCount) {
                 me.refreshInstanceStats(instance);
             }
@@ -113,10 +112,21 @@ Ext.define('App.controller.RemoteStorefronts', {
             Ext.Ajax.request({
                 url: instance.url + '/api/stats',
                 method: 'GET',
-                callback: function() {
+                callback: function(options, success, response) {
+                    // Ensure instance is still valid
+                    instance = me.appInstanceMap[instance.uuid];
+                    if (!instance) {
+                        return;
+                    }
                     instance.outstandingRequestCount--;
-                },
-                success: function(response) {
+
+                    // Ensure result was successful
+                    if (!success) {
+                        me.application.fireEvent('statsfail', response, instance);
+                        return;
+                    }
+
+                    // Ensure JSON is valid
                     var stats;
                     try {
                         stats = Ext.decode(response.responseText);
@@ -129,8 +139,7 @@ Ext.define('App.controller.RemoteStorefronts', {
                     if (!regionStats) {
                         me.storefrontController.regionStats[instance.region] = regionStats = {};
                     } else if (!regionStats[instance.uuid]) {
-                    	// We received stats after we marked this instance as dead.  Ignore stats for now.
-                    	return;
+                        // We received stats after we marked this instance as dead, or this instance has switched regions.  
                     } else {
                         var lastTimestamp = regionStats[instance.uuid].timestamp;
                         if (lastTimestamp && stats.timestamp < lastTimestamp) {
@@ -139,12 +148,9 @@ Ext.define('App.controller.RemoteStorefronts', {
                         }
                     }
                     regionStats[instance.uuid] = stats;
-                    
+
                     // Warn if this instance is under heavy load
                     me.storefrontController.checkForHeavyLoad(stats.appInstance);
-                },
-                failure: function(response) {
-                    me.application.fireEvent('statsfail', response, instance);
                 }
             });
         } catch (e) {

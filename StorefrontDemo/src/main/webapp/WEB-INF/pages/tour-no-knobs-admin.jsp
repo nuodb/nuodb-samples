@@ -17,14 +17,14 @@
     <t:messages />
 
     <ol class="tour-steps">
-        <li>Open the <a id="lnk-console" target="_blank">Automation Console</a>.</li>
+        <li>Open the <a class="lnk-console" target="_blank">Automation Console</a>.</li>
         <li>Click on &ldquo;Databases&rdquo; (on the left menu bar) and then click on &ldquo;Storefront.&rdquo; Explore the Regions and Processes for the Storefront database. Note the Template in effect. Click on &ldquo;Metrics&rdquo; on the upper right to view various operational statistics for the database.</li>
     </ol>
 
     <p>Or follow these steps to create a new database:</p>
 
     <ol class="tour-steps">
-        <li>Open the <a id="lnk-console" target="_blank">Automation Console</a>.</li>
+        <li>Open the <a class="lnk-console" target="_blank">Automation Console</a>.</li>
         <li>Click on &ldquo;Databases&rdquo; (on the left menu bar)</li>
         <li>Click on &ldquo;Actions&rdquo; (top-right) and then &ldquo;Add Database&rdquo;.</li>
         <li>Enter a name for the new database, the DBA user name and password, and select a template specifying the SLA for this database.</li>
