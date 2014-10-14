@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.model.dto.StorefrontStatsReport;
 import com.nuodb.storefront.model.entity.Customer;
 
@@ -25,6 +26,8 @@ public class ControlPanelUsersServlet extends BaseServlet {
             StorefrontStatsReport stats = getSimulator().getStorefrontStatsReport(null);
             Map<String, Object> pageData = new HashMap<String, Object>();
             pageData.put("stats", stats);
+            pageData.put("maxIdleSec", StorefrontApp.STOP_USERS_AFTER_IDLE_UI_SEC);
+            pageData.put("stopUsersWhenIdle", StorefrontApp.APP_INSTANCE.getStopUsersWhenIdle());
 
             showPage(req, resp, "Control Panel", "control-panel-users", pageData, new Customer());
         } catch (Exception ex) {

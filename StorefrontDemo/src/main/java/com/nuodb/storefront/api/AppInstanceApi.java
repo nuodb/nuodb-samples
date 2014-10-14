@@ -18,7 +18,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import com.nuodb.storefront.StorefrontApp;
-import com.nuodb.storefront.exception.DataValidationException;
 import com.nuodb.storefront.model.entity.AppInstance;
 import com.nuodb.storefront.model.type.Currency;
 
@@ -56,13 +55,14 @@ public class AppInstanceApi extends BaseApi {
 
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
-    public AppInstance updateAppInstance(@FormParam("currency") Currency currency) {
-        if (currency == null) {
-            throw new DataValidationException("Currency not valid.");
-        }
-
+    public AppInstance updateAppInstance(@FormParam("currency") Currency currency, @FormParam("stopUsersWhenIdle") Boolean stopUsersWhenIdle) {
         AppInstance instance = StorefrontApp.APP_INSTANCE;
-        instance.setCurrency(currency);
+        if (currency != null) {
+            instance.setCurrency(currency);
+        }
+        if (stopUsersWhenIdle != null) {
+            instance.setStopUsersWhenIdle(stopUsersWhenIdle);
+        }
         return instance;
     }
 }

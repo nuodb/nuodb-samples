@@ -21,11 +21,11 @@
                     });
         }
 
-        initCustomersList();
+        initCustomersList(cfg.pageData.maxIdleSec, cfg.pageData.stopUsersWhenIdle);
         refreshStats(pageData.stats);
     };
 
-    function initCustomersList() {
+    function initCustomersList(maxIdleSec, stopUsersWhenIdle) {
         // Render regions table
         g_app.TemplateMgr.applyTemplate('tpl-regions', '#regions', g_regionData);
 
@@ -44,6 +44,14 @@
             var regionName = $(this).closest('.region-overview').attr('data-region');
             var btn$ = $(this).closest('.currency').find('.btn-change-currency');
             changeCurrency(getRegionByName(regionName), $(this).attr('data-currency'), btn$);
+        });
+
+        // Handle idle handling change
+        $('#maxIdleSec').text(Math.round(maxIdleSec / 60));
+        $('#chk-stop-users-when-idle').prop('checked', stopUsersWhenIdle);
+        $('#regions').on('change', '#chk-stop-users-when-idle', function(e) {
+            e.preventDefault();
+            changeStopUsersWhenIdle($(this).prop('checked'));
         });
 
         // Handle workload "Update" button
@@ -394,36 +402,55 @@
         return null;
     }
 
-    function changeCurrency(region, currency, btn$) {
-        var changeCount = region.instances.length;
+    function updateInstances(regions, data, onComplete) {
+        var changeCount = 0;
         var failedInstances = [];
 
+        for ( var regionIdx = 0; regionIdx < regions.length; regionIdx++) {
+            var region = regions[regionIdx];
+
+            for ( var instanceId = 0; instanceId < region.instances.length; instanceId++) {
+                var instance = region.instances[instanceId];
+                changeCount++;
+
+                (function(instance) {
+                    $.ajax({
+                        method: 'PUT',
+                        url: buildInstanceUrl(instance, '/api/app-instances'),
+                        data: data,
+                        cache: false
+                    }).fail(function() {
+                        failedInstances.push(instance.url);
+                    }).always(function() {
+                        if (--changeCount == 0) {
+                            if (onComplete) {
+                                onComplete();
+                            }
+
+                            if (failedInstances.length) {
+                                alert('Unable to change settings on one or more instances:\n\n - ' + failedInstances.join('\n - '));
+                            }
+                        }
+                    });
+                })(instance);
+            }
+        }
+    }
+
+    function changeCurrency(region, currency, btn$) {
         btn$.attr('disabled', 'disabled').find('span').text('Changing...');
 
-        for ( var i = 0; i < region.instances.length; i++) {
-            var instance = region.instances[i];
+        updateInstances([region], {
+            currency: currency
+        }, function() {
+            btn$.removeAttr('disabled').find('span').text(Handlebars.helpers.currencyFormat(currency));
+        });
+    }
 
-            (function(instance) {
-                $.ajax({
-                    method: 'PUT',
-                    url: buildInstanceUrl(instance, '/api/app-instances'),
-                    data: {
-                        currency: currency
-                    },
-                    cache: false
-                }).fail(function() {
-                    failedInstances.push(instance.url);
-                }).always(function() {
-                    if (--changeCount == 0) {
-                        btn$.removeAttr('disabled').find('span').text(Handlebars.helpers.currencyFormat(currency));
-
-                        if (failedInstances.length) {
-                            alert('Unable to change currency on one or more instances:\n\n - ' + failedInstances.join('\n - '));
-                        }
-                    }
-                });
-            })(instance);
-        }
+    function changeStopUsersWhenIdle(val) {
+        updateInstances(g_regionData.regions, {
+            stopUsersWhenIdle: val
+        });
     }
 
     /**
@@ -436,7 +463,6 @@
      */
     function updateWorkloadUsers(targetRegion, data, btn$) {
         var failedInstances = [];
-        var pendingUpdates = false;
         var changeCounts = {};
 
         $('#btn-stop-all').attr('disabled', 'disabled');
@@ -490,7 +516,7 @@
             }
         }
     }
-    
+
     function buildInstanceUrl(instance, url) {
         return ((instance.local) ? '.' : instance.url) + url;
     }

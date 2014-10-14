@@ -32,6 +32,9 @@
 										<li><span id="label-heavy-load" class="label label-warning">0</span> Under heavy load</li>
 										<li><span id="label-not-responding" class="label label-important">0</span> Not responding</li>
 									</ul>
+									<br />
+									<p><label class="checkbox" for="chk-stop-users-when-idle" title="If unchecked, any active simulated users will keep running in the background.
+If you are running multiple Storefronts, unchecking this box on any of them disables auto-stop for all."><input type="checkbox" id="chk-stop-users-when-idle" /> Auto-stop users <span id="maxIdleSec">10</span> minutes after closing browser tab</label></p>
 								</th>
 								<th colspan="3" class="customer-summary">
 									<h3>Customers</h3>

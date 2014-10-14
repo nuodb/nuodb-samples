@@ -272,19 +272,24 @@ public class StorefrontDao extends BaseDao implements IStorefrontDao {
         query.setParameter("MAX_LAST_HEARTBEAT", maxLastHeartbeat);
         return query.executeUpdate();
     }
-    
+
     @Override
     public int getActiveAppInstanceCount(Calendar idleThreshold) {
-        SQLQuery query = getSession().createSQLQuery("SELECT COUNT(*) FROM APP_INSTANCE WHERE LAST_API_ACTIVITY > :IDLE_THRESHOLD");
+        SQLQuery query = getSession().createSQLQuery(
+                "SELECT COUNT(*) FROM APP_INSTANCE WHERE" +
+                        " (STOP_USERS_WHEN_IDLE = 0 AND LAST_HEARTBEAT >= :MIN_HEARTBEAT_TIME)" +
+                        " OR LAST_API_ACTIVITY > :IDLE_THRESHOLD");
+        setStorefrontStatsParameters(query, null);
         query.setParameter("IDLE_THRESHOLD", idleThreshold);
-        return ((Number)query.uniqueResult()).intValue();
+        return ((Number) query.uniqueResult()).intValue();
     }
 
     @Override
     public DbRegionInfo getCurrentDbNodeRegion() {
         DbRegionInfo info = new DbRegionInfo();
-        Object[] result = (Object[])getSession().createSQLQuery("SELECT GETNODEID(), GEOREGION FROM SYSTEM.NODES WHERE ID=GETNODEID()").uniqueResult();
-        info.nodeId = ((Number)result[0]).intValue();
+        Object[] result = (Object[]) getSession().createSQLQuery("SELECT GETNODEID(), GEOREGION FROM SYSTEM.NODES WHERE ID=GETNODEID()")
+                .uniqueResult();
+        info.nodeId = ((Number) result[0]).intValue();
         info.regionName = result[1].toString();
         return info;
     }
@@ -301,13 +306,15 @@ public class StorefrontDao extends BaseDao implements IStorefrontDao {
         return Currency.valueOf(currencies.get(0));
     }
 
-    protected void setStorefrontStatsParameters(SQLQuery query, int maxCustomerIdleTimeSec) {
+    protected void setStorefrontStatsParameters(SQLQuery query, Integer maxCustomerIdleTimeSec) {
         Calendar now = Calendar.getInstance();
 
         // MIN_ACTIVE_TIME
-        Calendar minActiveTime = (Calendar) now.clone();
-        minActiveTime.add(Calendar.SECOND, -maxCustomerIdleTimeSec);
-        query.setParameter("MIN_ACTIVE_TIME", minActiveTime);
+        if (maxCustomerIdleTimeSec != null) {
+            Calendar minActiveTime = (Calendar) now.clone();
+            minActiveTime.add(Calendar.SECOND, -maxCustomerIdleTimeSec);
+            query.setParameter("MIN_ACTIVE_TIME", minActiveTime);
+        }
 
         // MIN_HEARTBEAT_TIME
         Calendar minHeartbeatTime = (Calendar) now.clone();

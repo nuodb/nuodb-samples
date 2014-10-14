@@ -51,6 +51,9 @@ public class AppInstance extends UuidEntity {
     
     @NotNull
     private Calendar lastApiActivity;
+    
+    @NotNull
+    private boolean stopUsersWhenIdle = true;
 
     public AppInstance() {
     }
@@ -160,5 +163,13 @@ public class AppInstance extends UuidEntity {
 
     public void setLastApiActivity(Calendar lastApiActivity) {
         this.lastApiActivity = lastApiActivity;
+    }
+
+    public boolean getStopUsersWhenIdle() {
+        return stopUsersWhenIdle;
+    }
+
+    public void setStopUsersWhenIdle(boolean stopUsersWhenIdle) {
+        this.stopUsersWhenIdle = stopUsersWhenIdle;
     }
 }

@@ -66,7 +66,7 @@ public class HeartbeatService implements IHeartbeatService {
                     // If interactive user has left the app, shut down any active workloads
                     Calendar idleThreshold = Calendar.getInstance();
                     idleThreshold.add(Calendar.SECOND, -StorefrontApp.STOP_USERS_AFTER_IDLE_UI_SEC);
-                    if (appInstance.getLastApiActivity().before(idleThreshold)) {
+                    if (appInstance.getStopUsersWhenIdle() && appInstance.getLastApiActivity().before(idleThreshold)) {
                         // Don't do any heavy lifting if there are no simulated workloads in progress
                         int activeWorkerCount = StorefrontFactory.getSimulatorService().getActiveWorkerLimit();
                         if (activeWorkerCount > 0) {
