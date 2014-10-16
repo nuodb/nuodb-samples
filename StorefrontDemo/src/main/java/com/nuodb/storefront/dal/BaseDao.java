@@ -11,6 +11,11 @@ import org.hibernate.Transaction;
 import com.googlecode.genericdao.dao.hibernate.GeneralDAOImpl;
 
 public class BaseDao extends GeneralDAOImpl implements IBaseDao {
+    private static final ThreadLocal<Long> transactionStartTime = new ThreadLocal<Long>();
+    
+    public static void setThreadTransactionStartTime(long startTimeMs) {
+        transactionStartTime.set(startTimeMs);
+    }
 
     public void runTransaction(TransactionType transactionType, String name, final Runnable r) {
         runTransaction(transactionType, name, new Callable<Object>() {
@@ -23,7 +28,8 @@ public class BaseDao extends GeneralDAOImpl implements IBaseDao {
     }
 
     public <T> T runTransaction(TransactionType transactionType, String name, Callable<T> c) {
-        long startTime = System.currentTimeMillis();
+        Long startTimeObj = transactionStartTime.get();
+        long startTime = (startTimeObj != null) ? startTimeObj.longValue() : System.currentTimeMillis();
 
         Session session = getSession();
         Transaction t = null;

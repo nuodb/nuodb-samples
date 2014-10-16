@@ -16,6 +16,7 @@ import javassist.Modifier;
 import org.apache.log4j.Logger;
 
 import com.nuodb.storefront.StorefrontApp;
+import com.nuodb.storefront.dal.BaseDao;
 import com.nuodb.storefront.model.dto.StorefrontStatsReport;
 import com.nuodb.storefront.model.dto.Workload;
 import com.nuodb.storefront.model.dto.WorkloadFlow;
@@ -35,7 +36,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     private final Map<WorkloadStep, AtomicInteger> stepCompletionCounts = new TreeMap<WorkloadStep, AtomicInteger>();
 
     public SimulatorService(IStorefrontService svc) {
-        this.threadPool = new ScheduledThreadPoolExecutor(Runtime.getRuntime().availableProcessors() * 10);
+        this.threadPool = new ScheduledThreadPoolExecutor(Runtime.getRuntime().availableProcessors() * 25);
         this.svc = svc;
 
         // Seed workload map with predefined workloads
@@ -205,6 +206,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     }
 
     protected void addWorker(RunnableWorker worker, long startDelayMs) {
+        worker.expectedDequeueTimeMs = System.currentTimeMillis() + startDelayMs;
         threadPool.schedule(worker, startDelayMs, TimeUnit.MILLISECONDS);
     }
 
@@ -226,6 +228,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
         private final IWorker worker;
         private long completionWorkTimeMs;
         private final ScheduledThreadPoolExecutor originalThreadPool;
+        private long expectedDequeueTimeMs;
 
         public RunnableWorker(IWorker worker) {
             this.worker = worker;
@@ -250,8 +253,10 @@ public class SimulatorService implements ISimulator, ISimulatorService {
                 }
             }
 
+            BaseDao.setThreadTransactionStartTime(expectedDequeueTimeMs);
+
             // Run the worker
-            long startTimeMs = System.currentTimeMillis();
+            long startTimeMs = (expectedDequeueTimeMs == 0) ? System.currentTimeMillis() : expectedDequeueTimeMs;
             long delay;
             boolean workerFailed = false;
             try {
