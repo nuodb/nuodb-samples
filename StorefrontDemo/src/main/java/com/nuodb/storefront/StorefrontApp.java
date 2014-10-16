@@ -32,7 +32,7 @@ public class StorefrontApp {
     public static final int MIN_INSTANCE_PURGE_AGE_SEC = 60 * 60; // 1 hour
     public static final int DEFAULT_SESSION_TIMEOUT_SEC = 60 * 20;// 20 min
 
-    public static final String DEFAULT_REGION_NAME = "Default";
+    public static final String DEFAULT_REGION_NAME = "Unknown region";
     public static final String DEFAULT_DB_NAME = "Storefront";
     public static final String DEFAULT_DB_HOST = "localhost";
     public static final String DEFAULT_DB_PROCESS_TAG = "Storefront";

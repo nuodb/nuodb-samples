@@ -2,8 +2,6 @@
 
 package com.nuodb.storefront.servlet;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -18,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.service.IHeartbeatService;
+import com.nuodb.storefront.util.NetworkUtil;
 import com.nuodb.storefront.util.PerformanceUtil;
 
 public class StorefrontWebApp implements ServletContextListener {
@@ -75,7 +74,7 @@ public class StorefrontWebApp implements ServletContextListener {
             if (s_heartbeatSvc == null) {
                 s_heartbeatSvc = StorefrontFactory.createHeartbeatService();
                 s_executor.scheduleAtFixedRate(s_heartbeatSvc, 0, StorefrontApp.HEARTBEAT_INTERVAL_SEC, TimeUnit.SECONDS);
-                
+
                 Runnable sampler = PerformanceUtil.createSampler();
                 if (sampler != null) {
                     s_executor.scheduleAtFixedRate(sampler, 0, StorefrontApp.CPU_SAMPLING_INTERVAL_SEC, TimeUnit.SECONDS);
@@ -103,7 +102,7 @@ public class StorefrontWebApp implements ServletContextListener {
                 s_webAppUrlTemplate = StorefrontApp.DEFAULT_URL;
             }
         }
-        
+
         // Guess port
         String portStr = System.getProperty(ENV_MAVEN_TOMCAT_PORT);
         int port = StorefrontApp.DEFAULT_PORT;
@@ -114,18 +113,10 @@ public class StorefrontWebApp implements ServletContextListener {
             }
         }
 
-        // Get IP address
-        String ipAddress;
-        try {
-            ipAddress = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            ipAddress = "localhost";
-        }
-
         // Get context path
         String contextPath = context.getContextPath();
 
-        updateWebAppUrl(port == 443, ipAddress, port, contextPath);
+        updateWebAppUrl(port == 443, NetworkUtil.getLocalIpAddress(), port, contextPath);
     }
 
     public static void updateWebAppUrl(boolean isSecure, String hostname, int port, String contextPath) {
@@ -135,7 +126,7 @@ public class StorefrontWebApp implements ServletContextListener {
         } else {
             s_hostname = hostname;
         }
-        
+
         if (StringUtils.isEmpty(contextPath)) {
             contextPath = "";
         } else if (contextPath.startsWith("/")) {

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -28,6 +29,7 @@ import com.nuodb.storefront.exception.DatabaseNotFoundException;
 import com.nuodb.storefront.model.dto.DbConnInfo;
 import com.nuodb.storefront.model.dto.DbFootprint;
 import com.nuodb.storefront.model.dto.RegionStats;
+import com.nuodb.storefront.util.NetworkUtil;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.UniformInterfaceException;
@@ -386,11 +388,22 @@ public class DbApiProxy implements IDbApi {
     protected Region findHomeRegion(Collection<Region> regions) {
         String homeRegion = StorefrontApp.APP_INSTANCE.getRegion();
         
+        // If we know the region name, try to match on that first
         for (Region region : regions) {
             if (homeRegion.equals(region.region)) {
                 return region;
             }
         }
+        
+        // Try to match by IP address
+        Set<String> ipAddresses = NetworkUtil.getLocalIpAddresses();
+        for (Region region : regions) {
+            for (Host host : region.hosts) {
+                if (ipAddresses.contains(host.ipaddress)) {
+                    return region;
+                }
+            }
+        }        
         
         return null;
     }
