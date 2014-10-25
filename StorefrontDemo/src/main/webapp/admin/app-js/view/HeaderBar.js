@@ -117,7 +117,7 @@ Ext.define('App.view.HeaderBar', {
 
             case 'metrics-hosts':
             case 'metrics-regions':
-                btn.noInputSyncUntil = -1;
+                btn.noInputSyncUntil = new Date().getTime() + 1000 * 60;
                 Ext.Ajax.request({
                     url: App.app.apiBaseUrl + '/api/stats/db?numRegions=' + me.btnRegions.getInputValue() + "&numHosts=" + me.btnHosts.getInputValue(),
                     method: 'PUT',

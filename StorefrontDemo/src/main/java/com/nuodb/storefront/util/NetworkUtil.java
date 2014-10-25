@@ -7,8 +7,8 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class NetworkUtil {
     private NetworkUtil() {
@@ -23,7 +23,7 @@ public class NetworkUtil {
     }
 
     public static Set<String> getLocalIpAddresses() {
-        Set<String> ipAddresses = new HashSet<String>();
+        Set<String> ipAddresses = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
         try {
             Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();
             while (e.hasMoreElements())

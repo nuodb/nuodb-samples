@@ -46,11 +46,11 @@ public class DbApiProxy implements IDbApi {
     private static final String DBVAR_SM_MAX = "SM_MAX";
     private static final String DBVAR_HOST = "HOST";
     private static final String DBVAR_REGION = "REGION";
-    
+
     private static final String TEMPLATE_GEO_DISTRIBUTED = "Geo-distributed";
     private static final String TEMPLATE_MULTI_HOST = "Multi Host";
     private static final String TEMPLATE_SINGLE_HOST = "Single Host";
-    
+
     private static final String PROCESS_TYPE_TE = "TE";
     private static final String PROCESS_TYPE_SM = "SM";
 
@@ -252,22 +252,22 @@ public class DbApiProxy implements IDbApi {
                     unusedRegions.add(region);
                 }
             }
-            
+
             // Ensure home region is used
-            Region homeRegion = findHomeRegion(regions);
-            if (unusedRegions.remove(homeRegion)) {
-                usedRegions.add(homeRegion);
+            HomeHostInfo homeHostInfo = findHomeHostInfo(regions);
+            if (unusedRegions.remove(homeHostInfo.region)) {
+                usedRegions.add(homeHostInfo.region);
             }
 
             // Pick regions to remove from used list (but home region is not eligible for removal)
             Random rnd = new Random();
             while (usedRegions.size() > numRegions) {
                 int idx = rnd.nextInt(usedRegions.size());
-                if (usedRegions.get(idx) != homeRegion) {
+                if (usedRegions.get(idx) != homeHostInfo.region) {
                     unusedRegions.add(usedRegions.remove(idx));
                 }
             }
-            
+
             // Pick regions to add to the list
             while (!unusedRegions.isEmpty() && usedRegions.size() < numRegions) {
                 usedRegions.add(unusedRegions.remove(rnd.nextInt(unusedRegions.size())));
@@ -289,7 +289,7 @@ public class DbApiProxy implements IDbApi {
                 List<Host> usedHosts = new ArrayList<Host>();
                 List<Host> unusedHosts = new ArrayList<Host>();
                 for (Host host : usedRegion.hosts) {
-                    if (host.tags.containsKey(dbProcessTag)) {
+                    if (host.tags.containsKey(dbProcessTag) || host == homeHostInfo.host) {
                         usedHosts.add(host);
                     } else {
                         unusedHosts.add(host);
@@ -297,8 +297,11 @@ public class DbApiProxy implements IDbApi {
                 }
 
                 while (usedHosts.size() > numHosts) {
-                    Host removedHost = usedHosts.remove(rnd.nextInt(usedHosts.size()));
-                    removeHostTag(removedHost, dbProcessTag, false);
+                    Host removedHost = usedHosts.get(rnd.nextInt(usedHosts.size()));
+                    if (removedHost != homeHostInfo.host) {
+                        usedHosts.remove(removedHost);
+                        removeHostTag(removedHost, dbProcessTag, false);
+                    }
                 }
                 while (!unusedHosts.isEmpty() && usedHosts.size() < numHosts) {
                     Host addedHost = unusedHosts.remove(rnd.nextInt(unusedHosts.size()));
@@ -316,12 +319,14 @@ public class DbApiProxy implements IDbApi {
             // Update template if current one doesn't match desired footprint
             Database database = findStorefrontDatabase(regions);
             if (database != null || createIfDne) {
+                if (homeHostInfo.host == null) {
+                    throw new DataValidationException("No hosts available to run database.");
+                }
                 boolean createDb = database == null;
                 if (createDb) {
                     database = new Database();
                 }
-                boolean updateDb = fixDatabaseTemplate(database, footprint.usedRegionCount, footprint.usedHostCount, usedRegions.get(0).region,
-                        firstUsedHost.id);
+                boolean updateDb = fixDatabaseTemplate(database, footprint.usedRegionCount, footprint.usedHostCount, homeHostInfo);
                 if (createDb) {
                     database.name = dbConnInfo.getDbName();
                     database.username = dbConnInfo.getUsername();
@@ -385,34 +390,62 @@ public class DbApiProxy implements IDbApi {
         }
     }
 
-    protected Region findHomeRegion(Collection<Region> regions) {
+    protected HomeHostInfo findHomeHostInfo(Collection<Region> regions) {
         String homeRegionName = StorefrontApp.APP_INSTANCE.getRegion();
-        Region closestMatch = null;
-        
-        // Try to match by IP address
+        String dbName = dbConnInfo.getDbName();
         Set<String> ipAddresses = NetworkUtil.getLocalIpAddresses();
+
+        // Look for best match:  Host with SM running in our region
+        HomeHostInfo ipMatch = null;
+        HomeHostInfo ipRegionMatch = null;
+        HomeHostInfo regionMatch = null;
         for (Region region : regions) {
             for (Host host : region.hosts) {
-                if (ipAddresses.contains(host.ipaddress)) {
-                    if (homeRegionName.equals(region.region)) {
-                        return region;
+                HomeHostInfo match = new HomeHostInfo(host, region);
+
+                if (homeRegionName.equals(region.region)) {
+                    regionMatch = match;
+                    for (Process process : host.processes) {
+                        if (dbName.equals(process.dbname) && PROCESS_TYPE_SM.equals(process.type)) {
+                            // Found best match:  Host with SM running in our region
+                            return match;
+                        }
                     }
-                    closestMatch = region;
+                    if (ipAddresses.contains(host.ipaddress)) {
+                        ipRegionMatch = match;
+                    }
+                } else if (ipAddresses.contains(host.ipaddress)) {
+                    ipMatch = match;
                 }
             }
-        }   
-        
-        // If we know the region name, try to match on that first
-        for (Region region : regions) {
-            if (homeRegionName.equals(region.region)) {
-                return region;
-            }
+        }
+
+        // Second best match:  Host sharing our IP and region
+        if (ipRegionMatch != null) {
+            return ipRegionMatch;
         }
         
+        // Third best match:  Host sharing our region
+        if (regionMatch != null) {
+            return regionMatch;
+        }
         
-        return closestMatch;
+        // Fourth best match:  Host sharing our IP
+        if (ipMatch != null) {
+            return ipMatch;
+        }
+        
+        // Last resort: random host
+        for (Region region : regions) {
+            if (region.hosts.length > 0) {
+                return new HomeHostInfo(region.hosts[0], region);
+            }
+        }
+
+        // No host available
+        return new HomeHostInfo();
     }
-    
+
     protected Database findStorefrontDatabase(Collection<Region> regions) {
         String dbName = dbConnInfo.getDbName();
 
@@ -454,7 +487,7 @@ public class DbApiProxy implements IDbApi {
     }
 
     @SuppressWarnings("unchecked")
-    protected boolean fixDatabaseTemplate(Database database, int targetRegions, int targetHosts, String firstRegion, String firstHostId) {
+    protected boolean fixDatabaseTemplate(Database database, int targetRegions, int targetHosts, HomeHostInfo homeHostInfo) {
         // Initialize DB variable map
         Map<String, String> vars = new HashMap<String, String>();
 
@@ -472,13 +505,13 @@ public class DbApiProxy implements IDbApi {
             vars.put(DBVAR_SM_MAX, null);
         } else if (targetHosts > 1) {
             templateName = TEMPLATE_MULTI_HOST;
-            vars.put(DBVAR_REGION, firstRegion);
+            vars.put(DBVAR_REGION, homeHostInfo.region.region);
             vars.put(DBVAR_HOST, null);
             vars.put(DBVAR_SM_MAX, "1");
         } else {
             templateName = TEMPLATE_SINGLE_HOST;
             vars.put(DBVAR_REGION, null);
-            vars.put(DBVAR_HOST, firstHostId);
+            vars.put(DBVAR_HOST, homeHostInfo.host.id);
             vars.put(DBVAR_SM_MAX, null);
         }
 

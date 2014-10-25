@@ -235,7 +235,7 @@ Ext.define('App.view.MetricWell', {
         val = stats.getLatestValue(me.metric);
         me.setValue(val);
         if (me.inputSlider) {
-            if (me.noInputSyncUntil == 0 || me.noInputSyncUntil >= new Date().getTime()) {
+            if (me.noInputSyncUntil == 0 || me.noInputSyncUntil <= new Date().getTime()) {
                 var max = stats.getLatestValue(me.inputMaxMetric);
                 me.inputSlider.setMaxValue(max);
                 me.inputSlider.setDisabled(max <= 1);
