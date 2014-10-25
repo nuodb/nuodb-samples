@@ -44,7 +44,7 @@
     <ol class="tour-steps">
         <li>Increase user workload by clicking the up arrow within &ldquo;Users&rdquo; above. Each click adds 50 users (10 for each kind of workload).</li>
         <li>Increase the number of Transaction Engines (TEs) by moving up the slider within &ldquo;Hosts&rdquo; above. TEs are started on available hosts in each region. The maximum number of TEs is limited only by the number of available hosts.</li>
-        <li>Observe the impact on throughput and latency</li>
+        <li>Observe the positive impact on throughput and latency</li>
     </ol>
     
     <h3>To learn more:</h3>

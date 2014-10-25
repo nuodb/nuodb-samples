@@ -7,7 +7,7 @@
 
     <p class="tour-text">When a database is created, a Template is applied, which specifies the level of redundancy, number of host and regions required for that database.</p>
 
-    <p class="tour-text">NuoDB monitors the database to ensure that its Template requirements are always being met and takes actions if not.</p>
+    <p class="tour-text">NuoDB monitors the database to ensure that its Template requirements are always being met and takes actions if they are not.</p>
 
     <p class="tour-text">For instance, if a host fails, NuoDB will start replacement processes on another host if necessary.</p>
     <p>&nbsp;</p>
