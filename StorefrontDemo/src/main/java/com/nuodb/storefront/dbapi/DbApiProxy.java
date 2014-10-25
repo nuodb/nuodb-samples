@@ -152,7 +152,7 @@ public class DbApiProxy implements IDbApi {
     }
 
     @Override
-    public Database fixDbSetup(boolean createIfDne) {
+    public synchronized Database fixDbSetup(boolean createIfDne) {
         // Verify DB exists
         List<Region> regions = getRegions();
         Database db = findStorefrontDatabase(regions);
@@ -386,26 +386,31 @@ public class DbApiProxy implements IDbApi {
     }
 
     protected Region findHomeRegion(Collection<Region> regions) {
-        String homeRegion = StorefrontApp.APP_INSTANCE.getRegion();
-        
-        // If we know the region name, try to match on that first
-        for (Region region : regions) {
-            if (homeRegion.equals(region.region)) {
-                return region;
-            }
-        }
+        String homeRegionName = StorefrontApp.APP_INSTANCE.getRegion();
+        Region closestMatch = null;
         
         // Try to match by IP address
         Set<String> ipAddresses = NetworkUtil.getLocalIpAddresses();
         for (Region region : regions) {
             for (Host host : region.hosts) {
                 if (ipAddresses.contains(host.ipaddress)) {
-                    return region;
+                    if (homeRegionName.equals(region.region)) {
+                        return region;
+                    }
+                    closestMatch = region;
                 }
             }
-        }        
+        }   
         
-        return null;
+        // If we know the region name, try to match on that first
+        for (Region region : regions) {
+            if (homeRegionName.equals(region.region)) {
+                return region;
+            }
+        }
+        
+        
+        return closestMatch;
     }
     
     protected Database findStorefrontDatabase(Collection<Region> regions) {

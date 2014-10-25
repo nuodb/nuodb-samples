@@ -75,7 +75,7 @@ public class StatsApi extends BaseApi {
     @PUT
     @Path("/db")
     @Produces(MediaType.APPLICATION_JSON)
-    public DbFootprint getDbStats(@QueryParam("numRegions") Integer numRegions, @QueryParam("numHosts") Integer numHosts) {
+    public DbFootprint setDbStats(@QueryParam("numRegions") Integer numRegions, @QueryParam("numHosts") Integer numHosts) {
         return getDbApi().setDbFootprint(numRegions.intValue(), numHosts.intValue());
     }
 

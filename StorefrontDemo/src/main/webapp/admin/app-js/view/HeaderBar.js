@@ -122,11 +122,12 @@ Ext.define('App.view.HeaderBar', {
                     url: App.app.apiBaseUrl + '/api/stats/db?numRegions=' + me.btnRegions.getInputValue() + "&numHosts=" + me.btnHosts.getInputValue(),
                     method: 'PUT',
                     scope: this,
+                    success: function() {
+                        btn.noInputSyncUntil = new Date().getTime() + 1000 * 3;
+                    },                    
                     failure: function(response) {
                         App.app.fireEvent('error', response, null);
-                    },
-                    complete: function() {
-                        btn.noInputSyncUntil = new Date().getTime() + 1000 * 3;
+                        btn.noInputSyncUntil = 0;
                     }
                 });
                 break;

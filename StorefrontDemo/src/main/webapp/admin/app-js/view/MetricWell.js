@@ -25,10 +25,6 @@ Ext.define('App.view.MetricWell', {
 
     cls: 'metric-well',
 
-    /*
-     * width: 150, height: 55,
-     */
-
     /** {@cfg} {String} metric */
 
     /** {@cfg} {Function} formatter */
