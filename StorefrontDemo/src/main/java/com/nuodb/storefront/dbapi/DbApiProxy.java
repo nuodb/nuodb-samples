@@ -284,7 +284,6 @@ public class DbApiProxy implements IDbApi {
             }
 
             // Ensure proper number of hosts are tagged in each used region
-            Host firstUsedHost = null;
             for (Region usedRegion : usedRegions) {
                 List<Host> usedHosts = new ArrayList<Host>();
                 List<Host> unusedHosts = new ArrayList<Host>();
@@ -303,13 +302,13 @@ public class DbApiProxy implements IDbApi {
                         removeHostTag(removedHost, dbProcessTag, false);
                     }
                 }
+                for (Host existingHost : usedHosts) {
+                    addHostTag(existingHost, dbProcessTag, "1");
+                }
                 while (!unusedHosts.isEmpty() && usedHosts.size() < numHosts) {
                     Host addedHost = unusedHosts.remove(rnd.nextInt(unusedHosts.size()));
                     addHostTag(addedHost, dbProcessTag, "1");
                     usedHosts.add(addedHost);
-                }
-                if (firstUsedHost == null && !usedHosts.isEmpty()) {
-                    firstUsedHost = usedHosts.get(0);
                 }
                 usedRegion.usedHostCount = usedHosts.size();
             }
@@ -355,6 +354,12 @@ public class DbApiProxy implements IDbApi {
     }
 
     protected void addHostTag(Host host, String tagName, String tagValue) {
+        String oldTagValue = host.tags.get(tagName);
+        if (tagValue.equals(oldTagValue)) {
+            // Tag already exists
+            return;
+        }
+        
         s_logger.info("Adding tag '" + tagName + "' to host " + host.address + " (id=" + host.id + ")");
 
         Tag tag = new Tag();
@@ -370,14 +375,14 @@ public class DbApiProxy implements IDbApi {
     }
 
     protected void removeHostTag(Host host, String tagName, boolean shutdownSMs) {
-        s_logger.info("Removing tag '" + tagName + "' from host " + host.address + " (id=" + host.id + ")");
+        if (host.tags.remove(tagName) != null) {
+            s_logger.info("Removing tag '" + tagName + "' from host " + host.address + " (id=" + host.id + ")");
 
-        Client.create(s_cfg)
-                .resource(baseUrl + "/hosts/" + host.id + "/tags/" + urlEncode(tagName))
-                .header(HttpHeaders.AUTHORIZATION, authHeader)
-                .type(MediaType.APPLICATION_JSON).delete();
-
-        host.tags.remove(tagName);
+            Client.create(s_cfg)
+                    .resource(baseUrl + "/hosts/" + host.id + "/tags/" + urlEncode(tagName))
+                    .header(HttpHeaders.AUTHORIZATION, authHeader)
+                    .type(MediaType.APPLICATION_JSON).delete();
+        }
 
         String dbName = dbConnInfo.getDbName();
         for (Process process : host.processes) {
@@ -395,7 +400,7 @@ public class DbApiProxy implements IDbApi {
         String dbName = dbConnInfo.getDbName();
         Set<String> ipAddresses = NetworkUtil.getLocalIpAddresses();
 
-        // Look for best match:  Host with SM running in our region
+        // Look for best match: Host with SM running in our region
         HomeHostInfo ipMatch = null;
         HomeHostInfo ipRegionMatch = null;
         HomeHostInfo regionMatch = null;
@@ -407,7 +412,7 @@ public class DbApiProxy implements IDbApi {
                     regionMatch = match;
                     for (Process process : host.processes) {
                         if (dbName.equals(process.dbname) && PROCESS_TYPE_SM.equals(process.type)) {
-                            // Found best match:  Host with SM running in our region
+                            // Found best match: Host with SM running in our region
                             return match;
                         }
                     }
@@ -420,21 +425,21 @@ public class DbApiProxy implements IDbApi {
             }
         }
 
-        // Second best match:  Host sharing our IP and region
+        // Second best match: Host sharing our IP and region
         if (ipRegionMatch != null) {
             return ipRegionMatch;
         }
-        
-        // Third best match:  Host sharing our region
+
+        // Third best match: Host sharing our region
         if (regionMatch != null) {
             return regionMatch;
         }
-        
-        // Fourth best match:  Host sharing our IP
+
+        // Fourth best match: Host sharing our IP
         if (ipMatch != null) {
             return ipMatch;
         }
-        
+
         // Last resort: random host
         for (Region region : regions) {
             if (region.hosts.length > 0) {
