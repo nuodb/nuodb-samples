@@ -146,7 +146,7 @@ public abstract class BaseServlet extends HttpServlet {
             throws ServletException, IOException {
         showPage(req, resp, pageTitle, pageName, pageData, null);
     }
-
+    
     protected static void showPage(HttpServletRequest req, HttpServletResponse resp, String pageTitle, String pageName, Object pageData,
             Customer customer) throws ServletException, IOException {
 
@@ -179,6 +179,7 @@ public abstract class BaseServlet extends HttpServlet {
         req.getSession().removeAttribute(SESSION_MESSAGES);
 
         // Render JSP page
+        s_logger.info("Servicing \"" + req.getMethod() + " " + req.getRequestURI() + "\" with \"" + pageName + ".jsp\" for customer " + ((customer == null) ? null : customer.getId()) + " from " + req.getRemoteAddr());
         req.getRequestDispatcher("/WEB-INF/pages/" + pageName + ".jsp").forward(req, resp);
     }
 

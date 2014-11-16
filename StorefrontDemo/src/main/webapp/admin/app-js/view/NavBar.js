@@ -64,6 +64,10 @@ Ext.define('App.view.NavBar', {
         title: 'Regions',
         href: '/control-panel-regions',
         icon: 'ico-pin.png'
+    }, {
+        title: 'Log',
+        href: '/control-panel-log',
+        icon: 'ico-log.png'
     }],
 
     /** @Override */

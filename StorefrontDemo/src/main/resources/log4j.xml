@@ -1,19 +1,36 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE log4j:configuration PUBLIC "-//LOGGER" "http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/xml/doc-files/log4j.dtd">
 <log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
-	<appender name="ConsoleAppender" class="org.apache.log4j.ConsoleAppender">
-		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%-4r [%t] %-5p %c %x - %m%n" />
-		</layout>
-	</appender>
-	<logger name="com.nuodb.storefront">
-		<level value="info" />
-	</logger>
-	<logger name="org.hibernate">
-		<level value="off" />
-	</logger>
-	<root>
-		<level value="warn" />
-		<appender-ref ref="ConsoleAppender" />
-	</root>
+    <appender name="console" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.EnhancedPatternLayout">
+            <param name="ConversionPattern" value="%-5p [%d{ISO8601}{GMT+0}] %c: %m%n" />
+        </layout>
+    </appender>
+    <appender name="memory" class="com.nuodb.storefront.util.InMemoryAppender">
+        <param name="maxFileSize" value="10MB" />
+        <layout class="org.apache.log4j.EnhancedPatternLayout">
+            <param name="ConversionPattern" value="%-5p [%d{ISO8601}{GMT+0}] %c: %m%n" />
+        </layout>
+    </appender>
+    <appender name="file" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="storefront.log" />
+        <param name="datePattern" value=".yyyy-MM-dd" />
+        <layout class="org.apache.log4j.EnhancedPatternLayout">
+            <param name="ConversionPattern" value="%-5p [%d{ISO8601}{GMT+0}] %c: %m%n" />
+        </layout>
+    </appender>
+    
+    <logger name="com.nuodb.storefront">
+        <level value="info" />
+    </logger>
+    <logger name="org.hibernate">
+        <level value="off" />
+    </logger>
+    
+    <root>
+        <level value="warn" />
+        <appender-ref ref="console" />
+        <appender-ref ref="memory" />
+        <!-- <appender-ref ref="file" /> -->
+    </root>
 </log4j:configuration>

@@ -39,7 +39,7 @@ var Storefront = {
             case "control-panel-users":
                 me.initControlPanelUsersPage(cfg);
                 break;
-
+                
             case "store-products":
                 me.initProductsPage(cfg.pageData.products, cfg.pageData.categories, cfg.pageData.filter);
                 break;
