@@ -70,7 +70,7 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
             s_logger.error("Can't connect to API", e);
             addMessage(req, MessageSeverity.ERROR,
                     "Cannot connect to NuoDB RESTful API.  The Storefront is trying to connect to \""
-                            + getDbApi().getBaseUrl() + "\" with the username \"" + getDbApi().getAuthUser() + "\".");
+                            + getDbApi().getBaseUrl() + "\" with the username \"" + getDbApi().getAuthUser() + "\".", "Retry");
         } catch (ApiProxyException e) {
             s_logger.error("Health check failed", e);
             addMessage(req, MessageSeverity.ERROR, "NuoDB RESTful API at " + getDbApi().getBaseUrl() + " returned an error:  " + e.getMessage());

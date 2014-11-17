@@ -11,6 +11,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
 import com.nuodb.storefront.model.entity.Customer;
 import com.nuodb.storefront.model.type.MessageSeverity;
 import com.nuodb.storefront.util.InMemoryAppender;
@@ -35,7 +37,7 @@ public class ControlPanelLogServlet extends BaseServlet {
                 writer.close();
             } else {
                 Map<String, Object> pageData = new HashMap<String, Object>();
-                req.setAttribute("log", (logData == null || logData.isEmpty()) ? "Log is empty." : logData);
+                req.setAttribute("log", (logData == null || logData.isEmpty()) ? "Log is empty." : StringEscapeUtils.escapeHtml4(logData));
                 if (logData == null) {
                     addMessage(req, MessageSeverity.ERROR, "In-memory logging is not enabled.  Configure InMemoryAppender in log4j.xml.");
                 }
