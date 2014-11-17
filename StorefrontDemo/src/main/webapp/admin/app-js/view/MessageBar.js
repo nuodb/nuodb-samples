@@ -94,7 +94,11 @@ Ext.define('App.view.MessageBar', {
             msg = (response.responseJson || Ext.decode(response.responseText)).message;
             ttl = (response.responseJson) ? response.responseJson.ttl : 0;
         } catch (e) {
-        }        
+        }
+        if (!msg) {
+            // No actual error.  Request may have been aborted or timed out.
+            return;
+        }
         me.addMessage(msg, instance, ttl);
     },
     

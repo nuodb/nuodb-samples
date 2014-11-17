@@ -117,8 +117,13 @@ Ext.define('App.view.HeaderBar', {
 
             case 'metrics-hosts':
             case 'metrics-regions':
+                if (btn.activeRequest) {
+                    Ext.Ajax.abort(btn.activeRequest);
+                }
                 btn.noInputSyncUntil = new Date().getTime() + 1000 * 60;
-                Ext.Ajax.request({
+                btn.setWait(true);
+                var thisRequest;
+                btn.activeRequest = thisRequest = Ext.Ajax.request({
                     url: App.app.apiBaseUrl + '/api/stats/db?numRegions=' + me.btnRegions.getInputValue() + "&numHosts=" + me.btnHosts.getInputValue(),
                     method: 'PUT',
                     scope: this,
@@ -128,6 +133,11 @@ Ext.define('App.view.HeaderBar', {
                     failure: function(response) {
                         App.app.fireEvent('error', response, null);
                         btn.noInputSyncUntil = 0;
+                    },
+                    callback: function() {
+                        if (btn.activeRequest == thisRequest) {
+                            delete btn.activeRequest;
+                        }
                     }
                 });
                 break;
