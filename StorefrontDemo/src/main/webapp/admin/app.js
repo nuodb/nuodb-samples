@@ -18,6 +18,7 @@ Ext.application({
     refreshGracePeriodMs: 2000 * 1, 
     instanceListRefreshFrequencyMs: 1000 * 30,
     maxStatsHistory: 61,
+    lockStatsYAxisToMax: false,
     apiBaseUrl: '..',
     maxOutstandingRequestCount: 2,
     minHeavyCpuUtilizationPct: 90,

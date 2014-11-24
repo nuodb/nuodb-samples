@@ -320,13 +320,22 @@ Ext.define('App.controller.Storefront', {
                     var record = {
                         timestamp: timestamp
                     };
+                    var stackedValue = 0;
                     for ( var seriesName in catStats) {
-                        record[seriesName] = catStats[seriesName][metricName];
+                        catValue = catStats[seriesName][metricName];
+                        record[seriesName] = catValue;
+                        if (seriesName != 'all') {
+                            stackedValue += catValue;
+                        }
                     }
                     store.add(record);
                     while (store.getCount() > App.app.maxStatsHistory || store.getAt(0).get('timestamp') < minTimestamp) {
                         store.removeAt(0);
                     }
+
+                    // Update known max values
+                    metric.set('maxValue', Math.max(metric.get('maxValue'), catStats['all'][metricName]));
+                    metric.set('maxStackedValue', Math.max(metric.get('maxStackedValue'), stackedValue));
                 }
             }
         });
@@ -351,14 +360,14 @@ Ext.define('App.controller.Storefront', {
             // Coverage doesn't matter if there's no load
             return;
         }
-        
+
         var missingRegions = null;
         for ( var i = 0; i < regions.length; i++) {
             var region = regions[i];
             if (instance.region == region) {
                 continue;
             }
-            
+
             var hasInstance = false;
             for ( var key in me.regionStats[region]) {
                 hasInstance = true;
