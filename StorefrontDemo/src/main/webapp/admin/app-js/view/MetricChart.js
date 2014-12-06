@@ -289,8 +289,14 @@ Ext.define('App.view.MetricChart', {
 
         // Configure x axis
         var xAxis = chart.axes.getAt(0);
-        xAxis.maximum = (App.app.lockStatsYAxisToMax) ? me.metric.get(me.categoryIdx >= 0 ? 'maxStackedValue' : 'maxValue') : undefined;
-
+        xAxis.maximum = undefined;
+        if (App.app.lockStatsYAxisToMax) {
+            max = me.metric.get(me.categoryIdx >= 0 ? 'maxStackedValue' : 'maxValue');
+            if (max > 0) {
+                xAxis.maximum = max; 
+            }
+        }
+    
         // Configure y axis
         var yAxis = chart.axes.getAt(1);
         var dateRange = me.calcDateRange(store);
