@@ -42,16 +42,18 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
         try {
             getDbApi().fixDbSetup(false);
 
-            try {
-                checkForProducts(req);
-            } catch (SQLGrammarException e) {
-                // Database exists, but schema might not yet exist. Try creating it automatically.
+            synchronized (s_schemaUpdateLock) {
                 try {
-                    StorefrontFactory.createSchema();
                     checkForProducts(req);
-                } catch (Exception e2) {
-                    // Schema repair didn't work
-                    throw e;
+                } catch (SQLGrammarException e) {
+                    // Database exists, but schema might not yet exist. Try creating it automatically.
+                    try {
+                        StorefrontFactory.createSchema();
+                        checkForProducts(req);
+                    } catch (Exception e2) {
+                        // Schema repair didn't work
+                        throw e;
+                    }
                 }
             }
         } catch (DatabaseNotFoundException e) {
