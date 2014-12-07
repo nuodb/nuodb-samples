@@ -39,13 +39,15 @@ Ext.define('App.view.ChartControlBar', {
             handler: me.onClickHandler,
             toggleGroup: 'y',
             pressed: !App.app.lockStatsYAxisToMax,
-            tooltip: 'Adjusts the maximum value of the y axis to the largest value currently visible.'
+            tooltip: 'Adjusts the maximum value of the y axis to the largest value currently visible.',
+            tooltipType: 'title'
         }, {
             text: 'Lock to peak',
             handler: me.onClickHandler,
             toggleGroup: 'y',
             pressed: App.app.lockStatsYAxisToMax,
-            tooltip: 'Fixes the maximum value of the y axis to the largest value encountered, even if that value is no longer visible.'
+            tooltip: 'Fixes the maximum value of the y axis to the largest value encountered, even if that value is no longer visible.',
+            tooltipType: 'title'
         }, '->'];
 
         me.callParent(arguments);
