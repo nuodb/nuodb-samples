@@ -19,45 +19,6 @@ Ext.define('App.view.Viewport', {
         }        
     },
 
-    items: [{
-        region: 'north',
-        xtype: 'messagebar'
-    }, {
-        region: 'north',
-        xtype: 'headerbar'
-    }, {
-        region: 'center',
-        layout: 'card',
-        itemId: 'center',
-        items: [{
-            xtype: 'uxiframe',
-            itemId: 'frameView',
-            src: '../welcome',
-            listeners: {
-                load: function() {
-                    try {
-                        var url = this.getWin().document.location.href.split('/');
-                        App.app.fireEvent('viewchange', '/' + url[url.length - 1], false);
-                    } catch (e) {
-                    }
-                }
-            }
-        }, {
-            layout: 'card',
-            itemId: 'metricsView',
-            padding: '20'
-        }]
-    }, {
-        region: 'west',
-        xtype: 'navbar'
-    }, {
-        region: 'south',
-        xtype: 'chartcontrolbar',
-        id: 'chartcontrolbar',
-        itemId: 'chartControlView',
-        hidden: true
-    }],
-
     initComponent: function() {
         var me = this;
 
@@ -69,18 +30,64 @@ Ext.define('App.view.Viewport', {
                 sidebarTip: 'Hide control panel'
             });
         }
+        
+        me.items =  [{
+            region: 'north',
+            xtype: 'messagebar'
+        }, {
+            region: 'north',
+            xtype: 'headerbar'
+        }, {
+            region: 'center',
+            layout: 'card',
+            itemId: 'center',
+            items: [{
+                xtype: 'uxiframe',
+                itemId: 'frameView',
+                src: '../welcome',
+                listeners: { load: me.onIFrameLoad }
+            }, {
+                xtype: 'uxiframe',
+                itemId: 'userView',
+                listeners: { load: me.onIFrameLoad }
+            }, {
+                layout: 'card',
+                itemId: 'metricsView',
+                padding: '20'
+            }]
+        }, {
+            region: 'west',
+            xtype: 'navbar'
+        }, {
+            region: 'south',
+            xtype: 'chartcontrolbar',
+            id: 'chartcontrolbar',
+            itemId: 'chartControlView',
+            hidden: true
+        }];
 
         me.callParent(arguments);
 
         me.center = me.down('[itemId=center]');
         me.metricsView = me.down('[itemId=metricsView]');
         me.frameView = me.down('[itemId=frameView]');
+        me.userView = me.down('[itemId=userView]');
         me.chartControlView = me.down('[itemId=chartControlView]');
 
         App.app.on('viewchange', Ext.bind(me.onViewChange, me));
     },
 
-    onViewChange: function(viewName, isUserInitiated) {
+    onIFrameLoad: function() {
+        try {
+            this.lastLoadTime = new Date();
+            var url = this.getWin().document.location.href.split('/');
+            App.app.fireEvent(this.loadEvent || 'viewchange', '/' + url[url.length - 1], false);
+            delete this.loadEvent;
+        } catch (e) {
+        }
+    },
+
+    onViewChange: function(viewName, isUserInitiated, loadEvent) {
         var me = this;
         var centerLayout = me.center.getLayout();
 
@@ -88,11 +95,16 @@ Ext.define('App.view.Viewport', {
 
         if (url) {
             // Show URL of the view in an iframe
+            var isUserView = url == '../control-panel-users';
+            var targetView = (isUserView) ? me.userView : me.frameView;
             if (isUserInitiated !== false) {
-                me.frameView.load(url);
+                targetView.loadEvent = loadEvent;
+                targetView.load(url);
             }
-            centerLayout.setActiveItem(me.frameView);
-            me.chartControlView.setVisible(false);
+            if (!loadEvent) {
+                centerLayout.setActiveItem(targetView);
+                me.chartControlView.setVisible(false);
+            }
         } else {
             // Show metrics associated with the view
             var view = me.metricsView.items.get(viewName);

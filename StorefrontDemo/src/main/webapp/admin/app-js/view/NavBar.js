@@ -101,8 +101,10 @@ Ext.define('App.view.NavBar', {
 
         me.callParent(arguments);
 
-        App.app.on('viewchange', function(href) {
-            $('a', me.el.dom).removeClass('active').filter('[href="' + href + '"]').addClass('active');
+        App.app.on('viewchange', function(href, userInitiated, loadEvent) {
+            if (!loadEvent) {
+                $('a', me.el.dom).removeClass('active').filter('[href="' + href + '"]').addClass('active');
+            }
         });
     },
 

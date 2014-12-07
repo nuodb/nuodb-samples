@@ -23,6 +23,7 @@ Ext.application({
     maxOutstandingRequestCount: 2,
     minHeavyCpuUtilizationPct: 90,
     msgDefaultDisplayTimeMs: 5 * 1000,
+    simulatedUserPageExpiryMs: 5 * 1000,
 
     defaultLineColor: '#c0cd30',
     defaultFillColor: '#e3e7a7',

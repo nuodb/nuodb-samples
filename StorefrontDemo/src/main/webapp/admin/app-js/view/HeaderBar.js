@@ -108,10 +108,12 @@ Ext.define('App.view.HeaderBar', {
         switch (btn.itemId) {
             case 'metrics-users':
                 if (!me.adjustUserLoad(value)) {
-                    App.app.fireEvent('viewchange', '/control-panel-users');
-                    App.app.on('viewchange', function(viewName) {
+                    App.app.fireEvent('viewchange', '/control-panel-users', true, 'viewload');
+                    App.app.on('viewload', function(viewName) {
                         me.adjustUserLoad(value);
-                    }, me, { single: true });
+                    }, me, {
+                        single: true
+                    });
                 }
                 break;
 
@@ -129,7 +131,7 @@ Ext.define('App.view.HeaderBar', {
                     scope: this,
                     success: function() {
                         btn.noInputSyncUntil = new Date().getTime() + 1000 * 3;
-                    },                    
+                    },
                     failure: function(response) {
                         App.app.fireEvent('error', response, null);
                         btn.noInputSyncUntil = 0;
@@ -146,21 +148,26 @@ Ext.define('App.view.HeaderBar', {
                 break;
         }
     },
-    
+
     adjustUserLoad: function(value) {
         try {
-            var doc = Ext.ComponentQuery.query('uxiframe')[0].getDoc();
+            var frame = Ext.ComponentQuery.query('[itemId=userView]')[0];
+            if (new Date() - frame.lastLoadTime > App.app.simulatedUserPageExpiryMs) {
+                return false;
+            }
+
+            var doc = frame.getDoc();
             if ($('#table-regions', doc).length == 0) {
                 return false;
             }
-            
+
             $('input[type=number]:not([readonly])', doc).each(function() {
                 var currentVal = Math.max(0, parseInt($(this).val()));
                 $(this).val((value > 0) ? currentVal + 10 : (value < 0) ? Math.max(0, currentVal - 10) : 0);
             });
-            
-            App.app.fireEvent('viewchange', '/control-panel-users', false);  // show the page but don't load it
+
             $('.btn-update', doc).click();
+            frame.lastLoadTime = new Date();
             return true;
         } catch (e) {
             return false;

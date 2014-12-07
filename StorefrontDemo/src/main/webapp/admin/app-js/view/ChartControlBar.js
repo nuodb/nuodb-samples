@@ -13,7 +13,7 @@ Ext.define('App.view.ChartControlBar', {
     initComponent: function() {
         var me = this;
 
-        me.items = ['->', '<b>History:</b>', ' ', {
+        me.items = ['->', '<b>HISTORY:</b>', ' ', {
             text: '1 min',
             handler: me.onClickHandler,
             toggleGroup: 'x',
