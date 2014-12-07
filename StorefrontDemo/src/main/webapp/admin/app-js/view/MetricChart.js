@@ -251,7 +251,9 @@ Ext.define('App.view.MetricChart', {
             },
             axes: [{
                 type: 'Numeric',
+                constrain: false,
                 minimum: 0,
+                maximum: me.calcYAxisMax(),
                 position: 'left',
                 fields: seriesNames,
                 title: unitName,
@@ -288,20 +290,26 @@ Ext.define('App.view.MetricChart', {
         var store = chart.getStore();
 
         // Configure x axis
-        var xAxis = chart.axes.getAt(0);
-        xAxis.maximum = undefined;
+        var xAxis = chart.axes.getAt(1);
+        var dateRange = me.calcDateRange(store);
+        xAxis.fromDate = dateRange[0];
+        xAxis.toDate = dateRange[1];
+
+        // Configure y axis
+        var yAxis = chart.axes.getAt(0);
+        yAxis.maximum = me.calcYAxisMax();
+
+    },
+
+    calcYAxisMax: function() {
+        var me = this;
         if (App.app.lockStatsYAxisToMax) {
-            max = me.metric.get(me.categoryIdx >= 0 ? 'maxStackedValue' : 'maxValue');
+            max = me.metric.get(me.categoryIdx != null && me.categoryIdx >= 0 ? 'maxStackedValue' + me.categoryIdx: 'maxValue');
             if (max > 0) {
-                xAxis.maximum = max; 
+                return max;
             }
         }
-    
-        // Configure y axis
-        var yAxis = chart.axes.getAt(1);
-        var dateRange = me.calcDateRange(store);
-        yAxis.fromDate = dateRange[0];
-        yAxis.toDate = dateRange[1];
+        return undefined;
     },
 
     calcDateRange: function(store) {

@@ -114,16 +114,24 @@ Ext.define('App.controller.Storefront', {
         }
 
         var records = [];
+        var maxStackedValue = 0;
+        var maxValue = 0;
         for ( var i = 0; i < me.statsHistory.length; i++) {
             var stats = me.statsHistory[i][category];
             var record = {
                 timestamp: new Date(me.statsHistory[i].timestamp)
             };
-            for ( var seriesName in stats) {
-                record[seriesName] = stats[seriesName][metricName];
-            }
+            var stackedValue = me.fillRecord(record, stats, metricName);
             records.push(record);
+            maxStackedValue = Math.max(maxStackedValue, stackedValue);
+            if (stats['all'][metricName] > 0) {
+                maxValue = Math.max(maxValue, stats['all'][metricName]);
+            }
         }
+
+        // Set known max values
+        metric.set('maxValue', maxValue);
+        metric.set('maxStackedValue' + (categoryIdx || 0), maxStackedValue);
 
         var store = new App.store[storeName]();
         store.loadData(records);
@@ -320,25 +328,31 @@ Ext.define('App.controller.Storefront', {
                     var record = {
                         timestamp: timestamp
                     };
-                    var stackedValue = 0;
-                    for ( var seriesName in catStats) {
-                        catValue = catStats[seriesName][metricName];
-                        record[seriesName] = catValue;
-                        if (seriesName != 'all') {
-                            stackedValue += catValue;
-                        }
-                    }
+                    var stackedValue = me.fillRecord(record, catStats, metricName);
                     store.add(record);
+
                     while (store.getCount() > App.app.maxStatsHistory || store.getAt(0).get('timestamp') < minTimestamp) {
                         store.removeAt(0);
                     }
 
                     // Update known max values
                     metric.set('maxValue', Math.max(metric.get('maxValue'), catStats['all'][metricName]));
-                    metric.set('maxStackedValue', Math.max(metric.get('maxStackedValue'), stackedValue));
+                    metric.set('maxStackedValue' + i, Math.max(metric.get('maxStackedValue' + i), stackedValue));
                 }
             }
         });
+    },
+
+    fillRecord: function(record, catStats, metricName) {
+        var stackedValue = 0;
+        for ( var seriesName in catStats) {
+            catValue = catStats[seriesName][metricName];
+            record[seriesName] = catValue;
+            if (seriesName != 'all' && catValue > 0) {
+                stackedValue += catValue;
+            }
+        }
+        return stackedValue;
     },
 
     checkForHeavyLoad: function(instance) {

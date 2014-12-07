@@ -7,7 +7,11 @@ Ext.define('App.model.Metric', {
         type: 'int',
         defaultValue: 0
     }, {
-        name: 'maxStackedValue',
+        name: 'maxStackedValue0',
+        type: 'int',
+        defaultValue: 0
+    }, {
+        name: 'maxStackedValue1',
         type: 'int',
         defaultValue: 0
     }],
