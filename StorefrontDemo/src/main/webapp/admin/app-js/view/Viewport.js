@@ -81,7 +81,7 @@ Ext.define('App.view.Viewport', {
         try {
             this.lastLoadTime = new Date();
             var url = this.getWin().document.location.href.split('/');
-            App.app.fireEvent(this.loadEvent || 'viewchange', '/' + url[url.length - 1], false);
+            App.app.fireEvent(this.loadEvent || 'viewchange', '/' + url[url.length - 1], false, null);
             delete this.loadEvent;
         } catch (e) {
         }

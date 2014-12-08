@@ -113,7 +113,7 @@ Ext.define('App.view.NavBar', {
         var me = this;
         me.callParent(arguments);
         $('a', me.el.dom).click(function(e) {
-            App.app.fireEvent('viewchange', $(this).attr('href'));
+            App.app.fireEvent('viewchange', $(this).attr('href'), true, null);
             return false;
         });
     }

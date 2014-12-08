@@ -43,6 +43,7 @@ Ext.define('App.view.HeaderBar', {
             input: 'slider',
             inputMaxMetric: 'dbStats.hostCount',
             flex: 0.7,
+            href: '/control-panel-processes',
             listeners: {
                 click: clickHandler,
                 change: changeHandler
@@ -56,6 +57,7 @@ Ext.define('App.view.HeaderBar', {
             input: 'slider',
             inputMaxMetric: 'dbStats.regionCount',
             flex: 0.7,
+            href: '/control-panel-regions',
             listeners: {
                 click: clickHandler,
                 change: changeHandler
@@ -92,7 +94,7 @@ Ext.define('App.view.HeaderBar', {
         App.app.on('viewchange', function(viewName) {
             for ( var i = 0; i < me.viewButtons.length; i++) {
                 var btn = me.viewButtons[i];
-                btn.toggle(btn.getItemId() == viewName, true);
+                btn.toggle(btn.getItemId() == viewName || btn.href == viewName, true);
             }
         });
     },
@@ -100,7 +102,7 @@ Ext.define('App.view.HeaderBar', {
     /** @private event handler */
     onViewButtonClick: function(btnActive) {
         var viewName = btnActive.getItemId();
-        App.app.fireEvent('viewchange', viewName);
+        App.app.fireEvent('viewchange', viewName, true, null);
     },
 
     onChange: function(btn, value) {
