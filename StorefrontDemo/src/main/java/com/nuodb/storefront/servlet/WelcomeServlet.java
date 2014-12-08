@@ -27,13 +27,19 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        doHealthCheck(req);
-        showPage(req, resp, "Welcome", "welcome", null, new Customer());
+        Object pageData = doHealthCheck(req);
+        showPage(req, resp, "Welcome", "welcome", pageData, new Customer());
     }
 
     @Override
     protected void doPostAction(HttpServletRequest req, HttpServletResponse resp, String btnAction) throws IOException {
         if (btnAction.contains("create")) {
+            DbConnInfo connInfo = new DbConnInfo();
+            connInfo.setUrl(req.getParameter("url"));
+            connInfo.setUsername(req.getParameter("username"));
+            connInfo.setPassword(req.getParameter("password"));
+            StorefrontFactory.setDbConnInfo(connInfo);
+            
             getDbApi().fixDbSetup(true);
             
             // Wait until API acknowledges the DB exists
@@ -52,7 +58,7 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
         super.doPostAction(req, resp, btnAction);
     }
 
-    protected void doHealthCheck(HttpServletRequest req) throws ServletException {
+    protected Object doHealthCheck(HttpServletRequest req) throws ServletException {
         try {
             getDbApi().fixDbSetup(false);
 
@@ -71,17 +77,14 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
                 }
             }
         } catch (DatabaseNotFoundException e) {
-            DbConnInfo dbInfo = StorefrontFactory.getDbConnInfo();
-            addMessage(req, MessageSeverity.INFO, "The " + dbInfo.getDbName() + " database does not yet exist.", "Create database");
+            return StorefrontFactory.getDbConnInfo();
         } catch (GenericJDBCException e) {
             s_logger.warn("Servlet handled JDBC error", e);
 
             // Database may not exist. Inform the user
             DbConnInfo dbInfo = StorefrontFactory.getDbConnInfo();
-            addMessage(req, MessageSeverity.WARNING,
-                    "The " + dbInfo.getDbName() + " database may not yet exist.  The Storefront is trying to connect to \""
-                            + dbInfo.getUrl() + "\" with the username \"" + dbInfo.getUsername() + "\".", "Create database");
-
+            addMessage(req, MessageSeverity.WARNING, "Could not connect to " + dbInfo.getDbName() + ":  " + e.getMessage());
+            return dbInfo;
         } catch (ApiUnavailableException e) {
             s_logger.error("Can't connect to API", e);
             addMessage(req, MessageSeverity.ERROR,
@@ -91,5 +94,7 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
             s_logger.error("Health check failed", e);
             addMessage(req, MessageSeverity.ERROR, "NuoDB RESTful API at " + getDbApi().getBaseUrl() + " returned an error:  " + e.getMessage());
         }
+        
+        return null;
     }
 }

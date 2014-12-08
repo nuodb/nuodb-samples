@@ -43,7 +43,6 @@ public abstract class BaseServlet extends HttpServlet {
     private static final long serialVersionUID = 1452096145544476070L;
     private static final Object s_svcLock = new Object();
     private static volatile IStorefrontService s_svc;
-    private static volatile IDbApi s_dbApi;
     protected static Object s_schemaUpdateLock = new Object();
 
     protected BaseServlet() {
@@ -61,14 +60,7 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     public static IDbApi getDbApi() {
-        if (s_dbApi == null) {
-            synchronized (s_svcLock) {
-                if (s_dbApi == null) {
-                    s_dbApi = StorefrontFactory.createDbApi();
-                }
-            }
-        }
-        return s_dbApi;
+        return StorefrontFactory.getDbApi();
     }
 
     public static ISimulatorService getSimulator() {

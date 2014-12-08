@@ -20,6 +20,10 @@ var Storefront = {
 
         // Initialize page-specific elements
         switch (cfg.pageName) {
+            case "welcome":
+                me.initWelcomePage(cfg.pageData);
+                break;
+                
             case "control-panel-processes":
                 me.initControlPanelProcessesPage(cfg.pageData.processes);
                 break;
@@ -178,6 +182,15 @@ var Storefront = {
             var instance = region.instances[Math.floor(region.instances.length * Math.random())];
             document.location.href = instance.url + '/store-products';
         });
+    },
+    
+    initWelcomePage: function(dbConnInfo) {
+        if (dbConnInfo) {
+            $('#create-db-box').removeClass('hide');
+            $('#username').val(dbConnInfo.username);
+            $('#password').val(dbConnInfo.password || "StorefrontUser");
+            $('#url').val(dbConnInfo.url);
+        }
     },
 
     initProductsPage: function(products, categories, filter) {

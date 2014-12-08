@@ -41,8 +41,9 @@ public class StorefrontFactory {
     private static volatile SessionFactory s_sessionFactory;
     private static volatile ISimulatorService s_simulator;
     private static volatile boolean s_initializedApp = false;
+    private static volatile IDbApi s_dbApi;
     private static final Logger s_logger = Logger.getLogger(WelcomeServlet.class.getName());
-    
+
     static {
         s_configuration = new Configuration();
         s_configuration.setNamingStrategy(new UpperCaseNamingStrategy());
@@ -108,14 +109,28 @@ public class StorefrontFactory {
         info.setDbProcessTag(System.getProperty("storefront.db.processTag", StorefrontApp.DEFAULT_DB_PROCESS_TAG));
         return info;
     }
-    
+
+    public static void setDbConnInfo(DbConnInfo dbConnInfo) {
+        s_configuration.setProperty(Environment.USER, dbConnInfo.getUsername());
+        s_configuration.setProperty(Environment.PASS, dbConnInfo.getPassword());
+        s_configuration.setProperty(Environment.URL, dbConnInfo.getUrl());
+
+        synchronized (s_configuration) {
+            s_dbApi = null;
+            if (s_sessionFactory != null) {
+                s_sessionFactory.close();
+                s_sessionFactory = null;
+            }
+        }
+    }
+
     public static String getAdminConsoleUrl() {
         DbConnInfo connInfo = getDbConnInfo();
         String host = System.getProperty("storefront.dbapi.host", connInfo.getHost());
         String port = System.getProperty("storefront.dbapi.port", "8888");
         return "http://" + host + ":" + port + "/console";
     }
-    
+
     public static String getSqlExplorerUrl() {
         DbConnInfo connInfo = getDbConnInfo();
         String host = System.getProperty("storefront.dbapi.host", connInfo.getHost());
@@ -155,6 +170,17 @@ public class StorefrontFactory {
         return s_simulator;
     }
 
+    public static IDbApi getDbApi() {
+        if (s_dbApi == null) {
+            synchronized (s_configuration) {
+                if (s_dbApi == null) {
+                    s_dbApi = StorefrontFactory.createDbApi();
+                }
+            }
+        }
+        return s_dbApi;
+    }
+
     public static IDbApi createDbApi() {
         DbConnInfo connInfo = getDbConnInfo();
         String host = System.getProperty("storefront.dbapi.host", connInfo.getHost());
@@ -171,7 +197,7 @@ public class StorefrontFactory {
     public static IHeartbeatService createHeartbeatService() {
         return new HeartbeatService();
     }
-    
+
     public static IStorefrontDao createStorefrontDao(SessionFactory sessionFactory) {
         StorefrontDao dao = new StorefrontDao();
         dao.setSessionFactory(sessionFactory);
