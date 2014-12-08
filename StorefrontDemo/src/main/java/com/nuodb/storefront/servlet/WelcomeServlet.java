@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.exception.GenericJDBCException;
 import org.hibernate.exception.SQLGrammarException;
 
+import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.exception.ApiProxyException;
 import com.nuodb.storefront.exception.ApiUnavailableException;
@@ -34,6 +35,19 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
     protected void doPostAction(HttpServletRequest req, HttpServletResponse resp, String btnAction) throws IOException {
         if (btnAction.contains("create")) {
             getDbApi().fixDbSetup(true);
+            
+            // Wait until API acknowledges the DB exists
+            for (int secondsWaited = 0; secondsWaited < StorefrontApp.MAX_DB_INIT_WAIT_TIME_SEC; secondsWaited++) {
+                try {
+                    getDbApi().fixDbSetup(false);
+                } catch (DatabaseNotFoundException e) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ie) {
+                        break;
+                    }
+                }
+            }
         }
         super.doPostAction(req, resp, btnAction);
     }
@@ -51,7 +65,7 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
                         StorefrontFactory.createSchema();
                         checkForProducts(req);
                     } catch (Exception e2) {
-                        // Schema repair didn't work
+                        s_logger.warn("Schema repair didn't work", e2);
                         throw e;
                     }
                 }
