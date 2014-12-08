@@ -163,7 +163,11 @@ Ext.define('App.view.HeaderBar', {
 
             $('input[type=number]:not([readonly])', doc).each(function() {
                 var currentVal = Math.max(0, parseInt($(this).val()));
-                $(this).val((value > 0) ? currentVal + 10 : (value < 0) ? Math.max(0, currentVal - 10) : 0);
+                
+                // Unless we're stopping all, adjust non-analyst workloads only
+                if (value == 0 || !/analyst/.test($(this).attr('name'))) {
+                    $(this).val((value > 0) ? currentVal + 10 : (value < 0) ? Math.max(0, currentVal - 10) : 0);
+                }
             });
 
             $('.btn-update', doc).click();
