@@ -92,7 +92,7 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
                             + getDbApi().getBaseUrl() + "\" with the username \"" + getDbApi().getAuthUser() + "\".", "Retry");
         } catch (ApiProxyException e) {
             s_logger.error("Health check failed", e);
-            addMessage(req, MessageSeverity.ERROR, "NuoDB RESTful API at " + getDbApi().getBaseUrl() + " returned an error:  " + e.getMessage());
+            addMessage(req, MessageSeverity.ERROR, "NuoDB RESTful API at " + getDbApi().getBaseUrl() + " returned an error:  " + e.getMessage(), "Retry");
         }
         
         return null;
