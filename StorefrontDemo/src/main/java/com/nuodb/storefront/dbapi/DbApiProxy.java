@@ -401,8 +401,9 @@ public class DbApiProxy implements IDbApi {
         Set<String> ipAddresses = NetworkUtil.getLocalIpAddresses();
 
         // Look for best match: Host with SM running in our region
-        HomeHostInfo ipMatch = null;
+        HomeHostInfo smRegionMatch = null;
         HomeHostInfo ipRegionMatch = null;
+        HomeHostInfo ipMatch = null;
         HomeHostInfo regionMatch = null;
         for (Region region : regions) {
             for (Host host : region.hosts) {
@@ -412,30 +413,39 @@ public class DbApiProxy implements IDbApi {
                     regionMatch = match;
                     for (Process process : host.processes) {
                         if (dbName.equals(process.dbname) && PROCESS_TYPE_SM.equals(process.type)) {
-                            // Found best match: Host with SM running in our region
-                            return match;
+                            smRegionMatch = match;
+                            break;
                         }
                     }
                     if (ipAddresses.contains(host.ipaddress)) {
                         ipRegionMatch = match;
+                        if (smRegionMatch == ipRegionMatch) {
+                            // Best match:  host running SM and sharing our IP and region
+                            return smRegionMatch;
+                        }
                     }
                 } else if (ipAddresses.contains(host.ipaddress)) {
                     ipMatch = match;
                 }
             }
         }
+        
+        // Second best match:  Host running SM in our region
+        if (smRegionMatch != null) {
+            return smRegionMatch;
+        }
 
-        // Second best match: Host sharing our IP and region
+        // Third best match: Host sharing our IP and region
         if (ipRegionMatch != null) {
             return ipRegionMatch;
         }
 
-        // Third best match: Host sharing our region
+        // Fourth best match: Host sharing our region
         if (regionMatch != null) {
             return regionMatch;
         }
 
-        // Fourth best match: Host sharing our IP
+        // Fifth best match: Host sharing our IP
         if (ipMatch != null) {
             return ipMatch;
         }
@@ -507,12 +517,12 @@ public class DbApiProxy implements IDbApi {
             templateName = TEMPLATE_GEO_DISTRIBUTED;
             vars.put(DBVAR_REGION, null);
             vars.put(DBVAR_HOST, null);
-            vars.put(DBVAR_SM_MAX, null);
+            vars.put(DBVAR_SM_MAX, "2");
         } else if (targetHosts > 1) {
             templateName = TEMPLATE_MULTI_HOST;
             vars.put(DBVAR_REGION, homeHostInfo.region.region);
             vars.put(DBVAR_HOST, null);
-            vars.put(DBVAR_SM_MAX, "1");
+            vars.put(DBVAR_SM_MAX, "2");
         } else {
             templateName = TEMPLATE_SINGLE_HOST;
             vars.put(DBVAR_REGION, null);
