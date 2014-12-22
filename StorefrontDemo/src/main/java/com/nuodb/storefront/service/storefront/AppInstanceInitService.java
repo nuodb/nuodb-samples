@@ -41,7 +41,7 @@ public class AppInstanceInitService {
                     }
 
                     if (region == null) {
-                        s_log.warn("Your database version does not support regions.  Upgrade to NouDB 2.0 or greater.");
+                        s_log.warn("Your database version does not support regions.  Upgrade to NuoDB 2.0 or greater.");
                     } else {
                         app.setRegion(region.regionName);
                         app.setNodeId(region.nodeId);
