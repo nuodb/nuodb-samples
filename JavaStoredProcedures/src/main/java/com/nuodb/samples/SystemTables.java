@@ -42,8 +42,6 @@ import java.sql.Statement;
  */
 public class SystemTables {
 
-    private static final boolean USE_OPTION_1 = true;
-
     private static final String SQL = "SELECT * FROM system.tables";
 
     /**
@@ -54,18 +52,15 @@ public class SystemTables {
      * @throws SQLException we allow SQL exceptions to pass to the caller, but all other exceptions we log
      */
     public static void getSystemTables(Connection connection, final ResultSet[] results) throws SQLException {
-        Statement statement = connection.createStatement();
-        try {
-            ResultSet resultSet = statement.executeQuery(SQL);
-            resultSet.
-            while (resultSet.next()) {
-                results[0].moveToInsertRow();
-                results[0].updateString(1, resultSet.getString("schema"));
-                results[0].updateString(2, resultSet.getString("tablename"));
-                results[0].insertRow();
+        try (Statement statement = connection.createStatement()) {
+            try (ResultSet resultSet = statement.executeQuery(SQL)) {
+                while (resultSet.next()) {
+                    results[0].moveToInsertRow();
+                    results[0].updateString(1, resultSet.getString("schema"));
+                    results[0].updateString(2, resultSet.getString("tablename"));
+                    results[0].insertRow();
+                }
             }
-        } finally {
-            statement.close();
         }
     }
 }
