@@ -75,7 +75,7 @@ Ext.define('App.view.HeaderBar', {
             }
         }, {
             xtype: 'metricwell',
-            text: '<b>Latency</b><br />ms/transaction',
+            text: '<b>Avg. Latency</b><br />ms/transaction',
             icon: 'ico-dashboard.png',
             format: ',.0',
             displayAvg: true,

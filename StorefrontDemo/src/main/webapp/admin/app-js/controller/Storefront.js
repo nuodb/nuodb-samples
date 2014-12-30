@@ -399,7 +399,7 @@ Ext.define('App.controller.Storefront', {
             me.application.fireEvent('error', {
                 status: 500,
                 responseJson: {
-                    message: "You aren't using all of the regions activated. " + ((missingRegions.length == 1) ? ("Start a Storefront in the " + missingRegions[0] + " region.") : ("Start Storefronts in these regions: " + missingRegions.join(', '))),
+                    message: "You aren't using all of the regions activated. " + ((missingRegions.length == 1) ? ("Start a Storefront in the <b>" + missingRegions[0] + "</b> region.") : ("Start Storefronts in these regions: " + missingRegions.join(', '))),
                     ttl: App.app.refreshFrequencyMs + App.app.refreshGracePeriodMs
                 }
             }, instance);

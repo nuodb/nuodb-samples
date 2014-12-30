@@ -21,7 +21,7 @@ Ext.define('App.store.Metrics', {
         category1: 'regionTransactionStats',
         defaultCategoryIdx: 0,
         view: 'metrics-latency',
-        title: 'Latency',
+        title: 'Avg. Latency',
         unit: 'Milliseconds/call',
         groupBy0: 'Service Method',
         groupBy1: 'Region',
