@@ -495,7 +495,7 @@
                     }).success(function(data) {
                         instance.workloadStats = data.workloadStats;
                         recalcCustomerStats();
-                    }).fail(function() {
+                    }).fail(function(response) {
                         if (response.status != 0) { // ignore aborts due to page reloading
                             failedInstances.push(instance.url);
                         }

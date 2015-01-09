@@ -18,10 +18,12 @@ Ext.application({
     refreshGracePeriodMs: 2000 * 1, 
     instanceListRefreshFrequencyMs: 1000 * 30,
     maxStatsHistory: 61,
+    lockStatsYAxisToMax: true,
     apiBaseUrl: '..',
     maxOutstandingRequestCount: 2,
     minHeavyCpuUtilizationPct: 90,
     msgDefaultDisplayTimeMs: 5 * 1000,
+    simulatedUserPageExpiryMs: 5 * 1000,
 
     defaultLineColor: '#c0cd30',
     defaultFillColor: '#e3e7a7',

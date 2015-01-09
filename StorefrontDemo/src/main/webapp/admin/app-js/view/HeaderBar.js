@@ -43,6 +43,7 @@ Ext.define('App.view.HeaderBar', {
             input: 'slider',
             inputMaxMetric: 'dbStats.hostCount',
             flex: 0.7,
+            href: '/control-panel-processes',
             listeners: {
                 click: clickHandler,
                 change: changeHandler
@@ -56,6 +57,7 @@ Ext.define('App.view.HeaderBar', {
             input: 'slider',
             inputMaxMetric: 'dbStats.regionCount',
             flex: 0.7,
+            href: '/control-panel-regions',
             listeners: {
                 click: clickHandler,
                 change: changeHandler
@@ -73,7 +75,7 @@ Ext.define('App.view.HeaderBar', {
             }
         }, {
             xtype: 'metricwell',
-            text: '<b>Latency</b><br />ms/transaction',
+            text: '<b>Avg. Latency</b><br />ms/transaction',
             icon: 'ico-dashboard.png',
             format: ',.0',
             displayAvg: true,
@@ -92,7 +94,7 @@ Ext.define('App.view.HeaderBar', {
         App.app.on('viewchange', function(viewName) {
             for ( var i = 0; i < me.viewButtons.length; i++) {
                 var btn = me.viewButtons[i];
-                btn.toggle(btn.getItemId() == viewName, true);
+                btn.toggle(btn.getItemId() == viewName || btn.href == viewName, true);
             }
         });
     },
@@ -100,7 +102,7 @@ Ext.define('App.view.HeaderBar', {
     /** @private event handler */
     onViewButtonClick: function(btnActive) {
         var viewName = btnActive.getItemId();
-        App.app.fireEvent('viewchange', viewName);
+        App.app.fireEvent('viewchange', viewName, true, null);
     },
 
     onChange: function(btn, value) {
@@ -108,26 +110,38 @@ Ext.define('App.view.HeaderBar', {
         switch (btn.itemId) {
             case 'metrics-users':
                 if (!me.adjustUserLoad(value)) {
-                    App.app.fireEvent('viewchange', '/control-panel-users');
-                    App.app.on('viewchange', function(viewName) {
+                    App.app.fireEvent('viewchange', '/control-panel-users', true, 'viewload');
+                    App.app.on('viewload', function(viewName) {
                         me.adjustUserLoad(value);
-                    }, me, { single: true });
+                    }, me, {
+                        single: true
+                    });
                 }
                 break;
 
             case 'metrics-hosts':
             case 'metrics-regions':
+                if (btn.activeRequest) {
+                    Ext.Ajax.abort(btn.activeRequest);
+                }
                 btn.noInputSyncUntil = new Date().getTime() + 1000 * 60;
-                Ext.Ajax.request({
+                btn.setWait(true);
+                var thisRequest;
+                btn.activeRequest = thisRequest = Ext.Ajax.request({
                     url: App.app.apiBaseUrl + '/api/stats/db?numRegions=' + me.btnRegions.getInputValue() + "&numHosts=" + me.btnHosts.getInputValue(),
                     method: 'PUT',
                     scope: this,
                     success: function() {
                         btn.noInputSyncUntil = new Date().getTime() + 1000 * 3;
-                    },                    
+                    },
                     failure: function(response) {
                         App.app.fireEvent('error', response, null);
                         btn.noInputSyncUntil = 0;
+                    },
+                    callback: function() {
+                        if (btn.activeRequest == thisRequest) {
+                            delete btn.activeRequest;
+                        }
                     }
                 });
                 break;
@@ -136,21 +150,30 @@ Ext.define('App.view.HeaderBar', {
                 break;
         }
     },
-    
+
     adjustUserLoad: function(value) {
         try {
-            var doc = Ext.ComponentQuery.query('uxiframe')[0].getDoc();
+            var frame = Ext.ComponentQuery.query('[itemId=userView]')[0];
+            if (new Date() - frame.lastLoadTime > App.app.simulatedUserPageExpiryMs) {
+                return false;
+            }
+
+            var doc = frame.getDoc();
             if ($('#table-regions', doc).length == 0) {
                 return false;
             }
-            
+
             $('input[type=number]:not([readonly])', doc).each(function() {
                 var currentVal = Math.max(0, parseInt($(this).val()));
-                $(this).val((value > 0) ? currentVal + 10 : (value < 0) ? Math.max(0, currentVal - 10) : 0);
+                
+                // Unless we're stopping all, adjust non-analyst workloads only
+                if (value == 0 || !/analyst/.test($(this).attr('name'))) {
+                    $(this).val((value > 0) ? currentVal + 10 : (value < 0) ? Math.max(0, currentVal - 10) : 0);
+                }
             });
-            
-            App.app.fireEvent('viewchange', '/control-panel-users', false);  // show the page but don't load it
+
             $('.btn-update', doc).click();
+            frame.lastLoadTime = new Date();
             return true;
         } catch (e) {
             return false;

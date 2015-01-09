@@ -43,7 +43,7 @@ public abstract class BaseServlet extends HttpServlet {
     private static final long serialVersionUID = 1452096145544476070L;
     private static final Object s_svcLock = new Object();
     private static volatile IStorefrontService s_svc;
-    private static volatile IDbApi s_dbApi;
+    protected static Object s_schemaUpdateLock = new Object();
 
     protected BaseServlet() {
     }
@@ -60,14 +60,7 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     public static IDbApi getDbApi() {
-        if (s_dbApi == null) {
-            synchronized (s_svcLock) {
-                if (s_dbApi == null) {
-                    s_dbApi = StorefrontFactory.createDbApi();
-                }
-            }
-        }
-        return s_dbApi;
+        return StorefrontFactory.getDbApi();
     }
 
     public static ISimulatorService getSimulator() {
@@ -179,13 +172,15 @@ public abstract class BaseServlet extends HttpServlet {
         req.getSession().removeAttribute(SESSION_MESSAGES);
 
         // Render JSP page
+        s_logger.info("Servicing \"" + req.getMethod() + " " + req.getRequestURI() + "\" with \"" + pageName + ".jsp\" for customer "
+                + ((customer == null) ? null : customer.getId()) + " from " + req.getRemoteAddr());
         req.getRequestDispatcher("/WEB-INF/pages/" + pageName + ".jsp").forward(req, resp);
     }
 
     protected static void showCriticalErrorPage(HttpServletRequest req, HttpServletResponse resp, Exception ex) throws ServletException, IOException {
         getMessages(req).clear();
         addErrorMessage(req, ex);
-        
+
         if (ex instanceof GenericJDBCException) {
             DbConnInfo dbInfo = StorefrontFactory.getDbConnInfo();
             addMessage(
@@ -196,7 +191,9 @@ public abstract class BaseServlet extends HttpServlet {
         } else if (ex instanceof SQLGrammarException) {
             // Tables could be missing or bad. This could happen if a user re-creates the Storefront DB while it's running. Try repairing.
             try {
-                StorefrontFactory.createSchema();
+                synchronized (s_schemaUpdateLock) {
+                    StorefrontFactory.createSchema();
+                }
                 addMessage(req, MessageSeverity.WARNING, "The Storefront schema has been updated.  One or more tables were missing or out of date.",
                         "Refresh page");
             } catch (Exception e) {

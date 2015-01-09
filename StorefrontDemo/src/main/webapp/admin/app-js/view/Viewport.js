@@ -7,9 +7,17 @@
  */
 Ext.define('App.view.Viewport', {
     extend: 'Ext.container.Viewport',
-    requires: ['App.view.HeaderBar', 'App.view.MessageBar', 'App.view.NavBar', 'App.view.FooterBar', 'App.view.MetricDashboard', 'Ext.ux.IFrame'],
+    requires: ['App.view.HeaderBar', 'App.view.MessageBar', 'App.view.NavBar', 'App.view.ChartControlBar', 'App.view.MetricDashboard', 'Ext.ux.IFrame'],
 
-    layout: 'border',
+    layout: {
+        type: 'border',
+        regionWeights: {
+            north: 0,
+            west: 0,
+            east: 0,
+            south: 0
+        }        
+    },
 
     initComponent: function() {
         var me = this;
@@ -22,8 +30,8 @@ Ext.define('App.view.Viewport', {
                 sidebarTip: 'Hide control panel'
             });
         }
-
-        me.items = [{
+        
+        me.items =  [{
             region: 'north',
             xtype: 'messagebar'
         }, {
@@ -37,15 +45,11 @@ Ext.define('App.view.Viewport', {
                 xtype: 'uxiframe',
                 itemId: 'frameView',
                 src: '../welcome',
-                listeners: {
-                    load: function() {
-                        try {
-                            var url = this.getWin().document.location.href.split('/');
-                            App.app.fireEvent('viewchange', '/' + url[url.length - 1], false);
-                        } catch (e) {                            
-                        }
-                    }
-                }
+                listeners: { load: me.onIFrameLoad }
+            }, {
+                xtype: 'uxiframe',
+                itemId: 'userView',
+                listeners: { load: me.onIFrameLoad }
             }, {
                 layout: 'card',
                 itemId: 'metricsView',
@@ -54,6 +58,12 @@ Ext.define('App.view.Viewport', {
         }, {
             region: 'west',
             xtype: 'navbar'
+        }, {
+            region: 'south',
+            xtype: 'chartcontrolbar',
+            id: 'chartcontrolbar',
+            itemId: 'chartControlView',
+            hidden: true
         }];
 
         me.callParent(arguments);
@@ -61,22 +71,40 @@ Ext.define('App.view.Viewport', {
         me.center = me.down('[itemId=center]');
         me.metricsView = me.down('[itemId=metricsView]');
         me.frameView = me.down('[itemId=frameView]');
+        me.userView = me.down('[itemId=userView]');
+        me.chartControlView = me.down('[itemId=chartControlView]');
 
         App.app.on('viewchange', Ext.bind(me.onViewChange, me));
     },
 
-    onViewChange: function(viewName, isUserInitiated) {
+    onIFrameLoad: function() {
+        try {
+            this.lastLoadTime = new Date();
+            var url = this.getWin().document.location.href.split('/');
+            App.app.fireEvent(this.loadEvent || 'viewchange', '/' + url[url.length - 1], false, null);
+            delete this.loadEvent;
+        } catch (e) {
+        }
+    },
+
+    onViewChange: function(viewName, isUserInitiated, loadEvent) {
         var me = this;
         var centerLayout = me.center.getLayout();
-        
+
         url = me.getViewUrl(viewName);
 
         if (url) {
             // Show URL of the view in an iframe
+            var isUserView = url == '../control-panel-users';
+            var targetView = (isUserView) ? me.userView : me.frameView;
             if (isUserInitiated !== false) {
-                me.frameView.load(url);
+                targetView.loadEvent = loadEvent;
+                targetView.load(url);
             }
-            centerLayout.setActiveItem(me.frameView);
+            if (!loadEvent) {
+                centerLayout.setActiveItem(targetView);
+                me.chartControlView.setVisible(false);
+            }
         } else {
             // Show metrics associated with the view
             var view = me.metricsView.items.get(viewName);
@@ -90,6 +118,7 @@ Ext.define('App.view.Viewport', {
             }
             centerLayout.setActiveItem(me.metricsView);
             me.metricsView.getLayout().setActiveItem(view);
+            me.chartControlView.setVisible(true);
         }
     },
 
@@ -97,7 +126,7 @@ Ext.define('App.view.Viewport', {
         if (viewName[0] == '/') {
             return '..' + viewName;
         }
-        
+
         switch (viewName) {
             case 'welcome':
                 return '../welcome';
@@ -107,7 +136,7 @@ Ext.define('App.view.Viewport', {
 
             case 'metrics-regions':
                 return '../control-panel-regions';
-                
+
             default:
                 return null;
         }

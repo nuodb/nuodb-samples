@@ -98,7 +98,7 @@
         g_app = this;
         renderList(regions, 'api/stats/regions', null);
     };
-
+    
     function renderList(origItems, updateUrl, transformFunc) {
         var render = function(items) {
             if (transformFunc) {

@@ -24,11 +24,6 @@ public class DataSourceProvider implements ConnectionProvider {
 
     @Override
     public synchronized void configure(Properties props) throws HibernateException {
-        if (dataSource != null) {
-            // We need to configure the data source only once.
-            return;
-        }
-
         try {
             // Consolidate data source properties
             Properties dsProps = new Properties();

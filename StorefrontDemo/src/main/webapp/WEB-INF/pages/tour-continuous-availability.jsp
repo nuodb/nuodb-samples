@@ -35,7 +35,7 @@
     <t:messages />
 
     <ol class="tour-steps">
-        <li>Shut down one or more Transaction Engine (TE) processes using the <a href="control-panel-processes">Hosts &amp; Processes page</a>. Alternatively, you can connect to one of your hosts (via SSH, Remote Desktop, etc.) and terminate a TE process directly..
+        <li>Shut down one or more Transaction Engine (TE) processes using the <a href="control-panel-processes">Hosts &amp; Processes page</a>. Alternatively, you can connect to one of your hosts (via SSH, Remote Desktop, etc.) and terminate a TE process directly.
         </li>
         <li>Observe how NuoDB detects the loss and automatically starts new TEs as necessary to maintain the workload.</li>
     </ol>

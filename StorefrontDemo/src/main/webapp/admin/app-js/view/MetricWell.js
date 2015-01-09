@@ -231,7 +231,7 @@ Ext.define('App.view.MetricWell', {
 
     onStatsChange: function(stats) {
         var me = this;
-        
+
         val = stats.getLatestValue(me.metric);
         me.setValue(val);
         if (me.inputSlider) {
@@ -240,6 +240,7 @@ Ext.define('App.view.MetricWell', {
                 me.inputSlider.setMaxValue(max);
                 me.inputSlider.setDisabled(max <= 1);
                 me.inputSlider.setValue(val);
+                me.setWait(false);
             }
         }
     },
@@ -265,5 +266,10 @@ Ext.define('App.view.MetricWell', {
             fillColor: App.app.defaultFillColor,
             disableInteraction: true
         });
+    },
+
+    setWait: function(wait) {
+        var me = this;
+        me.getEl().query('img')[0].src = 'img/' + ((wait) ? 'wait.gif' : me.icon);
     }
 });

@@ -41,7 +41,7 @@ Ext.define('App.view.MetricChart', {
                 opacity: 1
             },
             style: {
-                'stroke-width': 1,
+                'stroke-width': 0,
                 stroke: '#eee',
                 opacity: 0.5
             },
@@ -71,10 +71,7 @@ Ext.define('App.view.MetricChart', {
     initComponent: function() {
         var me = this;
 
-        me.tbar = ['->', {
-            xtype: 'container',
-            html: '<b>' + me.metric.get('title').toUpperCase() + '</b> &nbsp;&nbsp;'
-        }, ' ', {
+        me.tbar = ['->', '<b>' + me.metric.get('title').toUpperCase() + '</b> &nbsp;&nbsp;', ' ', {
             xtype: 'button',
             text: 'Overall',
             handler: me.onChangeGrouping,
@@ -101,6 +98,13 @@ Ext.define('App.view.MetricChart', {
 
         me.showMetric(me.metric);
         me.callParent(arguments);
+
+        App.app.on('chartconfigchange', function() {
+            me.items.each(function(chart) {
+                me.updateChartAxes(chart);
+                //chart.redraw();  <-- too slow, just let the chart update itself at the next store update
+            });
+        });
     },
 
     showMetric: function(metric, categoryIdx) {
@@ -148,7 +152,6 @@ Ext.define('App.view.MetricChart', {
 
     createChartConfig: function(store, metric, categoryIdx) {
         var me = this;
-        var metricName = metric.get('name');
         var aggregate = categoryIdx == null;
         var unitName = metric.get('unit');
 
@@ -213,7 +216,7 @@ Ext.define('App.view.MetricChart', {
                 style: {
                     fill: App.app.defaultFillColor,
                     stroke: App.app.defaultLineColor,
-                    'stroke-width': 4
+                    'stroke-width': 3
                 },
                 tooltipFormat: '{1} {2}'
             }));
@@ -248,10 +251,13 @@ Ext.define('App.view.MetricChart', {
             },
             axes: [{
                 type: 'Numeric',
+                constrain: false,
                 minimum: 0,
+                maximum: me.calcYAxisMax(),
                 position: 'left',
                 fields: seriesNames,
                 title: unitName,
+                adjustMaximumByMajorUnit: true,
                 grid: {
                     odd: {
                         opacity: 1,
@@ -265,20 +271,45 @@ Ext.define('App.view.MetricChart', {
                 toDate: dateRange[1],
                 position: 'bottom',
                 fields: 'timestamp',
-                step: [Ext.Date.SECOND, App.app.maxStatsHistory - 1],
                 minorTickSteps: 0
             }],
             series: series,
             listeners: {
                 beforerefresh: function() {
-                    var yAxis = this.axes.getAt(1);
-                    var store = this.getStore();
-                    var dateRange = me.calcDateRange(store);
-                    yAxis.fromDate = dateRange[0];
-                    yAxis.toDate = dateRange[1];
+                    me.updateChartAxes(this);
+                },
+                show: function() {
+                    alert(0);
                 }
             }
         };
+    },
+
+    updateChartAxes: function(chart) {
+        var me = this;
+        var store = chart.getStore();
+
+        // Configure x axis
+        var xAxis = chart.axes.getAt(1);
+        var dateRange = me.calcDateRange(store);
+        xAxis.fromDate = dateRange[0];
+        xAxis.toDate = dateRange[1];
+
+        // Configure y axis
+        var yAxis = chart.axes.getAt(0);
+        yAxis.maximum = me.calcYAxisMax();
+
+    },
+
+    calcYAxisMax: function() {
+        var me = this;
+        if (App.app.lockStatsYAxisToMax) {
+            max = me.metric.get(me.categoryIdx != null && me.categoryIdx >= 0 ? 'maxStackedValue' + me.categoryIdx: 'maxValue');
+            if (max > 0) {
+                return max;
+            }
+        }
+        return undefined;
     },
 
     calcDateRange: function(store) {
