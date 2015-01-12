@@ -87,7 +87,7 @@ function startsm()
 function startte()
 {
     ${ECHO} "[INFO] Starting transaction engine" | tee -a ${MANAGE_LOG_FILE}
-    TE_ARGS="--threads 32 --dba-user ${DATABASE_USER} --dba-password ${DATABASE_PASSWORD} ${ENGINE_ARGS} --log ${NUODB_LOGS_DIR}/te.log"
+    TE_ARGS="--dba-user ${DATABASE_USER} --dba-password ${DATABASE_PASSWORD} ${ENGINE_ARGS} --log ${NUODB_LOGS_DIR}/te.log"
     ${ECHO} "\tExecute: ${NUODB_MANAGER_RUN_COMMAND} start process te host ${TARGET_HOST} database ${DATABASE_NAME} options '${TE_ARGS}'"
     ${NUODB_MANAGER_RUN_COMMAND} "start process te host ${TARGET_HOST} database ${DATABASE_NAME} options '${TE_ARGS}'" | tee -a ${MANAGE_LOG_FILE}
     sleep 1
