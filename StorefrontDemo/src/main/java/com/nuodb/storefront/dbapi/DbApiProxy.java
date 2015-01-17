@@ -43,7 +43,9 @@ public class DbApiProxy implements IDbApi {
 
     private static final String DBVAR_TE_HOST_TAG = "TE_HOST_TAG";
     private static final String DBVAR_SM_HOST_TAG = "SM_HOST_TAG";
+    private static final String DBVAR_SM_MIN = "SM_MIN";
     private static final String DBVAR_SM_MAX = "SM_MAX";
+    private static final String DBVAR_TE_MIN = "TE_MIN";
     private static final String DBVAR_HOST = "HOST";
     private static final String DBVAR_REGION = "REGION";
 
@@ -517,17 +519,23 @@ public class DbApiProxy implements IDbApi {
             templateName = TEMPLATE_GEO_DISTRIBUTED;
             vars.put(DBVAR_REGION, null);
             vars.put(DBVAR_HOST, null);
+            vars.put(DBVAR_SM_MIN, "1");
             vars.put(DBVAR_SM_MAX, "2");
+            vars.put(DBVAR_TE_MIN, "1");
         } else if (targetHosts > 1) {
             templateName = TEMPLATE_MULTI_HOST;
             vars.put(DBVAR_REGION, homeHostInfo.region.region);
             vars.put(DBVAR_HOST, null);
+            vars.put(DBVAR_SM_MIN, "1");
             vars.put(DBVAR_SM_MAX, "2");
+            vars.put(DBVAR_TE_MIN, "1");
         } else {
             templateName = TEMPLATE_SINGLE_HOST;
             vars.put(DBVAR_REGION, null);
             vars.put(DBVAR_HOST, homeHostInfo.host.id);
+            vars.put(DBVAR_SM_MIN, null);
             vars.put(DBVAR_SM_MAX, null);
+            vars.put(DBVAR_TE_MIN, null);
         }
 
         // Apply template name
