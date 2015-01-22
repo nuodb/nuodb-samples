@@ -8,13 +8,14 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.annotations.Index;
-
 @Entity
+@Table(indexes = { @Index(name = "idx_customer_date_last_active", columnList = "dateLastActive") })
 public class Customer extends AutoIdEntity {
     @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true, mappedBy = "customer")
     @OrderBy("dateAdded")
@@ -26,7 +27,6 @@ public class Customer extends AutoIdEntity {
     private Calendar dateAdded;
 
     @NotNull
-    @Index(name = "idx_customer_date_last_active")
     private Calendar dateLastActive;
 
     private transient int cartItemCount;

@@ -3,6 +3,7 @@
 package com.nuodb.storefront.service.datagen;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Calendar;
@@ -18,11 +19,13 @@ import com.nuodb.storefront.service.IDataGeneratorService;
 
 public class DataGeneratorService implements IDataGeneratorService {
     private final StatelessSession session;
+    private final Connection connection;
     private static final int MAX_DELETE_ATTEMPTS = 10;
     private static final int DELETE_RETRY_WAIT_MS = 100;
 
-    public DataGeneratorService(StatelessSession session) {
+    public DataGeneratorService(StatelessSession session, Connection connection) {
         this.session = session;
+        this.connection = connection;
     }
 
     @Override
@@ -72,7 +75,7 @@ public class DataGeneratorService implements IDataGeneratorService {
             }
 
             // Sync review stats
-            session.connection().prepareStatement(
+            connection.prepareStatement(
                     "UPDATE PRODUCT P SET" +
                             "   REVIEW_COUNT=(SELECT COUNT(*) FROM PRODUCT_REVIEW WHERE PRODUCT_ID=P.ID), " +
                             "   RATING=(SELECT AVG(RATING) FROM PRODUCT_REVIEW WHERE PRODUCT_ID=P.ID)")
@@ -98,7 +101,7 @@ public class DataGeneratorService implements IDataGeneratorService {
         for (String statement : statements) {
             for (int i = 0;; i++) {
                 try {
-                    session.connection().prepareStatement(statement).execute();
+                    connection.prepareStatement(statement).execute();
                     break;
                 } catch (SQLException e) {
                     if (i < MAX_DELETE_ATTEMPTS - 1) {
@@ -136,7 +139,8 @@ public class DataGeneratorService implements IDataGeneratorService {
                 buff.append("(?, ?)");
             }
         }
-        PreparedStatement catStmt = session.connection().prepareStatement(buff.toString());
+        
+        PreparedStatement catStmt = connection.prepareStatement(buff.toString());
         int paramCount = 0;
         for (Product product : products) {
             for (String category : product.getCategories()) {
