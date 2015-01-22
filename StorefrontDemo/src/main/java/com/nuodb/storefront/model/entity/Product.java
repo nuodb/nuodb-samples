@@ -12,8 +12,8 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
-import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
@@ -39,9 +39,14 @@ public class Product extends AutoIdEntity {
     @NotNull
     private BigDecimal unitPrice;
 
+    // Ideally this table would have a unique constraint on product + category, however
+    // NuoDB doesn't support "alter table" statement to create unique multi-column indexes yet (DB-2700)
+    // and Hibernate doesn't create the index as part of the table create.
     @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "Product_Category", joinColumns = @JoinColumn(name = "product_id"), uniqueConstraints = { @UniqueConstraint(columnNames = {
-            "category", "product_id" }) })
+    @CollectionTable(
+            name = "Product_Category",
+            joinColumns = @JoinColumn(name = "product_id"),
+            indexes = { @Index(columnList = "product_id"), @Index(columnList = "category") })
     @Column(name = "category")
     private Set<String> categories = new HashSet<String>();
 
@@ -97,7 +102,7 @@ public class Product extends AutoIdEntity {
     public Integer getReviewCount() {
         return reviewCount;
     }
-    
+
     public Calendar getDateAdded() {
         return dateAdded;
     }
@@ -132,13 +137,13 @@ public class Product extends AutoIdEntity {
     public void setPurchaseCount(long purchaseCount) {
         this.purchaseCount = purchaseCount;
     }
-    
+
     public void addRating(int newRating) {
         if (this.rating == null) {
             this.rating = new Float(newRating);
         } else {
             this.rating = (this.rating * this.reviewCount + newRating) / (this.reviewCount + 1);
         }
-        ++this.reviewCount;        
+        ++this.reviewCount;
     }
 }

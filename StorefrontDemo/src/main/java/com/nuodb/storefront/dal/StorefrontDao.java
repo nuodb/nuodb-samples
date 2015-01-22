@@ -67,8 +67,7 @@ public class StorefrontDao extends BaseDao implements IStorefrontDao {
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public SearchResult<Category> getCategories() {
-        // This query got category usage counts, but was slower, and we
-        // currently don't need the counts for anything:
+        // This query got category usage counts, but was slower, and we currently don't need the counts for anything:
         // "select c, count(*) from Product p inner join p.categories c group by c order by c"
 
         List categories = getSession().createSQLQuery("SELECT DISTINCT CATEGORY, 0 FROM PRODUCT_CATEGORY ORDER BY CATEGORY").list();

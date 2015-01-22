@@ -3,6 +3,7 @@
 package com.nuodb.storefront;
 
 import java.io.FileInputStream;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -11,8 +12,11 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
+import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
+import org.hibernate.service.ServiceRegistry;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 
 import com.nuodb.storefront.dal.IStorefrontDao;
@@ -151,14 +155,15 @@ public class StorefrontFactory {
     }
 
     public static IDataGeneratorService createDataGeneratorService() {
-        StatelessSession session = getOrCreateSessionFactory().openStatelessSession();
+        SessionFactory factory = getOrCreateSessionFactory();
         try {
-            session.connection().setAutoCommit(true);
+            Connection connection = factory.getSessionFactoryOptions().getServiceRegistry().getService(ConnectionProvider.class).getConnection();
+            StatelessSession session = factory.openStatelessSession(connection);
+            connection.setAutoCommit(true);
+            return new DataGeneratorService(session, connection);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
-        return new DataGeneratorService(session);
     }
 
     public static ISimulatorService getSimulatorService() {
@@ -208,7 +213,8 @@ public class StorefrontFactory {
         if (!s_initializedApp) {
             synchronized (s_configuration) {
                 if (s_sessionFactory == null) {
-                    s_sessionFactory = s_configuration.buildSessionFactory();
+                    ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().applySettings(s_configuration.getProperties()).build();
+                    s_sessionFactory = s_configuration.buildSessionFactory(serviceRegistry);
                 }
                 try {
                     new AppInstanceInitService(createStorefrontDao(s_sessionFactory)).init(StorefrontApp.APP_INSTANCE);

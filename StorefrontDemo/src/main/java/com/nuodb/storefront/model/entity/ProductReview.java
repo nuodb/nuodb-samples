@@ -5,6 +5,7 @@ package com.nuodb.storefront.model.entity;
 import java.util.Calendar;
 
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -13,7 +14,7 @@ import javax.validation.constraints.NotNull;
 import com.nuodb.storefront.util.MD5Util;
 
 @Entity
-@Table(name = "Product_Review")
+@Table(name = "Product_Review", indexes = { @Index(name = "idx_product_review_product", columnList = "product_id") })
 public class ProductReview extends AutoIdEntity {
     @ManyToOne
     @JoinColumn(name = "product_id")

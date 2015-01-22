@@ -8,15 +8,17 @@ import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.Index;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.annotations.Index;
 
 import com.nuodb.storefront.model.type.Currency;
 
 @Entity
+@Table(indexes = { @Index(name = "idx_app_instance_last_heartbeat", columnList = "lastHeartbeat") })
 public class AppInstance extends UuidEntity {
     @NotNull
     private String url;
@@ -31,7 +33,6 @@ public class AppInstance extends UuidEntity {
     private Calendar firstHeartbeat;
 
     @NotNull
-    @Index(name = "idx_app_instance_last_heartbeat")
     private Calendar lastHeartbeat;
 
     private int cpuUtilization;
@@ -48,10 +49,10 @@ public class AppInstance extends UuidEntity {
 
     @NotNull
     private int nodeId;
-    
+
     @NotNull
     private Calendar lastApiActivity;
-    
+
     @NotNull
     private boolean stopUsersWhenIdle = true;
 
