@@ -47,7 +47,7 @@ public class Product extends AutoIdEntity {
             name = "Product_Category",
             joinColumns = @JoinColumn(name = "product_id"),
             indexes = { @Index(columnList = "product_id"), @Index(columnList = "category") })
-    @Column(name = "category")
+    @Column(name = "category", nullable = false)
     private Set<String> categories = new HashSet<String>();
 
     // formula is useful for normalized data, but not fast queries (especially sorting on rating)

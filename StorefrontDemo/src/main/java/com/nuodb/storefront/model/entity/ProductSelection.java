@@ -83,12 +83,12 @@ public abstract class ProductSelection {
         this.unitPrice = unitPrice;
     }
 
-    public String getRegion()   {
-	return region;
+    public String getRegion() {
+        return region;
     }
 
     public void setRegion(String region) {
-	this.region = region;
+        this.region = region;
     }
 
     /** Overridden because we're using a composite key. Default semantics are still fine for our use cases. */

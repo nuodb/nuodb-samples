@@ -143,7 +143,9 @@ public class StorefrontFactory {
     }
 
     public static SchemaExport createSchemaExport() {
-        return new SchemaExport(s_configuration);
+        SchemaExport export = new SchemaExport(s_configuration);
+        export.setDelimiter(";");
+        return export;
     }
 
     public static void createSchema() {

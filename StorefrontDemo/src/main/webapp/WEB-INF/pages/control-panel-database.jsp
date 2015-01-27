@@ -13,6 +13,13 @@
         <t:messages />
 
         <div id="db-info" class="tab-pane"></div>
+        
+        <h3>Database schema</h3>
+        <img src="img/schema.png" width="745" height="759" />
+        
+        <h3>DDL</h3>
+        <textarea id="ddl"></textarea>
+        
         <script id="tpl-db-info" type="text/template">
             {{#result}}
                 <table class="table table-bordered table-hover">
@@ -36,6 +43,10 @@
 						<tr>
         					<td>JDBC username:</td>
         					<td>{{dbConnInfo.username}}</td>
+        				</tr>
+						<tr>
+        					<td>JDBC password:</td>
+        					<td>{{dbConnInfo.password}}</td>
         				</tr>
     					<tr>
         					<td>API URL:</td>

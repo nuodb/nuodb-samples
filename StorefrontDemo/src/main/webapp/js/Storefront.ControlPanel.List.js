@@ -29,6 +29,7 @@
             data.dbStatusColor = 'important';
             $('#btn-console, #btn-explorer').hide();
         }
+        $('#ddl').val(data.ddl);
         
         g_app.TemplateMgr.applyTemplate('tpl-db-info', '#db-info', data);
     };
