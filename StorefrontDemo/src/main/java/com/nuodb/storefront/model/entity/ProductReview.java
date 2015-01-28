@@ -14,7 +14,12 @@ import javax.validation.constraints.NotNull;
 import com.nuodb.storefront.util.MD5Util;
 
 @Entity
-@Table(name = "Product_Review", indexes = { @Index(name = "idx_product_review_product", columnList = "product_id") })
+@Table(
+        name = "Product_Review",
+        indexes = {
+                @Index(name = "idx_product_review_product", columnList = "product_id"),
+                @Index(name = "idx_product_review_date_added", columnList = "dateAdded")
+        })
 public class ProductReview extends AutoIdEntity {
     @ManyToOne
     @JoinColumn(name = "product_id")

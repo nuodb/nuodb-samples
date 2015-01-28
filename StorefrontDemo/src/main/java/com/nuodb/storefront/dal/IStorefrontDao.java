@@ -47,12 +47,9 @@ public interface IStorefrontDao extends IBaseDao {
     public Map<String, TransactionStats> getTransactionStats();
 
     /**
-     * Fetches stats for the storefront overall.
-     * 
-     * @param maxCustomerIdleTimeSec
-     *            Max seconds a customer can be idle before being considered inactive.
+     * @see IStorefrontService#getStorefrontStats
      */
-    public StorefrontStats getStorefrontStats(int maxCustomerIdleTimeSec);
+    public StorefrontStats getStorefrontStats(int maxCustomerIdleTimeSec, Integer maxAgeSec);
 
     /**
      * Fetches stats for the storefront by region. Metrics that are not region-specific (like productCategoryCount) are placed in a region with an

@@ -108,25 +108,40 @@ public class StorefrontDao extends BaseDao implements IStorefrontDao {
         return mapCopy;
     }
 
-    public StorefrontStats getStorefrontStats(int maxCustomerIdleTimeSec) {
+    public StorefrontStats getStorefrontStats(int maxCustomerIdleTimeSec, Integer maxAgeSec) {
+        final String ALL_STATS_QUERY = "SELECT"
+                + " (SELECT COUNT(*) FROM PRODUCT) AS PRODUCT_COUNT,"
+                + " (SELECT COUNT(*) FROM (SELECT DISTINCT CATEGORY FROM PRODUCT_CATEGORY) AS A) AS CATEGORY_COUNT,"
+                + " (SELECT COUNT(*) FROM PRODUCT_REVIEW) AS PRODUCT_REVIEW_COUNT,"
+                + " (SELECT COUNT(*) FROM CUSTOMER) AS CUSTOMER_COUNT,"
+                + " (SELECT COUNT(*) FROM CUSTOMER WHERE DATE_LAST_ACTIVE >= :MIN_ACTIVE_TIME) AS ACTIVE_CUSTOMER_COUNT,"
+                + " (SELECT COUNT(*) FROM CUSTOMER WHERE WORKLOAD IS NULL AND DATE_LAST_ACTIVE >= :MIN_ACTIVE_TIME) AS ACTIVE_WEB_CUSTOMER_COUNT,"
+                + " (SELECT SUM(QUANTITY) FROM CART_SELECTION) AS CART_ITEM_COUNT,"
+                + " (SELECT SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE) FROM CART_SELECTION) AS CART_VALUE,"
+                + " (SELECT COUNT(*) FROM PURCHASE) AS PURCHASE_COUNT,"
+                + " (SELECT SUM(QUANTITY) FROM PURCHASE_SELECTION) AS PURCHASE_ITEM_COUNT,"
+                + " (SELECT SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE) FROM PURCHASE_SELECTION) AS PURCHASE_VALUE,"
+                + " (SELECT MIN(DATE_STARTED) FROM APP_INSTANCE WHERE LAST_HEARTBEAT >= :MIN_HEARTBEAT_TIME) AS START_TIME"
+                + " FROM DUAL;";
+
+        final String RECENT_STATS_QUERY = "SELECT"
+                + " (SELECT COUNT(*) FROM PRODUCT) AS PRODUCT_COUNT,"
+                + " (SELECT COUNT(*) FROM (SELECT DISTINCT CATEGORY FROM PRODUCT_CATEGORY) AS A) AS CATEGORY_COUNT,"
+                + " (SELECT COUNT(*) FROM PRODUCT_REVIEW WHERE DATE_ADDED >= :MIN_MODIFIED_TIME) AS PRODUCT_REVIEW_COUNT,"
+                + " (SELECT NULL AS CUSTOMER_COUNT FROM DUAL),"
+                + " (SELECT COUNT(*) FROM CUSTOMER WHERE DATE_LAST_ACTIVE >= :MIN_ACTIVE_TIME) AS ACTIVE_CUSTOMER_COUNT,"
+                + " (SELECT COUNT(*) FROM CUSTOMER WHERE DATE_LAST_ACTIVE >= :MIN_ACTIVE_TIME AND WORKLOAD IS NULL) AS ACTIVE_WEB_CUSTOMER_COUNT,"
+                + " (SELECT SUM(QUANTITY) FROM CART_SELECTION WHERE DATE_MODIFIED >= :MIN_MODIFIED_TIME) AS CART_ITEM_COUNT,"
+                + " (SELECT SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE) FROM CART_SELECTION WHERE DATE_MODIFIED >= :MIN_MODIFIED_TIME) AS CART_VALUE,"
+                + " (SELECT COUNT(*) FROM PURCHASE WHERE DATE_PURCHASED >= :MIN_MODIFIED_TIME) AS PURCHASE_COUNT,"
+                + " (SELECT SUM(QUANTITY) FROM PURCHASE_SELECTION WHERE DATE_MODIFIED >= :MIN_MODIFIED_TIME) AS PURCHASE_ITEM_COUNT,"
+                + " (SELECT SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE) FROM PURCHASE_SELECTION WHERE DATE_MODIFIED >= :MIN_MODIFIED_TIME) AS PURCHASE_VALUE,"
+                + " (SELECT MIN(DATE_STARTED) FROM APP_INSTANCE WHERE LAST_HEARTBEAT >= :MIN_HEARTBEAT_TIME) AS START_TIME"
+                + " FROM DUAL;";
+
         // Run query
-        SQLQuery query = getSession()
-                .createSQLQuery(
-                        "SELECT"
-                                + " (SELECT COUNT(*) FROM PRODUCT) AS PRODUCT_COUNT,"
-                                + " (SELECT COUNT(*) FROM (SELECT DISTINCT CATEGORY FROM PRODUCT_CATEGORY) AS A) AS CATEGORY_COUNT,"
-                                + " (SELECT COUNT(*) FROM PRODUCT_REVIEW) AS PRODUCT_REVIEW_COUNT,"
-                                + " (SELECT COUNT(*) FROM CUSTOMER) AS CUSTOMER_COUNT,"
-                                + " (SELECT COUNT(*) FROM CUSTOMER WHERE DATE_LAST_ACTIVE >= :MIN_ACTIVE_TIME) AS ACTIVE_CUSTOMER_COUNT,"
-                                + " (SELECT COUNT(*) FROM CUSTOMER WHERE WORKLOAD IS NULL AND DATE_LAST_ACTIVE >= :MIN_ACTIVE_TIME) AS ACTIVE_WEB_CUSTOMER_COUNT,"
-                                + " (SELECT SUM(QUANTITY) FROM CART_SELECTION) AS CART_ITEM_COUNT,"
-                                + " (SELECT SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE) FROM CART_SELECTION) AS CART_VALUE,"
-                                + " (SELECT COUNT(*) FROM PURCHASE) AS PURCHASE_COUNT,"
-                                + " (SELECT SUM(QUANTITY) FROM PURCHASE_SELECTION) AS PURCHASE_ITEM_COUNT,"
-                                + " (SELECT SUM(CAST(QUANTITY AS DECIMAL(16,2)) * UNIT_PRICE) FROM PURCHASE_SELECTION) AS PURCHASE_VALUE,"
-                                + " (SELECT MIN(DATE_STARTED) FROM APP_INSTANCE WHERE LAST_HEARTBEAT >= :MIN_HEARTBEAT_TIME) AS START_TIME"
-                                + " FROM DUAL;");
-        setStorefrontStatsParameters(query, maxCustomerIdleTimeSec);
+        SQLQuery query = getSession().createSQLQuery((maxAgeSec == null) ? ALL_STATS_QUERY : RECENT_STATS_QUERY);
+        setStorefrontStatsParameters(query, maxCustomerIdleTimeSec, maxAgeSec);
         Object[] result = (Object[]) query.uniqueResult();
 
         // Fill stats
@@ -183,7 +198,7 @@ public class StorefrontDao extends BaseDao implements IStorefrontDao {
         query.addScalar("METRIC_NAME", StringType.INSTANCE);
         query.addScalar("METRIC_VALUE", BigDecimalType.INSTANCE);
         query.addScalar("REGION", StringType.INSTANCE);
-        setStorefrontStatsParameters(query, maxCustomerIdleTimeSec);
+        setStorefrontStatsParameters(query, maxCustomerIdleTimeSec, null);
 
         // Fill stats
         for (Object[] row : (List<Object[]>) query.list()) {
@@ -278,7 +293,7 @@ public class StorefrontDao extends BaseDao implements IStorefrontDao {
                 "SELECT COUNT(*) FROM APP_INSTANCE WHERE" +
                         " (STOP_USERS_WHEN_IDLE = 0 AND LAST_HEARTBEAT >= :MIN_HEARTBEAT_TIME)" +
                         " OR LAST_API_ACTIVITY > :IDLE_THRESHOLD");
-        setStorefrontStatsParameters(query, null);
+        setStorefrontStatsParameters(query, null, null);
         query.setParameter("IDLE_THRESHOLD", idleThreshold);
         return ((Number) query.uniqueResult()).intValue();
     }
@@ -305,7 +320,7 @@ public class StorefrontDao extends BaseDao implements IStorefrontDao {
         return Currency.valueOf(currencies.get(0));
     }
 
-    protected void setStorefrontStatsParameters(SQLQuery query, Integer maxCustomerIdleTimeSec) {
+    protected void setStorefrontStatsParameters(SQLQuery query, Integer maxCustomerIdleTimeSec, Integer maxAgeSec) {
         Calendar now = Calendar.getInstance();
 
         // MIN_ACTIVE_TIME
@@ -315,6 +330,13 @@ public class StorefrontDao extends BaseDao implements IStorefrontDao {
             query.setParameter("MIN_ACTIVE_TIME", minActiveTime);
         }
 
+        // MIN_MODIFIED_TIME
+        if (maxAgeSec != null) {
+            Calendar minModifiedTime = (Calendar) now.clone();
+            minModifiedTime.add(Calendar.SECOND, -maxAgeSec);
+            query.setParameter("MIN_MODIFIED_TIME", minModifiedTime);
+        }
+        
         // MIN_HEARTBEAT_TIME
         Calendar minHeartbeatTime = (Calendar) now.clone();
         minHeartbeatTime.add(Calendar.SECOND, -StorefrontApp.MAX_HEARTBEAT_AGE_SEC);

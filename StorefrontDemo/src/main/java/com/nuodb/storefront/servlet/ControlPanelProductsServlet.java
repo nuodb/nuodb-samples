@@ -72,7 +72,7 @@ public class ControlPanelProductsServlet extends BaseServlet {
     }
     
     protected StorefrontStats checkForProducts(HttpServletRequest req) {
-        StorefrontStats stats = getStorefrontService().getStorefrontStats(StorefrontApp.DEFAULT_SESSION_TIMEOUT_SEC);
+        StorefrontStats stats = getStorefrontService().getStorefrontStats(StorefrontApp.DEFAULT_SESSION_TIMEOUT_SEC, null);
         
         if (stats.getProductCount() == 0) {
             addMessage(

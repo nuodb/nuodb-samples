@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.exception.SQLGrammarException;
 
+import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.exception.CartEmptyException;
 import com.nuodb.storefront.exception.CustomerNotFoundException;
 import com.nuodb.storefront.exception.ProductNotFoundException;
@@ -309,7 +310,7 @@ public class SimulatedUser implements IWorker {
     }
 
     protected void doRunReport() {
-        simulator.getService().getStorefrontStats(0);
+        simulator.getService().getStorefrontStats(StorefrontApp.DEFAULT_SESSION_TIMEOUT_SEC, StorefrontApp.DEFAULT_ANALYTIC_MAX_AGE);
     }
 
     protected boolean getOrFetchCategories() {

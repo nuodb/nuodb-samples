@@ -37,16 +37,17 @@ Getting Started (command line)
         
       >	The externally-accessible URL of the Storefront.  Web browsers should be able to access the Storefront
       >	web app using this URL.  The URL is used by the Storefront front-end for communication and switching among instances.
-      > You may use leave any or all of the `{protocol}, `{host}`, `{port}`, and `{context}` placeholders verbatim for auto-detected values, 
+      > You may use leave any or all of the `{protocol}`, `{host}`, `{port}`, and `{context}` placeholders verbatim for auto-detected values, 
       > or specify a completely custom URL with no placeholders.  Example: `http://192.168.1.50/{context}`
       >    
       > If you do not specify a command line value, the default is pulled from the `public-url` context param of web.xml.
-      > The default is `{protocol}://{host}:{port}/{context}`. 
+      > The default is `{protocol}://{host}:{port}/{context}`.  You may use the `{domain.broker}` placeholder, which will be replaced
+      > with the system property `domain.broker` (defaulting to `localhost`). 
                                                               
 		-Dstorefront.db.name=dbname@host[:port]
 		
 	  > The database name (dbname) and NuoDB broker hostname or IP address (host).  The Storefront creates its database and schema automatically at startup,
-	  > so you need not create the database in advance.       
+	  > so you need not create the database in advance. 
 	  
 		-Dstorefront.db.user=StorefrontUser
 		

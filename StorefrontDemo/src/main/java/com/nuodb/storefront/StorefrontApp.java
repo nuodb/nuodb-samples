@@ -31,6 +31,7 @@ public class StorefrontApp {
     public static final int STOP_USERS_AFTER_IDLE_UI_SEC = 60 * 10; // 10 min
     public static final int MIN_INSTANCE_PURGE_AGE_SEC = 60 * 60; // 1 hour
     public static final int DEFAULT_SESSION_TIMEOUT_SEC = 60 * 20;// 20 min
+    public static final int DEFAULT_ANALYTIC_MAX_AGE = 60 * 30;// 30 min
     public static final int MAX_DB_INIT_WAIT_TIME_SEC = 5;
 
     public static final String DEFAULT_REGION_NAME = "Unknown region";

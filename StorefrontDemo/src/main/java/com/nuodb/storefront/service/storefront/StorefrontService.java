@@ -395,11 +395,11 @@ public class StorefrontService implements IStorefrontService {
     }
 
     @Override
-    public StorefrontStats getStorefrontStats(final int maxCustomerIdleTimeSec) {
+    public StorefrontStats getStorefrontStats(final int maxCustomerIdleTimeSec, final Integer maxAgeSec) {
         return dao.runTransaction(TransactionType.READ_ONLY, "getStorefrontStats", new Callable<StorefrontStats>() {
             @Override
             public StorefrontStats call() {
-                return dao.getStorefrontStats(maxCustomerIdleTimeSec);
+                return dao.getStorefrontStats(maxCustomerIdleTimeSec, maxAgeSec);
             }
         });
     }

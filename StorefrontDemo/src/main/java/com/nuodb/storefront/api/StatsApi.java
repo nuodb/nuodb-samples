@@ -39,9 +39,9 @@ public class StatsApi extends BaseApi {
     @GET
     @Path("/storefront")
     @Produces(MediaType.APPLICATION_JSON)
-    public StorefrontStats getStorefrontStats(@QueryParam("sessionTimeoutSec") Integer sessionTimeoutSec) {
+    public StorefrontStats getStorefrontStats(@QueryParam("sessionTimeoutSec") Integer sessionTimeoutSec, @QueryParam("maxAgeSec") Integer maxAgeSec) {
         int maxCustomerIdleTimeSec = (sessionTimeoutSec == null) ? StorefrontApp.DEFAULT_SESSION_TIMEOUT_SEC : sessionTimeoutSec;
-        return getService().getStorefrontStats(maxCustomerIdleTimeSec);
+        return getService().getStorefrontStats(maxCustomerIdleTimeSec, maxAgeSec);
     }
 
     @GET

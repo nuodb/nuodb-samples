@@ -42,7 +42,7 @@ public interface IStorefrontService {
     public SearchResult<Product> getProducts(ProductFilter filter);
 
     public SearchResult<ProductReview> getProductReviews(ProductReviewFilter filter);
-    
+
     /**
      * Gets information on a specific product, including the reviews associated with it (and the customers associated with each review).
      * 
@@ -185,12 +185,17 @@ public interface IStorefrontService {
     public Map<String, TransactionStats> getTransactionStats();
 
     /**
-     * Fetches stats for the storefront overall.
+     * Fetches stats for the Storefront overall.
      * 
      * @param maxCustomerIdleTimeSec
      *            Max seconds a customer can be idle before being considered inactive.
+     * 
+     * @param maxAgeSec
+     *            Maximum age of products, reviews, cart selections, and purchases to consider. Use <code>null</code> to provide stats on everything,
+     *            or specify a value to limit the scope to items modified within the time period specified (which takes advantage of indexes to avoid
+     *            full table scans).
      */
-    public StorefrontStats getStorefrontStats(int maxCustomerIdleTimeSec);
+    public StorefrontStats getStorefrontStats(int maxCustomerIdleTimeSec, Integer maxAgeSec);
 
     /**
      * Fetches stats for the storefront by region. Metrics that are not region-specific (like productCategoryCount) are placed in a region with an

@@ -18,7 +18,7 @@
         <img src="img/schema.png" width="745" height="759" />
         
         <h3>DDL</h3>
-        <textarea id="ddl"></textarea>
+        <textarea id="ddl" class="no-resize-x" readonly="readonly"></textarea>
         
         <script id="tpl-db-info" type="text/template">
             {{#result}}

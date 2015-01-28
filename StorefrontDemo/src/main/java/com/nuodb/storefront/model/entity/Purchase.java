@@ -9,12 +9,15 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Index;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 @Entity
+@Table(name="purchase", indexes = @Index(name = "idx_purchase_date_purchased", columnList = "datePurchased"))
 public class Purchase extends AutoIdEntity {
     @ManyToOne
     @NotNull
