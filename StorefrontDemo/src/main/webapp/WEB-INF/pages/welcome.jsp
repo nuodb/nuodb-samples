@@ -5,19 +5,50 @@
 <t:page showHeader="false">
     <h1>Welcome to the NuoDB Storefront Demo!</h1>
     <t:messages />
+    
+    <div class="alert alert-block alert-info hide" id="api-box">
+        <p>Before you can use this demo, you must specify domain credentials to connect to NuoDB.<br> &nbsp;</p>
+        
+        <form class="form-horizontal" method="post">
+            <div class="control-group">
+                <label class="control-label" for="api-username">Domain username:</label>
+                <div class="controls">
+                    <input class="input-xxlarge" type="text" id="api-username" name="api-username" placeholder="Username">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="api-password">Domain password:</label>
+                <div class="controls">
+                    <input class="input-xxlarge" type="text" id="api-password" name="api-password" placeholder="Password">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="api-url">API URL:</label>
+                <div class="controls">
+                    <input class="input-xxlarge" type="text" id="api-url" name="api-url" placeholder="URL">
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="controls">
+                    <button class="btn btn-info" type="submit" value="Connect to API">Connect to API</button>
+                </div>
+            </div>
+            <input type="hidden" name="btn-msg" value="api" />
+        </form>
+    </div>
 
     <div class="alert alert-block alert-info hide" id="create-db-box">
         <p>The Storefront database does not exist yet.  Use this form to create it.<br> &nbsp;</p>
         
         <form class="form-horizontal" method="post">
             <div class="control-group">
-                <label class="control-label" for="username">Username:</label>
+                <label class="control-label" for="username">Database username:</label>
                 <div class="controls">
                     <input class="input-xxlarge" type="text" id="username" name="username" placeholder="Username">
                 </div>
             </div>
             <div class="control-group">
-                <label class="control-label" for="password">Password:</label>
+                <label class="control-label" for="password">Database password:</label>
                 <div class="controls">
                     <input class="input-xxlarge" type="text" id="password" name="password" placeholder="Password">
                 </div>
@@ -26,14 +57,16 @@
                 <label class="control-label" for="url">Broker URL:</label>
                 <div class="controls">
                     <textarea class="input-xxlarge no-resize-x" id="url" name="url" placeholder="URL" rows="4"></textarea>
-                    <p><small>Tip: You may change the database name.  You may also specify multiple brokers for failover support. The syntax is:<br /><tt> jdbc:com.nuodb://{broker1}:{port1},{broker2}:{port2},..,{brokerN}:{portN}/{db-name}?{params}</tt></small></p>
+                    <p><small>Tip: You may change the database name by editing this URL.  You may also specify multiple brokers for failover support.<br />
+                        Syntax: <code> jdbc:com.nuodb://{broker1}:{port1},{broker2}:{port2},..,{brokerN}:{portN}/{db-name}?{params}</code></small></p>
                 </div>
             </div>
             <div class="control-group">
                 <div class="controls">
-                    <button class="btn btn-info" name="btn-msg" type="submit" value="Create database">Create database</button>
+                    <button class="btn btn-info" type="submit" value="Create database">Create database</button>
                 </div>
             </div>
+            <input type="hidden" name="btn-msg" value="db" />
         </form>
     </div>
 

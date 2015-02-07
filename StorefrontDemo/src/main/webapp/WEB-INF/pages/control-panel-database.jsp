@@ -50,11 +50,11 @@
         				</tr>
     					<tr>
         					<td>API URL:</td>
-        					<td><a href="{{apiUrl}}" target="_blank">{{apiUrl}}</a></td>
+        					<td><a href="{{apiUrl}}" target="_blank">{{apiConnInfo.url}}</a></td>
         				</tr>
 						<tr>
         					<td>API username:</td>
-        					<td>{{apiUsername}}</td>
+        					<td>{{apiConnInfo.username}}</td>
         				</tr>
         			</tbody>
         		</table>
