@@ -13,7 +13,7 @@
 
                 <div class="alert alert-block alert-{{lowerCaseFormat severity}}">
 					{{#unless buttons}}
-	       	        <button type="button" class="close" data-dismiss="alert">&times;</button>
+	       	        	<button type="button" class="close" data-dismiss="alert">&times;</button>
 					{{/unless}}
     	            <p>{{message}}</p>
 

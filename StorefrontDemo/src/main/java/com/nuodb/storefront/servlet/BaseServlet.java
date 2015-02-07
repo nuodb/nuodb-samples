@@ -201,7 +201,7 @@ public abstract class BaseServlet extends HttpServlet {
             }
         }
         Customer customer = (Customer) req.getAttribute(ATTR_CUSTOMER);
-        showPage(req, resp, "Storefront Problem", "welcome", null, (customer == null) ? new Customer() : customer);
+        showPage(req, resp, "Storefront Problem", "error", null, (customer == null) ? new Customer() : customer);
 
         s_logger.warn("Servlet handled critical error", ex);
     }

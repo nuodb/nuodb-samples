@@ -24,6 +24,7 @@ import com.nuodb.storefront.dal.StorefrontDao;
 import com.nuodb.storefront.dal.UpperCaseNamingStrategy;
 import com.nuodb.storefront.dbapi.DbApiProxy;
 import com.nuodb.storefront.dbapi.IDbApi;
+import com.nuodb.storefront.model.dto.ConnInfo;
 import com.nuodb.storefront.model.dto.DbConnInfo;
 import com.nuodb.storefront.service.IDataGeneratorService;
 import com.nuodb.storefront.service.IHeartbeatService;
@@ -46,6 +47,7 @@ public class StorefrontFactory {
     private static volatile ISimulatorService s_simulator;
     private static volatile boolean s_initializedApp = false;
     private static volatile IDbApi s_dbApi;
+    private static volatile ConnInfo s_apiConnInfo;
     private static final Logger s_logger = Logger.getLogger(WelcomeServlet.class.getName());
 
     static {
@@ -127,6 +129,29 @@ public class StorefrontFactory {
             }
         }
     }
+    
+    public static ConnInfo getApiConnInfo() {
+        synchronized (s_configuration) {
+            if (s_apiConnInfo == null) {
+                DbConnInfo connInfo = getDbConnInfo();
+                String host = System.getProperty("storefront.dbapi.host", connInfo.getHost());
+                String port = System.getProperty("storefront.dbapi.port", "8888");
+                ConnInfo info = new ConnInfo();
+                info.setUsername(System.getProperty("storefront.dbapi.user", "domain"));
+                info.setPassword(System.getProperty("storefront.dbapi.password", "bird"));
+                info.setUrl("http://" + host + ":" + port + "/api/1");
+                s_apiConnInfo = info;
+            }
+        }
+        return s_apiConnInfo;
+    }
+    
+    public static void setApiConnInfo(ConnInfo info) {
+        synchronized (s_configuration) {
+            s_apiConnInfo = new ConnInfo(info);
+            s_dbApi = null;
+        }
+    }
 
     public static String getAdminConsoleUrl() {
         DbConnInfo connInfo = getDbConnInfo();
@@ -187,12 +212,7 @@ public class StorefrontFactory {
     }
 
     public static IDbApi createDbApi() {
-        DbConnInfo connInfo = getDbConnInfo();
-        String host = System.getProperty("storefront.dbapi.host", connInfo.getHost());
-        String user = System.getProperty("storefront.dbapi.user", "domain");
-        String password = System.getProperty("storefront.dbapi.password", "bird");
-        String port = System.getProperty("storefront.dbapi.port", "8888");
-        return new DbApiProxy("http://" + host + ":" + port + "/api/1", user, password, connInfo);
+        return new DbApiProxy(getApiConnInfo(), getDbConnInfo());
     }
 
     public static IStorefrontDao createStorefrontDao() {

@@ -1,24 +1,13 @@
+/* Copyright (c) 2013-2014 NuoDB, Inc. */
+
 package com.nuodb.storefront.model.dto;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-
-public class DbConnInfo {
-    private String url;
+public class DbConnInfo extends ConnInfo {
     private String host;
     private String dbName;
-    private String username;
-    private String password;
     private String dbProcessTag;
 
     public DbConnInfo() {
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
     }
 
     public String getHost() {
@@ -35,23 +24,6 @@ public class DbConnInfo {
 
     public void setDbName(String dbName) {
         this.dbName = dbName;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    @JsonIgnore
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getDbProcessTag() {
