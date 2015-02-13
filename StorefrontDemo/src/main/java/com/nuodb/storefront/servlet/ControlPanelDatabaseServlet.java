@@ -26,8 +26,7 @@ public class ControlPanelDatabaseServlet extends BaseServlet {
             Map<String, Object> pageData = new HashMap<String, Object>();
             pageData.put("db", getDbApi().getDb());
             pageData.put("dbConnInfo", StorefrontFactory.getDbConnInfo());
-            pageData.put("apiUrl", getDbApi().getBaseUrl());
-            pageData.put("apiUsername", getDbApi().getAuthUser());
+            pageData.put("apiConnInfo", getDbApi().getApiConnInfo());
             pageData.put("adminConsoleUrl", StorefrontFactory.getAdminConsoleUrl());
             pageData.put("sqlExplorerUrl", StorefrontFactory.getSqlExplorerUrl());
             pageData.put("ddl", getDdl());

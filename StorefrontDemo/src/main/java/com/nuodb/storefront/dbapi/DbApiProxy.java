@@ -2,6 +2,10 @@
 
 package com.nuodb.storefront.dbapi;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -22,17 +26,22 @@ import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.codehaus.jackson.map.DeserializationConfig;
 
 import com.nuodb.storefront.StorefrontApp;
+import com.nuodb.storefront.exception.ApiConnectionException;
 import com.nuodb.storefront.exception.ApiProxyException;
+import com.nuodb.storefront.exception.ApiUnauthorizedException;
 import com.nuodb.storefront.exception.ApiUnavailableException;
 import com.nuodb.storefront.exception.DataValidationException;
 import com.nuodb.storefront.exception.DatabaseNotFoundException;
+import com.nuodb.storefront.model.dto.ConnInfo;
 import com.nuodb.storefront.model.dto.DbConnInfo;
 import com.nuodb.storefront.model.dto.DbFootprint;
 import com.nuodb.storefront.model.dto.RegionStats;
 import com.nuodb.storefront.util.NetworkUtil;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
+import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.core.util.Base64;
@@ -56,41 +65,39 @@ public class DbApiProxy implements IDbApi {
     private static final String PROCESS_TYPE_TE = "TE";
     private static final String PROCESS_TYPE_SM = "SM";
 
-    private final String baseUrl;
-    private final String authHeader;
-    private final String apiUsername;
+    private final ConnInfo apiConnInfo;
     private final DbConnInfo dbConnInfo;
 
     static {
         s_cfg.getSingletons().add(new JacksonJaxbJsonProvider().configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false));
     }
 
-    public DbApiProxy(String baseUrl, String apiUsername, String apiPassword, DbConnInfo dbConnInfo) {
-        this.baseUrl = baseUrl;
-        this.apiUsername = apiUsername;
-        this.authHeader = "Basic " + new String(Base64.encode(apiUsername + ":" + apiPassword));
+    public DbApiProxy(ConnInfo apiConnInfo, DbConnInfo dbConnInfo) {
+        this.apiConnInfo = apiConnInfo;
         this.dbConnInfo = dbConnInfo;
     }
 
     @Override
-    public String getBaseUrl() {
-        return baseUrl;
+    public ConnInfo getApiConnInfo() {
+        ConnInfo info = new ConnInfo(apiConnInfo);
+        info.setPassword(null);
+        return info;
+    }
+    
+    @Override
+    public void testConnection() {
+        try {
+            buildClient("/templates").get(Object.class);
+        } catch (Exception e) {
+            throw toApiException(e);
+        }        
     }
 
     @Override
-    public String getAuthUser() {
-        return apiUsername;
-    }
-
-    @Override
-    public Database getDb() throws ApiProxyException, ApiUnavailableException {
+    public Database getDb() throws ApiProxyException {
         try {
             String dbName = dbConnInfo.getDbName();
-            return Client.create(s_cfg)
-                    .resource(baseUrl + "/databases/" + urlEncode(dbName))
-                    .header(HttpHeaders.AUTHORIZATION, authHeader)
-                    .type(MediaType.APPLICATION_JSON)
-                    .get(Database.class);
+            return buildClient("/databases/" + urlEncode(dbName)).get(Database.class);
         } catch (ClientHandlerException e) {
             // DB not found
             return null;
@@ -143,11 +150,7 @@ public class DbApiProxy implements IDbApi {
     @Override
     public void shutdownProcess(String uid) {
         try {
-            Client.create(s_cfg)
-                    .resource(baseUrl + "/processes/" + uid)
-                    .header(HttpHeaders.AUTHORIZATION, authHeader)
-                    .type(MediaType.APPLICATION_JSON)
-                    .delete();
+            buildClient("/processes/" + uid).delete();
         } catch (Exception e) {
             throw toApiException(e);
         }
@@ -181,16 +184,21 @@ public class DbApiProxy implements IDbApi {
         return stats;
     }
 
+    @Override
+    public DbFootprint getDbFootprint() {
+        return getDbFootprint(getRegions());
+    }
+
+    @Override
+    public synchronized DbFootprint setDbFootprint(int numRegions, int numHosts) {
+        return setDbFootprint(numRegions, numHosts, false, getRegions());
+    }
+
     protected List<Region> getRegions() {
         try {
             String dbName = dbConnInfo.getDbName();
             String dbProcessTag = dbConnInfo.getDbProcessTag();
-
-            Region[] regions = Client.create(s_cfg)
-                    .resource(baseUrl + "/regions")
-                    .header(HttpHeaders.AUTHORIZATION, authHeader)
-                    .type(MediaType.APPLICATION_JSON)
-                    .get(Region[].class);
+            Region[] regions = buildClient("/regions").get(Region[].class);
 
             for (Region region : regions) {
                 for (Host host : region.hosts) {
@@ -214,16 +222,6 @@ public class DbApiProxy implements IDbApi {
         } catch (Exception e) {
             throw toApiException(e);
         }
-    }
-
-    @Override
-    public DbFootprint getDbFootprint() {
-        return getDbFootprint(getRegions());
-    }
-
-    @Override
-    public synchronized DbFootprint setDbFootprint(int numRegions, int numHosts) {
-        return setDbFootprint(numRegions, numHosts, false, getRegions());
     }
 
     protected DbFootprint setDbFootprint(int numRegions, int numHosts, boolean createIfDne, List<Region> regions) {
@@ -334,18 +332,10 @@ public class DbApiProxy implements IDbApi {
                     database.password = dbConnInfo.getPassword();
 
                     s_logger.info("Creating DB '" + database.name + "' with template '" + database.template + "' and vars " + database.variables);
-                    Client.create(s_cfg)
-                            .resource(baseUrl + "/databases/")
-                            .header(HttpHeaders.AUTHORIZATION, authHeader)
-                            .type(MediaType.APPLICATION_JSON)
-                            .post(Database.class, database);
+                    buildClient("/databases/").post(Database.class, database);
                 } else if (updateDb) {
                     s_logger.info("Updating DB '" + database.name + "' with template '" + database.template + "' and vars " + database.variables);
-                    Client.create(s_cfg)
-                            .resource(baseUrl + "/databases/" + urlEncode(database.name))
-                            .header(HttpHeaders.AUTHORIZATION, authHeader)
-                            .type(MediaType.APPLICATION_JSON)
-                            .put(Database.class, database);
+                    buildClient("/databases/" + urlEncode(database.name)).put(Database.class, database);
                 }
             }
 
@@ -361,17 +351,14 @@ public class DbApiProxy implements IDbApi {
             // Tag already exists
             return;
         }
-        
+
         s_logger.info("Adding tag '" + tagName + "' to host " + host.address + " (id=" + host.id + ")");
 
         Tag tag = new Tag();
         tag.key = tagName;
         tag.value = tagValue;
 
-        Client.create(s_cfg)
-                .resource(baseUrl + "/hosts/" + host.id + "/tags")
-                .header(HttpHeaders.AUTHORIZATION, authHeader)
-                .type(MediaType.APPLICATION_JSON).post(tag);
+        buildClient("/hosts/" + host.id + "/tags").post(tag);
 
         host.tags.put(tag.key, tag.value);
     }
@@ -380,10 +367,7 @@ public class DbApiProxy implements IDbApi {
         if (host.tags.remove(tagName) != null) {
             s_logger.info("Removing tag '" + tagName + "' from host " + host.address + " (id=" + host.id + ")");
 
-            Client.create(s_cfg)
-                    .resource(baseUrl + "/hosts/" + host.id + "/tags/" + urlEncode(tagName))
-                    .header(HttpHeaders.AUTHORIZATION, authHeader)
-                    .type(MediaType.APPLICATION_JSON).delete();
+            buildClient("/hosts/" + host.id + "/tags/" + urlEncode(tagName)).delete();
         }
 
         String dbName = dbConnInfo.getDbName();
@@ -422,7 +406,7 @@ public class DbApiProxy implements IDbApi {
                     if (ipAddresses.contains(host.ipaddress)) {
                         ipRegionMatch = match;
                         if (smRegionMatch == ipRegionMatch) {
-                            // Best match:  host running SM and sharing our IP and region
+                            // Best match: host running SM and sharing our IP and region
                             return smRegionMatch;
                         }
                     }
@@ -431,8 +415,8 @@ public class DbApiProxy implements IDbApi {
                 }
             }
         }
-        
-        // Second best match:  Host running SM in our region
+
+        // Second best match: Host running SM in our region
         if (smRegionMatch != null) {
             return smRegionMatch;
         }
@@ -493,14 +477,12 @@ public class DbApiProxy implements IDbApi {
         return dbStats;
     }
 
-    protected ApiProxyException toApiException(Exception e) {
-        if (e instanceof ClientHandlerException) {
-            return new ApiUnavailableException((ClientHandlerException) e);
-        }
-        if (e instanceof UniformInterfaceException) {
-            return new ApiProxyException(((UniformInterfaceException) e).getResponse(), e);
-        }
-        return new ApiProxyException(Status.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+    protected WebResource.Builder buildClient(String path) {
+        String authHeader = "Basic " + new String(Base64.encode(apiConnInfo.getUsername() + ":" + apiConnInfo.getPassword()));
+        return Client.create(s_cfg)
+                .resource(apiConnInfo.getUrl() + path)
+                .header(HttpHeaders.AUTHORIZATION, authHeader)
+                .type(MediaType.APPLICATION_JSON);
     }
 
     @SuppressWarnings("unchecked")
@@ -542,7 +524,7 @@ public class DbApiProxy implements IDbApi {
         int changeCount = 0;
         String oldTemplateName = null;
         if (database.template instanceof Map) {
-            oldTemplateName = ((Map<String, String>) database.template).get("name");
+            oldTemplateName = ((Map<String, String>)database.template).get("name");
         } else if (database.template != null) {
             oldTemplateName = String.valueOf(database.template);
         }
@@ -569,8 +551,54 @@ public class DbApiProxy implements IDbApi {
 
         return changeCount > 0;
     }
+    
+    protected ApiProxyException toApiException(Exception e) {
+        if (e instanceof ClientHandlerException) {
+            return new ApiConnectionException((ClientHandlerException)e);
+        }
 
-    private static final String urlEncode(String str) {
+        if (e instanceof UniformInterfaceException) {
+            ClientResponse response = ((UniformInterfaceException)e).getResponse();
+            String msg = readResponseMessage(response);
+            Status status = Status.fromStatusCode(response.getStatus());
+
+            switch (status) {
+                case UNAUTHORIZED:
+                    return new ApiUnauthorizedException(e);
+                    
+                case BAD_REQUEST:
+                    if (msg.startsWith("Domain is not connected")) {
+                        return new ApiUnavailableException(e);                        
+                    }
+                    // Otherwise fall through
+                    
+                default:
+                    return new ApiProxyException(status, msg, e);
+            }
+        }
+
+        return new ApiProxyException(Status.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+    }
+    
+    private static String readResponseMessage(ClientResponse resp)
+    {
+        try {
+            InputStream in = resp.getEntityInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            StringBuilder out = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                out.append(line);
+            }
+            reader.close();
+            in.close();
+            return out.toString() + " (response code " + resp.getStatus() + ")";
+        } catch (IOException e) {
+            return null;
+        }
+    }
+    
+    private static String urlEncode(String str) {
         try {
             return URLEncoder.encode(str, "UTF-8");
         } catch (UnsupportedEncodingException e) {

@@ -184,13 +184,32 @@ var Storefront = {
         });
     },
     
-    initWelcomePage: function(dbConnInfo) {
-        if (dbConnInfo) {
+    initWelcomePage: function(data) {
+        if (data.api) {
+            var apiConnInfo = data.api;
+            $('#api-box').removeClass('hide');
+            $('#api-username').val(apiConnInfo.username).focus();
+            $('#api-password').val("");
+            $('#api-url').val(apiConnInfo.url);            
+        } else if (data.db) {
+            var dbConnInfo = data.db;
             $('#create-db-box').removeClass('hide');
-            $('#username').val(dbConnInfo.username);
+            $('#username').val(dbConnInfo.username).focus();
             $('#password').val(dbConnInfo.password || "StorefrontUser");
             $('#url').val(dbConnInfo.url);
         }
+        
+        $('form').submit(function() {
+            var fields$ = $('input:visible');
+            for (var i = 0; i < fields$.length; i++) {
+                if (!fields$[i].value) {
+                    fields$[i].focus();
+                    alert('Please specify a value for all fields.');
+                    return false;
+                }
+            }
+            return true;
+        });
     },
 
     initProductsPage: function(products, categories, filter) {
