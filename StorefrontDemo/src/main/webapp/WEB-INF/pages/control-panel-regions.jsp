@@ -14,8 +14,8 @@
                     <tr>
                         <th>Region</th>
                         <th class="text-center">Hosts in use</th>
-                        <th class="text-center">Transaction engines</th>
-                        <th class="text-center">Storage managers</th>
+                        <th class="text-center">Transaction Engines</th>
+                        <th class="text-center">Storage Managers</th>
                     </tr>
                 </thead>
                 <tbody>

@@ -73,12 +73,12 @@
                 var process = processes[i];
                 switch (process.type) {
                     case 'SM':
-                        process.typeName = 'Storage manager';
+                        process.typeName = 'Storage Manager';
                         process.icon = 'icon-hdd';
                         break;
 
                     case 'TE':
-                        process.typeName = 'Transaction engine';
+                        process.typeName = 'Transaction Engine';
                         process.icon = 'icon-cog';
                         break;
 
