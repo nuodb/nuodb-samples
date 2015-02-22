@@ -46,7 +46,7 @@
     <ol class="tour-steps">
         <li>Download the <a href="http://repo2.maven.org/maven2/org/mortbay/jetty/jetty-runner/8.1.9.v20130131/jetty-runner-8.1.9.v20130131.jar">Jetty Runner</a> JAR file and place it in the <code>samples</code> folder of your NuoDB installation.
         </li>
-        <li>Run the following command from your <code>samples</code> folder to start a second Storefront instance: <pre>java -Dstorefront.db.name=Storefront2@localhost -jar jetty-runner.jar --port 9092 StorefrontDemo.war</pre> You may replace <code>Storefront2</code> with your desired database name and <code>9092</code> with the desired HTTP port you wish to run on.
+        <li>Run the following command from your <code>samples</code> folder to start a second Storefront instance: <pre>java -Dstorefront.db.name=Storefront2@localhost -jar jetty-runner.jar --port 9092 ./storefront/StorefrontDemo.war</pre> You may replace <code>Storefront2</code> with your desired database name and <code>9092</code> with the desired HTTP port you wish to run on.
         </li>
         <li>Browse to the second Storefront instance at <a href="http://localhost:9092">http://localhost:9092</a>.  In the Storefront UI, create the database and product catalog.
         <li>While interacting with either this Storefront instance or the second instance, notice how each is isolated from the other.</li>

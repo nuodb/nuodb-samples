@@ -112,7 +112,7 @@ public class StorefrontFactory {
         }
         info.setUsername(s_configuration.getProperty(Environment.USER));
         info.setPassword(s_configuration.getProperty(Environment.PASS));
-        info.setDbProcessTag(System.getProperty("storefront.db.processTag", StorefrontApp.DEFAULT_DB_PROCESS_TAG));
+        info.setDbProcessTag(System.getProperty("storefront.db.processTag", StorefrontApp.DEFAULT_DB_PROCESS_TAG_PREFIX + info.getDbName()));
         return info;
     }
 
