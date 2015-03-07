@@ -50,7 +50,7 @@
         				</tr>
     					<tr>
         					<td>API URL:</td>
-        					<td><a href="{{apiUrl}}" target="_blank">{{apiConnInfo.url}}</a></td>
+        					<td><a href="{{apiConnInfo.url}}/databases/{{db.name}}" target="_blank">{{apiConnInfo.url}}</a></td>
         				</tr>
 						<tr>
         					<td>API username:</td>

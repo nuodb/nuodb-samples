@@ -76,7 +76,7 @@
                 <br />
                 <p>This is an e-commerce web application with a built-in ability to simulate activity from thousands of users. You can use it to see how NuoDB shines under a variety of scenarios.</p>
 
-                <p>Get started with a guided tour (see left sidebar). These tours showcase NuoDB’s value propositions in your environment.</p>
+                <p>Get started with a <a href="./tour-scale-out">guided tour</a> (see left sidebar). These tours showcase NuoDB’s value propositions in your environment.  Or visit the <a href="./store-products">Storefront Website</a>.</p>
 
                 <p>
                     The Storefront demo is an open source application written in Java. It uses Hibernate for data access with NuoDB’s JDBC driver and DataSource for connection pooling. <a href="https://github.com/nuodb/nuodb-samples/tree/master/StorefrontDemo" target="_blank">Check it out on GitHub</a>.

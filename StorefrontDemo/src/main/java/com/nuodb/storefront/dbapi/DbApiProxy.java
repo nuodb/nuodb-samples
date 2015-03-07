@@ -69,6 +69,10 @@ public class DbApiProxy implements IDbApi {
     private final DbConnInfo dbConnInfo;
 
     static {
+        Map<String, Object> props = s_cfg.getProperties();
+        props.put(ClientConfig.PROPERTY_CONNECT_TIMEOUT, StorefrontApp.API_CONNECT_TIMEOUT_SEC * 1000);
+        props.put(ClientConfig.PROPERTY_READ_TIMEOUT, StorefrontApp.API_READ_TIMEOUT_SEC * 1000);
+
         s_cfg.getSingletons().add(new JacksonJaxbJsonProvider().configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false));
     }
 
@@ -83,14 +87,14 @@ public class DbApiProxy implements IDbApi {
         info.setPassword(null);
         return info;
     }
-    
+
     @Override
     public void testConnection() {
         try {
             buildClient("/templates").get(Object.class);
         } catch (Exception e) {
             throw toApiException(e);
-        }        
+        }
     }
 
     @Override
@@ -551,7 +555,7 @@ public class DbApiProxy implements IDbApi {
 
         return changeCount > 0;
     }
-    
+
     protected ApiProxyException toApiException(Exception e) {
         if (e instanceof ClientHandlerException) {
             return new ApiConnectionException((ClientHandlerException)e);
@@ -565,13 +569,13 @@ public class DbApiProxy implements IDbApi {
             switch (status) {
                 case UNAUTHORIZED:
                     return new ApiUnauthorizedException(e);
-                    
+
                 case BAD_REQUEST:
                     if (msg.startsWith("Domain is not connected")) {
-                        return new ApiUnavailableException(e);                        
+                        return new ApiUnavailableException(e);
                     }
                     // Otherwise fall through
-                    
+
                 default:
                     return new ApiProxyException(status, msg, e);
             }
@@ -579,7 +583,7 @@ public class DbApiProxy implements IDbApi {
 
         return new ApiProxyException(Status.INTERNAL_SERVER_ERROR, e.getMessage(), e);
     }
-    
+
     private static String readResponseMessage(ClientResponse resp)
     {
         try {
@@ -597,7 +601,7 @@ public class DbApiProxy implements IDbApi {
             return null;
         }
     }
-    
+
     private static String urlEncode(String str) {
         try {
             return URLEncoder.encode(str, "UTF-8");

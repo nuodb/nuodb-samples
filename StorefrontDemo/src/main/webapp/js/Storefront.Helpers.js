@@ -70,12 +70,12 @@ Handlebars.registerHelper('priceFormat', function(price) {
     switch (Storefront.currency) {
         case 'BRITISH_POUND':
             symbol = '£';
-            price /= 1.57;
+            price /= 1.5;
             break;
 
         case 'EURO':
             symbol = '€';
-            price /= 1.25;
+            price /= 1.1;
             break;
 
         default:

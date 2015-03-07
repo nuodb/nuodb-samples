@@ -13,6 +13,7 @@
         <property name="hibernate.connection.username">StorefrontUser</property>
         <property name="hibernate.connection.password">StorefrontUser</property>
         <property name="hibernate.connection.initialSize">2</property>
+        <property name="hibernate.connection.loginTimeout">10</property>
         <property name="hibernate.connection.maxActive">0</property>
         <property name="hibernate.connection.maxIdle">30</property>
         <property name="hibernate.connection.maxWait">10000</property>

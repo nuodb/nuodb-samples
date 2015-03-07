@@ -137,6 +137,17 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
             s_logger.error("Health check failed", e);
             addMessage(req, MessageSeverity.ERROR,
                     "NuoDB RESTful API at " + getDbApi().getApiConnInfo().getUrl() + " returned an error:  " + e.getMessage(), "Retry");
+        } catch (Exception e) {
+            s_logger.error("Health check failed", e);
+            Throwable ei = e.getCause();
+            DbConnInfo dbInfo = StorefrontFactory.getDbConnInfo();
+            String msg = (ei != null ) ? ei.getMessage() : null;
+            if (msg != null && msg.indexOf("Database is inactive") >= 0) {
+                addMessage(req, MessageSeverity.WARNING, dbInfo.getDbName() + " is inactive.  Unquiesce the database via the Automation Console.",
+                        "Retry");
+            } else {
+                addMessage(req, MessageSeverity.ERROR, "Unable to connect to " + dbInfo.getDbName() + ":  " + e.getMessage(), "Retry");
+            }
         }
 
         return null;
