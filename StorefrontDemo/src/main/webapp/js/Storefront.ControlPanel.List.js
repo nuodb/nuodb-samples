@@ -15,10 +15,10 @@
             return confirm('Are you sure you want to delete all product and customer data?\n\nIf you proceed, you\'ll be able to recreate the product catalog from several sources.');
         });
     };
-    
+
     Storefront.initControlPanelDatabasePage = function(data) {
         g_app = this;
-        
+
         var dbName = data.dbConnInfo.dbName;
         data.apiUrl += '/databases/' + encodeURIComponent(dbName);
         if (data.db) {
@@ -30,7 +30,7 @@
             $('#btn-console, #btn-explorer').hide();
         }
         $('#ddl').val(data.ddl);
-        
+
         g_app.TemplateMgr.applyTemplate('tpl-db-info', '#db-info', data);
     };
 
@@ -97,9 +97,18 @@
 
     Storefront.initControlPanelRegionsPage = function(regions) {
         g_app = this;
+        for ( var i = 0; i < regions.length; i++) {
+            var region = g_app.regionMap[regions[i].region];
+            if (region) {
+                regions[i].instances = region.instances;
+                regions[i].multiInstance = region.instances.length > 1;
+            } else {
+                regions[i].instances = [];
+            }
+        }
         renderList(regions, 'api/stats/regions', null);
     };
-    
+
     function renderList(origItems, updateUrl, transformFunc) {
         var render = function(items) {
             if (transformFunc) {

@@ -24,7 +24,7 @@
         <!-- Top nav bar -->
         <div id="top-bar" class="navbar">
             <div class="navbar-inner">
-                <label id="region-menu" class="dropdown"></label>
+                <label id="region-menu"></label>
                 
                 <form class="navbar-search search text-center" method="GET" action="store-products">
                     <input type="text" id="search" class="search-query" name="search" placeholder="Search" />
