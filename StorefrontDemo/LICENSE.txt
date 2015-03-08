@@ -1,5 +1,5 @@
-Storefront Demo
-Copyright (c) 2013-2014 NuoDB
+NuoDB Storefront Demo
+Copyright (c) 2013-2015 NuoDB
 
 MIT License (MIT)
 
@@ -27,6 +27,8 @@ MIT and GPLv2
 jQuery Form
 http://adodson.com/jquery.form.js/
 
+jQuery Sparkline plug-in
+
 Twitter Bootstrap
 http://twitter.github.com/bootstrap/
 http://www.apache.org/licenses/LICENSE-2.0
@@ -48,3 +50,7 @@ Jersey
 Hibernate
 
 GoogleCode Generic DAO
+
+Sencha Ext JS
+
+

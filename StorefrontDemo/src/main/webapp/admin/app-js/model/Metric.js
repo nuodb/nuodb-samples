@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2014 NuoDB, Inc. */
+/* Copyright (c) 2013-2015 NuoDB, Inc. */
 
 Ext.define('App.model.Metric', {
     extend: 'Ext.data.Model',

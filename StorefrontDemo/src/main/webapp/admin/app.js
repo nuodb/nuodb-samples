@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2014 NuoDB, Inc. */
+/* Copyright (c) 2013-2015 NuoDB, Inc. */
 
 String.prototype.endsWith = function(suffix) {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
