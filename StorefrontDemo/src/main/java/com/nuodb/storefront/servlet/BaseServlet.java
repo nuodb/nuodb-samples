@@ -70,9 +70,9 @@ public abstract class BaseServlet extends HttpServlet {
     public static Customer getOrCreateCustomer(HttpServletRequest req, HttpServletResponse resp) {
         // For simplicity in this demo, we're implicitly trusting parameters and cookies rather than authenticating users.
 
-        Customer customer = (Customer) req.getAttribute(ATTR_CUSTOMER);
+        Customer customer = (Customer)req.getAttribute(ATTR_CUSTOMER);
         if (customer == null) {
-            Integer customerId = (Integer) req.getSession().getAttribute(SESSION_CUSTOMER_ID);
+            Integer customerId = (Integer)req.getSession().getAttribute(SESSION_CUSTOMER_ID);
             if (customerId == null && req.getCookies() != null) {
                 for (Cookie cookie : req.getCookies()) {
                     if (COOKIE_CUSTOMER_ID.equals(cookie.getName())) {
@@ -102,7 +102,7 @@ public abstract class BaseServlet extends HttpServlet {
 
     public static ProductFilter getOrCreateProductFilter(HttpServletRequest req) {
         HttpSession session = req.getSession();
-        ProductFilter filter = (ProductFilter) session.getAttribute(SESSION_PRODUCT_FILTER);
+        ProductFilter filter = (ProductFilter)session.getAttribute(SESSION_PRODUCT_FILTER);
         if (filter == null) {
             filter = new ProductFilter();
             session.setAttribute(SESSION_PRODUCT_FILTER, filter);
@@ -126,13 +126,25 @@ public abstract class BaseServlet extends HttpServlet {
         HttpSession session = req.getSession();
 
         @SuppressWarnings("unchecked")
-        List<Message> messages = (List<Message>) session.getAttribute(SESSION_MESSAGES);
+        List<Message> messages = (List<Message>)session.getAttribute(SESSION_MESSAGES);
         if (messages == null) {
             messages = new ArrayList<Message>();
             session.setAttribute(SESSION_MESSAGES, messages);
         }
 
         return messages;
+    }
+
+    public static int getMessageCount(List<Message> messages, MessageSeverity severity) {
+        int count = 0;
+        if (messages != null) {
+            for (Message msg : messages) {
+                if (msg.getSeverity() == severity) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     protected static void showPage(HttpServletRequest req, HttpServletResponse resp, String pageTitle, String pageName, Object pageData)
@@ -200,7 +212,7 @@ public abstract class BaseServlet extends HttpServlet {
                 // Repair didn't work
             }
         }
-        Customer customer = (Customer) req.getAttribute(ATTR_CUSTOMER);
+        Customer customer = (Customer)req.getAttribute(ATTR_CUSTOMER);
         showPage(req, resp, "Storefront Problem", "error", null, (customer == null) ? new Customer() : customer);
 
         s_logger.warn("Servlet handled critical error", ex);

@@ -109,6 +109,11 @@
         renderList(regions, 'api/stats/regions', null);
     };
 
+    Storefront.initControlPanelTenantsPage = function(tenants) {
+        g_app = this;
+        renderList(tenants, 'api/stats/tenants', null);
+    };
+    
     function renderList(origItems, updateUrl, transformFunc) {
         var render = function(items) {
             if (transformFunc) {

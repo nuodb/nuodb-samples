@@ -9,7 +9,7 @@ import com.sun.jersey.api.client.ClientHandlerException;
 /**
  * Indicates a connection could not be established with the API
  */
-public class ApiConnectionException extends ApiProxyException {
+public class ApiConnectionException extends ApiException {
     private static final long serialVersionUID = 3478458917234871234L;
 
     public ApiConnectionException(ClientHandlerException ex) {

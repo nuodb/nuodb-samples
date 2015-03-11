@@ -18,7 +18,7 @@ public class WorkloadStats {
     private int workCompletionCount;
     private long totalWorkTimeMs;
     private long totalWorkCompletionTimeMs;
-
+    
     public WorkloadStats(Workload workload) {
         this.workload = workload;
     }

@@ -40,6 +40,10 @@ var Storefront = {
                 me.initControlPanelRegionsPage(cfg.pageData.regions);
                 break;
 
+            case "control-panel-tenants":
+                me.initControlPanelTenantsPage(cfg.pageData.tenants);
+                break;
+                
             case "control-panel-users":
                 me.initControlPanelUsersPage(cfg);
                 break;

@@ -5,11 +5,14 @@ package com.nuodb.storefront;
 import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -35,7 +38,9 @@ import com.nuodb.storefront.service.simulator.SimulatorService;
 import com.nuodb.storefront.service.storefront.AppInstanceInitService;
 import com.nuodb.storefront.service.storefront.HeartbeatService;
 import com.nuodb.storefront.service.storefront.StorefrontService;
-import com.nuodb.storefront.servlet.WelcomeServlet;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
 
 /**
  * Factory for creating Storefront services and schema managers. To keep code in this demo straightforward, this factory is used in lieu of dependency
@@ -48,8 +53,19 @@ public class StorefrontFactory {
     private static volatile boolean s_initializedApp = false;
     private static volatile IDbApi s_dbApi;
     private static volatile ConnInfo s_apiConnInfo;
-    private static final Logger s_logger = Logger.getLogger(WelcomeServlet.class.getName());
+    private static final Logger s_logger = Logger.getLogger(StorefrontFactory.class.getName());
+    private static final ClientConfig s_apiCfg = new DefaultClientConfig();
 
+    // Initialize API client config
+    static {
+        Map<String, Object> props = s_apiCfg.getProperties();
+        props.put(ClientConfig.PROPERTY_CONNECT_TIMEOUT, StorefrontApp.API_CONNECT_TIMEOUT_SEC * 1000);
+        props.put(ClientConfig.PROPERTY_READ_TIMEOUT, StorefrontApp.API_READ_TIMEOUT_SEC * 1000);
+
+        s_apiCfg.getSingletons().add(new JacksonJaxbJsonProvider().configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false));
+    }
+    
+    // Initialize Hibernate
     static {
         s_configuration = new Configuration();
         s_configuration.setNamingStrategy(new UpperCaseNamingStrategy());
@@ -229,6 +245,10 @@ public class StorefrontFactory {
         StorefrontDao dao = new StorefrontDao();
         dao.setSessionFactory(sessionFactory);
         return dao;
+    }
+    
+    public static Client createApiClient() {
+        return Client.create(s_apiCfg);
     }
 
     private static SessionFactory getOrCreateSessionFactory() {

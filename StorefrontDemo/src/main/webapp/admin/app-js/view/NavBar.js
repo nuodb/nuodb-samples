@@ -67,6 +67,10 @@ Ext.define('App.view.NavBar', {
         href: '/control-panel-regions',
         icon: 'ico-pin.png'
     }, {
+        title: 'Tenants',
+        href: '/control-panel-tenants',
+        icon: 'ico-tenants.png'
+    }, {
         title: 'Log',
         href: '/control-panel-log',
         icon: 'ico-log.png'

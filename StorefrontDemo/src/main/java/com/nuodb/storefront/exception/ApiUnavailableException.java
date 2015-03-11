@@ -9,7 +9,7 @@ import javax.ws.rs.core.Response.Status;
  * This typically happens when the API needs some time to connect to the underlying NuoDB domain.
  * The request may succeed if be reattempted later.
  */
-public class ApiUnavailableException extends ApiProxyException {
+public class ApiUnavailableException extends ApiException {
     private static final long serialVersionUID = 178569023789676845L;
 
     public ApiUnavailableException(Throwable e) {

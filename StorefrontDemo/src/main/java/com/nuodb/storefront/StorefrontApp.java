@@ -40,14 +40,16 @@ public class StorefrontApp {
     public static final String DEFAULT_REGION_NAME = "Unknown region";
     public static final String DEFAULT_DB_NAME = "Storefront";
     public static final String DEFAULT_DB_HOST = "localhost";
-    public static final String DEFAULT_DB_PROCESS_TAG_PREFIX = "Storefront DB=";
+    public static final String DEFAULT_DB_PROCESS_TAG_PREFIX = "demo_";
     public static final int DEFAULT_PORT = 8080;
     public static final String DEFAULT_URL = "{protocol}://{host}:{port}/{context}";
 
     public static final AppInstance APP_INSTANCE = new AppInstance(DEFAULT_REGION_NAME, true);
 
+    public static final String SESSION_KEY_PEERS = "StorefrontPeers";
+
     private static final int BENCHMARK_DURATION_MS = 10000;
-    private static final int SIMULATOR_STATS_DISPLAY_INTERVAL_MS = 5000;
+    private static final int SIMULATOR_STATS_DISPLAY_INTERVAL_MS = 5000;    
     
     static {
         //  For JSP page compilation, use Jetty compiler when available to avoid JDK dependency

@@ -2,6 +2,7 @@
 
 package com.nuodb.storefront.api;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.nuodb.storefront.StorefrontApp;
+import com.nuodb.storefront.StorefrontFactory;
+import com.nuodb.storefront.exception.DatabaseNotFoundException;
+import com.nuodb.storefront.model.dto.DbConnInfo;
 import com.nuodb.storefront.model.dto.DbFootprint;
 import com.nuodb.storefront.model.dto.RegionStats;
 import com.nuodb.storefront.model.dto.StorefrontStats;
@@ -78,12 +82,21 @@ public class StatsApi extends BaseApi {
     public DbFootprint setDbStats(@QueryParam("numRegions") Integer numRegions, @QueryParam("numHosts") Integer numHosts) {
         return getDbApi().setDbFootprint(numRegions.intValue(), numHosts.intValue());
     }
-
+    
     @GET
     @Path("/regions")
     @Produces(MediaType.APPLICATION_JSON)
     public List<RegionStats> getRegionStats() {
         return getDbApi().getRegionStats();
+    }
+    
+    @GET
+    @Path("/tenants")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<DbConnInfo> getTenantStats() {
+        List<DbConnInfo> dbs = new ArrayList<DbConnInfo>();
+        dbs.add(StorefrontFactory.getDbConnInfo());
+        return dbs;
     }
 
     protected Map<String, WorkloadStats> clearWorkloadProperty(Map<String, WorkloadStats> statsMap)
