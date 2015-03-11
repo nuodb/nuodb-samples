@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2014 NuoDB, Inc. */
+/* Copyright (c) 2013-2015 NuoDB, Inc. */
 
 /**
  * This file contains Storefront controller logic. It's all encapsulated in the "Storefront" global namespace.
@@ -10,7 +10,7 @@ var Storefront = {
 
         // Set basic app properties
         me.currency = cfg.currency;
-        me.regions = me.aggregateRegions(cfg.appInstances);
+        me.aggregateRegions(cfg.appInstances);
 
         // Initialize elements shared across pages
         me.initSearchBox();
@@ -143,47 +143,10 @@ var Storefront = {
             return (a.name < b.name) ? -1 : (a.name == b.name) ? 0 : 1;
         });
 
-        // Initialize region dropdown
-        me.initRegionSelectorMenu(regions, regionMap);
-
-        return regions;
+        me.regions = regions;
+        me.regionMap = regionMap;
     },
 
-    initRegionSelectorMenu: function(regions, regionMap) {
-        var me = this;
-
-        if ($('#region-menu').length == 0) {
-            // No menu on this page
-            return;
-        }
-
-        // Render menu template
-        me.TemplateMgr.applyTemplate('tpl-region-menu', '#region-menu', {
-            regions: regions
-        });
-
-        // Hook menu clicks
-        $('#region-menu').on('click', 'li > a', function() {
-            // Get region
-            var region = regionMap[$(this).attr('data-region')];
-
-            if (!region) {
-                setTimeout(function() {
-                    var buff = [];
-                    buff.push('To run the Storefront across multiple regions, start additional instances of the Storefront with connection strings pointed to NuoDB brokers running in other regions.');
-                    buff.push('Use NuoDB version 2.0 (or greater) to take advantage of this feature.\n\n');
-                    buff.push('See the NuoDB documentation for more information.');
-                    alert(buff.join(''));
-                }, 0);
-                return;
-            }
-
-            // Choose a random instance to navigate to
-            var instance = region.instances[Math.floor(region.instances.length * Math.random())];
-            document.location.href = instance.url + '/store-products';
-        });
-    },
-    
     initWelcomePage: function(data) {
         if (data.api) {
             var apiConnInfo = data.api;

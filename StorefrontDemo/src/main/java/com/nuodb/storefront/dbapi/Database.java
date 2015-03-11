@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2014 NuoDB, Inc. */
+/* Copyright (c) 2013-2015 NuoDB, Inc. */
 
 package com.nuodb.storefront.dbapi;
 
@@ -14,4 +14,5 @@ public class Database {
     public String password;
     public Object template;  // string on POST/PUT, map on GET
     public Map<String, String> variables;
+    public Map<String, Map<String, String>> tagConstraints;
 }

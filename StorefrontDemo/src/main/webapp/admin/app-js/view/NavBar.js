@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2014 NuoDB, Inc. */
+/* Copyright (c) 2013-2015 NuoDB, Inc. */
 
 /**
  * @class App.view.NavBar
@@ -17,33 +17,11 @@ Ext.define('App.view.NavBar', {
         href: '/welcome',
         icon: 'ico-home.png'
     }, {
+        title: 'Store'
+    }, {
         title: 'Storefront Website',
         href: '/store-products',
         icon: 'ico-cart.png'
-    }, {
-        title: 'Guided Tours',
-    }, {
-        title: 'Scale Out Performance',
-        href: '/tour-scale-out',
-        prefix: '1.'
-    }, {
-        title: 'Continuous Availability',
-        href: '/tour-continuous-availability',
-        prefix: '2.'
-    }, {
-        title: 'Geo-Distribution',
-        href: '/tour-geo-distribution',
-        prefix: '3.'
-    }, {
-        title: 'Multi-Tenant',
-        href: '/tour-multi-tenant',
-        prefix: '4.'
-    }, {
-        title: 'No-Knobs Administration',
-        href: '/tour-no-knobs-admin',
-        prefix: '5.'
-    }, {
-        title: 'Control Panel'
     }, {
         title: 'Products',
         href: '/control-panel-products',
@@ -52,6 +30,30 @@ Ext.define('App.view.NavBar', {
         title: 'Simulated Users',
         href: '/control-panel-users',
         icon: 'ico-users.png'
+    }, {
+        title: 'Guided Tours',
+    }, {
+        title: 'Scale Out Performance',
+        href: '/tour-scale-out',
+        prefix: '1.'
+    }, {
+        title: 'Multi-Tenant',
+        href: '/tour-multi-tenant',
+        prefix: '2.'
+    }, {
+        title: 'Geo-Distribution',
+        href: '/tour-geo-distribution',
+        prefix: '3.'
+    }, {
+        title: 'No-Knobs Administration',
+        href: '/tour-no-knobs-admin',
+        prefix: '4.'
+    }, {
+        title: 'Continuous Availability',
+        href: '/tour-continuous-availability',
+        prefix: '5.'
+    }, {
+        title: 'Control Panel'
     }, {
         title: 'Database',
         href: '/control-panel-database',

@@ -1,4 +1,4 @@
-<%-- Copyright (c) 2013-2014 NuoDB, Inc. --%>
+<%-- Copyright (c) 2013-2015 NuoDB, Inc. --%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
@@ -50,7 +50,7 @@
         				</tr>
     					<tr>
         					<td>API URL:</td>
-        					<td><a href="{{apiUrl}}" target="_blank">{{apiConnInfo.url}}</a></td>
+        					<td><a href="{{apiConnInfo.url}}/databases/{{db.name}}" target="_blank">{{apiConnInfo.url}}</a></td>
         				</tr>
 						<tr>
         					<td>API username:</td>
@@ -88,6 +88,18 @@
         							<td>{{value}}</td>
         						</tr>
         					{{/eachInMap}}
+							{{#eachInMap db.tagConstraints}}
+        						<tr>
+        							<td>Tag constraints for {{key}}:</td>
+        							<td>
+										<ul>
+											{{#eachInMap value}}
+												<li>{{key}} = {{value}}</li>
+											{{/eachInMap}}
+										</ul>
+									</td>
+        						</tr>
+							{{/eachInMap}}
         				</tbody>
         			</table>    
 				{{/if}}            

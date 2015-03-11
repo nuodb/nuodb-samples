@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2014 NuoDB, Inc. */
+/* Copyright (c) 2013-2015 NuoDB, Inc. */
 
 package com.nuodb.storefront.dal;
 
@@ -25,28 +25,42 @@ public class DataSourceProvider implements ConnectionProvider, Configurable {
     private static final long serialVersionUID = 7906975777950509725L;
     private static volatile DataSource dataSource;
     private static int isolationLevel = 5;
+    private static final String PROP_LOGIN_TIMEOUT = "loginTimeout";
 
     @Override
     public synchronized void configure(@SuppressWarnings("rawtypes") Map props) throws HibernateException {
+        int loginTimeout = 0;
+
         try {
             // Consolidate data source properties
             Properties dsProps = new Properties();
             for (Object key : props.keySet()) {
                 String keyStr = key.toString();
+
                 if (keyStr.startsWith(Environment.CONNECTION_PREFIX)) {
                     // Strip out "hibernate.connection" prefix
                     String dsKey = keyStr.substring(Environment.CONNECTION_PREFIX.length() + 1);
                     String dsVal = props.get(key).toString();
-                    dsProps.put(dsKey, dsVal);
-                    if (dsKey.equals("isolation")) {
-                        isolationLevel = Integer.parseInt(dsVal);
+                    if (dsKey.equals(PROP_LOGIN_TIMEOUT)) {
+                        loginTimeout = Integer.parseInt(dsVal);
+                    } else {
+                        dsProps.put(dsKey, dsVal);
+                        if (dsKey.equals("isolation")) {
+                            isolationLevel = Integer.parseInt(dsVal);
+                        }
                     }
                 }
             }
 
             dataSource = new com.nuodb.jdbc.DataSource(dsProps);
         } catch (RuntimeException e) {
-            throw new RuntimeException("Could not configure NuoDB data source", e);
+            throw new RuntimeException("Unable to configure NuoDB data source", e);
+        }
+
+        try {
+            dataSource.setLoginTimeout(loginTimeout);
+        } catch (SQLException e) {
+            throw new RuntimeException("Unable to set NuoDB data source login timeout", e);
         }
     }
 

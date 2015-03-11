@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2014 NuoDB, Inc. */
+/* Copyright (c) 2013-2015 NuoDB, Inc. */
 
 package com.nuodb.storefront;
 
@@ -34,11 +34,13 @@ public class StorefrontApp {
     public static final int DEFAULT_ANALYTIC_MAX_AGE = 60 * 30;// 30 min
     public static final int MAX_DB_INIT_WAIT_TIME_SEC = 5;
     public static final int MAX_API_UNAVAILABLE_RETRY_TIME_SEC = 3;
+    public static final int API_CONNECT_TIMEOUT_SEC = 10;
+    public static final int API_READ_TIMEOUT_SEC = 10;
 
     public static final String DEFAULT_REGION_NAME = "Unknown region";
     public static final String DEFAULT_DB_NAME = "Storefront";
     public static final String DEFAULT_DB_HOST = "localhost";
-    public static final String DEFAULT_DB_PROCESS_TAG_PREFIX = "Storefront DB=";
+    public static final String DEFAULT_DB_PROCESS_TAG_PREFIX = "demo_";
     public static final int DEFAULT_PORT = 8080;
     public static final String DEFAULT_URL = "{protocol}://{host}:{port}/{context}";
 

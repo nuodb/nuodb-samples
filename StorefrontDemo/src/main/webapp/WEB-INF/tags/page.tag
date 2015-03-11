@@ -1,4 +1,4 @@
-<%-- Copyright (c) 2013-2014 NuoDB, Inc. --%>
+<%-- Copyright (c) 2013-2015 NuoDB, Inc. --%>
 <%@tag description="Page template" pageEncoding="UTF-8" import="com.nuodb.storefront.StorefrontApp,com.nuodb.storefront.model.dto.PageConfig,com.nuodb.storefront.servlet.BaseServlet"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 <%@attribute name="showHeader" required="false" type="java.lang.Boolean" %>
@@ -24,7 +24,7 @@
         <!-- Top nav bar -->
         <div id="top-bar" class="navbar">
             <div class="navbar-inner">
-                <label id="region-menu" class="dropdown"></label>
+                <label id="region-menu"></label>
                 
                 <form class="navbar-search search text-center" method="GET" action="store-products">
                     <input type="text" id="search" class="search-query" name="search" placeholder="Search" />
@@ -54,7 +54,7 @@
 
         <% if (showHeader == null || showHeader == true) { %>
         <!-- Footer  -->
-        <div class="footer">Copyright &copy; 2013-2014 NuoDB, Inc. All rights reserved.</div>
+        <div class="footer">Copyright &copy; 2013-2015 NuoDB, Inc. All rights reserved.</div>
         <% } %>
     </div>
     

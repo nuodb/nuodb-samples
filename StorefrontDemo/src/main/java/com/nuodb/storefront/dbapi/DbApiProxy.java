@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2014 NuoDB, Inc. */
+/* Copyright (c) 2013-2015 NuoDB, Inc. */
 
 package com.nuodb.storefront.dbapi;
 
@@ -6,8 +6,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -44,14 +42,17 @@ import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.api.uri.UriComponent;
+import com.sun.jersey.api.uri.UriComponent.Type;
 import com.sun.jersey.core.util.Base64;
 
 public class DbApiProxy implements IDbApi {
     private static final ClientConfig s_cfg = new DefaultClientConfig();
     private static final Logger s_logger = Logger.getLogger(DbApiProxy.class.getName());
 
-    private static final String DBVAR_TE_HOST_TAG = "TE_HOST_TAG";
-    private static final String DBVAR_SM_HOST_TAG = "SM_HOST_TAG";
+    private static final String DBVAR_TAG_CONSTRAINT_GROUP_TE = "TEs";
+    private static final String DBVAR_TAG_CONSTRAINT_GROUP_SM = "SMs";
+    private static final String DBVAR_TAG_EXISTS_CONSTRAINT = "ex:";
     private static final String DBVAR_SM_MIN = "SM_MIN";
     private static final String DBVAR_SM_MAX = "SM_MAX";
     private static final String DBVAR_TE_MIN = "TE_MIN";
@@ -69,6 +70,10 @@ public class DbApiProxy implements IDbApi {
     private final DbConnInfo dbConnInfo;
 
     static {
+        Map<String, Object> props = s_cfg.getProperties();
+        props.put(ClientConfig.PROPERTY_CONNECT_TIMEOUT, StorefrontApp.API_CONNECT_TIMEOUT_SEC * 1000);
+        props.put(ClientConfig.PROPERTY_READ_TIMEOUT, StorefrontApp.API_READ_TIMEOUT_SEC * 1000);
+
         s_cfg.getSingletons().add(new JacksonJaxbJsonProvider().configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false));
     }
 
@@ -83,21 +88,21 @@ public class DbApiProxy implements IDbApi {
         info.setPassword(null);
         return info;
     }
-    
+
     @Override
     public void testConnection() {
         try {
             buildClient("/templates").get(Object.class);
         } catch (Exception e) {
             throw toApiException(e);
-        }        
+        }
     }
 
     @Override
     public Database getDb() throws ApiProxyException {
         try {
             String dbName = dbConnInfo.getDbName();
-            return buildClient("/databases/" + urlEncode(dbName)).get(Database.class);
+            return buildClient("/databases/" + urlEncodePathSegment(dbName)).get(Database.class);
         } catch (ClientHandlerException e) {
             // DB not found
             return null;
@@ -152,7 +157,10 @@ public class DbApiProxy implements IDbApi {
         try {
             buildClient("/processes/" + uid).delete();
         } catch (Exception e) {
-            throw toApiException(e);
+            ApiProxyException ape = toApiException(e);
+            if (ape.getErrorCode() != Status.NOT_FOUND) {
+                throw ape;
+            }
         }
     }
 
@@ -335,7 +343,7 @@ public class DbApiProxy implements IDbApi {
                     buildClient("/databases/").post(Database.class, database);
                 } else if (updateDb) {
                     s_logger.info("Updating DB '" + database.name + "' with template '" + database.template + "' and vars " + database.variables);
-                    buildClient("/databases/" + urlEncode(database.name)).put(Database.class, database);
+                    buildClient("/databases/" + urlEncodePathSegment(database.name)).put(Database.class, database);
                 }
             }
 
@@ -367,7 +375,14 @@ public class DbApiProxy implements IDbApi {
         if (host.tags.remove(tagName) != null) {
             s_logger.info("Removing tag '" + tagName + "' from host " + host.address + " (id=" + host.id + ")");
 
-            buildClient("/hosts/" + host.id + "/tags/" + urlEncode(tagName)).delete();
+            try {
+                buildClient("/hosts/" + host.id + "/tags/" + urlEncodePathSegment(tagName)).delete();
+            } catch (Exception e) {
+                ApiProxyException ape = toApiException(e);
+                if (ape.getErrorCode() != Status.NOT_FOUND) {
+                    throw ape;
+                }
+            }
         }
 
         String dbName = dbConnInfo.getDbName();
@@ -386,7 +401,7 @@ public class DbApiProxy implements IDbApi {
         String dbName = dbConnInfo.getDbName();
         Set<String> ipAddresses = NetworkUtil.getLocalIpAddresses();
 
-        // Look for best match: Host with SM running in our region
+        // Look for best match: Host running SM and sharing our IP and region
         HomeHostInfo smRegionMatch = null;
         HomeHostInfo ipRegionMatch = null;
         HomeHostInfo ipMatch = null;
@@ -406,7 +421,7 @@ public class DbApiProxy implements IDbApi {
                     if (ipAddresses.contains(host.ipaddress)) {
                         ipRegionMatch = match;
                         if (smRegionMatch == ipRegionMatch) {
-                            // Best match: host running SM and sharing our IP and region
+                            // Found best match
                             return smRegionMatch;
                         }
                     }
@@ -487,15 +502,14 @@ public class DbApiProxy implements IDbApi {
 
     @SuppressWarnings("unchecked")
     protected boolean fixDatabaseTemplate(Database database, int targetRegions, int targetHosts, HomeHostInfo homeHostInfo) {
-        // Initialize DB variable map
-        Map<String, String> vars = new HashMap<String, String>();
-
-        // Specify host tags for SMs and TEs
+        // Initialize DB tag constraint map (to specify host tags for SMs and TEs)
+        Map<String, Map<String, String>> tagConstraints = new HashMap<String, Map<String, String>>();
         String dbProcessTag = dbConnInfo.getDbProcessTag();
-        vars.put(DBVAR_SM_HOST_TAG, dbProcessTag);
-        vars.put(DBVAR_TE_HOST_TAG, dbProcessTag);
+        tagConstraints.put(DBVAR_TAG_CONSTRAINT_GROUP_SM, buildTagMustExistConstraint(dbProcessTag));
+        tagConstraints.put(DBVAR_TAG_CONSTRAINT_GROUP_TE, buildTagMustExistConstraint(dbProcessTag));
 
         // Determine which template to use, and add template-specific variables
+        Map<String, String> vars = new HashMap<String, String>();
         String templateName;
         if (targetRegions > 1) {
             templateName = TEMPLATE_GEO_DISTRIBUTED;
@@ -524,7 +538,7 @@ public class DbApiProxy implements IDbApi {
         int changeCount = 0;
         String oldTemplateName = null;
         if (database.template instanceof Map) {
-            oldTemplateName = ((Map<String, String>)database.template).get("name");
+            oldTemplateName = ((Map<String, String>) database.template).get("name");
         } else if (database.template != null) {
             oldTemplateName = String.valueOf(database.template);
         }
@@ -537,41 +551,39 @@ public class DbApiProxy implements IDbApi {
         if (database.variables == null) {
             database.variables = new HashMap<String, String>();
         }
-        for (Map.Entry<String, String> varPair : vars.entrySet()) {
-            if (varPair.getValue() == null) {
-                if (database.variables.remove(varPair.getKey()) != null) {
-                    changeCount++;
-                }
-            } else {
-                if (!varPair.getValue().equals(database.variables.put(varPair.getKey(), varPair.getValue()))) {
-                    changeCount++;
-                }
-            }
+        if (database.tagConstraints == null) {
+            database.tagConstraints = new HashMap<String, Map<String, String>>();
         }
+        changeCount += applyVariables(database.variables, vars);
+        changeCount += applyMapVariables(database.tagConstraints, tagConstraints);
 
         return changeCount > 0;
     }
-    
+
     protected ApiProxyException toApiException(Exception e) {
+        if (e instanceof ApiProxyException) {
+            return (ApiProxyException) e;
+        }
+
         if (e instanceof ClientHandlerException) {
-            return new ApiConnectionException((ClientHandlerException)e);
+            return new ApiConnectionException((ClientHandlerException) e);
         }
 
         if (e instanceof UniformInterfaceException) {
-            ClientResponse response = ((UniformInterfaceException)e).getResponse();
+            ClientResponse response = ((UniformInterfaceException) e).getResponse();
             String msg = readResponseMessage(response);
             Status status = Status.fromStatusCode(response.getStatus());
 
             switch (status) {
                 case UNAUTHORIZED:
                     return new ApiUnauthorizedException(e);
-                    
+
                 case BAD_REQUEST:
                     if (msg.startsWith("Domain is not connected")) {
-                        return new ApiUnavailableException(e);                        
+                        return new ApiUnavailableException(e);
                     }
                     // Otherwise fall through
-                    
+
                 default:
                     return new ApiProxyException(status, msg, e);
             }
@@ -579,7 +591,7 @@ public class DbApiProxy implements IDbApi {
 
         return new ApiProxyException(Status.INTERNAL_SERVER_ERROR, e.getMessage(), e);
     }
-    
+
     private static String readResponseMessage(ClientResponse resp)
     {
         try {
@@ -597,12 +609,50 @@ public class DbApiProxy implements IDbApi {
             return null;
         }
     }
-    
-    private static String urlEncode(String str) {
-        try {
-            return URLEncoder.encode(str, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+
+    private static String urlEncodePathSegment(String str) {
+        return UriComponent.encode(str, Type.PATH_SEGMENT);
+    }
+
+    private static Map<String, String> buildTagMustExistConstraint(String tagName) {
+        Map<String, String> constraints = new HashMap<String, String>();
+        constraints.put(tagName, DBVAR_TAG_EXISTS_CONSTRAINT);
+        return constraints;
+    }
+
+    private static int applyVariables(Map<String, String> src, Map<String, String> vars) {
+        int changeCount = 0;
+        for (Map.Entry<String, String> varPair : vars.entrySet()) {
+            if (varPair.getValue() == null) {
+                if (src.remove(varPair.getKey()) != null) {
+                    changeCount++;
+                }
+            } else {
+                if (!varPair.getValue().equals(src.put(varPair.getKey(), varPair.getValue()))) {
+                    changeCount++;
+                }
+            }
         }
+        return changeCount;
+    }
+
+    private static int applyMapVariables(Map<String, Map<String, String>> src, Map<String, Map<String, String>> vars) {
+        int changeCount = 0;
+        for (Map.Entry<String, Map<String, String>> varPair : vars.entrySet()) {
+            String key = varPair.getKey();
+            Map<String, String> value = varPair.getValue();
+
+            if (value == null) {
+                if (src.remove(value) != null) {
+                    changeCount++;
+                }
+            } else if (!src.containsKey(key)) {
+                src.put(key, value);
+                changeCount += value.size();
+            } else {
+                changeCount += applyVariables(src.get(key), value);
+            }
+        }
+        return changeCount;
     }
 }

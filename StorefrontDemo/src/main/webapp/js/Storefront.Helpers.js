@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2014 NuoDB, Inc. */
+/* Copyright (c) 2013-2015 NuoDB, Inc. */
 
 /**
  * This file defines custom formatting "helpers" for use with the Handlebars template system, as well as other prototype and global methods.
@@ -70,12 +70,12 @@ Handlebars.registerHelper('priceFormat', function(price) {
     switch (Storefront.currency) {
         case 'BRITISH_POUND':
             symbol = '£';
-            price /= 1.57;
+            price /= 1.5;
             break;
 
         case 'EURO':
             symbol = '€';
-            price /= 1.25;
+            price /= 1.1;
             break;
 
         default:
