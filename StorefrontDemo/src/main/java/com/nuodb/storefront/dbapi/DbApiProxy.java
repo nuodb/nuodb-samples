@@ -50,8 +50,9 @@ public class DbApiProxy implements IDbApi {
     private static final ClientConfig s_cfg = new DefaultClientConfig();
     private static final Logger s_logger = Logger.getLogger(DbApiProxy.class.getName());
 
-    private static final String DBVAR_TE_HOST_TAG = "TE_HOST_TAG";
-    private static final String DBVAR_SM_HOST_TAG = "SM_HOST_TAG";
+    private static final String DBVAR_TAG_CONSTRAINT_GROUP_TE = "TEs";
+    private static final String DBVAR_TAG_CONSTRAINT_GROUP_SM = "SMs";
+    private static final String DBVAR_TAG_EXISTS_CONSTRAINT = "ex:";
     private static final String DBVAR_SM_MIN = "SM_MIN";
     private static final String DBVAR_SM_MAX = "SM_MAX";
     private static final String DBVAR_TE_MIN = "TE_MIN";
@@ -501,15 +502,14 @@ public class DbApiProxy implements IDbApi {
 
     @SuppressWarnings("unchecked")
     protected boolean fixDatabaseTemplate(Database database, int targetRegions, int targetHosts, HomeHostInfo homeHostInfo) {
-        // Initialize DB variable map
-        Map<String, String> vars = new HashMap<String, String>();
-
-        // Specify host tags for SMs and TEs
+        // Initialize DB tag constraint map (to specify host tags for SMs and TEs)
+        Map<String, Map<String, String>> tagConstraints = new HashMap<String, Map<String, String>>();
         String dbProcessTag = dbConnInfo.getDbProcessTag();
-        vars.put(DBVAR_SM_HOST_TAG, dbProcessTag);
-        vars.put(DBVAR_TE_HOST_TAG, dbProcessTag);
+        tagConstraints.put(DBVAR_TAG_CONSTRAINT_GROUP_SM, buildTagMustExistConstraint(dbProcessTag));
+        tagConstraints.put(DBVAR_TAG_CONSTRAINT_GROUP_TE, buildTagMustExistConstraint(dbProcessTag));
 
         // Determine which template to use, and add template-specific variables
+        Map<String, String> vars = new HashMap<String, String>();
         String templateName;
         if (targetRegions > 1) {
             templateName = TEMPLATE_GEO_DISTRIBUTED;
@@ -538,7 +538,7 @@ public class DbApiProxy implements IDbApi {
         int changeCount = 0;
         String oldTemplateName = null;
         if (database.template instanceof Map) {
-            oldTemplateName = ((Map<String, String>)database.template).get("name");
+            oldTemplateName = ((Map<String, String>) database.template).get("name");
         } else if (database.template != null) {
             oldTemplateName = String.valueOf(database.template);
         }
@@ -551,39 +551,33 @@ public class DbApiProxy implements IDbApi {
         if (database.variables == null) {
             database.variables = new HashMap<String, String>();
         }
-        for (Map.Entry<String, String> varPair : vars.entrySet()) {
-            if (varPair.getValue() == null) {
-                if (database.variables.remove(varPair.getKey()) != null) {
-                    changeCount++;
-                }
-            } else {
-                if (!varPair.getValue().equals(database.variables.put(varPair.getKey(), varPair.getValue()))) {
-                    changeCount++;
-                }
-            }
+        if (database.tagConstraints == null) {
+            database.tagConstraints = new HashMap<String, Map<String, String>>();
         }
+        changeCount += applyVariables(database.variables, vars);
+        changeCount += applyMapVariables(database.tagConstraints, tagConstraints);
 
         return changeCount > 0;
     }
 
     protected ApiProxyException toApiException(Exception e) {
         if (e instanceof ApiProxyException) {
-            return (ApiProxyException)e;
+            return (ApiProxyException) e;
         }
-        
+
         if (e instanceof ClientHandlerException) {
-            return new ApiConnectionException((ClientHandlerException)e);
+            return new ApiConnectionException((ClientHandlerException) e);
         }
 
         if (e instanceof UniformInterfaceException) {
-            ClientResponse response = ((UniformInterfaceException)e).getResponse();
+            ClientResponse response = ((UniformInterfaceException) e).getResponse();
             String msg = readResponseMessage(response);
             Status status = Status.fromStatusCode(response.getStatus());
 
             switch (status) {
                 case UNAUTHORIZED:
                     return new ApiUnauthorizedException(e);
-                    
+
                 case BAD_REQUEST:
                     if (msg.startsWith("Domain is not connected")) {
                         return new ApiUnavailableException(e);
@@ -618,5 +612,47 @@ public class DbApiProxy implements IDbApi {
 
     private static String urlEncodePathSegment(String str) {
         return UriComponent.encode(str, Type.PATH_SEGMENT);
+    }
+
+    private static Map<String, String> buildTagMustExistConstraint(String tagName) {
+        Map<String, String> constraints = new HashMap<String, String>();
+        constraints.put(tagName, DBVAR_TAG_EXISTS_CONSTRAINT);
+        return constraints;
+    }
+
+    private static int applyVariables(Map<String, String> src, Map<String, String> vars) {
+        int changeCount = 0;
+        for (Map.Entry<String, String> varPair : vars.entrySet()) {
+            if (varPair.getValue() == null) {
+                if (src.remove(varPair.getKey()) != null) {
+                    changeCount++;
+                }
+            } else {
+                if (!varPair.getValue().equals(src.put(varPair.getKey(), varPair.getValue()))) {
+                    changeCount++;
+                }
+            }
+        }
+        return changeCount;
+    }
+
+    private static int applyMapVariables(Map<String, Map<String, String>> src, Map<String, Map<String, String>> vars) {
+        int changeCount = 0;
+        for (Map.Entry<String, Map<String, String>> varPair : vars.entrySet()) {
+            String key = varPair.getKey();
+            Map<String, String> value = varPair.getValue();
+
+            if (value == null) {
+                if (src.remove(value) != null) {
+                    changeCount++;
+                }
+            } else if (!src.containsKey(key)) {
+                src.put(key, value);
+                changeCount += value.size();
+            } else {
+                changeCount += applyVariables(src.get(key), value);
+            }
+        }
+        return changeCount;
     }
 }

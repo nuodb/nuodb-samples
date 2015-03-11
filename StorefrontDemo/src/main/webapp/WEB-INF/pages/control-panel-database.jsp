@@ -88,6 +88,18 @@
         							<td>{{value}}</td>
         						</tr>
         					{{/eachInMap}}
+							{{#eachInMap db.tagConstraints}}
+        						<tr>
+        							<td>Tag constraints for {{key}}:</td>
+        							<td>
+										<ul>
+											{{#eachInMap value}}
+												<li>{{key}} = {{value}}</li>
+											{{/eachInMap}}
+										</ul>
+									</td>
+        						</tr>
+							{{/eachInMap}}
         				</tbody>
         			</table>    
 				{{/if}}            
