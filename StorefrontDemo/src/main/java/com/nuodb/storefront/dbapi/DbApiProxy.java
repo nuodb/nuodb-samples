@@ -516,7 +516,7 @@ public class DbApiProxy implements IDbApi {
         int changeCount = 0;
         String oldTemplateName = null;
         if (database.template instanceof Map) {
-            oldTemplateName = ((Map<String, String>)database.template).get("name");
+            oldTemplateName = ((Map<String, String>) database.template).get("name");
         } else if (database.template != null) {
             oldTemplateName = String.valueOf(database.template);
         }
@@ -537,11 +537,11 @@ public class DbApiProxy implements IDbApi {
 
         return changeCount > 0;
     }
-
+    
     private static String urlEncodePathSegment(String str) {
         return UriComponent.encode(str, Type.PATH_SEGMENT);
     }
-    
+
     private static Map<String, String> buildTagMustExistConstraint(String tagName) {
         Map<String, String> constraints = new HashMap<String, String>();
         constraints.put(tagName, DBVAR_TAG_EXISTS_CONSTRAINT);
