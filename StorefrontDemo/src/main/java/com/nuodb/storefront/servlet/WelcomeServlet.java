@@ -3,15 +3,12 @@
 package com.nuodb.storefront.servlet;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -28,10 +25,8 @@ import com.nuodb.storefront.exception.ApiUnavailableException;
 import com.nuodb.storefront.exception.DatabaseNotFoundException;
 import com.nuodb.storefront.model.dto.ConnInfo;
 import com.nuodb.storefront.model.dto.DbConnInfo;
-import com.nuodb.storefront.model.dto.StorefrontStatsReport;
 import com.nuodb.storefront.model.entity.Customer;
 import com.nuodb.storefront.model.type.MessageSeverity;
-import com.sun.jersey.api.client.Client;
 
 public class WelcomeServlet extends ControlPanelProductsServlet {
     private static final long serialVersionUID = 4369262156023258885L;
@@ -43,10 +38,6 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
         Pair<String, Object> prop = doHealthCheck(req);
         if (prop != null) {
             pageData.put(prop.getKey(), prop.getValue());
-        }
-
-        if (getMessageCount(getMessages(req), MessageSeverity.ERROR) == 0) {
-            pingPeers(req);
         }
 
         showPage(req, resp, "Welcome", "welcome", pageData, new Customer());
@@ -79,9 +70,23 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
             connInfo.setUrl(req.getParameter("url"));
             connInfo.setUsername(req.getParameter("username"));
             connInfo.setPassword(req.getParameter("password"));
-            
+            StorefrontFactory.setDbConnInfo(connInfo);
 
+            getDbApi().fixDbSetup(true);
 
+            // Wait until API acknowledges the DB exists
+            for (int secondsWaited = 0; secondsWaited < StorefrontApp.MAX_DB_INIT_WAIT_TIME_SEC; secondsWaited++) {
+                try {
+                    getDbApi().fixDbSetup(false);
+                    break;
+                } catch (DatabaseNotFoundException e) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ie) {
+                        break;
+                    }
+                }
+            }
         }
 
         super.doPostAction(req, resp, btnAction);
@@ -147,36 +152,5 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
         }
 
         return null;
-    }
-
-    protected void pingPeers(HttpServletRequest req) {
-        @SuppressWarnings("unchecked")
-        Set<URI> peers = (Set<URI>)req.getSession().getAttribute(StorefrontApp.SESSION_KEY_PEERS);
-
-        if (peers != null) {
-            req.getSession().removeAttribute(StorefrontApp.SESSION_KEY_PEERS);
-
-            if (!peers.isEmpty()) {
-                Client client = StorefrontFactory.createApiClient();
-
-                for (URI peer : peers) {
-                    String peerUrl = peer.toString();
-                    if (!peerUrl.endsWith("/")) {
-                        peerUrl += "/";
-                    }
-                    peerUrl += "api/stats";
-
-                    try {
-                        StorefrontStatsReport stats = client.resource(peerUrl)
-                                .type(MediaType.APPLICATION_JSON)
-                                .get(StorefrontStatsReport.class);
-                        addMessage(req, MessageSeverity.INFO, "Successfully contacted peer Storefront at [" + peer + "] in the " + stats.getAppInstance().getRegion() + " region.");
-                    } catch (Exception e) {
-                        ApiException ae = ApiException.toApiException(e);
-                        addMessage(req, MessageSeverity.WARNING, "Failed to contact peer Storefront [" + peer + "]: " + ae.getMessage());
-                    }
-                }
-            }
-        }
     }
 }

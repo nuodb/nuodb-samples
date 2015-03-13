@@ -17,8 +17,7 @@
         <param-value>false</param-value> </context-param> -->
 
     <welcome-file-list>
-        <welcome-file>default</welcome-file> <!-- for Storefront app -->
-        <welcome-file>index.jsp</welcome-file> <!-- for admin app -->
+        <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
 
     <!-- Lifecycle listeners -->
@@ -53,10 +52,6 @@
             <param-value>true</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
-    </servlet>
-    <servlet>
-        <servlet-name>storefront-default</servlet-name>
-        <servlet-class>com.nuodb.storefront.servlet.DefaultServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>storefront-welcome</servlet-name>
@@ -127,10 +122,6 @@
     <servlet-mapping>
         <servlet-name>jersey-serlvet</servlet-name>
         <url-pattern>/api/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>storefront-default</servlet-name>
-        <url-pattern>/default</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>storefront-welcome</servlet-name>

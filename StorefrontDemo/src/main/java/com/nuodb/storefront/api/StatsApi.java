@@ -15,7 +15,6 @@ import javax.ws.rs.core.MediaType;
 
 import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.StorefrontFactory;
-import com.nuodb.storefront.exception.DatabaseNotFoundException;
 import com.nuodb.storefront.model.dto.DbConnInfo;
 import com.nuodb.storefront.model.dto.DbFootprint;
 import com.nuodb.storefront.model.dto.RegionStats;

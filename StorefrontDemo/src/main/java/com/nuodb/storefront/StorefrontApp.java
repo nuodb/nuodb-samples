@@ -46,8 +46,6 @@ public class StorefrontApp {
 
     public static final AppInstance APP_INSTANCE = new AppInstance(DEFAULT_REGION_NAME, true);
 
-    public static final String SESSION_KEY_PEERS = "StorefrontPeers";
-
     private static final int BENCHMARK_DURATION_MS = 10000;
     private static final int SIMULATOR_STATS_DISPLAY_INTERVAL_MS = 5000;    
     
