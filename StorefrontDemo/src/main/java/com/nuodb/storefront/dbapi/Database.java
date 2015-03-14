@@ -13,6 +13,7 @@ public class Database {
     public String username;
     public String password;
     public Object template;  // string on POST/PUT, map on GET
+    public Map<String, String> options;
     public Map<String, String> variables;
     public Map<String, Map<String, String>> tagConstraints;
 }

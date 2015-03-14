@@ -82,19 +82,33 @@
             						{{#if db.ismet}}<span class="label label-success">Yes</span>{{else}}<span class="label label-important">No</span>{{/if}}
             					</td>
             				</tr>
-        					{{#eachInMap db.variables}}
-        						<tr>
-        							<td>{{key}}:</td>
-        							<td>{{value}}</td>
-        						</tr>
-        					{{/eachInMap}}
+       						<tr>
+       							<td>Database variables:</td>
+       							<td>
+									{{#eachInMap db.variables}}
+										<ul>
+											<li><code>{{key}}</code> = <code>{{value}}</code></li>
+										</ul>
+        							{{/eachInMap}}
+								</td>
+        					</tr>
+       						<tr>
+       							<td>Database options:</td>
+       							<td>
+									{{#eachInMap db.options}}
+										<ul>
+											<li><code>{{key}}</code> = <code>{{value}}</code></li>
+										</ul>
+        							{{/eachInMap}}
+								</td>
+        					</tr>
 							{{#eachInMap db.tagConstraints}}
         						<tr>
         							<td>Tag constraints for {{key}}:</td>
         							<td>
 										<ul>
 											{{#eachInMap value}}
-												<li>{{key}} = {{value}}</li>
+												<li><code>{{key}}</code> = <code>{{value}}</code></li>
 											{{/eachInMap}}
 										</ul>
 									</td>

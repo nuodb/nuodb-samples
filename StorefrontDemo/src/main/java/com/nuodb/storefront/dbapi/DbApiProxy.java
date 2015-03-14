@@ -49,6 +49,8 @@ public class DbApiProxy implements IDbApi {
     private static final String TEMPLATE_MULTI_HOST = "Multi Host";
     private static final String TEMPLATE_SINGLE_HOST = "Single Host";
 
+    private static final String OPTIONS_PING_TIMEOUT = "ping-timeout";
+
     private static final String PROCESS_TYPE_TE = "TE";
     private static final String PROCESS_TYPE_SM = "SM";
 
@@ -516,7 +518,7 @@ public class DbApiProxy implements IDbApi {
         int changeCount = 0;
         String oldTemplateName = null;
         if (database.template instanceof Map) {
-            oldTemplateName = ((Map<String, String>) database.template).get("name");
+            oldTemplateName = ((Map<String, String>)database.template).get("name");
         } else if (database.template != null) {
             oldTemplateName = String.valueOf(database.template);
         }
@@ -535,9 +537,19 @@ public class DbApiProxy implements IDbApi {
         changeCount += applyVariables(database.variables, vars);
         changeCount += applyMapVariables(database.tagConstraints, tagConstraints);
 
+        // Apply options
+        if (database.options == null) {
+            database.options = new HashMap<String, String>();
+        }
+        Map<String, String> targetOptions = new HashMap<String, String>();
+        if (StorefrontApp.DB_PING_TIMEOUT_SEC > 0) {
+            targetOptions.put(OPTIONS_PING_TIMEOUT, Integer.toString(StorefrontApp.DB_PING_TIMEOUT_SEC));
+        }
+        changeCount += applyVariables(database.options, targetOptions);
+
         return changeCount > 0;
     }
-    
+
     private static String urlEncodePathSegment(String str) {
         return UriComponent.encode(str, Type.PATH_SEGMENT);
     }
