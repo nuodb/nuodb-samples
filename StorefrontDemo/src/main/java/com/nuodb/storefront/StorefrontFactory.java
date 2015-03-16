@@ -32,6 +32,7 @@ import com.nuodb.storefront.model.dto.DbConnInfo;
 import com.nuodb.storefront.service.IDataGeneratorService;
 import com.nuodb.storefront.service.IHeartbeatService;
 import com.nuodb.storefront.service.ISimulatorService;
+import com.nuodb.storefront.service.IStorefrontPeerService;
 import com.nuodb.storefront.service.IStorefrontService;
 import com.nuodb.storefront.service.datagen.DataGeneratorService;
 import com.nuodb.storefront.service.simulator.SimulatorService;
@@ -50,6 +51,7 @@ public class StorefrontFactory {
     private static final Configuration s_configuration;
     private static volatile SessionFactory s_sessionFactory;
     private static volatile ISimulatorService s_simulator;
+    private static volatile IHeartbeatService s_heartbeater;
     private static volatile boolean s_initializedApp = false;
     private static volatile IDbApi s_dbApi;
     private static volatile ConnInfo s_apiConnInfo;
@@ -64,7 +66,7 @@ public class StorefrontFactory {
 
         s_apiCfg.getSingletons().add(new JacksonJaxbJsonProvider().configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false));
     }
-    
+
     // Initialize Hibernate
     static {
         s_configuration = new Configuration();
@@ -145,7 +147,7 @@ public class StorefrontFactory {
             }
         }
     }
-    
+
     public static ConnInfo getApiConnInfo() {
         synchronized (s_configuration) {
             if (s_apiConnInfo == null) {
@@ -161,7 +163,7 @@ public class StorefrontFactory {
         }
         return s_apiConnInfo;
     }
-    
+
     public static void setApiConnInfo(ConnInfo info) {
         synchronized (s_configuration) {
             s_apiConnInfo = new ConnInfo(info);
@@ -237,8 +239,17 @@ public class StorefrontFactory {
         return createStorefrontDao(getOrCreateSessionFactory());
     }
 
-    public static IHeartbeatService createHeartbeatService() {
-        return new HeartbeatService();
+    public static IHeartbeatService getHeartbeatService() {
+        if (s_heartbeater == null) {
+            synchronized (s_configuration) {
+                s_heartbeater = new HeartbeatService();
+            }
+        }
+        return s_heartbeater;
+    }
+    
+    public static IStorefrontPeerService getStorefrontPeerService() {
+        return (IStorefrontPeerService)getHeartbeatService();
     }
 
     public static IStorefrontDao createStorefrontDao(SessionFactory sessionFactory) {
@@ -246,7 +257,7 @@ public class StorefrontFactory {
         dao.setSessionFactory(sessionFactory);
         return dao;
     }
-    
+
     public static Client createApiClient() {
         return Client.create(s_apiCfg);
     }
@@ -262,7 +273,7 @@ public class StorefrontFactory {
                     new AppInstanceInitService(createStorefrontDao(s_sessionFactory)).init(StorefrontApp.APP_INSTANCE);
                     s_initializedApp = true;
                 } catch (Exception e) {
-                    throw (e instanceof RuntimeException) ? ((RuntimeException) e) : new RuntimeException(e);
+                    throw (e instanceof RuntimeException) ? ((RuntimeException)e) : new RuntimeException(e);
                 }
             }
         }

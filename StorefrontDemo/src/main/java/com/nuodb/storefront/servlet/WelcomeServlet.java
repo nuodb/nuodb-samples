@@ -91,7 +91,7 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
 
         super.doPostAction(req, resp, btnAction);
     }
-    
+
     protected Pair<String, Object> doHealthCheck(HttpServletRequest req) throws ServletException {
         try {
             getDbApi().fixDbSetup(false);
@@ -112,6 +112,7 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
             }
         } catch (DatabaseNotFoundException e) {
             return new ImmutablePair<String, Object>("db", StorefrontFactory.getDbConnInfo());
+
         } catch (GenericJDBCException e) {
             s_logger.warn("Servlet handled JDBC error", e);
 
@@ -119,9 +120,11 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
             DbConnInfo dbInfo = StorefrontFactory.getDbConnInfo();
             addMessage(req, MessageSeverity.WARNING, "Could not connect to " + dbInfo.getDbName() + ":  " + e.getMessage());
             return new ImmutablePair<String, Object>("db", dbInfo);
+
         } catch (ApiUnavailableException e) {
             addMessage(req, MessageSeverity.ERROR, "The NuoDB API is temporarily unavailable.", "Retry");
             return null;
+
         } catch (ApiConnectionException e) {
             s_logger.error("Can't connect to API", e);
             ConnInfo apiConnInfo = getDbApi().getApiConnInfo();
@@ -129,15 +132,18 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
                     "Cannot connect to NuoDB API.  The Storefront is trying to connect to \"" + apiConnInfo.getUrl() + "\" with the username \""
                             + apiConnInfo.getUsername() + "\".", "Retry");
             return new ImmutablePair<String, Object>("api", apiConnInfo);
+
         } catch (ApiUnauthorizedException e) {
             ConnInfo apiConnInfo = getDbApi().getApiConnInfo();
             apiConnInfo.setPassword(null);
             addMessage(req, MessageSeverity.INFO, "Unable to connect to NuoDB API at \"" + apiConnInfo.getUrl() + "\" with the provided credentials.");
             return new ImmutablePair<String, Object>("api", apiConnInfo);
+
         } catch (ApiException e) {
             s_logger.error("Health check failed", e);
             addMessage(req, MessageSeverity.ERROR,
                     "NuoDB RESTful API at " + getDbApi().getApiConnInfo().getUrl() + " returned an error:  " + e.getMessage(), "Retry");
+
         } catch (Exception e) {
             s_logger.error("Health check failed", e);
             Throwable ei = e.getCause();

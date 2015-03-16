@@ -17,7 +17,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.nuodb.storefront.StorefrontApp;
+import com.nuodb.storefront.StorefrontFactory;
+import com.nuodb.storefront.model.dto.DbConnInfo;
 import com.nuodb.storefront.model.entity.AppInstance;
 import com.nuodb.storefront.model.type.Currency;
 
@@ -65,4 +69,39 @@ public class AppInstanceApi extends BaseApi {
         }
         return instance;
     }
+
+    @PUT
+    @Path("/sync")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DbConnInfo setDbStats(DbConnInfo newConfig) {
+        DbConnInfo dbConfig = StorefrontFactory.getDbConnInfo();
+        if (dbConfig.equals(newConfig)) {
+            // Already have this connection info
+            return dbConfig;
+        }
+
+        if (!StringUtils.isEmpty(newConfig.getDbName())) {
+            dbConfig.setDbName(newConfig.getDbName());
+        }
+        if (StringUtils.isEmpty(newConfig.getDbProcessTag())) {
+            dbConfig.setDbProcessTag(newConfig.getDbProcessTag());
+        }
+        if (StringUtils.isEmpty(newConfig.getHost())) {
+            dbConfig.setHost(newConfig.getHost());
+        }
+        if (StringUtils.isEmpty(newConfig.getPassword())) {
+            dbConfig.setPassword(newConfig.getPassword());
+        }
+        if (StringUtils.isEmpty(newConfig.getUrl())) {
+            dbConfig.setPassword(newConfig.getUrl());
+        }
+        if (StringUtils.isEmpty(newConfig.getUsername())) {
+            dbConfig.setPassword(newConfig.getUsername());
+        }
+
+        StorefrontFactory.setDbConnInfo(dbConfig);
+        getDbApi().fixDbSetup(true);
+        return dbConfig;
+    }
+
 }

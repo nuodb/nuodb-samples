@@ -2,10 +2,12 @@
 
 package com.nuodb.storefront.dbapi;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -15,6 +17,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.nuodb.storefront.StorefrontApp;
@@ -192,15 +195,32 @@ public class DbApiProxy implements IDbApi {
                 for (Host host : region.hosts) {
                     region.hostCount++;
                     if (host.tags.containsKey(dbProcessTag)) {
-                        region.usedHostCount++;
+                        boolean hostHasDbProcess = false;
+
                         for (Process process : host.processes) {
                             if (process.dbname.equals(dbName)) {
                                 if (PROCESS_TYPE_TE.equals(process.type)) {
                                     region.transactionManagerCount++;
+                                    hostHasDbProcess = true;
                                 } else if (PROCESS_TYPE_SM.equals(process.type)) {
                                     region.storageManagerCount++;
+                                    hostHasDbProcess = true;
                                 }
                             }
+                        }
+
+                        if (hostHasDbProcess) {
+                            region.usedHostCount++;
+                        }
+                        
+                        if (region.usedHostUrls == null) {
+                            region.usedHostUrls = new HashSet<URI>();
+                        }
+                        if (!StringUtils.isEmpty(host.hostname)) {
+                            region.usedHostUrls.add(new URI("http", host.hostname, null, null));
+                        }
+                        if (!StringUtils.isEmpty(host.ipaddress)) {
+                            region.usedHostUrls.add(new URI("http", host.ipaddress, null, null));
                         }
                     }
                 }

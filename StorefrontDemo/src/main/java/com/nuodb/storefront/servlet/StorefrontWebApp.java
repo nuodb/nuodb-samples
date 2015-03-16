@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.StorefrontFactory;
-import com.nuodb.storefront.service.IHeartbeatService;
 import com.nuodb.storefront.util.NetworkUtil;
 import com.nuodb.storefront.util.PerformanceUtil;
 
@@ -27,8 +26,7 @@ public class StorefrontWebApp implements ServletContextListener {
     private static final String CONTEXT_INIT_PARAM_LAZY_LOAD = "storefront.lazyLoad";
 
     private static ScheduledExecutorService s_executor;
-    private static IHeartbeatService s_heartbeatSvc;
-    private static final Object s_heartbeatSvcLock = new Object();
+    private static final Object s_executorLock = new Object();
     private static boolean s_initialized = false;
     private static String s_webAppUrlTemplate;
     private static String s_hostname;
@@ -41,7 +39,6 @@ public class StorefrontWebApp implements ServletContextListener {
         }
 
         ServletContext context = sce.getServletContext();
-        s_executor = Executors.newSingleThreadScheduledExecutor();
 
         // Get external URL of this web app
         initWebAppUrl(context);
@@ -70,10 +67,10 @@ public class StorefrontWebApp implements ServletContextListener {
     }
 
     public static void initHeartbeatService() {
-        synchronized (s_heartbeatSvcLock) {
-            if (s_heartbeatSvc == null) {
-                s_heartbeatSvc = StorefrontFactory.createHeartbeatService();
-                s_executor.scheduleAtFixedRate(s_heartbeatSvc, 0, StorefrontApp.HEARTBEAT_INTERVAL_SEC, TimeUnit.SECONDS);
+        synchronized (s_executorLock) {
+            if (s_executor == null) {
+                s_executor = Executors.newSingleThreadScheduledExecutor();
+                s_executor.scheduleAtFixedRate(StorefrontFactory.getHeartbeatService(), 0, StorefrontApp.HEARTBEAT_INTERVAL_SEC, TimeUnit.SECONDS);
 
                 Runnable sampler = PerformanceUtil.createSampler();
                 if (sampler != null) {
@@ -86,7 +83,9 @@ public class StorefrontWebApp implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         // Stop sending heartbeats
-        s_executor.shutdown();
+        if (s_executor == null) {
+            s_executor.shutdown();
+        }
     }
 
     public static void updateWebAppUrl(HttpServletRequest req) {

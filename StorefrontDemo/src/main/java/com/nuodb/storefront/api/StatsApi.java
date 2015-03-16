@@ -34,8 +34,15 @@ public class StatsApi extends BaseApi {
     @Produces(MediaType.APPLICATION_JSON)
     public StorefrontStatsReport getAllStatsReport(@QueryParam("sessionTimeoutSec") Integer sessionTimeoutSec) {
         StorefrontStatsReport rpt = getSimulator().getStorefrontStatsReport(sessionTimeoutSec);
-        rpt.setDbStats(getDbApi().getDbFootprint());
+        DbFootprint footprint = getDbApi().getDbFootprint();
+
+        rpt.setDbStats(footprint);
         clearWorkloadProperty(rpt.getWorkloadStats());
+
+        if (footprint.usedRegionCount > 1) {
+            StorefrontFactory.getStorefrontPeerService().asyncWakeStorefrontsInOtherRegions();
+        }
+
         return rpt;
     }
 
@@ -79,16 +86,20 @@ public class StatsApi extends BaseApi {
     @Path("/db")
     @Produces(MediaType.APPLICATION_JSON)
     public DbFootprint setDbStats(@QueryParam("numRegions") Integer numRegions, @QueryParam("numHosts") Integer numHosts) {
-        return getDbApi().setDbFootprint(numRegions.intValue(), numHosts.intValue());
+        DbFootprint footprint = getDbApi().setDbFootprint(numRegions.intValue(), numHosts.intValue());
+        if (footprint.usedRegionCount > 1) {
+            StorefrontFactory.getStorefrontPeerService().asyncWakeStorefrontsInOtherRegions();
+        }
+        return footprint;
     }
-    
+
     @GET
     @Path("/regions")
     @Produces(MediaType.APPLICATION_JSON)
     public List<RegionStats> getRegionStats() {
         return getDbApi().getRegionStats();
     }
-    
+
     @GET
     @Path("/tenants")
     @Produces(MediaType.APPLICATION_JSON)

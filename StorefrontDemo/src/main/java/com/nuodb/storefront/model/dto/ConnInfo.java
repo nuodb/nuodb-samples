@@ -2,6 +2,8 @@
 
 package com.nuodb.storefront.model.dto;
 
+import org.hibernate.internal.util.compare.EqualsHelper;
+
 public class ConnInfo {
     private String url;
     private String username;
@@ -38,5 +40,16 @@ public class ConnInfo {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof ConnInfo)) {
+            return false;
+        }
+        ConnInfo o = (ConnInfo)obj;
+        return EqualsHelper.equals(url, o.url) &&
+                EqualsHelper.equals(username, o.username) &&
+                EqualsHelper.equals(password, o.password);
     }
 }
