@@ -3,4 +3,12 @@ nuodb-samples
 
 NuoDB sample applications and demos.
 
-[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/8ec6a6badf62e37ab71fdf8cea623cbe "githalytics.com")](http://githalytics.com/nuodb/nuodb-samples)
+[JBoss and Cayenne ORM](https://github.com/nuodb/nuodb-samples/tree/master/Cayenne) 
+[ColdFusion and Tomcat](https://github.com/nuodb/nuodb-samples/tree/master/ColdFusion) 
+[Django](https://github.com/nuodb/nuodb-samples/tree/master/Django) 
+[Java Stored Procedures](https://github.com/nuodb/nuodb-samples/tree/master/JavaStoredProcedures)
+[Java Triggers](https://github.com/nuodb/nuodb-samples/tree/master/JavaTriggers)
+[Node.js](https://github.com/nuodb/nuodb-samples/tree/master/Node.js)
+[NuoDB Storefront Demo](https://github.com/nuodb/nuodb-samples/tree/master/StorefrontDemo)
+[Java Servlet with Connection Pooling](https://github.com/nuodb/nuodb-samples/tree/master/TomcatServlet/ServletSample)
+
