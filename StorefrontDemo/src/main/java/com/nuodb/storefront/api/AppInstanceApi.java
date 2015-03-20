@@ -24,6 +24,7 @@ import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.model.dto.DbConnInfo;
 import com.nuodb.storefront.model.entity.AppInstance;
 import com.nuodb.storefront.model.type.Currency;
+import com.nuodb.storefront.servlet.StorefrontWebApp;
 
 @Path("/app-instances")
 public class AppInstanceApi extends BaseApi {
@@ -73,35 +74,28 @@ public class AppInstanceApi extends BaseApi {
     @PUT
     @Path("/sync")
     @Produces(MediaType.APPLICATION_JSON)
-    public DbConnInfo setDbStats(DbConnInfo newConfig) {
+    public DbConnInfo sync(@Context HttpServletRequest req, DbConnInfo newDbConfig) {
+        // Update Storefront URL info
+        StorefrontWebApp.updateWebAppUrl(req);
+
+        // Update DB info
         DbConnInfo dbConfig = StorefrontFactory.getDbConnInfo();
-        if (dbConfig.equals(newConfig)) {
-            // Already have this connection info
-            return dbConfig;
+        if (newDbConfig != null) {
+            if (!dbConfig.equals(newDbConfig)) {
+                if (!StringUtils.isEmpty(newDbConfig.getUrl())) {
+                    dbConfig.setUrl(newDbConfig.getUrl());
+                }
+                if (!StringUtils.isEmpty(newDbConfig.getUsername())) {
+                    dbConfig.setUsername(newDbConfig.getUsername());
+                }
+                if (!StringUtils.isEmpty(newDbConfig.getPassword())) {
+                    dbConfig.setPassword(newDbConfig.getPassword());
+                }
+
+                StorefrontFactory.setDbConnInfo(dbConfig);
+            }
         }
 
-        if (!StringUtils.isEmpty(newConfig.getDbName())) {
-            dbConfig.setDbName(newConfig.getDbName());
-        }
-        if (StringUtils.isEmpty(newConfig.getDbProcessTag())) {
-            dbConfig.setDbProcessTag(newConfig.getDbProcessTag());
-        }
-        if (StringUtils.isEmpty(newConfig.getHost())) {
-            dbConfig.setHost(newConfig.getHost());
-        }
-        if (StringUtils.isEmpty(newConfig.getPassword())) {
-            dbConfig.setPassword(newConfig.getPassword());
-        }
-        if (StringUtils.isEmpty(newConfig.getUrl())) {
-            dbConfig.setPassword(newConfig.getUrl());
-        }
-        if (StringUtils.isEmpty(newConfig.getUsername())) {
-            dbConfig.setPassword(newConfig.getUsername());
-        }
-
-        StorefrontFactory.setDbConnInfo(dbConfig);
-        getDbApi().fixDbSetup(true);
         return dbConfig;
     }
-
 }

@@ -217,10 +217,10 @@ public class DbApiProxy implements IDbApi {
                             region.usedHostUrls = new HashSet<URI>();
                         }
                         if (!StringUtils.isEmpty(host.hostname)) {
-                            region.usedHostUrls.add(new URI("http", host.hostname, null, null));
+                            region.usedHostUrls.add(new URI("jdbc", null, host.hostname, host.port, null, null, null));
                         }
                         if (!StringUtils.isEmpty(host.ipaddress)) {
-                            region.usedHostUrls.add(new URI("http", host.ipaddress, null, null));
+                            region.usedHostUrls.add(new URI("jdbc", null, host.ipaddress, host.port, null, null, null));
                         }
                     }
                 }

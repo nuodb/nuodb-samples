@@ -3,6 +3,7 @@
 package com.nuodb.storefront.service.storefront;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,7 +22,7 @@ import com.nuodb.storefront.dal.IStorefrontDao;
 import com.nuodb.storefront.dal.StorefrontDao;
 import com.nuodb.storefront.dal.TransactionType;
 import com.nuodb.storefront.exception.ApiException;
-import com.nuodb.storefront.model.dto.DbConnInfo;
+import com.nuodb.storefront.model.dto.ConnInfo;
 import com.nuodb.storefront.model.dto.DbRegionInfo;
 import com.nuodb.storefront.model.dto.RegionStats;
 import com.nuodb.storefront.model.entity.AppInstance;
@@ -142,6 +143,7 @@ public class HeartbeatService implements IHeartbeatService, IStorefrontPeerServi
     }
 
     protected void wakeStorefronts() {
+        // See if there's anything in the list to wake
         HashMap<String, Set<URI>> wakeListCopy;
         synchronized (wakeList) {
             if (wakeList.isEmpty()) {
@@ -151,26 +153,46 @@ public class HeartbeatService implements IHeartbeatService, IStorefrontPeerServi
             wakeList.clear();
         }
 
+        // Get the best known scheme, port, and path for this Storefront instance.
+        // We'll assume the others are running with the same settings.
+        String sfScheme;
+        int sfPort;
+        String sfPath;
+        try {
+            URI homeUrl = new URI(StorefrontApp.APP_INSTANCE.getUrl());
+            sfScheme = homeUrl.getScheme();
+            sfPort = homeUrl.getPort();
+            sfPath = homeUrl.getPath();
+            if (sfPath.endsWith("/")) {
+                sfPath = sfPath.substring(0, sfPath.length() - 2);
+            }
+        } catch (URISyntaxException e1) {
+            return;
+        }
+
+        // Wake 1 Storefront in each region
         Client client = StorefrontFactory.createApiClient();
         for (Map.Entry<String, Set<URI>> entry : wakeListCopy.entrySet()) {
             String region = entry.getKey();
-            for (URI peer : entry.getValue()) {
-                // FIXME:  Assume same port and context path as this instance
-                String peerUrl = peer + ":" + StorefrontApp.DEFAULT_PORT + "/storefront/api/app-instances/sync";
+            for (URI peerHostUrl : entry.getValue()) {
+                URI peerStorefrontUrl;
+                try {
+                    peerStorefrontUrl = new URI(sfScheme, null, peerHostUrl.getHost(), sfPort, sfPath + "/api/app-instances/sync", null, null);
+                } catch (URISyntaxException e1) {
+                    continue;
+                }
 
-                try {                    
-                    // FIXME: Share the IP and port with other storefront
-                    
-                    client.resource(peerUrl)
+                try {
+                    client.resource(peerStorefrontUrl)
                             .type(MediaType.APPLICATION_JSON)
-                            .put(DbConnInfo.class, StorefrontFactory.getDbConnInfo());
-                    s_log.info("Successfully contacted peer Storefront at [" + peer + "] in the " + region + " region.");
+                            .put(ConnInfo.class, StorefrontFactory.getDbConnInfo());
+                    s_log.info("Successfully contacted peer Storefront at [" + peerHostUrl + "] in the " + region + " region.");
 
-                    // Success.  We're done in this region.
+                    // Success. We're done in this region.
                     break;
                 } catch (Exception e) {
                     ApiException ae = ApiException.toApiException(e);
-                    s_log.warn("Unable to contact peer Storefront [" + peer + "] in the " + region + " region: " + ae.getMessage());
+                    s_log.warn("Unable to contact peer Storefront [" + peerHostUrl + "] in the " + region + " region: " + ae.getMessage());
                 }
             }
         }
