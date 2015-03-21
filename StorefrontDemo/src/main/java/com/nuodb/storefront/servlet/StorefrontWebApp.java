@@ -131,11 +131,17 @@ public class StorefrontWebApp implements ServletContextListener {
         } else if (contextPath.startsWith("/")) {
             contextPath = contextPath.substring(1);
         }
-
-        StorefrontApp.APP_INSTANCE.setUrl(s_webAppUrlTemplate
+        
+        String url = s_webAppUrlTemplate
                 .replace("{protocol}", isSecure ? "https" : "http")
                 .replace("{host}", hostname)
                 .replace("{port}", String.valueOf(port))
-                .replace("{context}", contextPath));
+                .replace("{context}", contextPath);
+        
+        if (url.endsWith("/")) {
+            // Don't want a trailing slash
+            url = url.substring(0,  url.length() - 1);
+        }
+        StorefrontApp.APP_INSTANCE.setUrl(url);
     }
 }

@@ -216,9 +216,6 @@ public class DbApiProxy implements IDbApi {
                         if (region.usedHostUrls == null) {
                             region.usedHostUrls = new HashSet<URI>();
                         }
-                        if (!StringUtils.isEmpty(host.hostname)) {
-                            region.usedHostUrls.add(new URI("jdbc", null, host.hostname, host.port, null, null, null));
-                        }
                         if (!StringUtils.isEmpty(host.ipaddress)) {
                             region.usedHostUrls.add(new URI("jdbc", null, host.ipaddress, host.port, null, null, null));
                         }

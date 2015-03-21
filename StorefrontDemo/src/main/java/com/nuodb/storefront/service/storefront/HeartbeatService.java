@@ -7,6 +7,7 @@ import java.net.URISyntaxException;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,7 +37,9 @@ public class HeartbeatService implements IHeartbeatService, IStorefrontPeerServi
     private static final Logger s_log = Logger.getLogger(SimulatorService.class.getName());
     private int secondsUntilNextPurge = 0;
     private int consecutiveFailureCount = 0;
+    private int successCount = 0;
     private Map<String, Set<URI>> wakeList = new HashMap<String, Set<URI>>();
+    private Set<URI> warnList = new HashSet<URI>();
 
     static {
         StorefrontDao.registerTransactionNames(new String[] { "sendHeartbeat" });
@@ -98,10 +101,11 @@ public class HeartbeatService implements IHeartbeatService, IStorefrontPeerServi
                     }
 
                     consecutiveFailureCount = 0;
+                    successCount++;
                 }
             });
         } catch (Exception e) {
-            if (++consecutiveFailureCount == 1) {
+            if (successCount > 0 && ++consecutiveFailureCount == 1) {
                 s_log.error("Unable to send heartbeat", e);
             }
         }
@@ -150,7 +154,6 @@ public class HeartbeatService implements IHeartbeatService, IStorefrontPeerServi
                 return;
             }
             wakeListCopy = new HashMap<String, Set<URI>>(wakeList);
-            wakeList.clear();
         }
 
         // Get the best known scheme, port, and path for this Storefront instance.
@@ -164,7 +167,7 @@ public class HeartbeatService implements IHeartbeatService, IStorefrontPeerServi
             sfPort = homeUrl.getPort();
             sfPath = homeUrl.getPath();
             if (sfPath.endsWith("/")) {
-                sfPath = sfPath.substring(0, sfPath.length() - 2);
+                sfPath = sfPath.substring(0, sfPath.length() - 1);
             }
         } catch (URISyntaxException e1) {
             return;
@@ -181,18 +184,32 @@ public class HeartbeatService implements IHeartbeatService, IStorefrontPeerServi
                 } catch (URISyntaxException e1) {
                     continue;
                 }
-
+                
                 try {
                     client.resource(peerStorefrontUrl)
                             .type(MediaType.APPLICATION_JSON)
                             .put(ConnInfo.class, StorefrontFactory.getDbConnInfo());
-                    s_log.info("Successfully contacted peer Storefront at [" + peerHostUrl + "] in the " + region + " region.");
+                    s_log.info("Successfully contacted peer Storefront at [" + peerStorefrontUrl + "] in the " + region + " region.");
 
                     // Success. We're done in this region.
                     break;
                 } catch (Exception e) {
-                    ApiException ae = ApiException.toApiException(e);
-                    s_log.warn("Unable to contact peer Storefront [" + peerHostUrl + "] in the " + region + " region: " + ae.getMessage());
+                    synchronized (warnList) {
+                        boolean warn = false;
+                        if (!warnList.contains(peerStorefrontUrl)) {
+                            warnList.add(peerStorefrontUrl);
+                            warn = true;
+                        }
+                        if (warn) {
+                            ApiException ae = ApiException.toApiException(e);
+                            s_log.warn("Unable to contact peer Storefront [" + peerStorefrontUrl + "] in the " + region + " region: "
+                                    + ae.getMessage());
+                        }
+                    }
+                }
+                
+                synchronized (wakeList) {
+                    wakeList.remove(peerHostUrl);
                 }
             }
         }

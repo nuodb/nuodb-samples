@@ -94,7 +94,12 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
 
     protected Pair<String, Object> doHealthCheck(HttpServletRequest req) throws ServletException {
         try {
-            getDbApi().fixDbSetup(false);
+            try {
+                getDbApi().fixDbSetup(false);
+            } catch (ApiUnavailableException e) {
+                // Try one more time
+                getDbApi().fixDbSetup(false);
+            }
 
             synchronized (s_schemaUpdateLock) {
                 try {
