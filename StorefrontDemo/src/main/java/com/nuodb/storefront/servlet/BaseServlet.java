@@ -72,12 +72,12 @@ public abstract class BaseServlet extends HttpServlet {
 
         Customer customer = (Customer)req.getAttribute(ATTR_CUSTOMER);
         if (customer == null) {
-            Integer customerId = (Integer)req.getSession().getAttribute(SESSION_CUSTOMER_ID);
+            Long customerId = (Long)req.getSession().getAttribute(SESSION_CUSTOMER_ID);
             if (customerId == null && req.getCookies() != null) {
                 for (Cookie cookie : req.getCookies()) {
                     if (COOKIE_CUSTOMER_ID.equals(cookie.getName())) {
                         try {
-                            customerId = Integer.parseInt(cookie.getValue());
+                            customerId = Long.parseLong(cookie.getValue());
                             break;
                         } catch (NumberFormatException e) {
                         }
@@ -85,7 +85,7 @@ public abstract class BaseServlet extends HttpServlet {
                 }
             }
             if (customerId == null) {
-                customerId = 0;
+                customerId = 0L;
             }
 
             customer = getStorefrontService().getOrCreateCustomer(customerId, null);

@@ -3,21 +3,21 @@
 package com.nuodb.storefront.model.dto;
 
 public class ProductReviewFilter extends PaginationFilter {
-    private Integer productId;
+    private Long productId;
 
     public ProductReviewFilter() {
     }
 
-    public ProductReviewFilter(Integer page, Integer pageSize, int productId) {
+    public ProductReviewFilter(Integer page, Integer pageSize, long productId) {
         super(page, pageSize);
         this.productId = productId;
     }
 
-    public Integer getProductId() {
+    public Long getProductId() {
         return productId;
     }
 
-    public void setProductId(Integer productId) {
+    public void setProductId(Long productId) {
         this.productId = productId;
     }
 }

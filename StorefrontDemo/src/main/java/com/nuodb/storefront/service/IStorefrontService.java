@@ -34,7 +34,7 @@ public interface IStorefrontService {
 
     /**
      * Gets products matching the specified criteria. The categories and reviews of each product is not populated; to fetch this data, invoke the
-     * {@link #getProduct(int)} method.
+     * {@link #getProduct(long)} method.
      * 
      * @return The matching products (on the specified page and/or to the specified limit, if specified) and total count of products matching the
      *         criteria.
@@ -52,7 +52,7 @@ public interface IStorefrontService {
      * @throws ProductNotFoundException
      *             No product exists with the specified productId.
      */
-    public Product getProductDetails(int productId) throws ProductNotFoundException;
+    public Product getProductDetails(long productId) throws ProductNotFoundException;
 
     /**
      * Adds a new product to the store.
@@ -97,7 +97,7 @@ public interface IStorefrontService {
      * @throws ProductNotFoundException
      *             No product exists with the specified productId.
      */
-    public ProductReview addProductReview(int customerId, int productId, String title, String comments, String emailAddress, int rating)
+    public ProductReview addProductReview(long customerId, long productId, String title, String comments, String emailAddress, int rating)
             throws IllegalArgumentException, CustomerNotFoundException, ProductNotFoundException;
 
     /**
@@ -115,7 +115,7 @@ public interface IStorefrontService {
      *            "real".
      * @return The customer (never <code>null</code>)
      */
-    public Customer getOrCreateCustomer(int customerId, Workload workload);
+    public Customer getOrCreateCustomer(long customerId, Workload workload);
 
     /**
      * Gets the contents of a customer's cart. The details of each product (reviews, etc.) are not fetched.
@@ -125,7 +125,7 @@ public interface IStorefrontService {
      * @throws CustomerNotFoundException
      *             No customer exists with the specified customerId.
      */
-    public Cart getCustomerCart(int customerId);
+    public Cart getCustomerCart(long customerId);
 
     /**
      * Adds a product in the given quantity to the customer's shopping cart. If the product already exists in the shopping cart, the quantity is
@@ -145,7 +145,7 @@ public interface IStorefrontService {
      * @throws ProductNotFoundException
      *             No product exists with the specified productId.
      */
-    public int addToCart(int customerId, int productId, int quantity) throws IllegalArgumentException, CustomerNotFoundException,
+    public int addToCart(long customerId, long productId, int quantity) throws IllegalArgumentException, CustomerNotFoundException,
             ProductNotFoundException;
 
     /**
@@ -163,7 +163,7 @@ public interface IStorefrontService {
      * @throws ProductNotFoundException
      *             No product exists with the specified productId.
      */
-    public int updateCart(int customerId, Map<Integer, Integer> productQuantityMap) throws IllegalArgumentException, CustomerNotFoundException,
+    public int updateCart(long customerId, Map<Long, Integer> productQuantityMap) throws IllegalArgumentException, CustomerNotFoundException,
             ProductNotFoundException;
 
     /**
@@ -177,7 +177,7 @@ public interface IStorefrontService {
      * @throws CartEmptyException
      *             No items were in the customer's shopping cart.
      */
-    public Purchase checkout(int customerId) throws CustomerNotFoundException, CartEmptyException;
+    public Purchase checkout(long customerId) throws CustomerNotFoundException, CartEmptyException;
 
     /**
      * Gets statistics on all database transactions run by this service.

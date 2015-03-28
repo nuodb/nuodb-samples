@@ -45,10 +45,10 @@ public class SimulatedUser implements IWorker {
 
     private Customer customer;
     private ProductFilter filter;
-    private List<Integer> productIds;
+    private List<Long> productIds;
     private static List<String> s_categories;
     private boolean isCartEmpty = true;
-    private Integer selectedProductId;
+    private Long selectedProductId;
 
     // Fibonacci backoff retry tracking
     private long priorBackoffDelay = 0;
@@ -222,7 +222,7 @@ public class SimulatedUser implements IWorker {
 
         // Base the search off a random product name (if available)
         if (getOrFetchProductList()) {
-            Integer productId = pickRandomProductId();
+            Long productId = pickRandomProductId();
             if (productId != null) {
                 Product product = simulator.getService().getProductDetails(productId.intValue());
                 if (product != null) {
@@ -258,7 +258,7 @@ public class SimulatedUser implements IWorker {
         if (getOrFetchProductList()) {
             selectedProductId = pickRandomProductId();
             simulator.getService().getProductDetails(selectedProductId);
-            simulator.getService().getProductReviews(new ProductReviewFilter(selectedProductId, 1, 10));
+            simulator.getService().getProductReviews(new ProductReviewFilter(1, 10, selectedProductId));
         }
     }
 
@@ -286,7 +286,7 @@ public class SimulatedUser implements IWorker {
 
     protected void doCartUpdate() {
         if (getOrFetchNonEmptyCart()) {
-            Map<Integer, Integer> updates = new HashMap<Integer, Integer>();
+            Map<Long, Integer> updates = new HashMap<Long, Integer>();
             Cart cart = simulator.getService().getCustomerCart(customer.getId());
             int itemCount = 0;
             for (CartSelection item : cart.getResult()) {
@@ -352,7 +352,7 @@ public class SimulatedUser implements IWorker {
         return (s_categories == null || s_categories.isEmpty()) ? null : s_categories.get(rnd.nextInt(s_categories.size()));
     }
 
-    protected Integer pickRandomProductId() {
+    protected Long pickRandomProductId() {
         return (productIds == null || productIds.isEmpty()) ? null : productIds.get(rnd.nextInt(productIds.size()));
 
     }
@@ -371,7 +371,7 @@ public class SimulatedUser implements IWorker {
 
     private void setProductIds(Collection<Product> products) {
         if (productIds == null) {
-            productIds = new LinkedList<Integer>();
+            productIds = new LinkedList<Long>();
         }
         productIds.clear();
         for (Product product : products) {

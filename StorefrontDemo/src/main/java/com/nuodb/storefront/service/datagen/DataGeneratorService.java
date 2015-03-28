@@ -144,7 +144,7 @@ public class DataGeneratorService implements IDataGeneratorService {
         int paramCount = 0;
         for (Product product : products) {
             for (String category : product.getCategories()) {
-                catStmt.setInt(++paramCount, product.getId());
+                catStmt.setLong(++paramCount, product.getId());
                 catStmt.setString(++paramCount, category);
             }
         }

@@ -42,10 +42,10 @@ public class StoreCartServlet extends BaseServlet {
             String action = req.getParameter("action");
 
             if ("update".equals(action)) {
-                Map<Integer, Integer> productQuantityMap = new HashMap<Integer, Integer>();
+                Map<Long, Integer> productQuantityMap = new HashMap<Long, Integer>();
                 for (Map.Entry<String, String[]> param : req.getParameterMap().entrySet()) {
                     if (param.getKey().startsWith("product-")) {
-                        int productId = Integer.parseInt(param.getKey().substring(8));
+                        long productId = Long.parseLong(param.getKey().substring(8));
                         int quantity = Integer.parseInt(param.getValue()[0]);
                         productQuantityMap.put(productId, quantity);
                     }

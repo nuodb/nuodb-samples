@@ -117,7 +117,7 @@ public class StorefrontService implements IStorefrontService {
     }
 
     @Override
-    public Product getProductDetails(final int productId) {
+    public Product getProductDetails(final long productId) {
         return dao.runTransaction(TransactionType.READ_ONLY, "getProductDetails", new Callable<Product>() {
             @Override
             public Product call() throws Exception {
@@ -163,7 +163,7 @@ public class StorefrontService implements IStorefrontService {
     }
 
     @Override
-    public ProductReview addProductReview(final int customerId, final int productId, final String title, final String comments,
+    public ProductReview addProductReview(final long customerId, final long productId, final String title, final String comments,
             final String emailAddress, final int rating) {
         if (rating < 1 || rating > 5) {
             throw new IllegalArgumentException("rating");
@@ -216,7 +216,7 @@ public class StorefrontService implements IStorefrontService {
     }
 
     @Override
-    public Customer getOrCreateCustomer(final int customerId, final Workload workload) {
+    public Customer getOrCreateCustomer(final long customerId, final Workload workload) {
         return dao.runTransaction(TransactionType.READ_WRITE, "getOrCreateCustomer", new Callable<Customer>() {
             @Override
             public Customer call() throws Exception {
@@ -243,7 +243,7 @@ public class StorefrontService implements IStorefrontService {
     }
 
     @Override
-    public Cart getCustomerCart(final int customerId) {
+    public Cart getCustomerCart(final long customerId) {
         return dao.runTransaction(TransactionType.READ_ONLY, "getCustomerCart", new Callable<Cart>() {
             @Override
             public Cart call() throws Exception {
@@ -275,7 +275,7 @@ public class StorefrontService implements IStorefrontService {
     }
 
     @Override
-    public int addToCart(final int customerId, final int productId, final int quantity) {
+    public int addToCart(final long customerId, final long productId, final int quantity) {
         if (quantity <= 0) {
             throw new IllegalArgumentException("quantity");
         }
@@ -301,7 +301,7 @@ public class StorefrontService implements IStorefrontService {
     }
 
     @Override
-    public int updateCart(final int customerId, final Map<Integer, Integer> productQuantityMap) throws IllegalArgumentException,
+    public int updateCart(final long customerId, final Map<Long, Integer> productQuantityMap) throws IllegalArgumentException,
             CustomerNotFoundException, ProductNotFoundException {
         return dao.runTransaction(TransactionType.READ_WRITE, "updateCart", new Callable<Integer>() {
             @Override
@@ -318,8 +318,8 @@ public class StorefrontService implements IStorefrontService {
                 } else {
                     // Add/update items described in the map
                     Set<CartSelection> referencedItems = new HashSet<CartSelection>();
-                    for (Map.Entry<Integer, Integer> productQuantity : productQuantityMap.entrySet()) {
-                        int productId = productQuantity.getKey();
+                    for (Map.Entry<Long, Integer> productQuantity : productQuantityMap.entrySet()) {
+                        long productId = productQuantity.getKey();
                         int quantity = productQuantity.getValue();
                         Product product = dao.find(Product.class, productId);
                         if (product == null) {
@@ -343,7 +343,7 @@ public class StorefrontService implements IStorefrontService {
     }
 
     @Override
-    public Purchase checkout(final int customerId) {
+    public Purchase checkout(final long customerId) {
         return dao.runTransaction(TransactionType.READ_WRITE, "checkout", new Callable<Purchase>() {
             @Override
             public Purchase call() throws Exception {
@@ -471,7 +471,7 @@ public class StorefrontService implements IStorefrontService {
 
     protected CartSelection addOrUpdateCartItem(Customer customer, Product product, int quantity, boolean incrementQty) {
         Calendar now = Calendar.getInstance();
-        int productId = product.getId();
+        long productId = product.getId();
 
         List<CartSelection> cart = customer.getCartSelections();
         CartSelection modifiedItem = null;
