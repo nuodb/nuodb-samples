@@ -111,7 +111,7 @@
 
     Storefront.initControlPanelTenantsPage = function(tenants) {
         g_app = this;
-        renderList(tenants, 'api/stats/tenants', null);
+        renderList(tenants, 'api/tenants', null);
     };
     
     function renderList(origItems, updateUrl, transformFunc) {
@@ -146,16 +146,30 @@
             return false;
         }
         for ( var i = 0; i < list1.length; i++) {
-            var item1 = list1[i];
-            var item2 = list2[i];
-            for ( var key in item1) {
-                if (item1[key] != item2[key]) {
-                    if (!$.isArray(item1[key]) || !areListsEqual(item1[key], item2[key])) {
-                        return false;
-                    }
-                }
+            if (!areObjectsEqual(item1, item2)) {
+                return false;
             }
         }
         return true;
+    }
+    
+    function areObjectsEqual(item1, item2) {
+        var item1 = list1[i];
+        var item2 = list2[i];
+        for ( var key in item1) {
+            var item1v = item1[key];
+            var item2v = item2[key];
+            if (item1v != item2v) {
+                if ($.isArray(item1v)) {
+                    if (!areListsEqual(item1v, item2v)) {
+                        return false;
+                    }
+                } else if ($.isPlainObject(item1v)) {
+                    return areObjectsEqual(item1v, item2v);
+                } else {
+                    return false;
+                }
+            }
+        }        
     }
 })();

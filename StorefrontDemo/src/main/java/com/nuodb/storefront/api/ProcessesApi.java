@@ -6,16 +6,17 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.nuodb.storefront.StorefrontApp;
-import com.nuodb.storefront.dbapi.Process;
+import com.nuodb.storefront.model.db.Process;
 import com.nuodb.storefront.model.dto.ProcessDetail;
 import com.nuodb.storefront.model.entity.AppInstance;
 
@@ -26,12 +27,12 @@ public class ProcessesApi extends BaseApi {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Collection<ProcessDetail> getProcesses() {
-        int currentNodeId = StorefrontApp.APP_INSTANCE.getNodeId();
+    public Collection<ProcessDetail> getProcesses(@Context HttpServletRequest req) {
+        int currentNodeId = getTenant(req).getAppInstance().getNodeId();
 
         // Fetch processes
         Map<Integer, ProcessDetail> processMap = new HashMap<Integer, ProcessDetail>();
-        for (Process process : getDbApi().getDbProcesses()) {
+        for (Process process : getDbApi(req).getDbProcesses()) {
             ProcessDetail detail;
             processMap.put(process.nodeId, detail = new ProcessDetail(process));
             
@@ -41,7 +42,7 @@ public class ProcessesApi extends BaseApi {
         }
 
         // Marry with AppInstances
-        for (AppInstance appInstance : getService().getAppInstances(true)) {
+        for (AppInstance appInstance : getService(req).getAppInstances(true)) {
             ProcessDetail detail = processMap.get(appInstance.getNodeId());
             if (detail != null) {
                 detail.getAppInstances().add(appInstance.getUrl());
@@ -54,8 +55,8 @@ public class ProcessesApi extends BaseApi {
     @DELETE
     @Path("/{uid}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response get(@PathParam("uid") String uid) {
-        getDbApi().shutdownProcess(uid);
+    public Response get(@Context HttpServletRequest req, @PathParam("uid") String uid) {
+        getDbApi(req).shutdownProcess(uid);
         return Response.ok().build();
     }
 }

@@ -20,11 +20,11 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.nuodb.storefront.StorefrontApp;
-import com.nuodb.storefront.StorefrontFactory;
+import com.nuodb.storefront.StorefrontTenantManager;
 import com.nuodb.storefront.model.dto.DbConnInfo;
 import com.nuodb.storefront.model.entity.AppInstance;
 import com.nuodb.storefront.model.type.Currency;
+import com.nuodb.storefront.service.IStorefrontTenant;
 import com.nuodb.storefront.servlet.StorefrontWebApp;
 
 @Path("/app-instances")
@@ -36,8 +36,8 @@ public class AppInstanceApi extends BaseApi {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<AppInstance> getActiveAppInstances() {
-        return getService().getAppInstances(true);
+    public List<AppInstance> getActiveAppInstances(@Context HttpServletRequest req) {
+        return getService(req).getAppInstances(true);
     }
 
     @GET
@@ -63,8 +63,8 @@ public class AppInstanceApi extends BaseApi {
 
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
-    public AppInstance updateAppInstance(@FormParam("currency") Currency currency, @FormParam("stopUsersWhenIdle") Boolean stopUsersWhenIdle) {
-        AppInstance instance = StorefrontApp.APP_INSTANCE;
+    public AppInstance updateAppInstance(@Context HttpServletRequest req, @FormParam("currency") Currency currency, @FormParam("stopUsersWhenIdle") Boolean stopUsersWhenIdle) {
+        AppInstance instance = StorefrontTenantManager.getTenant(req).getAppInstance();
         if (currency != null) {
             instance.setCurrency(currency);
         }
@@ -82,7 +82,8 @@ public class AppInstanceApi extends BaseApi {
         StorefrontWebApp.updateWebAppUrl(req);
 
         // Update DB info
-        DbConnInfo dbConfig = StorefrontFactory.getDbConnInfo();
+        IStorefrontTenant tenant = getTenant(req);
+        DbConnInfo dbConfig = tenant.getDbConnInfo();
         if (newDbConfig != null) {
             if (!dbConfig.equals(newDbConfig)) {
                 if (!StringUtils.isEmpty(newDbConfig.getUrl())) {
@@ -95,14 +96,14 @@ public class AppInstanceApi extends BaseApi {
                     dbConfig.setPassword(newDbConfig.getPassword());
                 }
 
-                StorefrontFactory.setDbConnInfo(dbConfig);
+                tenant.setDbConnInfo(dbConfig);
             }
         }
 
-        s_logger.info("Received sync message with database " + newDbConfig.getDbName() + "; URL now " + StorefrontApp.APP_INSTANCE.getUrl());
+        s_logger.info("Received sync message with database " + newDbConfig.getDbName() + "; URL now " + tenant.getAppInstance().getUrl());
         
         // Start sending heartbeats if we aren't yet
-        StorefrontWebApp.initHeartbeatService();
+        tenant.startUp();
 
         return dbConfig;
     }

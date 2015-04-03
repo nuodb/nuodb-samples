@@ -17,7 +17,6 @@ import org.hibernate.exception.GenericJDBCException;
 import org.hibernate.exception.SQLGrammarException;
 
 import com.nuodb.storefront.StorefrontApp;
-import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.exception.ApiConnectionException;
 import com.nuodb.storefront.exception.ApiException;
 import com.nuodb.storefront.exception.ApiUnauthorizedException;
@@ -27,6 +26,7 @@ import com.nuodb.storefront.model.dto.ConnInfo;
 import com.nuodb.storefront.model.dto.DbConnInfo;
 import com.nuodb.storefront.model.entity.Customer;
 import com.nuodb.storefront.model.type.MessageSeverity;
+import com.nuodb.storefront.service.IStorefrontTenant;
 
 public class WelcomeServlet extends ControlPanelProductsServlet {
     private static final long serialVersionUID = 4369262156023258885L;
@@ -45,17 +45,19 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
 
     @Override
     protected void doPostAction(HttpServletRequest req, HttpServletResponse resp, String btnAction) throws IOException {
+        IStorefrontTenant tenant = getTenant(req);
+        
         if (btnAction.equals("api")) {
             ConnInfo apiConnInfo = new ConnInfo();
             apiConnInfo.setUrl(req.getParameter("api-url"));
             apiConnInfo.setUsername(req.getParameter("api-username"));
             apiConnInfo.setPassword(req.getParameter("api-password"));
-            StorefrontFactory.setApiConnInfo(apiConnInfo);
+            tenant.setApiConnInfo(apiConnInfo);
 
             // Wait until the API is connected to the domain
             for (int secondsWaited = 0; secondsWaited < StorefrontApp.MAX_API_UNAVAILABLE_RETRY_TIME_SEC; secondsWaited++) {
                 try {
-                    getDbApi().testConnection();
+                    tenant.getDbApi().testConnection();
                     break;
                 } catch (ApiUnavailableException e) {
                     try {
@@ -70,14 +72,14 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
             connInfo.setUrl(req.getParameter("url"));
             connInfo.setUsername(req.getParameter("username"));
             connInfo.setPassword(req.getParameter("password"));
-            StorefrontFactory.setDbConnInfo(connInfo);
+            tenant.setDbConnInfo(connInfo);
 
-            getDbApi().fixDbSetup(true);
+            tenant.getDbApi().fixDbSetup(true);
 
             // Wait until API acknowledges the DB exists
             for (int secondsWaited = 0; secondsWaited < StorefrontApp.MAX_DB_INIT_WAIT_TIME_SEC; secondsWaited++) {
                 try {
-                    getDbApi().fixDbSetup(false);
+                    tenant.getDbApi().fixDbSetup(false);
                     break;
                 } catch (DatabaseNotFoundException e) {
                     try {
@@ -93,12 +95,14 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
     }
 
     protected Pair<String, Object> doHealthCheck(HttpServletRequest req) throws ServletException {
+        IStorefrontTenant tenant = getTenant(req);
+        
         try {
             try {
-                getDbApi().fixDbSetup(false);
+                tenant.getDbApi().fixDbSetup(false);
             } catch (ApiUnavailableException e) {
                 // Try one more time
-                getDbApi().fixDbSetup(false);
+                tenant.getDbApi().fixDbSetup(false);
             }
 
             synchronized (s_schemaUpdateLock) {
@@ -107,7 +111,7 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
                 } catch (SQLGrammarException e) {
                     // Database exists, but schema might not yet exist. Try creating it automatically.
                     try {
-                        StorefrontFactory.createSchema();
+                        tenant.createSchema();
                         checkForProducts(req);
                     } catch (Exception e2) {
                         s_logger.warn("Schema repair didn't work", e2);
@@ -116,13 +120,13 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
                 }
             }
         } catch (DatabaseNotFoundException e) {
-            return new ImmutablePair<String, Object>("db", StorefrontFactory.getDbConnInfo());
+            return new ImmutablePair<String, Object>("db", tenant.getDbConnInfo());
 
         } catch (GenericJDBCException e) {
             s_logger.warn("Servlet handled JDBC error", e);
 
             // Database may not exist. Inform the user
-            DbConnInfo dbInfo = StorefrontFactory.getDbConnInfo();
+            DbConnInfo dbInfo = tenant.getDbConnInfo();
             addMessage(req, MessageSeverity.WARNING, "Could not connect to " + dbInfo.getDbName() + ":  " + e.getMessage());
             return new ImmutablePair<String, Object>("db", dbInfo);
 
@@ -132,14 +136,14 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
 
         } catch (ApiConnectionException e) {
             s_logger.error("Can't connect to API", e);
-            ConnInfo apiConnInfo = getDbApi().getApiConnInfo();
+            ConnInfo apiConnInfo = tenant.getDbApi().getApiConnInfo();
             addMessage(req, MessageSeverity.ERROR,
                     "Cannot connect to NuoDB API.  The Storefront is trying to connect to \"" + apiConnInfo.getUrl() + "\" with the username \""
                             + apiConnInfo.getUsername() + "\".", "Retry");
             return new ImmutablePair<String, Object>("api", apiConnInfo);
 
         } catch (ApiUnauthorizedException e) {
-            ConnInfo apiConnInfo = getDbApi().getApiConnInfo();
+            ConnInfo apiConnInfo = tenant.getDbApi().getApiConnInfo();
             apiConnInfo.setPassword(null);
             addMessage(req, MessageSeverity.INFO, "Unable to connect to NuoDB API at \"" + apiConnInfo.getUrl() + "\" with the provided credentials.");
             return new ImmutablePair<String, Object>("api", apiConnInfo);
@@ -147,12 +151,12 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
         } catch (ApiException e) {
             s_logger.error("Health check failed", e);
             addMessage(req, MessageSeverity.ERROR,
-                    "NuoDB RESTful API at " + getDbApi().getApiConnInfo().getUrl() + " returned an error:  " + e.getMessage(), "Retry");
+                    "NuoDB RESTful API at " + tenant.getDbApi().getApiConnInfo().getUrl() + " returned an error:  " + e.getMessage(), "Retry");
 
         } catch (Exception e) {
             s_logger.error("Health check failed", e);
             Throwable ei = e.getCause();
-            DbConnInfo dbInfo = StorefrontFactory.getDbConnInfo();
+            DbConnInfo dbInfo = tenant.getDbConnInfo();
             String msg = (ei != null) ? ei.getMessage() : null;
             if (msg != null && msg.indexOf("Database is inactive") >= 0) {
                 addMessage(req, MessageSeverity.WARNING, dbInfo.getDbName() + " is inactive.  Unquiesce the database via the Automation Console.",

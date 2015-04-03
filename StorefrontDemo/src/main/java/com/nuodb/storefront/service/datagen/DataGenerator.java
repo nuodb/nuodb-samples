@@ -8,7 +8,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
-import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.model.entity.Customer;
 import com.nuodb.storefront.model.entity.Product;
 import com.nuodb.storefront.model.entity.ProductReview;
@@ -16,8 +15,10 @@ import com.nuodb.storefront.model.entity.ProductReview;
 public class DataGenerator {
     private final Random rnd = new Random();
     private final List<Customer> customers = new ArrayList<Customer>();
+    private final String region;
 
-    public DataGenerator() {
+    public DataGenerator(String region) {
+        this.region = region;
     }
 
     public List<Customer> createCustomers(int numCustomers) {
@@ -55,7 +56,7 @@ public class DataGenerator {
         customer.setDateAdded(now);
         customer.setDateLastActive(now);
         customer.setEmailAddress("test" + rnd.nextInt(100000) + "@test.com");
-        customer.setRegion(StorefrontApp.APP_INSTANCE.getRegion());
+        customer.setRegion(region);
         customer.setWorkload("DataGenerator");
         return customer;
     }
@@ -92,7 +93,7 @@ public class DataGenerator {
         review.setComments("These are some comments on this product.");
         review.setRating(rnd.nextInt(5) + 1);
         review.setCustomer(customer);
-        review.setRegion(StorefrontApp.APP_INSTANCE.getRegion());
+        review.setRegion(region);
         review.setProduct(product);
         return review;
     }

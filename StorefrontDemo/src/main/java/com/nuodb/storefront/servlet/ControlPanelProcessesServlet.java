@@ -10,7 +10,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.api.ProcessesApi;
 import com.nuodb.storefront.model.entity.Customer;
 
@@ -24,8 +23,8 @@ public class ControlPanelProcessesServlet extends BaseServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             Map<String, Object> pageData = new HashMap<String, Object>();
-            pageData.put("processes", new ProcessesApi().getProcesses());
-            pageData.put("adminConsoleUrl", StorefrontFactory.getAdminConsoleUrl());
+            pageData.put("processes", new ProcessesApi().getProcesses(req));
+            pageData.put("adminConsoleUrl", getTenant(req).getAdminConsoleUrl());
 
             showPage(req, resp, "Control Panel", "control-panel-processes", pageData, new Customer());
         } catch (Exception ex) {

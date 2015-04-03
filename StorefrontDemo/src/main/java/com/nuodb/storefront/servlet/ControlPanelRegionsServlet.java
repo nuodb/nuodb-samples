@@ -19,7 +19,7 @@ public class ControlPanelRegionsServlet extends BaseServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             Map<String, Object> pageData = new HashMap<String, Object>();
-            pageData.put("regions", getDbApi().getRegionStats());
+            pageData.put("regions", getDbApi(req).getRegionStats());
 
             showPage(req, resp, "Control Panel", "control-panel-regions", pageData, new Customer());
         } catch (Exception ex) {

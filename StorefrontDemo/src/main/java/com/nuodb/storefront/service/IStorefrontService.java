@@ -25,6 +25,8 @@ import com.nuodb.storefront.model.entity.ProductReview;
 import com.nuodb.storefront.model.entity.Purchase;
 
 public interface IStorefrontService {
+    public AppInstance getAppInstance();
+    
     /**
      * Gets all categories ordered by category name.
      * 

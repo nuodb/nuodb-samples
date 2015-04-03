@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -16,6 +17,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -35,25 +37,25 @@ public class SimulatorApi extends BaseApi {
     @GET
     @Path("/workloads")
     @Produces(MediaType.APPLICATION_JSON)
-    public Collection<WorkloadStats> getWorkloads() {
-        return getSimulator().getWorkloadStats().values();
+    public Collection<WorkloadStats> getWorkloads(@Context HttpServletRequest req) {
+        return getSimulator(req).getWorkloadStats().values();
     }
 
     @DELETE
     @Path("/workloads")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response removeAll() {
-        getSimulator().removeAll();
+    public Response removeAll(@Context HttpServletRequest req) {
+        getSimulator(req).removeAll();
         return Response.ok().build();
     }
 
     @PUT
     @Path("/workloads")
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, Object> setWorkloads(MultivaluedMap<String, String> formParams) {
+    public Map<String, Object> setWorkloads(@Context HttpServletRequest req, MultivaluedMap<String, String> formParams) {
         Map<String, Object> respData = new HashMap<String, Object>();
         List<Message> messages = new ArrayList<Message>();
-        ISimulatorService simulator = getSimulator();
+        ISimulatorService simulator = getSimulator(req);
         int updatedWorkloadCount = 0;
         int alertCount = 0;
         for (Map.Entry<String, List<String>> param : formParams.entrySet()) {
@@ -82,37 +84,37 @@ public class SimulatorApi extends BaseApi {
         }
 
         respData.put("messages", messages);
-        respData.put("workloadStats", getSimulator().getWorkloadStats());
+        respData.put("workloadStats", getSimulator(req).getWorkloadStats());
         return respData;
     }
 
     @POST
     @Path("/workloads/{workload}/workers")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addWorkers(@PathParam("workload") String workload, @FormParam("numWorkers") int numWorkers,
+    public Response addWorkers(@Context HttpServletRequest req, @PathParam("workload") String workload, @FormParam("numWorkers") int numWorkers,
             @FormParam("entryDelayMs") int entryDelayMs) {
-        getSimulator().addWorkers(lookupWorkloadByName(workload), numWorkers, entryDelayMs);
+        getSimulator(req).addWorkers(lookupWorkloadByName(req, workload), numWorkers, entryDelayMs);
         return Response.ok().build();
     }
 
     @PUT
     @Path("/workloads/{workload}/workers")
     @Produces(MediaType.APPLICATION_JSON)
-    public WorkloadStats adjustWorkers(@PathParam("workload") String workload, @FormParam("minWorkers") int minWorkers,
+    public WorkloadStats adjustWorkers(@Context HttpServletRequest req, @PathParam("workload") String workload, @FormParam("minWorkers") int minWorkers,
             @FormParam("limit") Integer limit) {
-        return getSimulator().adjustWorkers(lookupWorkloadByName(workload), minWorkers, limit);
+        return getSimulator(req).adjustWorkers(lookupWorkloadByName(req, workload), minWorkers, limit);
     }
 
     @GET
     @Path("/steps")
     @Produces(MediaType.APPLICATION_JSON)
-    public Collection<WorkloadStep> getWorkloadSteps() {
-        return getSimulator().getWorkloadStepStats().keySet();
+    public Collection<WorkloadStep> getWorkloadSteps(@Context HttpServletRequest req) {
+        return getSimulator(req).getWorkloadStepStats().keySet();
     }
 
-    protected Workload lookupWorkloadByName(String name) {
+    protected Workload lookupWorkloadByName(@Context HttpServletRequest req, String name) {
         try {
-            Workload workload = getSimulator().getWorkload(name);
+            Workload workload = getSimulator(req).getWorkload(name);
             if (workload != null) {
                 return workload;
             }

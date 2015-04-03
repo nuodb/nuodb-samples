@@ -13,8 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 
-import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.model.entity.Customer;
+import com.nuodb.storefront.service.IStorefrontTenant;
 
 public class ControlPanelDatabaseServlet extends BaseServlet {
     private static final long serialVersionUID = 5983572345193336181L;
@@ -23,13 +23,14 @@ public class ControlPanelDatabaseServlet extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
+            IStorefrontTenant tenant = getTenant(req);
             Map<String, Object> pageData = new HashMap<String, Object>();
-            pageData.put("db", getDbApi().getDb());
-            pageData.put("dbConnInfo", StorefrontFactory.getDbConnInfo());
-            pageData.put("apiConnInfo", getDbApi().getApiConnInfo());
-            pageData.put("adminConsoleUrl", StorefrontFactory.getAdminConsoleUrl());
-            pageData.put("sqlExplorerUrl", StorefrontFactory.getSqlExplorerUrl());
-            pageData.put("ddl", getDdl());
+            pageData.put("db", tenant.getDbApi().getDb());
+            pageData.put("dbConnInfo", tenant.getDbConnInfo());
+            pageData.put("apiConnInfo", tenant.getDbApi().getApiConnInfo());
+            pageData.put("adminConsoleUrl", tenant.getAdminConsoleUrl());
+            pageData.put("sqlExplorerUrl", tenant.getSqlExplorerUrl());
+            pageData.put("ddl", getDdl(tenant));
 
             showPage(req, resp, "Control Panel", "control-panel-database", pageData, new Customer());
         } catch (Exception ex) {
@@ -37,10 +38,10 @@ public class ControlPanelDatabaseServlet extends BaseServlet {
         }
     }
 
-    private static synchronized String getDdl() {
+    private static synchronized String getDdl(IStorefrontTenant tenant) {
         if (s_ddl == null) {
             StringBuilder buff = new StringBuilder();
-            SchemaExport export = StorefrontFactory.createSchemaExport();
+            SchemaExport export = tenant.createSchemaExport();
             buff.append("-- Drop statements --\r\n");
             appendDdlScript(export, "dropSQL", buff, ";\r\n");
             buff.append("\r\n");

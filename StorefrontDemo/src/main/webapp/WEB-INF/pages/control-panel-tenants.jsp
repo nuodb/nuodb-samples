@@ -13,16 +13,35 @@
                 <thead>
                     <tr>
                         <th>Tenant</th>
+						<th>Database</th>
+						<th></th>
                     </tr>
                 </thead>
                 <tbody>
                     {{#result}}
-                        <tr>
-                            <td>{{dbName}}</td>
-                        </tr>
+						<tr>
+							<td><a href="admin?tenant={{name}}" target="_blank">{{name}}</a></td>
+							<td>{{dbConnInfo.dbName}}</td>
+							<td><button class="btn btn-danger" {{#if default}}title="Cannot shut down first tenant" disabled="disabled"{{/if}}><i class="icon-off icon-white"></i> Shutdown</button></td>
+						</tr>
                     {{/result}}
                 </tbody>
             </table>
 		</script>
+        
+        <h3>Start New Tenant</h3>
+        <form class="form-horizontal" method="post">
+            <div class="control-group">
+                <label class="control-label" for="api-username">Tenant name:</label>
+                <div class="controls">
+                    <input class="input-xxlarge" type="text" id="api-username" name="tenant-name" placeholder="Tenant name">
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="controls">
+                    <button class="btn btn-info" type="submit" value="Connect to API">Create tenant</button>
+                </div>
+            </div>
+        </form>
     </div>
 </t:page>

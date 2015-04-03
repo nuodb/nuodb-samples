@@ -18,14 +18,17 @@ import com.nuodb.storefront.model.entity.ProductReview;
 import com.nuodb.storefront.service.IDataGeneratorService;
 
 public class DataGeneratorService implements IDataGeneratorService {
-    private final StatelessSession session;
-    private final Connection connection;
     private static final int MAX_DELETE_ATTEMPTS = 10;
     private static final int DELETE_RETRY_WAIT_MS = 100;
 
-    public DataGeneratorService(StatelessSession session, Connection connection) {
+    private final StatelessSession session;
+    private final Connection connection;
+    private final String region;
+
+    public DataGeneratorService(StatelessSession session, Connection connection, String region) {
         this.session = session;
         this.connection = connection;
+        this.region = region;
     }
 
     @Override
@@ -36,7 +39,7 @@ public class DataGeneratorService implements IDataGeneratorService {
     @Override
     public void generateAll(int numCustomers, int numProducts, int maxCategoriesPerProduct, int maxReviewsPerProduct) throws IOException {
         try {
-            DataGenerator gen = new DataGenerator();
+            DataGenerator gen = new DataGenerator(region);
 
             // Insert customers
             for (Customer customer : gen.createCustomers(numCustomers)) {
@@ -54,7 +57,7 @@ public class DataGeneratorService implements IDataGeneratorService {
     @Override
     public void generateProductReviews(int numCustomers, List<Product> products, int maxReviewsPerProduct) throws IOException {
         try {
-            DataGenerator gen = new DataGenerator();
+            DataGenerator gen = new DataGenerator(region);
 
             // Insert customers
             for (Customer customer : gen.createCustomers(numCustomers)) {

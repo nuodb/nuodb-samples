@@ -16,6 +16,7 @@ import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.model.dto.StorefrontStats;
 import com.nuodb.storefront.model.entity.Customer;
 import com.nuodb.storefront.model.type.MessageSeverity;
+import com.nuodb.storefront.service.IDataGeneratorService;
 
 public class ControlPanelProductsServlet extends BaseServlet {
     private static final long serialVersionUID = -1224032390706203080L;
@@ -34,7 +35,7 @@ public class ControlPanelProductsServlet extends BaseServlet {
             showCriticalErrorPage(req, resp, ex);
         }
     }
-    
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
@@ -50,30 +51,31 @@ public class ControlPanelProductsServlet extends BaseServlet {
 
         doGet(req, resp);
     }
-    
+
     protected void doPostAction(HttpServletRequest req, HttpServletResponse resp, String btnAction) throws IOException {
+        IDataGeneratorService dataGen = getTenant(req).createDataGeneratorService();
         if (btnAction.contains("load")) {
-            StorefrontApp.loadData();
+            StorefrontApp.loadData(dataGen);
             addMessage(req, MessageSeverity.INFO, "Product data loaded successfully.");
             s_logger.info("Product data loaded");
         } else if (btnAction.contains("generate")) {
-            StorefrontApp.generateData();
+            StorefrontApp.generateData(dataGen);
             addMessage(req, MessageSeverity.INFO, "Product data generated successfully.");
             s_logger.info("Product data generated");
         } else if (btnAction.contains("remove")) {
             // Now remove all data
             try {
-                StorefrontApp.removeData();
+                StorefrontApp.removeData(dataGen);
                 s_logger.info("Product data removed");
             } catch (Exception e) {
                 s_logger.error("Unable to remove product data", e);
             }
         }
     }
-    
+
     protected StorefrontStats checkForProducts(HttpServletRequest req) {
-        StorefrontStats stats = getStorefrontService().getStorefrontStats(StorefrontApp.DEFAULT_SESSION_TIMEOUT_SEC, null);
-        
+        StorefrontStats stats = getStorefrontService(req).getStorefrontStats(StorefrontApp.DEFAULT_SESSION_TIMEOUT_SEC, null);
+
         if (stats.getProductCount() == 0) {
             addMessage(
                     req,
@@ -81,7 +83,7 @@ public class ControlPanelProductsServlet extends BaseServlet {
                     "There are no products in the database.  Click a button below to seed the database with some sample products and reviews.  Note that the loading process may take around 10 seconds.",
                     "Load 900 Real Products (with pictures served by Amazon.com)", "Generate 5,000 Fake Products (without pictures)");
         }
-        
+
         return stats;
     }
 }

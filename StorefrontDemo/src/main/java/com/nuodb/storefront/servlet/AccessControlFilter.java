@@ -10,7 +10,11 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.nuodb.storefront.StorefrontTenantManager;
+import com.sun.jersey.api.NotFoundException;
 
 /**
  * Filter to permit CORS requests (AJAX requests from other domains) for data aggregation across regions/instances
@@ -25,7 +29,12 @@ public class AccessControlFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        StorefrontWebApp.initHeartbeatService();
+        try {
+            StorefrontTenantManager.getTenant((HttpServletRequest) request).startUp();
+        } catch (NotFoundException e) {
+            ((HttpServletResponse)response).sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
+            return;
+        }
 
         HttpServletResponse httpResp = (HttpServletResponse) response;
         httpResp.addHeader("Access-Control-Allow-Origin", "*");

@@ -2,10 +2,6 @@
 
 package com.nuodb.storefront.servlet;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -14,19 +10,16 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 
 import com.nuodb.storefront.StorefrontApp;
-import com.nuodb.storefront.StorefrontFactory;
+import com.nuodb.storefront.StorefrontTenantManager;
+import com.nuodb.storefront.service.IStorefrontTenant;
 import com.nuodb.storefront.util.NetworkUtil;
-import com.nuodb.storefront.util.PerformanceUtil;
 
 public class StorefrontWebApp implements ServletContextListener {
-    private static final String ENV_PROP_REGION = "storefront.region";
     private static final String ENV_PROP_URL = "storefront.url";
     private static final String ENV_MAVEN_TOMCAT_PORT = "maven.tomcat.port";
     private static final String CONTEXT_INIT_PARAM_PUBLIC_URL = "storefront.publicUrl";
     private static final String CONTEXT_INIT_PARAM_LAZY_LOAD = "storefront.lazyLoad";
 
-    private static ScheduledExecutorService s_executor;
-    private static final Object s_executorLock = new Object();
     private static boolean s_initialized = false;
     private static String s_webAppUrlTemplate;
     private static String s_hostname;
@@ -43,16 +36,9 @@ public class StorefrontWebApp implements ServletContextListener {
         // Get external URL of this web app
         initWebAppUrl(context);
 
-        // Handle region override (if provided)
-        String region = System.getProperty(ENV_PROP_REGION);
-        if (!StringUtils.isEmpty(region)) {
-            StorefrontApp.APP_INSTANCE.setRegion(region);
-            StorefrontApp.APP_INSTANCE.setRegionOverride(true);
-        }
-
         // Initialize heartbeat service
         if (!isInitParameterTrue(CONTEXT_INIT_PARAM_LAZY_LOAD, context, false)) {
-            initHeartbeatService();
+            StorefrontTenantManager.getDefaultTenant().startUp();
         }
 
         s_initialized = true;
@@ -66,25 +52,11 @@ public class StorefrontWebApp implements ServletContextListener {
         return (val.equalsIgnoreCase("true") || val.equals("1"));
     }
 
-    public static void initHeartbeatService() {
-        synchronized (s_executorLock) {
-            if (s_executor == null) {
-                s_executor = Executors.newSingleThreadScheduledExecutor();
-                s_executor.scheduleAtFixedRate(StorefrontFactory.getHeartbeatService(), 0, StorefrontApp.HEARTBEAT_INTERVAL_SEC, TimeUnit.SECONDS);
-
-                Runnable sampler = PerformanceUtil.createSampler();
-                if (sampler != null) {
-                    s_executor.scheduleAtFixedRate(sampler, 0, StorefrontApp.CPU_SAMPLING_INTERVAL_SEC, TimeUnit.SECONDS);
-                }
-            }
-        }
-    }
-
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         // Stop sending heartbeats
-        if (s_executor == null) {
-            s_executor.shutdown();
+        for (IStorefrontTenant tenant : StorefrontTenantManager.getAllTenants()) {
+            tenant.shutDown();
         }
     }
 
@@ -131,17 +103,20 @@ public class StorefrontWebApp implements ServletContextListener {
         } else if (contextPath.startsWith("/")) {
             contextPath = contextPath.substring(1);
         }
-        
+
         String url = s_webAppUrlTemplate
                 .replace("{protocol}", isSecure ? "https" : "http")
                 .replace("{host}", hostname)
                 .replace("{port}", String.valueOf(port))
                 .replace("{context}", contextPath);
-        
+
         if (url.endsWith("/")) {
             // Don't want a trailing slash
-            url = url.substring(0,  url.length() - 1);
+            url = url.substring(0, url.length() - 1);
         }
-        StorefrontApp.APP_INSTANCE.setUrl(url);
+        
+        for (IStorefrontTenant tenant : StorefrontTenantManager.getAllTenants()) {
+            tenant.getAppInstance().setUrl(url);            
+        }        
     }
 }

@@ -45,15 +45,15 @@ public class ProductsApi extends BaseApi {
             @QueryParam("sort") ProductSort sort) {
         ProductFilter filter = new ProductFilter(page, pageSize, matchText, categories, sort);
         req.getSession().setAttribute(BaseServlet.SESSION_PRODUCT_FILTER, filter);
-        return getService().getProducts(filter);
+        return getService(req).getProducts(filter);
     }
 
     @GET
     @Path("/{productId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response get(@PathParam("productId") int productId) {
+    public Response get(@Context HttpServletRequest req, @PathParam("productId") int productId) {
         try {
-            Product product = getService().getProductDetails(productId);
+            Product product = getService(req).getProductDetails(productId);
             return Response.ok(product).build();
         } catch (ProductNotFoundException e) {
             return Response.status(Status.NOT_FOUND).build();
@@ -64,28 +64,38 @@ public class ProductsApi extends BaseApi {
     @Path("/{productId}/reviews")
     @Produces(MediaType.APPLICATION_JSON)
     public SearchResult<ProductReview> getReviews(
-            @Context HttpServletRequest req, 
-            @PathParam("productId") int productId, 
+            @Context HttpServletRequest req,
+            @PathParam("productId") int productId,
             @QueryParam("page") Integer page,
             @QueryParam("pageSize") Integer pageSize) {
         ProductReviewFilter filter = new ProductReviewFilter(page, pageSize, productId);
-        return getService().getProductReviews(filter);
+        return getService(req).getProductReviews(filter);
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public Product addProduct(@QueryParam("name") String name, @FormParam("description") String description, @FormParam("imageUrl") String imageUrl,
-            @FormParam("unitPrice") BigDecimal unitPrice, @FormParam("category") List<String> categories) {
-        return getService().addProduct(name, description, imageUrl, unitPrice, categories);
+    public Product addProduct(
+            @Context HttpServletRequest req,
+            @QueryParam("name") String name,
+            @FormParam("description") String description,
+            @FormParam("imageUrl") String imageUrl,
+            @FormParam("unitPrice") BigDecimal unitPrice,
+            @FormParam("category") List<String> categories) {
+        return getService(req).addProduct(name, description, imageUrl, unitPrice, categories);
     }
 
     @POST
     @Path("/{productId}/reviews")
     @Produces(MediaType.APPLICATION_JSON)
-    public ProductReview addReview(@Context HttpServletRequest req, @Context HttpServletResponse resp, @PathParam("productId") int productId,
-            @FormParam("title") String title, @FormParam("comments") String comments, @FormParam("emailAddress") String emailAddress,
+    public ProductReview addReview(
+            @Context HttpServletRequest req,
+            @Context HttpServletResponse resp,
+            @PathParam("productId") int productId,
+            @FormParam("title") String title,
+            @FormParam("comments") String comments,
+            @FormParam("emailAddress") String emailAddress,
             @FormParam("rating") int rating) {
         Customer customer = getOrCreateCustomer(req, resp);
-        return getService().addProductReview(customer.getId(), productId, title, comments, emailAddress, rating);
+        return getService(req).addProductReview(customer.getId(), productId, title, comments, emailAddress, rating);
     }
 }

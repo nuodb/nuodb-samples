@@ -9,9 +9,12 @@ var Storefront = {
         var me = this;
 
         // Set basic app properties
-        me.currency = cfg.currency;
+        me.currency = cfg.localInstance.currency;
         me.aggregateRegions(cfg.appInstances);
 
+        // Render menu template
+        $('#storefront-name').text(cfg.localInstance.name);
+        
         // Initialize elements shared across pages
         me.initSearchBox();
         if (window.self === window.top) {

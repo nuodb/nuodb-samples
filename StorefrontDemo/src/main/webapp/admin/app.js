@@ -24,6 +24,7 @@ Ext.application({
     minHeavyCpuUtilizationPct: 90,
     msgDefaultDisplayTimeMs: 5 * 1000,
     simulatedUserPageExpiryMs: 5 * 1000,
+    tenant: Ext.Object.fromQueryString(document.location.search)['tenant'] || '',
 
     defaultLineColor: '#c0cd30',
     defaultFillColor: '#e3e7a7',

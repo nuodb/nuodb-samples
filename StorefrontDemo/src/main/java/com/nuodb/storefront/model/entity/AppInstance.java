@@ -37,12 +37,6 @@ public class AppInstance extends UuidEntity {
 
     private int cpuUtilization;
 
-    @Transient
-    private boolean local;
-
-    @Transient
-    private boolean regionOverride;
-
     @NotNull
     @Enumerated(EnumType.STRING)
     private Currency currency = Currency.US_DOLLAR;
@@ -56,11 +50,18 @@ public class AppInstance extends UuidEntity {
     @NotNull
     private boolean stopUsersWhenIdle = true;
 
+    @Transient
+    private boolean local;
+
+    @Transient
+    private String tenantName = "Default";
+    
     public AppInstance() {
     }
 
-    public AppInstance(String region, boolean local) {
+    public AppInstance(String region, String tenant, boolean local) {
         this.region = region;
+        this.tenantName = tenant;
         this.local = local;
     }
 
@@ -69,10 +70,7 @@ public class AppInstance extends UuidEntity {
     }
 
     public String getName() {
-        if (region.toLowerCase().endsWith("region")) {
-            return region;
-        }
-        return region + " Region";
+        return "Storefront (" + region + ")";
     }
 
     public String getUrl() {
@@ -142,14 +140,6 @@ public class AppInstance extends UuidEntity {
         this.local = local;
     }
 
-    public boolean getRegionOverride() {
-        return regionOverride;
-    }
-
-    public void setRegionOverride(boolean regionOverride) {
-        this.regionOverride = regionOverride;
-    }
-
     public int getNodeId() {
         return nodeId;
     }
@@ -172,5 +162,13 @@ public class AppInstance extends UuidEntity {
 
     public void setStopUsersWhenIdle(boolean stopUsersWhenIdle) {
         this.stopUsersWhenIdle = stopUsersWhenIdle;
+    }
+
+    public String getTenantName() {
+        return tenantName;
+    }
+
+    public void setTenantName(String tenant) {
+        this.tenantName = tenant;
     }
 }

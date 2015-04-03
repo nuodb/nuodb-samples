@@ -41,6 +41,7 @@ import com.nuodb.storefront.service.IStorefrontService;
  * Basic implementation of the storefront service interface. Each service method invocation runs in its own transaction.
  */
 public class StorefrontService implements IStorefrontService {
+    private final AppInstance appInstance;
     private final IStorefrontDao dao;
 
     static {
@@ -50,8 +51,15 @@ public class StorefrontService implements IStorefrontService {
                 "updateCart" });
     }
 
-    public StorefrontService(IStorefrontDao dao) {
-        this.dao = dao;
+    public StorefrontService(AppInstance appInstance, IStorefrontDao dao) {
+        this.appInstance = appInstance;
+        this.dao = dao;        
+    }
+    
+    @Override
+    public AppInstance getAppInstance() {
+        // TODO Auto-generated method stub
+        return appInstance;
     }
 
     @Override
@@ -193,7 +201,7 @@ public class StorefrontService implements IStorefrontService {
                 review.setComments(comments);
                 review.setRating(rating);
                 review.setDateAdded(now);
-                review.setRegion(StorefrontApp.APP_INSTANCE.getRegion());
+                review.setRegion(appInstance.getRegion());
                 review.setProduct(product);
                 dao.save(review);
 
@@ -228,9 +236,9 @@ public class StorefrontService implements IStorefrontService {
                     customer.setDateAdded(now);
                 }
                 customer.setWorkload((workload == null) ? null : workload.getName());
-                customer.setRegion(StorefrontApp.APP_INSTANCE.getRegion());
+                customer.setRegion(appInstance.getRegion());
                 customer.setDateLastActive(now);
-                customer.setRegion(StorefrontApp.APP_INSTANCE.getRegion());
+                customer.setRegion(appInstance.getRegion());
                 countCartItems(customer);
 
                 dao.save(customer);
@@ -361,14 +369,14 @@ public class StorefrontService implements IStorefrontService {
                 Calendar now = Calendar.getInstance();
                 Purchase transaction = new Purchase();
                 transaction.setDatePurchased(now);
-                transaction.setRegion(StorefrontApp.APP_INSTANCE.getRegion());
+                transaction.setRegion(appInstance.getRegion());
                 transaction.setCustomer(customer);
 
                 // Move items from cart to transaction
                 for (CartSelection cartSelection : cart) {
                     PurchaseSelection selection = new PurchaseSelection(cartSelection);
                     transaction.addTransactionSelection(selection);
-                    selection.setRegion(StorefrontApp.APP_INSTANCE.getRegion());
+                    selection.setRegion(appInstance.getRegion());
                     selection.setUnitPrice(selection.getProduct().getUnitPrice());
 
                     // Increment purchase count. This is denormalized,
@@ -434,12 +442,12 @@ public class StorefrontService implements IStorefrontService {
                 // Perform instance list cleanup:
                 // 1) For the local instance, use in-memory object (newer) rather than what's in DB (updated with every heartbeat)
                 // 2) Remove extra instances with the same URL (instance with most recent heartbeat wins)
-                String localUuid = StorefrontApp.APP_INSTANCE.getUuid();
+                String localUuid = appInstance.getUuid();
                 boolean foundLocal = false;
                 for (int i = 0; i < instances.size();) {
                     AppInstance instance = instances.get(i);
                     if (instance.getUuid().equals(localUuid)) {
-                        instances.set(i, StorefrontApp.APP_INSTANCE);
+                        instances.set(i, appInstance);
                         foundLocal = true;
                     } else if (activeOnly && i > 0 && instance.getUrl().equals(instances.get(i - 1).getUrl())) {
                         instances.remove(i);
@@ -452,7 +460,7 @@ public class StorefrontService implements IStorefrontService {
                 if (!foundLocal) {
                     // Avoid race condition whereby the instance list is being requested before the first heartbeat
                     // by ensuring the local instance is always present in the list
-                    instances.add(StorefrontApp.APP_INSTANCE);
+                    instances.add(appInstance);
                 }
 
                 return instances;
@@ -501,7 +509,7 @@ public class StorefrontService implements IStorefrontService {
 
         modifiedItem.setUnitPrice(product.getUnitPrice());
         modifiedItem.setDateModified(now);
-        modifiedItem.setRegion(StorefrontApp.APP_INSTANCE.getRegion());
+        modifiedItem.setRegion(appInstance.getRegion());
         return modifiedItem;
     }
 }

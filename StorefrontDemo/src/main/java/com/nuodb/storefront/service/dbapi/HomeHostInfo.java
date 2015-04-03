@@ -1,4 +1,9 @@
-package com.nuodb.storefront.dbapi;
+/* Copyright (c) 2013-2015 NuoDB, Inc. */
+
+package com.nuodb.storefront.service.dbapi;
+
+import com.nuodb.storefront.model.db.Host;
+import com.nuodb.storefront.model.db.Region;
 
 class HomeHostInfo {
     public HomeHostInfo() {

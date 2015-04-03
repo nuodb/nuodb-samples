@@ -24,7 +24,7 @@
         <!-- Top nav bar -->
         <div id="top-bar" class="navbar">
             <div class="navbar-inner">
-                <label id="region-menu"></label>
+                <label id="storefront-name"></label>
                 
                 <form class="navbar-search search text-center" method="GET" action="store-products">
                     <input type="text" id="search" class="search-query" name="search" placeholder="Search" />
@@ -46,7 +46,6 @@
             </div>
         </div>
         <t:messages />
-        <t:region-menu />
         <% } %>
 
         <!-- Page-specific content -->

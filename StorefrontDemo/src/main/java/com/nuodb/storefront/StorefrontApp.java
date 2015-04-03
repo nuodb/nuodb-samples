@@ -11,17 +11,18 @@ import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.hibernate.tool.hbm2ddl.SchemaExport;
 
 import com.nuodb.storefront.model.dto.ProductFilter;
 import com.nuodb.storefront.model.dto.Workload;
 import com.nuodb.storefront.model.dto.WorkloadStats;
 import com.nuodb.storefront.model.dto.WorkloadStep;
 import com.nuodb.storefront.model.dto.WorkloadStepStats;
-import com.nuodb.storefront.model.entity.AppInstance;
 import com.nuodb.storefront.model.entity.Product;
 import com.nuodb.storefront.service.IDataGeneratorService;
 import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
+import com.nuodb.storefront.service.IStorefrontTenant;
 
 public class StorefrontApp {
     public static final int HEARTBEAT_INTERVAL_SEC = 10;
@@ -44,8 +45,9 @@ public class StorefrontApp {
     public static final String DEFAULT_DB_PROCESS_TAG_PREFIX = "demo_";
     public static final int DEFAULT_PORT = 9001;
     public static final String DEFAULT_URL = "{protocol}://{host}:{port}/{context}";
+    public static final String DEFAULT_TENANT_NAME = "First tenant";
+    public static final String TENANT_PARAM_NAME = "tenant"; 
 
-    public static final AppInstance APP_INSTANCE = new AppInstance(DEFAULT_REGION_NAME, true);
 
     private static final int BENCHMARK_DURATION_MS = 10000;
     private static final int SIMULATOR_STATS_DISPLAY_INTERVAL_MS = 5000;    
@@ -70,58 +72,58 @@ public class StorefrontApp {
      * </ul>
      */
     public static void main(String[] args) throws Exception {
+        IStorefrontTenant tenant = StorefrontTenantManager.getDefaultTenant();
+        
         for (int i = 0; i < args.length; i++) {
             String action = args[i];
             if ("create".equalsIgnoreCase(action)) {
-                createSchema();
+                createSchema(tenant.createSchemaExport());
                 System.out.println("Tables created successfully.");
             } else if ("drop".equalsIgnoreCase(action)) {
-                dropSchema();
+                dropSchema(tenant.createSchemaExport());
                 System.out.println("Tables dropped successfully.");
             } else if ("showddl".equalsIgnoreCase(action)) {
-                showDdl();
+                showDdl(tenant.createSchemaExport());
             } else if ("generate".equalsIgnoreCase(action)) {
                 System.out.println("Generating data...");
-                generateData();
-                System.out.println("Data generated successfully.  " + getProductStats());
+                generateData(tenant.createDataGeneratorService());
+                System.out.println("Data generated successfully.  " + getProductStats(tenant.createStorefrontService()));
             } else if ("load".equalsIgnoreCase(action)) {
                 System.out.println("Loading data...");
-                loadData();
-                System.out.println("Data loaded successfully.  " + getProductStats());
+                loadData(tenant.createDataGeneratorService());
+                System.out.println("Data loaded successfully.  " + getProductStats(tenant.createStorefrontService()));
             } else if ("simulate".equalsIgnoreCase(action)) {
-                simulateActivity();
+                simulateActivity(tenant.getSimulatorService());
             } else if ("benchmark".equalsIgnoreCase(action)) {
-                benchmark();
+                benchmark(tenant.getSimulatorService());
             } else {
                 throw new IllegalArgumentException("Unknown action:  " + action);
             }
         }
     }
 
-    protected static String getProductStats() {
+    protected static String getProductStats(IStorefrontService svc) {
         ProductFilter filter = new ProductFilter();
         filter.setPageSize(null);
-        IStorefrontService svc = StorefrontFactory.createStorefrontService();
         int numProducts = svc.getProducts(filter).getTotalCount();
         int numCategories = svc.getCategories().getTotalCount();
         return "There are now " + numProducts + " products across " + numCategories + " categories.";
     }
 
-    public static void createSchema() {
-        StorefrontFactory.createSchemaExport().create(false, true);
+    public static void createSchema(SchemaExport export) {
+        export.create(false, true);
     }
 
-    public static void dropSchema() {
-        StorefrontFactory.createSchemaExport().drop(false, true);
+    public static void dropSchema(SchemaExport export) {
+        export.drop(false, true);
     }
 
-    public static void showDdl() {
-        StorefrontFactory.createSchemaExport().drop(true, false);
-        StorefrontFactory.createSchemaExport().create(true, false);
+    public static void showDdl(SchemaExport export) {
+        export.drop(true, false);
+        export.create(true, false);
     }
 
-    public static void generateData() throws IOException {
-        IDataGeneratorService svc = StorefrontFactory.createDataGeneratorService();
+    public static void generateData(IDataGeneratorService svc) throws IOException {
         try {
             svc.generateAll(100, 5000, 2, 10);
         } finally {
@@ -129,8 +131,7 @@ public class StorefrontApp {
         }
     }
 
-    public static void removeData() throws IOException {
-        IDataGeneratorService svc = StorefrontFactory.createDataGeneratorService();
+    public static void removeData(IDataGeneratorService svc) throws IOException {
         try {
             svc.removeAll();
         } finally {
@@ -138,7 +139,7 @@ public class StorefrontApp {
         }
     }
 
-    public static void loadData() throws IOException {
+    public static void loadData(IDataGeneratorService svc) throws IOException {
         InputStream stream = StorefrontApp.class.getClassLoader().getResourceAsStream("sample-products.json");
         ObjectMapper mapper = new ObjectMapper();
 
@@ -147,7 +148,6 @@ public class StorefrontApp {
         });
 
         // Load products into DB, and load generated views
-        IDataGeneratorService svc = StorefrontFactory.createDataGeneratorService();
         try {
             svc.generateProductReviews(100, products, 10);
         } finally {
@@ -155,18 +155,16 @@ public class StorefrontApp {
         }
     }
 
-    public static void benchmark() throws InterruptedException {
+    public static void benchmark(ISimulatorService simulator) throws InterruptedException {
         Workload shoppersWithNoWait = new Workload("Customer:  Instant purchaser", true, 0, 0, Workload.DEFAULT_MAX_WORKERS, WorkloadStep.MULTI_SHOP);
 
-        ISimulatorService simulator = StorefrontFactory.getSimulatorService();
         simulator.addWorkers(shoppersWithNoWait, 100, 0);
         Thread.sleep(BENCHMARK_DURATION_MS);
         System.out.println(simulator.getWorkloadStats().get(shoppersWithNoWait.getName()).getWorkCompletionCount());
         simulator.removeAll();
     }
 
-    public static void simulateActivity() throws InterruptedException {
-        ISimulatorService simulator = StorefrontFactory.getSimulatorService();
+    public static void simulateActivity(ISimulatorService simulator) throws InterruptedException {
         simulator.adjustWorkers(Workload.BROWSER, 20, 25);
         simulator.addWorkers(Workload.BROWSER, 20, 250);
         simulator.addWorkers(Workload.SHOPPER_FAST, 20, 250);

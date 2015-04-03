@@ -41,8 +41,8 @@ public class StoreProductsServlet extends BaseServlet {
 
             // Fetch initial products
             Map<String, Object> pageData = new HashMap<String, Object>();
-            SearchResult<Category> categoryList = getStorefrontService().getCategories();
-            SearchResult<Product> productList = getStorefrontService().getProducts(filter);
+            SearchResult<Category> categoryList = getStorefrontService(req).getCategories();
+            SearchResult<Product> productList = getStorefrontService(req).getProducts(filter);
             pageData.put("products", productList);
             pageData.put("categories", categoryList);
             pageData.put("filter", filter);

@@ -29,7 +29,7 @@ public class CustomerApi extends BaseApi {
     @Produces(MediaType.APPLICATION_JSON)
     public Cart getCartSelections(@Context HttpServletRequest req, @Context HttpServletResponse resp) {
         Customer customer = getOrCreateCustomer(req, resp);
-        return getService().getCustomerCart(customer.getId());
+        return getService(req).getCustomerCart(customer.getId());
     }
 
     @PUT
@@ -38,7 +38,7 @@ public class CustomerApi extends BaseApi {
     public SearchResult<CartSelection> addToCart(@Context HttpServletRequest req, @Context HttpServletResponse resp,
             @FormParam("productId") int productId, @FormParam("quantity") int quantity) {
         Customer customer = getOrCreateCustomer(req, resp);
-        int itemCount = getService().addToCart(customer.getId(), productId, quantity);
+        int itemCount = getService(req).addToCart(customer.getId(), productId, quantity);
 
         SearchResult<CartSelection> result = new SearchResult<CartSelection>();
         result.setTotalCount(itemCount);
@@ -50,6 +50,6 @@ public class CustomerApi extends BaseApi {
     @Produces(MediaType.APPLICATION_JSON)
     public Purchase purchase(@Context HttpServletRequest req, @Context HttpServletResponse resp) {
         Customer customer = getOrCreateCustomer(req, resp);
-        return getService().checkout(customer.getId());
+        return getService(req).checkout(customer.getId());
     }
 }

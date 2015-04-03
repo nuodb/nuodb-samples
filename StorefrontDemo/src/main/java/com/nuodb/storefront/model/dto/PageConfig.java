@@ -7,10 +7,8 @@ import java.util.List;
 
 import org.codehaus.jackson.map.ObjectMapper;
 
-import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.model.entity.AppInstance;
 import com.nuodb.storefront.model.entity.Customer;
-import com.nuodb.storefront.model.type.Currency;
 
 public class PageConfig {
     private String pageTitle;
@@ -30,10 +28,6 @@ public class PageConfig {
         this.customer = customer;
         this.messages = messages;
         this.appInstances = appInstances;
-    }
-
-    public Currency getCurrency() {
-        return StorefrontApp.APP_INSTANCE.getCurrency();
     }
 
     public String getPageTitle() {
@@ -74,6 +68,15 @@ public class PageConfig {
 
     public void setMessages(List<Message> messages) {
         this.messages = messages;
+    }
+    
+    public AppInstance getLocalInstance() {
+        for (AppInstance instance : appInstances) {
+            if (instance.getLocal()) {
+                return instance;
+            }
+        }
+        return null;
     }
 
     public List<AppInstance> getAppInstances() {

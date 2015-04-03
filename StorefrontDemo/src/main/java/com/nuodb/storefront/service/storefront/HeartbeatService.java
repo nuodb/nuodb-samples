@@ -18,7 +18,6 @@ import javax.ws.rs.core.MediaType;
 import org.apache.log4j.Logger;
 
 import com.nuodb.storefront.StorefrontApp;
-import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.dal.IStorefrontDao;
 import com.nuodb.storefront.dal.StorefrontDao;
 import com.nuodb.storefront.dal.TransactionType;
@@ -29,12 +28,16 @@ import com.nuodb.storefront.model.dto.RegionStats;
 import com.nuodb.storefront.model.entity.AppInstance;
 import com.nuodb.storefront.service.IHeartbeatService;
 import com.nuodb.storefront.service.IStorefrontPeerService;
+import com.nuodb.storefront.service.IStorefrontTenant;
 import com.nuodb.storefront.service.simulator.SimulatorService;
 import com.nuodb.storefront.util.PerformanceUtil;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.uri.UriComponent;
+import com.sun.jersey.api.uri.UriComponent.Type;
 
 public class HeartbeatService implements IHeartbeatService, IStorefrontPeerService {
     private static final Logger s_log = Logger.getLogger(SimulatorService.class.getName());
+    private final IStorefrontTenant tenant;
     private int secondsUntilNextPurge = 0;
     private int consecutiveFailureCount = 0;
     private int successCount = 0;
@@ -45,18 +48,19 @@ public class HeartbeatService implements IHeartbeatService, IStorefrontPeerServi
         StorefrontDao.registerTransactionNames(new String[] { "sendHeartbeat" });
     }
 
-    public HeartbeatService() {
+    public HeartbeatService(IStorefrontTenant tenant) {
+        this.tenant = tenant;
     }
 
     @Override
     public void run() {
         try {
-            final IStorefrontDao dao = StorefrontFactory.createStorefrontDao();
+            final IStorefrontDao dao = tenant.createStorefrontDao();
             dao.runTransaction(TransactionType.READ_WRITE, "sendHeartbeat", new Runnable() {
                 @Override
                 public void run() {
                     Calendar now = Calendar.getInstance();
-                    AppInstance appInstance = StorefrontApp.APP_INSTANCE;
+                    AppInstance appInstance = tenant.getAppInstance();
                     secondsUntilNextPurge -= StorefrontApp.HEARTBEAT_INTERVAL_SEC;
 
                     if (appInstance.getFirstHeartbeat() == null) {
@@ -65,14 +69,13 @@ public class HeartbeatService implements IHeartbeatService, IStorefrontPeerServi
                     }
 
                     // Send the heartbeat with the latest "last heartbeat time"
+                    DbRegionInfo region = dao.getCurrentDbNodeRegion();
                     appInstance.setCpuUtilization(PerformanceUtil.getAvgCpuUtilization());
                     appInstance.setLastHeartbeat(now);
-                    if (!appInstance.getRegionOverride()) {
-                        DbRegionInfo region = dao.getCurrentDbNodeRegion();
-                        appInstance.setRegion(region.regionName);
-                        appInstance.setNodeId(region.nodeId);
-                    }
-                    dao.save(StorefrontApp.APP_INSTANCE); // this will create or update as appropriate
+                    appInstance.setRegion(region.regionName);
+                    appInstance.setNodeId(region.nodeId);
+                    dao.save(appInstance); // this will create or update as appropriate
+                    s_log.info(appInstance.getTenantName() + ": Sent heartbeat");
 
                     // If enough time has elapsed, also delete rows of instances that are no longer sending heartbeats
                     if (secondsUntilNextPurge <= 0) {
@@ -87,12 +90,12 @@ public class HeartbeatService implements IHeartbeatService, IStorefrontPeerServi
                     idleThreshold.add(Calendar.SECOND, -StorefrontApp.STOP_USERS_AFTER_IDLE_UI_SEC);
                     if (appInstance.getStopUsersWhenIdle() && appInstance.getLastApiActivity().before(idleThreshold)) {
                         // Don't do any heavy lifting if there are no simulated workloads in progress
-                        int activeWorkerCount = StorefrontFactory.getSimulatorService().getActiveWorkerLimit();
+                        int activeWorkerCount = tenant.getSimulatorService().getActiveWorkerLimit();
                         if (activeWorkerCount > 0) {
                             // Check for idleness across *all* instances
                             if (dao.getActiveAppInstanceCount(idleThreshold) == 0) {
-                                s_log.info("Stopping all " + activeWorkerCount + " simulated users due to idle app instances.");
-                                StorefrontFactory.getSimulatorService().stopAll();
+                                s_log.info(appInstance.getTenantName() + ": Stopping all " + activeWorkerCount + " simulated users due to idle app instances.");
+                                tenant.getSimulatorService().stopAll();
                             }
                         }
                     } else {
@@ -106,7 +109,7 @@ public class HeartbeatService implements IHeartbeatService, IStorefrontPeerServi
             });
         } catch (Exception e) {
             if (successCount > 0 && ++consecutiveFailureCount == 1) {
-                s_log.error("Unable to send heartbeat", e);
+                s_log.error(tenant.getAppInstance().getTenantName() + ": Unable to send heartbeat", e);
             }
         }
     }
@@ -114,7 +117,7 @@ public class HeartbeatService implements IHeartbeatService, IStorefrontPeerServi
     @Override
     public void asyncWakeStorefrontsInOtherRegions() {
         // Assume no regions are covered
-        Collection<RegionStats> regions = StorefrontFactory.getDbApi().getRegionStats();
+        Collection<RegionStats> regions = tenant.getDbApi().getRegionStats();
         Map<String, RegionStats> missingRegions = new HashMap<String, RegionStats>();
         for (RegionStats region : regions) {
             if (region.usedHostCount > 0) {
@@ -128,7 +131,7 @@ public class HeartbeatService implements IHeartbeatService, IStorefrontPeerServi
         }
 
         // Eliminate regions that are covered by existing active instances
-        List<AppInstance> instances = StorefrontFactory.createStorefrontService().getAppInstances(true);
+        List<AppInstance> instances = tenant.createStorefrontService().getAppInstances(true);
         for (AppInstance instance : instances) {
             missingRegions.remove(instance.getRegion());
         }
@@ -162,7 +165,7 @@ public class HeartbeatService implements IHeartbeatService, IStorefrontPeerServi
         int sfPort;
         String sfPath;
         try {
-            URI homeUrl = new URI(StorefrontApp.APP_INSTANCE.getUrl());
+            URI homeUrl = new URI(tenant.getAppInstance().getUrl());
             sfScheme = homeUrl.getScheme();
             sfPort = homeUrl.getPort();
             sfPath = homeUrl.getPath();
@@ -173,23 +176,25 @@ public class HeartbeatService implements IHeartbeatService, IStorefrontPeerServi
             return;
         }
 
+        String tenantName = tenant.getAppInstance().getTenantName();
+        
         // Wake 1 Storefront in each region
-        Client client = StorefrontFactory.createApiClient();
+        Client client = tenant.createApiClient();
         for (Map.Entry<String, Set<URI>> entry : wakeListCopy.entrySet()) {
             String region = entry.getKey();
             for (URI peerHostUrl : entry.getValue()) {
                 URI peerStorefrontUrl;
                 try {
-                    peerStorefrontUrl = new URI(sfScheme, null, peerHostUrl.getHost(), sfPort, sfPath + "/api/app-instances/sync", null, null);
+                    peerStorefrontUrl = new URI(sfScheme, null, peerHostUrl.getHost(), sfPort, sfPath + "/api/app-instances/sync?tenant=" + UriComponent.encode(tenantName, Type.QUERY_PARAM), null, null);
                 } catch (URISyntaxException e1) {
                     continue;
                 }
-                
+
                 try {
                     client.resource(peerStorefrontUrl)
                             .type(MediaType.APPLICATION_JSON)
-                            .put(ConnInfo.class, StorefrontFactory.getDbConnInfo());
-                    s_log.info("Successfully contacted peer Storefront at [" + peerStorefrontUrl + "] in the " + region + " region.");
+                            .put(ConnInfo.class, tenant.getDbConnInfo());
+                    s_log.info(tenantName + ": Successfully contacted peer Storefront at [" + peerStorefrontUrl + "] in the " + region + " region.");
 
                     // Success. We're done in this region.
                     break;
@@ -202,12 +207,12 @@ public class HeartbeatService implements IHeartbeatService, IStorefrontPeerServi
                         }
                         if (warn) {
                             ApiException ae = ApiException.toApiException(e);
-                            s_log.warn("Unable to contact peer Storefront [" + peerStorefrontUrl + "] in the " + region + " region: "
+                            s_log.warn(tenantName + ": Unable to contact peer Storefront [" + peerStorefrontUrl + "] in the " + region + " region: "
                                     + ae.getMessage());
                         }
                     }
                 }
-                
+
                 synchronized (wakeList) {
                     wakeList.remove(peerHostUrl);
                 }

@@ -1,6 +1,6 @@
 /* Copyright (c) 2013-2015 NuoDB, Inc. */
 
-package com.nuodb.storefront.dbapi;
+package com.nuodb.storefront.service.dbapi;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -21,14 +21,20 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.nuodb.storefront.StorefrontApp;
-import com.nuodb.storefront.StorefrontFactory;
 import com.nuodb.storefront.exception.ApiException;
 import com.nuodb.storefront.exception.DataValidationException;
 import com.nuodb.storefront.exception.DatabaseNotFoundException;
+import com.nuodb.storefront.model.db.Database;
+import com.nuodb.storefront.model.db.Host;
+import com.nuodb.storefront.model.db.Process;
+import com.nuodb.storefront.model.db.Region;
+import com.nuodb.storefront.model.db.Tag;
 import com.nuodb.storefront.model.dto.ConnInfo;
 import com.nuodb.storefront.model.dto.DbConnInfo;
 import com.nuodb.storefront.model.dto.DbFootprint;
 import com.nuodb.storefront.model.dto.RegionStats;
+import com.nuodb.storefront.service.IDbApi;
+import com.nuodb.storefront.service.IStorefrontTenant;
 import com.nuodb.storefront.util.NetworkUtil;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.WebResource;
@@ -57,12 +63,14 @@ public class DbApiProxy implements IDbApi {
     private static final String PROCESS_TYPE_TE = "TE";
     private static final String PROCESS_TYPE_SM = "SM";
 
+    private final IStorefrontTenant tenant;
     private final ConnInfo apiConnInfo;
     private final DbConnInfo dbConnInfo;
 
-    public DbApiProxy(ConnInfo apiConnInfo, DbConnInfo dbConnInfo) {
-        this.apiConnInfo = apiConnInfo;
-        this.dbConnInfo = dbConnInfo;
+    public DbApiProxy(IStorefrontTenant tenant) {
+        this.tenant = tenant;
+        this.apiConnInfo = tenant.getApiConnInfo();
+        this.dbConnInfo = tenant.getDbConnInfo();
     }
 
     @Override
@@ -85,7 +93,7 @@ public class DbApiProxy implements IDbApi {
     public Database getDb() throws ApiException {
         try {
             String dbName = dbConnInfo.getDbName();
-            return buildClient("/databases/" + urlEncodePathSegment(dbName)).get(Database.class);
+            return buildClient("/databases/" + UriComponent.encode(dbName, Type.PATH_SEGMENT)).get(Database.class);
         } catch (ClientHandlerException e) {
             // DB not found
             return null;
@@ -212,7 +220,7 @@ public class DbApiProxy implements IDbApi {
                         if (hostHasDbProcess) {
                             region.usedHostCount++;
                         }
-                        
+
                         if (region.usedHostUrls == null) {
                             region.usedHostUrls = new HashSet<URI>();
                         }
@@ -337,10 +345,10 @@ public class DbApiProxy implements IDbApi {
                     database.password = dbConnInfo.getPassword();
 
                     s_logger.info("Creating DB '" + database.name + "' with template '" + database.template + "' and vars " + database.variables);
-                    buildClient("/databases/").post(Database.class, database);
+                    buildClient("/databases").post(Database.class, database);
                 } else if (updateDb) {
                     s_logger.info("Updating DB '" + database.name + "' with template '" + database.template + "' and vars " + database.variables);
-                    buildClient("/databases/" + urlEncodePathSegment(database.name)).put(Database.class, database);
+                    buildClient("/databases/" + UriComponent.encode(database.name, Type.PATH_SEGMENT)).put(Database.class, database);
                 }
             }
 
@@ -373,7 +381,7 @@ public class DbApiProxy implements IDbApi {
             s_logger.info("Removing tag '" + tagName + "' from host " + host.address + " (id=" + host.id + ")");
 
             try {
-                buildClient("/hosts/" + host.id + "/tags/" + urlEncodePathSegment(tagName)).delete();
+                buildClient("/hosts/" + host.id + "/tags/" + UriComponent.encode(tagName, Type.PATH_SEGMENT)).delete();
             } catch (Exception e) {
                 ApiException ape = ApiException.toApiException(e);
                 if (ape.getErrorCode() != Status.NOT_FOUND) {
@@ -394,7 +402,7 @@ public class DbApiProxy implements IDbApi {
     }
 
     protected HomeHostInfo findHomeHostInfo(Collection<Region> regions) {
-        String homeRegionName = StorefrontApp.APP_INSTANCE.getRegion();
+        String homeRegionName = tenant.getAppInstance().getRegion();
         String dbName = dbConnInfo.getDbName();
         Set<String> ipAddresses = NetworkUtil.getLocalIpAddresses();
 
@@ -491,7 +499,7 @@ public class DbApiProxy implements IDbApi {
 
     protected WebResource.Builder buildClient(String path) {
         String authHeader = "Basic " + new String(Base64.encode(apiConnInfo.getUsername() + ":" + apiConnInfo.getPassword()));
-        return StorefrontFactory.createApiClient()
+        return tenant.createApiClient()
                 .resource(apiConnInfo.getUrl() + path)
                 .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .type(MediaType.APPLICATION_JSON);
@@ -535,7 +543,7 @@ public class DbApiProxy implements IDbApi {
         int changeCount = 0;
         String oldTemplateName = null;
         if (database.template instanceof Map) {
-            oldTemplateName = ((Map<String, String>)database.template).get("name");
+            oldTemplateName = ((Map<String, String>) database.template).get("name");
         } else if (database.template != null) {
             oldTemplateName = String.valueOf(database.template);
         }
@@ -565,10 +573,6 @@ public class DbApiProxy implements IDbApi {
         changeCount += applyVariables(database.options, targetOptions);
 
         return changeCount > 0;
-    }
-
-    private static String urlEncodePathSegment(String str) {
-        return UriComponent.encode(str, Type.PATH_SEGMENT);
     }
 
     private static Map<String, String> buildTagMustExistConstraint(String tagName) {

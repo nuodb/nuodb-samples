@@ -5,7 +5,7 @@ package com.nuodb.storefront.model.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.nuodb.storefront.dbapi.Process;
+import com.nuodb.storefront.model.db.Process;
 
 public class ProcessDetail extends Process {
     private List<String> appInstances = new ArrayList<String>();

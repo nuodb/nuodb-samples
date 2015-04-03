@@ -17,9 +17,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.exception.GenericJDBCException;
 import org.hibernate.exception.SQLGrammarException;
 
-import com.nuodb.storefront.StorefrontApp;
-import com.nuodb.storefront.StorefrontFactory;
-import com.nuodb.storefront.dbapi.IDbApi;
+import com.nuodb.storefront.StorefrontTenantManager;
 import com.nuodb.storefront.model.dto.DbConnInfo;
 import com.nuodb.storefront.model.dto.Message;
 import com.nuodb.storefront.model.dto.PageConfig;
@@ -27,8 +25,10 @@ import com.nuodb.storefront.model.dto.ProductFilter;
 import com.nuodb.storefront.model.entity.AppInstance;
 import com.nuodb.storefront.model.entity.Customer;
 import com.nuodb.storefront.model.type.MessageSeverity;
+import com.nuodb.storefront.service.IDbApi;
 import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
+import com.nuodb.storefront.service.IStorefrontTenant;
 
 public abstract class BaseServlet extends HttpServlet {
     public static final String ATTR_PAGE_CONFIG = "pageConfig";
@@ -48,23 +48,27 @@ public abstract class BaseServlet extends HttpServlet {
     protected BaseServlet() {
     }
 
-    public static IStorefrontService getStorefrontService() {
+    public static IStorefrontTenant getTenant(HttpServletRequest req) {
+        return StorefrontTenantManager.getTenant(req);
+    }
+    
+    public static IStorefrontService getStorefrontService(HttpServletRequest req) {
         if (s_svc == null) {
             synchronized (s_svcLock) {
                 if (s_svc == null) {
-                    s_svc = StorefrontFactory.createStorefrontService();
+                    s_svc = getTenant(req).createStorefrontService();
                 }
             }
         }
         return s_svc;
     }
 
-    public static IDbApi getDbApi() {
-        return StorefrontFactory.getDbApi();
+    public static IDbApi getDbApi(HttpServletRequest req) {
+        return getTenant(req).getDbApi();
     }
 
-    public static ISimulatorService getSimulator() {
-        return StorefrontFactory.getSimulatorService();
+    public static ISimulatorService getSimulator(HttpServletRequest req) {
+        return getTenant(req).getSimulatorService();
     }
 
     public static Customer getOrCreateCustomer(HttpServletRequest req, HttpServletResponse resp) {
@@ -88,7 +92,7 @@ public abstract class BaseServlet extends HttpServlet {
                 customerId = 0L;
             }
 
-            customer = getStorefrontService().getOrCreateCustomer(customerId, null);
+            customer = getStorefrontService(req).getOrCreateCustomer(customerId, null);
             req.getSession().setAttribute(SESSION_CUSTOMER_ID, customer.getId());
             req.setAttribute(ATTR_CUSTOMER, customer);
 
@@ -156,9 +160,10 @@ public abstract class BaseServlet extends HttpServlet {
             Customer customer) throws ServletException, IOException {
 
         StorefrontWebApp.updateWebAppUrl(req);
+        AppInstance appInstance = getTenant(req).getAppInstance();
 
         // Build full page title
-        String storeName = StorefrontApp.APP_INSTANCE.getName() + " - NuoDB Storefront Demo";
+        String storeName = appInstance.getName() + " - NuoDB Storefront Demo";
         if (pageTitle == null || pageTitle.isEmpty()) {
             pageTitle = storeName;
         } else {
@@ -173,10 +178,10 @@ public abstract class BaseServlet extends HttpServlet {
         // Fetch app instance list for region dropdown menu
         List<AppInstance> appInstances;
         try {
-            appInstances = getStorefrontService().getAppInstances(true);
+            appInstances = getStorefrontService(req).getAppInstances(true);
         } catch (Exception e) {
             appInstances = new ArrayList<AppInstance>();
-            appInstances.add(StorefrontApp.APP_INSTANCE);
+            appInstances.add(appInstance);
         }
 
         PageConfig initData = new PageConfig(pageTitle, pageName, pageData, customer, getMessages(req), appInstances);
@@ -192,9 +197,11 @@ public abstract class BaseServlet extends HttpServlet {
     protected static void showCriticalErrorPage(HttpServletRequest req, HttpServletResponse resp, Exception ex) throws ServletException, IOException {
         getMessages(req).clear();
         addErrorMessage(req, ex);
+        
+        IStorefrontTenant tenant = getTenant(req);
 
         if (ex instanceof GenericJDBCException) {
-            DbConnInfo dbInfo = StorefrontFactory.getDbConnInfo();
+            DbConnInfo dbInfo = tenant.getDbConnInfo();
             addMessage(
                     req,
                     MessageSeverity.INFO,
@@ -204,7 +211,7 @@ public abstract class BaseServlet extends HttpServlet {
             // Tables could be missing or bad. This could happen if a user re-creates the Storefront DB while it's running. Try repairing.
             try {
                 synchronized (s_schemaUpdateLock) {
-                    StorefrontFactory.createSchema();
+                    tenant.createSchema();
                 }
                 addMessage(req, MessageSeverity.WARNING, "The Storefront schema has been updated.  One or more tables were missing or out of date.",
                         "Refresh page");

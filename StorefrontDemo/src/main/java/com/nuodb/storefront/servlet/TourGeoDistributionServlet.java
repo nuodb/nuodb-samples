@@ -18,7 +18,7 @@ public class TourGeoDistributionServlet extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            if (getDbApi().getDbFootprint().regionCount <= 1) {
+            if (getDbApi(req).getDbFootprint().regionCount <= 1) {
                 addMessage(req, MessageSeverity.WARNING,
                         "You cannot see Geo-Distribution in action because you have no additional regions available. "
                                 + "An easy way to run NuoDB with multiple regions is to use the NuoDB AWS Quickstart kit with with your Amazon Web Services (AWS) account. "

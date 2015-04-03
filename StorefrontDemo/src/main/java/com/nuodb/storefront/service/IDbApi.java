@@ -1,12 +1,14 @@
 /* Copyright (c) 2013-2015 NuoDB, Inc. */
 
-package com.nuodb.storefront.dbapi;
+package com.nuodb.storefront.service;
 
 import java.util.List;
 
 import com.nuodb.storefront.exception.ApiException;
 import com.nuodb.storefront.exception.DataValidationException;
 import com.nuodb.storefront.exception.DatabaseNotFoundException;
+import com.nuodb.storefront.model.db.Database;
+import com.nuodb.storefront.model.db.Process;
 import com.nuodb.storefront.model.dto.ConnInfo;
 import com.nuodb.storefront.model.dto.DbFootprint;
 import com.nuodb.storefront.model.dto.RegionStats;

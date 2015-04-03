@@ -1,6 +1,6 @@
 /* Copyright (c) 2013-2015 NuoDB, Inc. */
 
-package com.nuodb.storefront.dbapi;
+package com.nuodb.storefront.model.db;
 
 import java.util.Map;
 

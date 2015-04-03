@@ -25,7 +25,7 @@ Ext.define('App.view.Viewport', {
         if (window.NuoHeader) {
             me.padding = '50 0 0 0';
             NuoHeader.render({
-                appTitle: 'NuoDB Storefront Demo',
+                appTitle: 'NuoDB Storefront Demo' + ((App.app.tenant) ? ' [' + Ext.String.htmlEncode(App.app.tenant) + ']' : ''),
                 homeUrl: './',
                 sidebarTip: 'Hide control panel'
             });

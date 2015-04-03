@@ -24,7 +24,7 @@ public class StoreCartServlet extends BaseServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             Customer customer = getOrCreateCustomer(req, resp);
-            Cart cart = getStorefrontService().getCustomerCart(customer.getId());
+            Cart cart = getStorefrontService(req).getCustomerCart(customer.getId());
             showPage(req, resp, "Cart", "store-cart", cart, customer);
         } catch (Exception ex) {
             showCriticalErrorPage(req, resp, ex);
@@ -51,12 +51,12 @@ public class StoreCartServlet extends BaseServlet {
                     }
                 }
 
-                int cartItemCount = getStorefrontService().updateCart(customer.getId(), productQuantityMap);
+                int cartItemCount = getStorefrontService(req).updateCart(customer.getId(), productQuantityMap);
                 customer.setCartItemCount(cartItemCount);
                 doGet(req, resp);
             } else if ("checkout".equals(action)) {
                 // Move items from cart to transaction
-                getStorefrontService().checkout(customer.getId());
+                getStorefrontService(req).checkout(customer.getId());
 
                 // Report success
                 String itemDesc = (customer.getCartItemCount() != 1) ? customer.getCartItemCount() + " items" : "item";
