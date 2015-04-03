@@ -75,7 +75,7 @@ public class HeartbeatService implements IHeartbeatService, IStorefrontPeerServi
                     appInstance.setRegion(region.regionName);
                     appInstance.setNodeId(region.nodeId);
                     dao.save(appInstance); // this will create or update as appropriate
-                    s_log.info(appInstance.getTenantName() + ": Sent heartbeat");
+                    //s_log.info(appInstance.getTenantName() + ": Sent heartbeat");
 
                     // If enough time has elapsed, also delete rows of instances that are no longer sending heartbeats
                     if (secondsUntilNextPurge <= 0) {
