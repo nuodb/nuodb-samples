@@ -2,11 +2,16 @@
 
 package com.nuodb.storefront.service;
 
+import java.io.StringWriter;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 
 import com.nuodb.storefront.dal.IStorefrontDao;
 import com.nuodb.storefront.model.dto.ConnInfo;
 import com.nuodb.storefront.model.dto.DbConnInfo;
+import com.nuodb.storefront.model.dto.TransactionStats;
 import com.nuodb.storefront.model.entity.AppInstance;
 import com.sun.jersey.api.client.Client;
 
@@ -49,11 +54,17 @@ public interface IStorefrontTenant {
     
     public Client createApiClient();
 
-    // Singleton services
+    // Tenant singletons
     
     public ISimulatorService getSimulatorService();
 
     public IStorefrontPeerService getStorefrontPeerService();
 
     public IDbApi getDbApi();
+    
+    public Logger getLogger(Class<?> clazz);
+    
+    public StringWriter getLogWriter();
+    
+    public Map<String, TransactionStats> getTransactionStats();
 }

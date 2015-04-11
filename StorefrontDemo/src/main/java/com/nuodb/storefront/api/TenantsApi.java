@@ -13,6 +13,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import com.nuodb.storefront.StorefrontTenantManager;
 import com.nuodb.storefront.model.dto.TenantInfo;
@@ -27,19 +28,19 @@ public class TenantsApi extends BaseApi {
     @Produces(MediaType.APPLICATION_JSON)
     public List<TenantInfo> getTenants(@Context HttpServletRequest req) {
         List<TenantInfo> dbs = new ArrayList<TenantInfo>();
-        
+
         IStorefrontTenant defaultTenant = StorefrontTenantManager.getDefaultTenant();
-        
+
         for (IStorefrontTenant tenant : StorefrontTenantManager.getAllTenants()) {
             dbs.add(new TenantInfo(tenant, tenant == defaultTenant));
         }
         return dbs;
     }
-    
+
     @DELETE
-    @Path("/{tennantName}")
-    public void deleteTenant(@Context HttpServletRequest req, @PathParam("tenantName") String tenantName) {
+    @Path("/{tenantName}")
+    public Response deleteTenant(@Context HttpServletRequest req, @PathParam("tenantName") String tenantName) {
         StorefrontTenantManager.destroyTenant(tenantName);
-        
+        return Response.ok().build();
     }
 }

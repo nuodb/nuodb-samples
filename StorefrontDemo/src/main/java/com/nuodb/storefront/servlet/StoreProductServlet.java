@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.nuodb.storefront.exception.ProductNotFoundException;
 import com.nuodb.storefront.model.entity.Product;
+import com.sun.jersey.api.uri.UriComponent;
+import com.sun.jersey.api.uri.UriComponent.Type;
 
 public class StoreProductServlet extends BaseServlet {
     private static final long serialVersionUID = 7440733613054861406L;
@@ -25,7 +27,7 @@ public class StoreProductServlet extends BaseServlet {
             showPage(req, resp, product.getName(), "store-product", product);
         } catch (ProductNotFoundException ex) {
             addErrorMessage(req, ex);
-            resp.sendRedirect("store-products");
+            resp.sendRedirect("store-products?tenant=" + UriComponent.encode(getTenant(req).getAppInstance().getTenantName(), Type.QUERY_PARAM));
         } catch (Exception ex) {
             showCriticalErrorPage(req, resp, ex);
         }

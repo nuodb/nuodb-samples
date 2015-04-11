@@ -115,7 +115,7 @@ If you are running multiple Storefronts, unchecking this box on any of them disa
 															<td><div title="Steps:{{#workload.steps}}
 {{addOne @index}}. {{this}}{{/workload.steps}}
 
-Think time: {{{msFormat workload.avgThinkTimeMs}} (stdev {{sqrtMsFormat workload.thinkTimeVariance}})"><span class="label label-color-{{@index}}">&nbsp;</span> {{workload.name}}</div></td>
+Think time: {{msFormat workload.avgThinkTimeMs}} (stdev {{sqrtMsFormat workload.thinkTimeVariance}})"><span class="label label-color-{{@index}}">&nbsp;</span> {{workload.name}}</div></td>
 															<td>
 																<div class="progress">
 																	<div class="bar empty" style="width: 0%;"></div>

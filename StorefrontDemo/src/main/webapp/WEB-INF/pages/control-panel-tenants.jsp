@@ -4,13 +4,19 @@
 
 <t:page showHeader="false">
     <div id="control-panel">
-        <h1>Tenants</h1>
+        <h1>Storefront Tenants</h1>
+        <p>These Storefronts are sharing the same database domain, but they are isolated from each other.<br />Each Storefront has its own product catalog, simulated users, purchase history, etc.</p>
         <t:messages />
 
         <div id="list" class="tab-pane"></div>
         <script id="tpl-list" type="text/template">
             <table class="table table-bordered table-hover">
-                <thead>
+                <colgroup>
+					<col />
+					<col />
+					<col width="150" />
+				</colgroup>
+				<thead>
                     <tr>
                         <th>Tenant</th>
 						<th>Database</th>
@@ -19,10 +25,10 @@
                 </thead>
                 <tbody>
                     {{#result}}
-						<tr>
-							<td><a href="admin?tenant={{name}}" target="_blank">{{name}}</a></td>
+						<tr data-uid="{{name}}">
+							<td><a href="admin?tenant={{urlEncode name}}" target="_blank">{{name}}</a></td>
 							<td>{{dbConnInfo.dbName}}</td>
-							<td><button class="btn btn-danger" {{#if default}}title="Cannot shut down first tenant" disabled="disabled"{{/if}}><i class="icon-off icon-white"></i> Shutdown</button></td>
+							<td><button class="btn btn-danger" {{#if default}}title="Cannot shut down default tenant" disabled="disabled"{{/if}}><i class="icon-off icon-white"></i> Shutdown</button></td>
 						</tr>
                     {{/result}}
                 </tbody>

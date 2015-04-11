@@ -18,7 +18,7 @@
 				{{#if categories}}
 					<p class="categories">					
 						{{#categories}}
-  							<a href="store-products?categories={{urlEncode this}}"><span class="label">{{this}}</span></a>
+  							<a href="store-products${qs}&categories={{urlEncode this}}"><span class="label">{{this}}</span></a>
 						{{/categories}}
 					</p>
 				{{/if}}
@@ -42,7 +42,7 @@
                     </button>
                 </form>
        	    	<p>
-           	    	<a href="store-products">Continue Shopping</a>
+           	    	<a href="store-products${qs}">Continue Shopping</a>
             	</p>
             </div>
         </div>

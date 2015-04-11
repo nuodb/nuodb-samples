@@ -54,7 +54,7 @@ public class AppInstance extends UuidEntity {
     private boolean local;
 
     @Transient
-    private String tenantName = "Default";
+    private String tenantName;
     
     public AppInstance() {
     }
@@ -166,9 +166,5 @@ public class AppInstance extends UuidEntity {
 
     public String getTenantName() {
         return tenantName;
-    }
-
-    public void setTenantName(String tenant) {
-        this.tenantName = tenant;
     }
 }

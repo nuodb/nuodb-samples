@@ -30,7 +30,6 @@ import com.nuodb.storefront.service.IStorefrontTenant;
 
 public class WelcomeServlet extends ControlPanelProductsServlet {
     private static final long serialVersionUID = 4369262156023258885L;
-    private static final Logger s_logger = Logger.getLogger(WelcomeServlet.class.getName());
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -46,7 +45,7 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
     @Override
     protected void doPostAction(HttpServletRequest req, HttpServletResponse resp, String btnAction) throws IOException {
         IStorefrontTenant tenant = getTenant(req);
-        
+
         if (btnAction.equals("api")) {
             ConnInfo apiConnInfo = new ConnInfo();
             apiConnInfo.setUrl(req.getParameter("api-url"));
@@ -96,7 +95,8 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
 
     protected Pair<String, Object> doHealthCheck(HttpServletRequest req) throws ServletException {
         IStorefrontTenant tenant = getTenant(req);
-        
+        Logger logger = tenant.getLogger(getClass());
+
         try {
             try {
                 tenant.getDbApi().fixDbSetup(false);
@@ -114,7 +114,7 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
                         tenant.createSchema();
                         checkForProducts(req);
                     } catch (Exception e2) {
-                        s_logger.warn("Schema repair didn't work", e2);
+                        logger.warn("Schema repair didn't work", e2);
                         throw e;
                     }
                 }
@@ -123,7 +123,7 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
             return new ImmutablePair<String, Object>("db", tenant.getDbConnInfo());
 
         } catch (GenericJDBCException e) {
-            s_logger.warn("Servlet handled JDBC error", e);
+            logger.warn("Servlet handled JDBC error", e);
 
             // Database may not exist. Inform the user
             DbConnInfo dbInfo = tenant.getDbConnInfo();
@@ -135,7 +135,7 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
             return null;
 
         } catch (ApiConnectionException e) {
-            s_logger.error("Can't connect to API", e);
+            logger.error("Can't connect to API", e);
             ConnInfo apiConnInfo = tenant.getDbApi().getApiConnInfo();
             addMessage(req, MessageSeverity.ERROR,
                     "Cannot connect to NuoDB API.  The Storefront is trying to connect to \"" + apiConnInfo.getUrl() + "\" with the username \""
@@ -149,12 +149,12 @@ public class WelcomeServlet extends ControlPanelProductsServlet {
             return new ImmutablePair<String, Object>("api", apiConnInfo);
 
         } catch (ApiException e) {
-            s_logger.error("Health check failed", e);
+            logger.error("Health check failed", e);
             addMessage(req, MessageSeverity.ERROR,
                     "NuoDB RESTful API at " + tenant.getDbApi().getApiConnInfo().getUrl() + " returned an error:  " + e.getMessage(), "Retry");
 
         } catch (Exception e) {
-            s_logger.error("Health check failed", e);
+            logger.error("Health check failed", e);
             Throwable ei = e.getCause();
             DbConnInfo dbInfo = tenant.getDbConnInfo();
             String msg = (ei != null) ? ei.getMessage() : null;

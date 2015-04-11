@@ -34,25 +34,11 @@ import com.nuodb.storefront.model.type.ProductSort;
  * transactions, typically by using the {@link #runTransaction(Callable)} or {@link #runTransaction(Runnable)} method.
  */
 public class StorefrontDao extends BaseDao implements IStorefrontDao {
-    private static final Map<String, TransactionStats> s_transactionStatsMap = new HashMap<String, TransactionStats>();
+    private final Map<String, TransactionStats> transactionStatsMap;
 
-    public StorefrontDao() {
-    }
-
-    /**
-     * Registers a transaction name for transaction stats tracking. This is done for convenience to API clients, so they know up front all of the
-     * transaction types available, even if some of those transaction types have not yet been executed and therefore have no stats associated with
-     * them.
-     */
-    public static void registerTransactionNames(String[] transactionNames) {
-        synchronized (s_transactionStatsMap) {
-            for (String transactionName : transactionNames) {
-                if (!s_transactionStatsMap.containsKey(transactionName)) {
-                    s_transactionStatsMap.put(transactionName, new TransactionStats());
-                }
-            }
-        }
-    }
+    public StorefrontDao(Map<String, TransactionStats> transactionStatsMap) {
+        this.transactionStatsMap = transactionStatsMap;
+    }    
 
     @Override
     public void initialize(IEntity entity) {
@@ -95,17 +81,6 @@ public class StorefrontDao extends BaseDao implements IStorefrontDao {
             session.evict(p);
         }
         return result;
-    }
-
-    @Override
-    public Map<String, TransactionStats> getTransactionStats() {
-        Map<String, TransactionStats> mapCopy = new TreeMap<String, TransactionStats>();
-        synchronized (s_transactionStatsMap) {
-            for (Map.Entry<String, TransactionStats> entry : s_transactionStatsMap.entrySet()) {
-                mapCopy.put(entry.getKey(), new TransactionStats(entry.getValue()));
-            }
-        }
-        return mapCopy;
     }
 
     public StorefrontStats getStorefrontStats(int maxCustomerIdleTimeSec, Integer maxAgeSec) {
@@ -461,10 +436,10 @@ public class StorefrontDao extends BaseDao implements IStorefrontDao {
             return;
         }
 
-        synchronized (s_transactionStatsMap) {
-            TransactionStats stats = s_transactionStatsMap.get(transactionName);
+        synchronized (transactionStatsMap) {
+            TransactionStats stats = transactionStatsMap.get(transactionName);
             if (stats == null) {
-                s_transactionStatsMap.put(transactionName, stats = new TransactionStats());
+                transactionStatsMap.put(transactionName, stats = new TransactionStats());
             }
             stats.incrementCount(transactionName, System.currentTimeMillis() - startTimeMs, success);
         }

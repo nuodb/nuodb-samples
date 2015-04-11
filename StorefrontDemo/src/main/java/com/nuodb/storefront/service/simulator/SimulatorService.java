@@ -28,13 +28,14 @@ import com.nuodb.storefront.util.PerformanceUtil;
 import com.nuodb.storefront.util.ToStringComparator;
 
 public class SimulatorService implements ISimulator, ISimulatorService {
-    private static final Logger s_logger = Logger.getLogger(SimulatorService.class.getName());
+    private final Logger logger;
     private ScheduledThreadPoolExecutor threadPool;
     private final IStorefrontService svc;
     private final Map<String, WorkloadStats> workloadStatsMap = new HashMap<String, WorkloadStats>();
     private final Map<WorkloadStep, AtomicInteger> stepCompletionCounts = new TreeMap<WorkloadStep, AtomicInteger>();
 
     public SimulatorService(IStorefrontService svc) {
+        this.logger = svc.getLogger(getClass());
         this.threadPool = new ScheduledThreadPoolExecutor(Runtime.getRuntime().availableProcessors() * 25);
         this.svc = svc;
 
@@ -77,6 +78,8 @@ public class SimulatorService implements ISimulator, ISimulatorService {
 
     @Override
     public WorkloadStats adjustWorkers(Workload workload, int minActiveWorkers, Integer activeWorkerLimit) {
+        logger.info("Adjusting " + workload.getName() + " to " + minActiveWorkers);
+        
         if (activeWorkerLimit != null) {
             if (minActiveWorkers < 0) {
                 throw new IllegalArgumentException("minActiveWorkers");
@@ -263,7 +266,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
             } catch (Exception e) {
                 delay = IWorker.COMPLETE_NO_REPEAT;
                 workerFailed = true;
-                s_logger.warn("Simulated worker failed", e);
+                logger.warn("Simulated worker failed", e);
             }
             long endTimeMs = System.currentTimeMillis();
             completionWorkTimeMs += (endTimeMs - startTimeMs);

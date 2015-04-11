@@ -1,9 +1,11 @@
 <%-- Copyright (c) 2013-2015 NuoDB, Inc. --%>
-<%@tag description="Page template" pageEncoding="UTF-8" import="com.nuodb.storefront.StorefrontApp,com.nuodb.storefront.model.dto.PageConfig,com.nuodb.storefront.servlet.BaseServlet"%>
+<%@tag description="Page template" pageEncoding="UTF-8" import="com.nuodb.storefront.StorefrontApp,com.nuodb.storefront.model.dto.PageConfig,com.nuodb.storefront.servlet.BaseServlet,com.sun.jersey.api.uri.UriComponent"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 <%@attribute name="showHeader" required="false" type="java.lang.Boolean" %>
 <%
     PageConfig cfg = (PageConfig)request.getAttribute(BaseServlet.ATTR_PAGE_CONFIG);
+    String qs = "?tenant=" + UriComponent.encode(cfg.getLocalInstance().getTenantName(), UriComponent.Type.QUERY_PARAM);
+    request.setAttribute("qs", qs);
 %>
 <!DOCTYPE html>
 
@@ -24,7 +26,7 @@
         <!-- Top nav bar -->
         <div id="top-bar" class="navbar">
             <div class="navbar-inner">
-                <label id="storefront-name"></label>
+                <label><a href="store-products${qs}" id="storefront-name"></a></label>
                 
                 <form class="navbar-search search text-center" method="GET" action="store-products">
                     <input type="text" id="search" class="search-query" name="search" placeholder="Search" />
@@ -40,7 +42,7 @@
                                 Hello, <b><%=cfg.getCustomer().getDisplayName()%></b>
                             </p></li>
                         <li class="divider-vertical"></li>
-                        <li class="cart"><a href="store-cart"><i class="icon icon-shopping-cart"></i> Cart <span class="badge badge-info"><%=cfg.getCustomer().getCartItemCount()%></span></a></li>
+                        <li class="cart"><a href="store-cart${qs}"><i class="icon icon-shopping-cart"></i> Cart <span class="badge badge-info"><%=cfg.getCustomer().getCartItemCount()%></span></a></li>
                     </ul>
                 </div>
             </div>

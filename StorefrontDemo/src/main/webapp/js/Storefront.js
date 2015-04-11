@@ -10,6 +10,7 @@ var Storefront = {
 
         // Set basic app properties
         me.currency = cfg.localInstance.currency;
+        me.tenant = cfg.localInstance.tenantName;
         me.aggregateRegions(cfg.appInstances);
 
         // Render menu template
@@ -252,7 +253,7 @@ var Storefront = {
         me.TemplateMgr.applyTemplate('tpl-product', '#product', product);
         
         // Load reviews
-        $.ajax('api/products/' + encodeURIComponent(product.id) + '/reviews?page=1&pageSize=30', {
+        $.ajax('api/products/' + encodeURIComponent(product.id) + '/reviews?page=1&pageSize=30&tenant=' + encodeURIComponent(Storefront.tenant), {
             type: 'GET',
             dataType: 'json'
         }).done(function(reviews) {
@@ -262,7 +263,7 @@ var Storefront = {
         // Handle "Add to Cart" form submit
         $('form.add-to-cart').submit(function(event) {
             event.preventDefault();
-            $.ajax('api/customer/cart', {
+            $.ajax('api/customer/cart?tenant=' + encodeURIComponent(Storefront.tenant), {
                 cache: false,
                 data: {
                     productId: product.id,
@@ -271,7 +272,7 @@ var Storefront = {
                 dataType: 'json',
                 type: 'PUT'
             }).done(function(responseData) {
-                document.location.href = "store-cart";
+                document.location.href = "store-cart?tenant=" + encodeURIComponent(Storefront.tenant);
             });
         });
 
@@ -294,7 +295,7 @@ var Storefront = {
                 return;
             }
 
-            $.ajax('api/products/' + encodeURIComponent(product.id) + '/reviews', {
+            $.ajax('api/products/' + encodeURIComponent(product.id) + '/reviews?tenant=' + encodeURIComponent(Storefront.tenant), {
                 cache: false,
                 data: {
                     title: $('[name=title]', this).val(),

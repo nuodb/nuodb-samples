@@ -37,30 +37,7 @@
     Storefront.initControlPanelProcessesPage = function(processes) {
         g_app = this;
 
-        // Hook shutdown events
-        $('#list').on('click', '.btn-danger', function() {
-            if (!confirm('Are you sure you want to shut down this node?')) {
-                return;
-            }
-            var row$ = $(this).closest('tr');
-            var uid = row$.attr('data-uid');
-            $.ajax({
-                method: 'DELETE',
-                url: 'api/processes/' + uid
-            }).fail(function(xhr, status, statusMsg) {
-                if (xhr.status == 200) {
-                    // Not actually an error, jQuery just couldn't parse the empty response
-                    row$.fadeOut();
-                } else {
-                    var msg = null;
-                    try {
-                        msg = JSON.parse(xhr.responseText).message;
-                    } catch (e) {
-                    }
-                    alert(msg || statusMsg);
-                }
-            });
-        });
+        hookListItemShutdown('process', 'api/processes/');
 
         var transformProcessList = function(processes) {
             // Sort by region, then host, then type
@@ -111,9 +88,50 @@
 
     Storefront.initControlPanelTenantsPage = function(tenants) {
         g_app = this;
+
+        hookListItemShutdown('tenant', 'api/tenants/');
+        
         renderList(tenants, 'api/tenants', null);
     };
-    
+
+    function hookListItemShutdown(noun, apiPath) {
+        $('#list').on('click', '.btn-danger', function() {
+            if (!confirm('Are you sure you want to shut down this ' + noun + '?')) {
+                return;
+            }
+            
+            var row$ = $(this).closest('tr');
+            var uid = row$.attr('data-uid');
+            
+            function onSuccess() {
+                row$.fadeOut();
+                if (uid == Storefront.tenant) {
+                    window.top.location.href = "./admin";
+                }
+            }
+            
+            $.ajax({
+                method: 'DELETE',
+                url: apiPath + uid + '?tenant=' + encodeURIComponent(Storefront.tenant)
+            })
+            .done(onSuccess)
+            .fail(function(xhr, status, statusMsg) {
+                if (xhr.status == 200) {
+                    // Not actually an error, jQuery just couldn't parse the empty response
+                    onSuccess();
+                } else {
+                    var msg = null;
+                    try {
+                        msg = JSON.parse(xhr.responseText).message;
+                    } catch (e) {
+                    }
+                    alert(msg || statusMsg || 'Unable to shut down ' + noun);
+                }
+            });
+        });
+    }
+    ;
+
     function renderList(origItems, updateUrl, transformFunc) {
         var render = function(items) {
             if (transformFunc) {
@@ -128,7 +146,7 @@
         var autoUpdate = function() {
             $.ajax({
                 method: 'GET',
-                url: updateUrl,
+                url: updateUrl + '?tenant=' + encodeURIComponent(Storefront.tenant),
                 cache: false
             }).done(function(items) {
                 render(items);
@@ -146,16 +164,17 @@
             return false;
         }
         for ( var i = 0; i < list1.length; i++) {
-            if (!areObjectsEqual(item1, item2)) {
+            if (!areObjectsEqual(list1[i], list2[i])) {
                 return false;
             }
         }
         return true;
     }
-    
+
     function areObjectsEqual(item1, item2) {
-        var item1 = list1[i];
-        var item2 = list2[i];
+        if (!$.isPlainObject(item1)) {
+            return item1 == item2;
+        }
         for ( var key in item1) {
             var item1v = item1[key];
             var item2v = item2[key];
@@ -165,11 +184,14 @@
                         return false;
                     }
                 } else if ($.isPlainObject(item1v)) {
-                    return areObjectsEqual(item1v, item2v);
+                    if (!areObjectsEqual(item1v, item2v)) {
+                        return false;
+                    }
                 } else {
                     return false;
                 }
             }
-        }        
+        }
+        return true;
     }
 })();

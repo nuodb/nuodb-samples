@@ -9,14 +9,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
+
+import org.apache.log4j.Logger;
 
 import com.googlecode.genericdao.search.Filter;
 import com.googlecode.genericdao.search.Search;
 import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.StorefrontApp;
+import com.nuodb.storefront.StorefrontTenantManager;
 import com.nuodb.storefront.dal.IStorefrontDao;
-import com.nuodb.storefront.dal.StorefrontDao;
 import com.nuodb.storefront.dal.TransactionType;
 import com.nuodb.storefront.exception.CartEmptyException;
 import com.nuodb.storefront.exception.CustomerNotFoundException;
@@ -44,22 +47,19 @@ public class StorefrontService implements IStorefrontService {
     private final AppInstance appInstance;
     private final IStorefrontDao dao;
 
-    static {
-        StorefrontDao.registerTransactionNames(new String[] { "addProduct", "addProductReview", "addToCart", "checkout", "getAppInstances",
-                "getCategories", "getCustomerCart", "getDbNodes", "getOrCreateCustomer", "getProductDetails", "getProductReviews", "getProducts",
-                "getStorefrontStats",
-                "updateCart" });
-    }
-
     public StorefrontService(AppInstance appInstance, IStorefrontDao dao) {
         this.appInstance = appInstance;
-        this.dao = dao;        
+        this.dao = dao;
     }
-    
+
     @Override
     public AppInstance getAppInstance() {
-        // TODO Auto-generated method stub
         return appInstance;
+    }
+
+    @Override
+    public Logger getLogger(Class<?> clazz) {
+        return StorefrontTenantManager.getTenant(appInstance.getTenantName()).getLogger(clazz);
     }
 
     @Override
@@ -399,7 +399,14 @@ public class StorefrontService implements IStorefrontService {
 
     @Override
     public Map<String, TransactionStats> getTransactionStats() {
-        return dao.getTransactionStats();
+        Map<String, TransactionStats> transactionStatsMap = StorefrontTenantManager.getTenant(appInstance.getTenantName()).getTransactionStats();
+        Map<String, TransactionStats> mapCopy = new TreeMap<String, TransactionStats>();
+        synchronized (transactionStatsMap) {
+            for (Map.Entry<String, TransactionStats> entry : transactionStatsMap.entrySet()) {
+                mapCopy.put(entry.getKey(), new TransactionStats(entry.getValue()));
+            }
+        }
+        return mapCopy;
     }
 
     @Override

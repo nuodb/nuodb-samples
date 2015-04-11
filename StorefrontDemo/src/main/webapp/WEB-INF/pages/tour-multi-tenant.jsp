@@ -38,10 +38,18 @@
     </div>
 
     <h3>Try it yourself:</h3>
-    <p>
-        These steps show you how to run a second, isolated Storefront instance on the same host(s).
-    </p>
     <t:messages />
+    
+    <ol class="tour-steps">
+        <li>Go to the <a href="control-panel-tenants${qs}">Tenants page</a> and create a new new tenant.</li>
+        <li>Click the new tenant in the list of tenants.  A browser tab will open for that tenant.  On the welcome page, follow the prompts to create the new tenant's database.</li>
+        <li>Adjust users, hosts, and regions independently between tenants.  Observe that the activity remains isolated between tenants sharing the same domain.  Note that if you are running multiple Storefront instances, the tenant will not be automatically created on the others; you must add the tenant manually to each.</li>
+        <li>Repeat these steps, if so desired, to add additional tenants.</li>
+    </ol>
+    
+    <p>
+        Or, you can run an isolated Storefront instance on the same host(s):
+    </p>
 
     <ol class="tour-steps">
         <li>Download the <a href="http://repo2.maven.org/maven2/org/mortbay/jetty/jetty-runner/8.1.9.v20130131/jetty-runner-8.1.9.v20130131.jar">Jetty Runner</a> JAR file and place it in the <code>samples</code> folder of your NuoDB installation.

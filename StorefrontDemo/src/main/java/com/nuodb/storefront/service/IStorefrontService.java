@@ -7,6 +7,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.exception.CartEmptyException;
 import com.nuodb.storefront.exception.CustomerNotFoundException;
@@ -26,6 +28,8 @@ import com.nuodb.storefront.model.entity.Purchase;
 
 public interface IStorefrontService {
     public AppInstance getAppInstance();
+    
+    public Logger getLogger(Class<?> clazz);
     
     /**
      * Gets all categories ordered by category name.

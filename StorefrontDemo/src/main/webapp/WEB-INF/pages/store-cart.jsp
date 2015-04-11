@@ -62,7 +62,7 @@
     	        	</form>
 				{{/if}}
        	    	<p>
-           	    	<a href="store-products">Continue Shopping</a>
+           	    	<a href="store-products${qs}">Continue Shopping</a>
             	</p>
 	        </div>
 		</script>

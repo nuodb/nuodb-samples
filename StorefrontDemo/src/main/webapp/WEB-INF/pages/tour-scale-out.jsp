@@ -50,7 +50,7 @@
     <h3>To learn more:</h3>
     <ul class="tour-links">
         <li>See <a href="http://doc.nuodb.com/display/21V/Start+and+Stop+NuoDB+Services" target="_blank">NuoDB documentation</a> to learn how to increase the number of available hosts</li>
-        <li>See <a href="control-panel-processes">Hosts &amp; Processes</a> in the Storefront Control Panel</li>
+        <li>See <a href="control-panel-processes${qs}">Hosts &amp; Processes</a> in the Storefront Control Panel</li>
     </ul>
 
 </t:page>

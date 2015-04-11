@@ -35,7 +35,7 @@
     <h3>To learn more:</h3>
     <ul class="tour-links">
         <li>See <a href="http://doc.nuodb.com/display/21V/Templates+and+Automation" target="_blank">NuoDB documentation</a> to learn more about templates</li>
-        <li>Storefront also leverages NuoDB&rsquo;s template system to automatically manage NuoDB processes across hosts.<br />For details, see the <a href="control-panel-processes">Hosts &amp; Processes</a> and <a href="control-panel-database">Database</a> sections in the Storefront Control Panel.
+        <li>Storefront also leverages NuoDB&rsquo;s template system to automatically manage NuoDB processes across hosts.<br />For details, see the <a href="control-panel-processes${qs}">Hosts &amp; Processes</a> and <a href="control-panel-database">Database</a> sections in the Storefront Control Panel.
         </li>
     </ul>
 

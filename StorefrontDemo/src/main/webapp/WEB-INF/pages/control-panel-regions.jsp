@@ -29,13 +29,13 @@
 											<a data-toggle="dropdown" href="#" title="Shows Storefronts running in this region">{{region}} <b class="caret"></b></a>
 											<ul class="dropdown-menu" role="menu"  aria-labelledby="dropdownMenu">
 												{{#instances}}											
-													<li><a href="{{url}}" target="_blank" title="Opens Storefront running in this region in a new tab">{{url}}</a></li>									
+													<li><a href="{{url}}${qs}" target="_blank" title="Opens Storefront running in this region in a new tab">{{url}}</a></li>									
 												{{/instances}}
 											</ul>
 										</div>
 									{{else}}
 										{{#instances}}
-											<a href="{{url}}" target="_blank" title="Opens Storefront running in this region in a new tab">{{region}}</a>
+											<a href="{{url}}${qs}" target="_blank" title="Opens Storefront running in this region in a new tab">{{region}}</a>
 										{{/instances}}
 									{{/if}}
 								{{else}}

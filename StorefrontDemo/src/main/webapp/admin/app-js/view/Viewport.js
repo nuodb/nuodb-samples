@@ -44,7 +44,6 @@ Ext.define('App.view.Viewport', {
             items: [{
                 xtype: 'uxiframe',
                 itemId: 'frameView',
-                src: '../welcome',
                 listeners: { load: me.onIFrameLoad }
             }, {
                 xtype: 'uxiframe',
@@ -76,6 +75,12 @@ Ext.define('App.view.Viewport', {
 
         App.app.on('viewchange', Ext.bind(me.onViewChange, me));
     },
+    
+    afterRender: function() {
+        var me = this;
+        me.callParent(arguments);
+        App.app.fireEvent('viewchange', '/welcome', true, null);
+    },
 
     onIFrameLoad: function() {
         try {
@@ -95,11 +100,11 @@ Ext.define('App.view.Viewport', {
 
         if (url) {
             // Show URL of the view in an iframe
-            var isUserView = url == '../control-panel-users';
+            var isUserView = /[^?]*/.exec(url)[0] == '../control-panel-users';
             var targetView = (isUserView) ? me.userView : me.frameView;
             if (isUserInitiated !== false) {
                 targetView.loadEvent = loadEvent;
-                targetView.load(url);
+                targetView.load(url + '?tenant=' + encodeURIComponent(App.app.tenant));
             }
             if (!loadEvent) {
                 centerLayout.setActiveItem(targetView);

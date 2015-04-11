@@ -45,9 +45,9 @@ public class StorefrontApp {
     public static final String DEFAULT_DB_PROCESS_TAG_PREFIX = "demo_";
     public static final int DEFAULT_PORT = 9001;
     public static final String DEFAULT_URL = "{protocol}://{host}:{port}/{context}";
-    public static final String DEFAULT_TENANT_NAME = "First tenant";
+    public static final String DEFAULT_TENANT_NAME = "Default";
     public static final String TENANT_PARAM_NAME = "tenant"; 
-
+    public static final String LOGGER_NAME_TENANT_SEP = ":";
 
     private static final int BENCHMARK_DURATION_MS = 10000;
     private static final int SIMULATOR_STATS_DISPLAY_INTERVAL_MS = 5000;    

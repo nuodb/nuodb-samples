@@ -35,7 +35,7 @@
     <t:messages />
 
     <ol class="tour-steps">
-        <li>Shut down one or more Transaction Engine (TE) processes using the <a href="control-panel-processes">Hosts &amp; Processes page</a>. Alternatively, you can connect to one of your hosts (via SSH, Remote Desktop, etc.) and terminate a TE process directly.
+        <li>Shut down one or more Transaction Engine (TE) processes using the <a href="control-panel-processes${qs}">Hosts &amp; Processes page</a>. Alternatively, you can connect to one of your hosts (via SSH, Remote Desktop, etc.) and terminate a TE process directly.
         </li>
         <li>Observe how NuoDB detects the loss and automatically starts new TEs as necessary to maintain the workload.</li>
     </ol>
@@ -44,7 +44,7 @@
     <ul class="tour-links">
         <li>See <a href="http://doc.nuodb.com/display/21V/Start+and+Stop+NuoDB+Services" target="_blank">NuoDB documentation</a> to learn how to increase the number of available hosts
         </li>
-        <li>See <a href="control-panel-processes">Hosts &amp; Processes</a> in the Storefront Control Panel
+        <li>See <a href="control-panel-processes${qs}">Hosts &amp; Processes</a> in the Storefront Control Panel
         </li>
     </ul>
 

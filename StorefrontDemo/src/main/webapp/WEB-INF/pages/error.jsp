@@ -5,6 +5,6 @@
 <t:page showHeader="false">
     <t:messages />
     
-    <p>Try going back to the <a href="welcome">welcome page</a>.  If there's a problem with your DB setup or credentials, you can correct it there.</p>
+    <p>Try going back to the <a href="welcome${qs}">welcome page</a>.  If there's a problem with your DB setup or credentials, you can correct it there.</p>
     
 </t:page>

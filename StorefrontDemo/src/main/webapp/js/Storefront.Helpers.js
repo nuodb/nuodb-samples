@@ -33,104 +33,106 @@ $.fn.serializeObject = function() {
     return o;
 };
 
-Handlebars.registerHelper('addOne', function(value) {
-    return value + 1;
-});
+Handlebars.registerHelper({
+    addOne: function(value) {
+        return value + 1;
+    },
+    
+    currencyFormat: function(currency) {
+        switch (currency) {
+            case 'BRITISH_POUND':
+                return 'British pound (£)';
 
-Handlebars.registerHelper('dateFormat', function(date) {
-    return dateFormat(date, 'dddd, mmmm dS, yyyy "at" h:MM tt');
-});
+            case 'EURO':
+                return 'Euro (€)';
 
-Handlebars.registerHelper('lowerCaseFormat', function(str) {
-    return (str || '').toLowerCase();
-});
+            case 'US_DOLLAR':
+                return 'U.S. dollar ($)';
 
-Handlebars.registerHelper('numberFormat', function(number) {
-    return ((number || number === 0) && number.format) ? number.format(0) : number;
-});
+            case 'MIXED':
+                return 'Mixed';
 
-Handlebars.registerHelper('numberOrZero', function(number) {
-    return ((number || number === 0) && number.format) ? number : '0';
-});
+            default:
+                return 'Unknown';
+        }
+    },
 
-Handlebars.registerHelper('msFormat', function(number) {
-    return ((number || number === 0) && number.format) ? (number / 1000).format(1) + ' sec' : number;
-});
+    dateFormat: function(date) {
+        return dateFormat(date, 'dddd, mmmm dS, yyyy "at" h:MM tt');
+    },
+    
+    eachInMap: function(map, block) {
+        var out = [];
+        var keys = [];
+        for ( var key in map) {
+            keys.push(key);
+        }
+        keys.sort();
+        for ( var i = 0; i < keys.length; i++) {
+            key = keys[i];
+            out.push(block.fn({
+                key: key,
+                value: map[key]
+            }));
+        }
+        return out.join('');
+    },
+    
+    lowerCaseFormat: function(str) {
+        return (str || '').toLowerCase();
+    },
 
-Handlebars.registerHelper('sqrtMsFormat', function(number) {
-    return ((number || number === 0) && number.format) ? (Math.sqrt(number) / 1000).format(1) + ' sec' : number;
-});
+    msFormat: function(number) {
+        return ((number || number === 0) && number.format) ? (number / 1000).format(1) + ' sec' : number;
+    },
+    
+    numberFormat: function(number) {
+        return ((number || number === 0) && number.format) ? number.format(0) : number;
+    },
 
-Handlebars.registerHelper('priceFormat', function(price) {
-    if (typeof (price) != 'number') {
-        return price;
+    numberOrZero: function(number) {
+        return ((number || number === 0) && number.format) ? number : '0';
+    },
+
+    priceFormat: function(price) {
+        if (typeof (price) != 'number') {
+            return price;
+        }
+
+        var symbol;
+        switch (Storefront.currency) {
+            case 'BRITISH_POUND':
+                symbol = '£';
+                price /= 1.5;
+                break;
+
+            case 'EURO':
+                symbol = '€';
+                price /= 1.1;
+                break;
+
+            default:
+                symbol = '$';
+                break;
+        }
+
+        return symbol + price.format(2);
+    },
+
+    productImage: function(value) {
+        return value || 'img/product.png';
+    },
+    
+    progressBar: function(val1, val2) {
+        var pct = val1 / val2 * 100;
+        return new Handlebars.SafeString('<div class="progress progress-inline"><div class="bar" style="width:' + pct + '%"></div></div>');
+    },
+
+    sqrtMsFormat: function(number) {
+        return ((number || number === 0) && number.format) ? (Math.sqrt(number) / 1000).format(1) + ' sec' : number;
+    },
+
+    urlEncode: function(value) {
+        return encodeURIComponent(value);
     }
-
-    var symbol;
-    switch (Storefront.currency) {
-        case 'BRITISH_POUND':
-            symbol = '£';
-            price /= 1.5;
-            break;
-
-        case 'EURO':
-            symbol = '€';
-            price /= 1.1;
-            break;
-
-        default:
-            symbol = '$';
-            break;
-    }
-
-    return symbol + price.format(2);
-});
-
-Handlebars.registerHelper('progressBar', function(val1, val2) {
-    var pct = val1 / val2 * 100;
-    return new Handlebars.SafeString('<div class="progress progress-inline"><div class="bar" style="width:' + pct + '%"></div></div>');
-});
-
-Handlebars.registerHelper('currencyFormat', function(currency) {
-    switch (currency) {
-        case 'BRITISH_POUND':
-            return 'British pound (£)';
-
-        case 'EURO':
-            return 'Euro (€)';
-
-        case 'US_DOLLAR':
-            return 'U.S. dollar ($)';
-
-        case 'MIXED':
-            return 'Mixed';
-
-        default:
-            return 'Unknown';
-    }
-});
-
-Handlebars.registerHelper('productImage', function(value) {
-    return value || 'img/product.png';
-});
-
-Handlebars.registerHelper('urlEncode', function(value) {
-    return encodeURIComponent(value);
-});
-
-Handlebars.registerHelper('eachInMap', function(map, block) {
-    var out = [];
-    var keys = [];
-    for (var key in map) {
-        keys.push(key);
-    }
-    keys.sort();
-    for (var i = 0; i < keys.length; i++) {
-        key = keys[i];
-        out.push(block.fn({
-            key: key,
-            value: map[key]
-        }));
-    }
-    return out.join('');
 });

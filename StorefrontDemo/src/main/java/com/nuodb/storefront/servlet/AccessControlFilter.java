@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.nuodb.storefront.StorefrontTenantManager;
-import com.sun.jersey.api.NotFoundException;
+import com.nuodb.storefront.exception.TenantNotFoundException;
 
 /**
  * Filter to permit CORS requests (AJAX requests from other domains) for data aggregation across regions/instances
@@ -31,7 +31,7 @@ public class AccessControlFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         try {
             StorefrontTenantManager.getTenant((HttpServletRequest) request).startUp();
-        } catch (NotFoundException e) {
+        } catch (TenantNotFoundException e) {
             ((HttpServletResponse)response).sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
             return;
         }

@@ -3,8 +3,10 @@
 package com.nuodb.storefront.service.storefront;
 
 import java.io.FileInputStream;
+import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executors;
@@ -31,6 +33,7 @@ import com.nuodb.storefront.dal.StorefrontDao;
 import com.nuodb.storefront.dal.UpperCaseNamingStrategy;
 import com.nuodb.storefront.model.dto.ConnInfo;
 import com.nuodb.storefront.model.dto.DbConnInfo;
+import com.nuodb.storefront.model.dto.TransactionStats;
 import com.nuodb.storefront.model.entity.AppInstance;
 import com.nuodb.storefront.service.IDataGeneratorService;
 import com.nuodb.storefront.service.IDbApi;
@@ -51,8 +54,10 @@ import com.sun.jersey.api.client.config.DefaultClientConfig;
  * Service container and factory for a single instance of Storefront.
  */
 public class StorefrontTenant implements IStorefrontTenant {
-    private static final Logger s_logger = Logger.getLogger(StorefrontTenant.class.getName());
     private static final ClientConfig s_apiCfg = new DefaultClientConfig();
+    private static final String[] TRANSACTION_NAMES = new String[] {
+            "addProduct", "addProductReview", "addToCart", "checkout", "getAppInstances", "getCategories", "getCustomerCart", "getDbNodes",
+            "getOrCreateCustomer", "getProductDetails", "getProductReviews", "getProducts", "getStorefrontStats", "updateCart", "sendHeartbeat" };
 
     private Object lock = new Object();
     private boolean initializedApp = false;
@@ -64,6 +69,8 @@ public class StorefrontTenant implements IStorefrontTenant {
     private IDbApi dbApi;
     private ConnInfo apiConnInfo;
     private ScheduledExecutorService executor;
+    private final StringWriter logWriter = new StringWriter();
+    private final Map<String, TransactionStats> transactionStatsMap = new HashMap<String, TransactionStats>();
 
     // Initialize API client config
     static {
@@ -77,7 +84,7 @@ public class StorefrontTenant implements IStorefrontTenant {
     // Initialize Hibernate
     public StorefrontTenant(AppInstance appInstance) {
         this.appInstance = appInstance;
-        
+
         hibernateCfg = new Configuration();
         hibernateCfg.setNamingStrategy(new UpperCaseNamingStrategy());
         hibernateCfg.configure();
@@ -90,7 +97,7 @@ public class StorefrontTenant implements IStorefrontTenant {
                 System.getProperties().putAll(overrides);
             }
         } catch (Exception e) {
-            s_logger.warn("Failed to read properties file", e);
+            getLogger(this.getClass()).warn("Failed to read properties file", e);
         }
 
         String dbName = System.getProperty("storefront.db.name");
@@ -118,6 +125,10 @@ public class StorefrontTenant implements IStorefrontTenant {
         }
         if (dbPassword != null) {
             hibernateCfg.setProperty(Environment.PASS, dbPassword);
+        }
+
+        for (String transactionName : TRANSACTION_NAMES) {
+            transactionStatsMap.put(transactionName, new TransactionStats());
         }
     }
 
@@ -301,10 +312,25 @@ public class StorefrontTenant implements IStorefrontTenant {
         return Client.create(s_apiCfg);
     }
 
+    @Override
+    public Logger getLogger(Class<?> clazz) {
+        return Logger.getLogger(clazz.getName() + StorefrontApp.LOGGER_NAME_TENANT_SEP + appInstance.getTenantName());
+    }
+
+    @Override
+    public StringWriter getLogWriter() {
+        return logWriter;
+    }
+
+    @Override
+    public Map<String, TransactionStats> getTransactionStats() {
+        return transactionStatsMap;
+    }
+
     protected IDbApi createDbApi() {
         return new DbApiProxy(this);
     }
-    
+
     protected IHeartbeatService getHeartbeatService() {
         if (heartbeatSvc == null) {
             synchronized (lock) {
@@ -331,9 +357,9 @@ public class StorefrontTenant implements IStorefrontTenant {
         }
         return sessionFactory;
     }
-    
+
     protected IStorefrontDao createStorefrontDao(SessionFactory sf) {
-        StorefrontDao dao = new StorefrontDao();
+        StorefrontDao dao = new StorefrontDao(transactionStatsMap);
         dao.setSessionFactory(sf);
         return dao;
     }

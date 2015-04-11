@@ -4,8 +4,8 @@
 
 <t:page showHeader="false">
     <div id="control-panel">
-        <form method="post" class="pull-right">
-            <a id="btn-refresh" class="btn" href="control-panel-products"><i class="icon icon-refresh"></i> Refresh</a>
+        <form method="post" class="pull-right" action="control-panel-products${qs}">
+            <a id="btn-refresh" class="btn" href="control-panel-products${qs}"><i class="icon icon-refresh"></i> Refresh</a>
             <div class="btn-group">
                 <button class="btn dropdown-toggle" data-toggle="dropdown">
                     Add more products <span class="caret"></span>

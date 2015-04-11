@@ -20,7 +20,6 @@ import com.nuodb.storefront.service.IDataGeneratorService;
 
 public class ControlPanelProductsServlet extends BaseServlet {
     private static final long serialVersionUID = -1224032390706203080L;
-    private static final Logger s_logger = Logger.getLogger(ControlPanelProductsServlet.class.getName());
 
     /**
      * GET: Shows the control panel screen, including the list of simulated workloads.
@@ -45,7 +44,7 @@ public class ControlPanelProductsServlet extends BaseServlet {
                 doPostAction(req, resp, btnAction);
             }
         } catch (Exception ex) {
-            s_logger.error("Post failed", ex);
+            getLogger(req, getClass()).error("Post failed", ex);
             addErrorMessage(req, ex);
         }
 
@@ -54,21 +53,22 @@ public class ControlPanelProductsServlet extends BaseServlet {
 
     protected void doPostAction(HttpServletRequest req, HttpServletResponse resp, String btnAction) throws IOException {
         IDataGeneratorService dataGen = getTenant(req).createDataGeneratorService();
+        Logger logger = getLogger(req,  getClass());
         if (btnAction.contains("load")) {
             StorefrontApp.loadData(dataGen);
             addMessage(req, MessageSeverity.INFO, "Product data loaded successfully.");
-            s_logger.info("Product data loaded");
+            logger.info("Product data loaded");
         } else if (btnAction.contains("generate")) {
             StorefrontApp.generateData(dataGen);
             addMessage(req, MessageSeverity.INFO, "Product data generated successfully.");
-            s_logger.info("Product data generated");
+            logger.info("Product data generated");
         } else if (btnAction.contains("remove")) {
             // Now remove all data
             try {
                 StorefrontApp.removeData(dataGen);
-                s_logger.info("Product data removed");
+                logger.info("Product data removed");
             } catch (Exception e) {
-                s_logger.error("Unable to remove product data", e);
+                logger.error("Unable to remove product data", e);
             }
         }
     }

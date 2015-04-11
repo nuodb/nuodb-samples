@@ -8,26 +8,14 @@ import org.apache.log4j.WriterAppender;
 import org.apache.log4j.helpers.OptionConverter;
 import org.apache.log4j.spi.LoggingEvent;
 
+import com.nuodb.storefront.StorefrontApp;
+import com.nuodb.storefront.StorefrontTenantManager;
+
 public class InMemoryAppender extends WriterAppender {
-    private StringWriter writer = new StringWriter();
     protected long maxFileSize = 10 * 1024 * 1024;
-    private static InMemoryAppender instance;
 
     public InMemoryAppender() {
-        instance = this;
-        setWriter(writer);
-    }
-
-    public static InMemoryAppender getInstance() {
-        return instance;
-    }
-
-    public void clear() {
-        writer.getBuffer().setLength(0);
-    }
-
-    public String getLog() {
-        return writer.getBuffer().toString();
+        setWriter(new StringWriter());
     }
 
     public long getMaximumFileSize() {
@@ -43,8 +31,13 @@ public class InMemoryAppender extends WriterAppender {
     }
 
     @Override
-    protected void subAppend(LoggingEvent event) {
+    protected synchronized void subAppend(LoggingEvent event) {
+        String[] loggerNameParts = event.getLoggerName().split(StorefrontApp.LOGGER_NAME_TENANT_SEP, 2);
+        String tenantName = loggerNameParts.length > 1 ? loggerNameParts[1] : null;
+        StringWriter writer = StorefrontTenantManager.getTenantOrDefault(tenantName).getLogWriter();
+        setWriter(writer);
         StringBuffer buff = writer.getBuffer();
+
         if (buff.length() >= maxFileSize) {
             int nextLineIdx = buff.indexOf("\n", (int) (buff.length() - maxFileSize));
             if (nextLineIdx > 0) {

@@ -4,14 +4,12 @@ package com.nuodb.storefront.dal;
 
 import java.util.Calendar;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import com.googlecode.genericdao.search.SearchResult;
 import com.nuodb.storefront.model.dto.Category;
 import com.nuodb.storefront.model.dto.DbRegionInfo;
 import com.nuodb.storefront.model.dto.ProductFilter;
 import com.nuodb.storefront.model.dto.StorefrontStats;
-import com.nuodb.storefront.model.dto.TransactionStats;
 import com.nuodb.storefront.model.entity.IEntity;
 import com.nuodb.storefront.model.entity.Product;
 import com.nuodb.storefront.model.type.Currency;
@@ -38,13 +36,6 @@ public interface IStorefrontDao extends IBaseDao {
      * @see IStorefrontService#getProducts(filter)
      */
     public SearchResult<Product> getProducts(ProductFilter filter);
-
-    /**
-     * Gets statistics on all transactions run by this service through either {@link #runTransaction(TransactionType, String, Callable)} or
-     * {@link #runTransaction(TransactionType, String, Runnable)}. The keys of the returned map are transaction names as specified when these methods
-     * are invoked.
-     */
-    public Map<String, TransactionStats> getTransactionStats();
 
     /**
      * @see IStorefrontService#getStorefrontStats

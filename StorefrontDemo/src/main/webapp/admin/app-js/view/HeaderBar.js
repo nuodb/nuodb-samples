@@ -130,6 +130,9 @@ Ext.define('App.view.HeaderBar', {
                 btn.activeRequest = thisRequest = Ext.Ajax.request({
                     url: App.app.apiBaseUrl + '/api/stats/db?numRegions=' + me.btnRegions.getInputValue() + "&numHosts=" + me.btnHosts.getInputValue(),
                     method: 'PUT',
+                    params: {
+                        tenant: App.app.tenant
+                    },
                     scope: this,
                     success: function() {
                         btn.noInputSyncUntil = new Date().getTime() + 1000 * 3;

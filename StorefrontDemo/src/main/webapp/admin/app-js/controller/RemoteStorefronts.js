@@ -46,6 +46,9 @@ Ext.define('App.controller.RemoteStorefronts', {
         Ext.Ajax.request({
             url: App.app.apiBaseUrl + '/api/app-instances',
             method: 'GET',
+            params: {
+                tenant: App.app.tenant
+            },
             scope: this,
             success: function(response) {
                 try {
@@ -112,6 +115,9 @@ Ext.define('App.controller.RemoteStorefronts', {
             Ext.Ajax.request({
                 url: instance.url + '/api/stats',
                 method: 'GET',
+                params: {
+                    tenant: App.app.tenant
+                },
                 callback: function(options, success, response) {
                     // Ensure instance is still valid
                     instance = me.appInstanceMap[instance.uuid];

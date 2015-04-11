@@ -167,6 +167,9 @@ Ext.define('App.controller.Storefront', {
         Ext.Ajax.request({
             url: App.app.apiBaseUrl + '/api/stats',
             method: 'GET',
+            params: {
+                tenant: App.app.tenant
+            },
             scope: this,
             callback: function() {
                 me.outstandingRequestCount--;

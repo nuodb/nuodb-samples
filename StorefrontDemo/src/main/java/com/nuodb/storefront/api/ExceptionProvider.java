@@ -14,8 +14,6 @@ import com.sun.jersey.api.ParamException;
 
 @Provider
 public class ExceptionProvider implements ExceptionMapper<RuntimeException> {
-    //private static final Logger s_logger = Logger.getLogger(ExceptionProvider.class.getName());
-
     public ExceptionProvider() {
     }
 

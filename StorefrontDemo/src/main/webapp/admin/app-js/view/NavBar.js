@@ -66,10 +66,10 @@ Ext.define('App.view.NavBar', {
         title: 'Regions',
         href: '/control-panel-regions',
         icon: 'ico-pin.png'
-    //}, {
-    //    title: 'Tenants',
-    //    href: '/control-panel-tenants',
-    //    icon: 'ico-tenants.png'
+    }, {
+        title: 'Storefront Tenants',
+        href: '/control-panel-tenants',
+        icon: 'ico-tenants.png'
     }, {
         title: 'Log',
         href: '/control-panel-log',
@@ -109,7 +109,7 @@ Ext.define('App.view.NavBar', {
 
         App.app.on('viewchange', function(href, userInitiated, loadEvent) {
             if (!loadEvent) {
-                $('a', me.el.dom).removeClass('active').filter('[href="' + href + '"]').addClass('active');
+                $('a', me.el.dom).removeClass('active').filter('[href="' + /([^?]*)/.exec(href)[1] + '"]').addClass('active');
             }
         });
     },

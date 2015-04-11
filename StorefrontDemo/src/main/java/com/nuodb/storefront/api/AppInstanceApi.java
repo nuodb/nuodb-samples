@@ -18,7 +18,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 
 import com.nuodb.storefront.StorefrontTenantManager;
 import com.nuodb.storefront.model.dto.DbConnInfo;
@@ -29,8 +28,6 @@ import com.nuodb.storefront.servlet.StorefrontWebApp;
 
 @Path("/app-instances")
 public class AppInstanceApi extends BaseApi {
-    private static final Logger s_logger = Logger.getLogger(AppInstanceApi.class.getName());
-    
     public AppInstanceApi() {
     }
 
@@ -100,7 +97,7 @@ public class AppInstanceApi extends BaseApi {
             }
         }
 
-        s_logger.info("Received sync message with database " + newDbConfig.getDbName() + "; URL now " + tenant.getAppInstance().getUrl());
+        tenant.getLogger(this.getClass()).info("Received sync message with database " + newDbConfig.getDbName() + "; URL now " + tenant.getAppInstance().getUrl());
         
         // Start sending heartbeats if we aren't yet
         tenant.startUp();

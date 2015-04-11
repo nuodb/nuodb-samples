@@ -518,6 +518,6 @@
     }
 
     function buildInstanceUrl(instance, url) {
-        return ((instance.local) ? '.' : instance.url) + url;
+        return ((instance.local) ? '.' : instance.url) + url + '?tenant=' + encodeURIComponent(Storefront.tenant);
     }
 })();

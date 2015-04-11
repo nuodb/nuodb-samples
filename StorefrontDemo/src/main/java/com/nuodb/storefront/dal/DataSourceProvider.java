@@ -23,9 +23,9 @@ import org.hibernate.service.spi.Configurable;
  */
 public class DataSourceProvider implements ConnectionProvider, Configurable {
     private static final long serialVersionUID = 7906975777950509725L;
-    private static volatile DataSource dataSource;
-    private static int isolationLevel = 5;
     private static final String PROP_LOGIN_TIMEOUT = "loginTimeout";
+    private DataSource dataSource;
+    private int isolationLevel = 5;
 
     @Override
     public synchronized void configure(@SuppressWarnings("rawtypes") Map props) throws HibernateException {

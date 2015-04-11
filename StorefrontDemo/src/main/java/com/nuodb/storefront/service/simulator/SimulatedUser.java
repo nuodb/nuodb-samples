@@ -34,7 +34,6 @@ import com.nuodb.storefront.model.type.ProductSort;
  * Runs through the steps specified by a {@class WorkloadType} field.
  */
 public class SimulatedUser implements IWorker {
-    private static final Logger s_log = Logger.getLogger(SimulatedUser.class.getName());
     private static final long MIN_BACKOFF_DELAY = 1000 * 1;
     private static final long MAX_BACKOFF_DELAY = 1000 * 60;
 
@@ -84,7 +83,8 @@ public class SimulatedUser implements IWorker {
                 recoverFromException(e);
 
                 long retryDelay = getRetryDelay();
-                s_log.info("Encountered recoverable exception with simulated user \"" + getWorkload().getName() + "\".  Will retry in " + retryDelay
+                Logger logger = simulator.getService().getLogger(getClass());
+                logger.info("Encountered recoverable exception with simulated user \"" + getWorkload().getName() + "\".  Will retry in " + retryDelay
                         + " ms.", e);
                 // sleep as we don't want this thread to process for awhile.
                 try {

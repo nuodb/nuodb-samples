@@ -43,8 +43,6 @@ import com.sun.jersey.api.uri.UriComponent.Type;
 import com.sun.jersey.core.util.Base64;
 
 public class DbApiProxy implements IDbApi {
-    private static final Logger s_logger = Logger.getLogger(DbApiProxy.class.getName());
-
     private static final String DBVAR_TAG_CONSTRAINT_GROUP_TE = "TEs";
     private static final String DBVAR_TAG_CONSTRAINT_GROUP_SM = "SMs";
     private static final String DBVAR_TAG_EXISTS_CONSTRAINT = "ex:";
@@ -66,11 +64,13 @@ public class DbApiProxy implements IDbApi {
     private final IStorefrontTenant tenant;
     private final ConnInfo apiConnInfo;
     private final DbConnInfo dbConnInfo;
+    private final Logger logger;
 
     public DbApiProxy(IStorefrontTenant tenant) {
         this.tenant = tenant;
         this.apiConnInfo = tenant.getApiConnInfo();
         this.dbConnInfo = tenant.getDbConnInfo();
+        this.logger = tenant.getLogger(getClass());
     }
 
     @Override
@@ -344,10 +344,10 @@ public class DbApiProxy implements IDbApi {
                     database.username = dbConnInfo.getUsername();
                     database.password = dbConnInfo.getPassword();
 
-                    s_logger.info("Creating DB '" + database.name + "' with template '" + database.template + "' and vars " + database.variables);
+                    logger.info("Creating DB '" + database.name + "' with template '" + database.template + "' and vars " + database.variables);
                     buildClient("/databases").post(Database.class, database);
                 } else if (updateDb) {
-                    s_logger.info("Updating DB '" + database.name + "' with template '" + database.template + "' and vars " + database.variables);
+                    logger.info("Updating DB '" + database.name + "' with template '" + database.template + "' and vars " + database.variables);
                     buildClient("/databases/" + UriComponent.encode(database.name, Type.PATH_SEGMENT)).put(Database.class, database);
                 }
             }
@@ -365,7 +365,7 @@ public class DbApiProxy implements IDbApi {
             return;
         }
 
-        s_logger.info("Adding tag '" + tagName + "' to host " + host.address + " (id=" + host.id + ")");
+        logger.info("Adding tag '" + tagName + "' to host " + host.address + " (id=" + host.id + ")");
 
         Tag tag = new Tag();
         tag.key = tagName;
@@ -378,7 +378,7 @@ public class DbApiProxy implements IDbApi {
 
     protected void removeHostTag(Host host, String tagName, boolean shutdownSMs) {
         if (host.tags.remove(tagName) != null) {
-            s_logger.info("Removing tag '" + tagName + "' from host " + host.address + " (id=" + host.id + ")");
+            logger.info("Removing tag '" + tagName + "' from host " + host.address + " (id=" + host.id + ")");
 
             try {
                 buildClient("/hosts/" + host.id + "/tags/" + UriComponent.encode(tagName, Type.PATH_SEGMENT)).delete();
@@ -394,7 +394,7 @@ public class DbApiProxy implements IDbApi {
         for (Process process : host.processes) {
             if (process.dbname.equals(dbName)) {
                 if (shutdownSMs || !PROCESS_TYPE_SM.equals(process.type)) {
-                    s_logger.info("Shutting down " + process.type + " process on host " + host.address + " (uid=" + process.uid + ")");
+                    logger.info("Shutting down " + process.type + " process on host " + host.address + " (uid=" + process.uid + ")");
                     shutdownProcess(process.uid);
                 }
             }

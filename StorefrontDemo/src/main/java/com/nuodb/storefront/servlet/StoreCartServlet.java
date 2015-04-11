@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.nuodb.storefront.model.entity.Cart;
 import com.nuodb.storefront.model.entity.Customer;
 import com.nuodb.storefront.model.type.MessageSeverity;
+import com.sun.jersey.api.uri.UriComponent;
+import com.sun.jersey.api.uri.UriComponent.Type;
 
 public class StoreCartServlet extends BaseServlet {
     private static final long serialVersionUID = 4182284887959608220L;
@@ -65,7 +67,7 @@ public class StoreCartServlet extends BaseServlet {
 
                 // Forward to products page
                 customer.setCartItemCount(0);
-                resp.sendRedirect("store-products");
+                resp.sendRedirect("store-products?tenant=" + UriComponent.encode(getTenant(req).getAppInstance().getTenantName(), Type.QUERY_PARAM));
             }
         } catch (Exception e) {
             addErrorMessage(req, e);

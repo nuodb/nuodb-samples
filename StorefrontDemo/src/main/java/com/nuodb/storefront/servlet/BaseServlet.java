@@ -34,15 +34,12 @@ public abstract class BaseServlet extends HttpServlet {
     public static final String ATTR_PAGE_CONFIG = "pageConfig";
     public static final String SESSION_PRODUCT_FILTER = "productFilter";
 
-    private static final Logger s_logger = Logger.getLogger(BaseServlet.class.getName());
     private static final String ATTR_CUSTOMER = "customer";
     private static final String COOKIE_CUSTOMER_ID = "customerId";
     private static final String SESSION_MESSAGES = "messages";
     private static final String SESSION_CUSTOMER_ID = "customerId";
     private static final int COOKIE_MAX_AGE_SEC = 60 * 60 * 24 * 31; // 1 month
     private static final long serialVersionUID = 1452096145544476070L;
-    private static final Object s_svcLock = new Object();
-    private static volatile IStorefrontService s_svc;
     protected static Object s_schemaUpdateLock = new Object();
 
     protected BaseServlet() {
@@ -53,14 +50,7 @@ public abstract class BaseServlet extends HttpServlet {
     }
     
     public static IStorefrontService getStorefrontService(HttpServletRequest req) {
-        if (s_svc == null) {
-            synchronized (s_svcLock) {
-                if (s_svc == null) {
-                    s_svc = getTenant(req).createStorefrontService();
-                }
-            }
-        }
-        return s_svc;
+        return getTenant(req).createStorefrontService();
     }
 
     public static IDbApi getDbApi(HttpServletRequest req) {
@@ -189,7 +179,7 @@ public abstract class BaseServlet extends HttpServlet {
         req.getSession().removeAttribute(SESSION_MESSAGES);
 
         // Render JSP page
-        s_logger.info("Servicing \"" + req.getMethod() + " " + req.getRequestURI() + "\" with \"" + pageName + ".jsp\" for customer "
+        getLogger(req, BaseServlet.class).info("Servicing \"" + req.getMethod() + " " + req.getRequestURI() + "\" with \"" + pageName + ".jsp\" for customer "
                 + ((customer == null) ? null : customer.getId()) + " from " + req.getRemoteAddr());
         req.getRequestDispatcher("/WEB-INF/pages/" + pageName + ".jsp").forward(req, resp);
     }
@@ -222,6 +212,11 @@ public abstract class BaseServlet extends HttpServlet {
         Customer customer = (Customer)req.getAttribute(ATTR_CUSTOMER);
         showPage(req, resp, "Storefront Problem", "error", null, (customer == null) ? new Customer() : customer);
 
-        s_logger.warn("Servlet handled critical error", ex);
+        getLogger(req, BaseServlet.class).warn("Servlet handled critical error", ex);
     }
+    
+    protected static Logger getLogger(HttpServletRequest req, Class<?> clazz) {
+        return StorefrontTenantManager.getTenant(req).getLogger(clazz);
+    }
+    
 }

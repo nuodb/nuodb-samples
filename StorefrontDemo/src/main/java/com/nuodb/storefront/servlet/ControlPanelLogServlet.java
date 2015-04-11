@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.nuodb.storefront.model.entity.Customer;
 import com.nuodb.storefront.model.type.MessageSeverity;
-import com.nuodb.storefront.util.InMemoryAppender;
 
 public class ControlPanelLogServlet extends BaseServlet {
     private static final long serialVersionUID = 7893467234193233L;
@@ -23,8 +22,7 @@ public class ControlPanelLogServlet extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            InMemoryAppender appender = InMemoryAppender.getInstance();
-            String logData = (appender != null) ? appender.getLog() : null;
+            String logData = getTenant(req).getLogWriter().getBuffer().toString();
 
             if (req.getParameter("download") != null) {
                 resp.addHeader("Content-Disposition", "attachment; filename=storefront.log");
@@ -51,10 +49,7 @@ public class ControlPanelLogServlet extends BaseServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (req.getParameter("clear") != null) {
-            InMemoryAppender appender = InMemoryAppender.getInstance();
-            if (appender != null) {
-                appender.clear();
-            }
+            getTenant(req).getLogWriter().getBuffer().setLength(0);
         }
 
         doGet(req, resp);

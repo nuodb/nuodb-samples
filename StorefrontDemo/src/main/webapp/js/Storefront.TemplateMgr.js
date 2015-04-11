@@ -63,7 +63,7 @@ Storefront.TemplateMgr = {
             el.html('<div class="loading"></div>');
         }
 
-        return $.ajax(url, {
+        return $.ajax(url + '?tenant=' + encodeURIComponent(Storefront.tenant), {
             cache: false,
             data: qsData,
             dataType: 'json',
