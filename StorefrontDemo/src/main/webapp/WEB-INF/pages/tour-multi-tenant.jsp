@@ -41,7 +41,7 @@
     <t:messages />
     
     <ol class="tour-steps">
-        <li>Go to the <a href="control-panel-tenants${qs}">Tenants page</a> and create a new new tenant.</li>
+        <li>Go to the <a href="control-panel-tenants${qs}">Storefront Tenants page</a> and create a new new tenant.</li>
         <li>Click the new tenant in the list of tenants.  A browser tab will open for that tenant.  On the welcome page, follow the prompts to create the new tenant's database.</li>
         <li>Adjust users, hosts, and regions independently between tenants.  Observe that the activity remains isolated between tenants sharing the same domain.  Note that if you are running multiple Storefront instances, the tenant will not be automatically created on the others; you must add the tenant manually to each.</li>
         <li>Repeat these steps, if so desired, to add additional tenants.</li>
