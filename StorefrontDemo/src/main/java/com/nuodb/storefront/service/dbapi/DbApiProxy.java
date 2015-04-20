@@ -27,6 +27,7 @@ import com.nuodb.storefront.exception.DatabaseNotFoundException;
 import com.nuodb.storefront.model.db.Database;
 import com.nuodb.storefront.model.db.Host;
 import com.nuodb.storefront.model.db.Process;
+import com.nuodb.storefront.model.db.ProcessSpec;
 import com.nuodb.storefront.model.db.Region;
 import com.nuodb.storefront.model.db.Tag;
 import com.nuodb.storefront.model.dto.ConnInfo;
@@ -52,19 +53,24 @@ public class DbApiProxy implements IDbApi {
     private static final String DBVAR_HOST = "HOST";
     private static final String DBVAR_REGION = "REGION";
 
+    private static final String ARCHIVEVAR_ARCHIVE_DIR = "archiveDir";
+    private static final String ARCHIVE_DIR_SSM_SUFFIX = "_snapshot";
+
     private static final String TEMPLATE_GEO_DISTRIBUTED = "Geo-distributed";
     private static final String TEMPLATE_MULTI_HOST = "Multi Host";
     private static final String TEMPLATE_SINGLE_HOST = "Single Host";
 
     private static final String OPTIONS_PING_TIMEOUT = "ping-timeout";
 
-    private static final String PROCESS_TYPE_TE = "TE";
-    private static final String PROCESS_TYPE_SM = "SM";
+    private static final String PROCESS_TRANSACTION_ENGINE = "TE";
+    private static final String PROCESS_STORAGE_MANAGER = "SM";
+    private static final String PROCESS_SNAPSHOT_STORAGE_MANAGER = "SSM";
 
     private final IStorefrontTenant tenant;
     private final ConnInfo apiConnInfo;
     private final DbConnInfo dbConnInfo;
     private final Logger logger;
+    private int ssmFailCount = 0;
 
     public DbApiProxy(IStorefrontTenant tenant) {
         this.tenant = tenant;
@@ -106,33 +112,17 @@ public class DbApiProxy implements IDbApi {
     public List<Process> getDbProcesses() {
         try {
             List<Process> processes = new ArrayList<Process>();
-
-            List<Region> regions = getRegions();
             String dbName = dbConnInfo.getDbName();
-            Map<String, String> processRegionNameMap = new HashMap<String, String>();
 
-            // Map process UIDs to region names
-            for (Region region : regions) {
+            for (Region region : getRegions()) {
                 for (int hostIdx = 0; hostIdx < region.hosts.length; hostIdx++) {
                     Host host = region.hosts[hostIdx];
                     for (int processIdx = 0; processIdx < host.processes.length; processIdx++) {
                         Process process = host.processes[processIdx];
-                        processRegionNameMap.put(process.uid, region.region);
-                    }
-                }
-            }
-
-            // Extract all processes associated with the target DB
-            for (Region region : regions) {
-                for (int databaseIdx = 0; databaseIdx < region.databases.length; databaseIdx++) {
-                    Database database = region.databases[databaseIdx];
-                    if (database != null && dbName.equals(database.name)) {
-                        for (int processIdx = 0; processIdx < database.processes.length; processIdx++) {
-                            Process process = database.processes[processIdx];
-                            process.region = processRegionNameMap.get(process.uid);
+                        if (process.dbname.equals(dbName)) {
+                            process.region = region.region;
                             processes.add(process);
                         }
-                        return processes;
                     }
                 }
             }
@@ -207,11 +197,14 @@ public class DbApiProxy implements IDbApi {
 
                         for (Process process : host.processes) {
                             if (process.dbname.equals(dbName)) {
-                                if (PROCESS_TYPE_TE.equals(process.type)) {
+                                if (PROCESS_TRANSACTION_ENGINE.equals(process.type)) {
                                     region.transactionManagerCount++;
                                     hostHasDbProcess = true;
-                                } else if (PROCESS_TYPE_SM.equals(process.type)) {
+                                } else if (PROCESS_STORAGE_MANAGER.equals(process.type)) {
                                     region.storageManagerCount++;
+                                    hostHasDbProcess = true;
+                                } else if (PROCESS_SNAPSHOT_STORAGE_MANAGER.equals(process.type)) {
+                                    region.snapshotStorageManagerCount++;
                                     hostHasDbProcess = true;
                                 }
                             }
@@ -345,17 +338,61 @@ public class DbApiProxy implements IDbApi {
                     database.password = dbConnInfo.getPassword();
 
                     logger.info("Creating DB '" + database.name + "' with template '" + database.template + "' and vars " + database.variables);
-                    buildClient("/databases").post(Database.class, database);
+                    database = buildClient("/databases").post(Database.class, database);
                 } else if (updateDb) {
                     logger.info("Updating DB '" + database.name + "' with template '" + database.template + "' and vars " + database.variables);
-                    buildClient("/databases/" + UriComponent.encode(database.name, Type.PATH_SEGMENT)).put(Database.class, database);
+                    database = buildClient("/databases/" + UriComponent.encode(database.name, Type.PATH_SEGMENT)).put(Database.class, database);
                 }
+
+                ensureRunningSsm(database, homeHostInfo);
             }
 
             return footprint;
         } catch (Exception e) {
             throw ApiException.toApiException(e);
         }
+    }
+
+    protected boolean ensureRunningSsm(Database db, HomeHostInfo homeHostInfo) {
+        // Determine if an SSM is already running
+        for (Process process : db.processes) {
+            if (PROCESS_SNAPSHOT_STORAGE_MANAGER.equals(process.type)) {
+                // SSM already running
+                return true;
+            }
+        }
+
+        // Deduce archive directory
+        if (db.archives == null) {
+            return false;
+        }
+        Map<String, String> homeArchiveInfo = db.archives.get(homeHostInfo.host.id);
+        if (homeArchiveInfo == null) {
+            return false;
+        }
+        String archiveDir = homeArchiveInfo.get(ARCHIVEVAR_ARCHIVE_DIR);
+        if (StringUtils.isEmpty(archiveDir)) {
+            return false;
+        }
+
+        // Start process
+        ProcessSpec ssmProcess = new ProcessSpec();
+        ssmProcess.type = PROCESS_SNAPSHOT_STORAGE_MANAGER;
+        ssmProcess.host = homeHostInfo.host.id;
+        ssmProcess.dbname = db.name;
+        ssmProcess.initialize = true;
+        ssmProcess.overwrite = true;
+        ssmProcess.archive = archiveDir + ARCHIVE_DIR_SSM_SUFFIX;
+        try {
+            Process ssmProcessResult = buildClient("/processes").post(Process.class, ssmProcess);
+            logger.info("Created SSM process " + ssmProcessResult.pid + " on " + ssmProcessResult.hostname + " (" + ssmProcessResult.nodeId + ")");
+        } catch (Exception e) {
+            if (ssmFailCount++ == 0) {
+                logger.warn("Unable to create SSM", ApiException.toApiException(e));
+            }
+            return false;
+        }
+        return true;
     }
 
     protected void addHostTag(Host host, String tagName, String tagValue) {
@@ -393,7 +430,7 @@ public class DbApiProxy implements IDbApi {
         String dbName = dbConnInfo.getDbName();
         for (Process process : host.processes) {
             if (process.dbname.equals(dbName)) {
-                if (shutdownSMs || !PROCESS_TYPE_SM.equals(process.type)) {
+                if (shutdownSMs || !PROCESS_STORAGE_MANAGER.equals(process.type)) {
                     logger.info("Shutting down " + process.type + " process on host " + host.address + " (uid=" + process.uid + ")");
                     shutdownProcess(process.uid);
                 }
@@ -418,7 +455,7 @@ public class DbApiProxy implements IDbApi {
                 if (homeRegionName.equals(region.region)) {
                     regionMatch = match;
                     for (Process process : host.processes) {
-                        if (dbName.equals(process.dbname) && PROCESS_TYPE_SM.equals(process.type)) {
+                        if (dbName.equals(process.dbname) && PROCESS_STORAGE_MANAGER.equals(process.type)) {
                             smRegionMatch = match;
                             break;
                         }

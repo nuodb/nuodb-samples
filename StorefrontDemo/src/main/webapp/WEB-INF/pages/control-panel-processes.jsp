@@ -14,7 +14,7 @@
 					<tr>
 						<th>Host</th>
 						<th title="Process ID">PID</th>
-						<th>Node type</th>
+						<th>Process Type</th>
 						<th>Status</th>
 						<th>Region</th>
 						<th>Actions</th>

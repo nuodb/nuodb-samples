@@ -11,6 +11,7 @@ public class RegionStats {
     public int hostCount;
     public int transactionManagerCount;
     public int storageManagerCount;
+    public int snapshotStorageManagerCount;
     public Set<URI> usedHostUrls;
 
     public RegionStats() {
@@ -22,6 +23,7 @@ public class RegionStats {
         this.hostCount = stats.hostCount;
         this.transactionManagerCount = stats.transactionManagerCount;
         this.storageManagerCount = stats.storageManagerCount;
+        this.snapshotStorageManagerCount = stats.snapshotStorageManagerCount;
         this.usedHostUrls = (stats.usedHostUrls == null) ? null : new HashSet<URI>(stats.usedHostUrls);
     }
 }

@@ -16,4 +16,5 @@ public class Database {
     public Map<String, String> options;
     public Map<String, String> variables;
     public Map<String, Map<String, String>> tagConstraints;
+    public Map<String, Map<String, String>> archives;
 }

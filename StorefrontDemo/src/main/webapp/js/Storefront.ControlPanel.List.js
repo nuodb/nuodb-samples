@@ -54,6 +54,11 @@
                         process.icon = 'icon-hdd';
                         break;
 
+                    case 'SSM':
+                        process.typeName = 'Snapshot Storage Manager';
+                        process.icon = 'icon-camera';
+                        break;
+                        
                     case 'TE':
                         process.typeName = 'Transaction Engine';
                         process.icon = 'icon-cog';
