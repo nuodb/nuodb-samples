@@ -490,7 +490,8 @@
                     $.ajax({
                         method: 'PUT',
                         url: buildInstanceUrl(instance, '/api/simulator/workloads'),
-                        data: instanceData,
+                        contentType: 'application/json',
+                        data: JSON.stringify(instanceData),
                         cache: false
                     }).success(function(data) {
                         instance.workloadStats = data.workloadStats;
