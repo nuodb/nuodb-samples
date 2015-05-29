@@ -92,13 +92,18 @@
             <version>3.12.0.GA</version>
         </dependency>
 
-        <!-- NuoDB Hibernate dialect -->
+        <!-- NuoDB JDBC + Hibernate dialect -->
+        <dependency>
+            <groupId>com.nuodb.jdbc</groupId>
+            <artifactId>nuodb-jdbc</artifactId>
+            <version>2.3</version>
+        </dependency>
         <dependency>
             <groupId>com.nuodb.hibernate</groupId>
             <artifactId>nuodb-hibernate</artifactId>
-            <version>2.1.0-02</version>
+            <version>2.3</version>
         </dependency>
-
+        
         <!-- DAO -->
         <dependency>
             <groupId>com.googlecode.genericdao</groupId>
