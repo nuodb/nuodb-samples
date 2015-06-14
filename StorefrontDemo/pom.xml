@@ -22,12 +22,12 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jersey.version>1.12</jersey.version>
-	<nuodb.jdbc.groupId>com.nuodb.jdbc</nuodb.jdbc.groupId>
-	<nuodb.jdbc.artifactId>nuodb-jdbc</nuodb.jdbc.artifactId>
-	<nuodb.jdbc.version>2.3</nuodb.jdbc.version>
-	<nuodb.hibernate.groupId>com.nuodb.hibernate</nuodb.hibernate.groupId>
-	<nuodb.hibernate.artifactId>nuodb-hibernate</nuodb.hibernate.artifactId>
-	<nuodb.hibernate.version>2.3</nuodb.hibernate.version>
+        <nuodb.jdbc.groupId>com.nuodb.jdbc</nuodb.jdbc.groupId>
+        <nuodb.jdbc.artifactId>nuodb-jdbc</nuodb.jdbc.artifactId>
+        <nuodb.jdbc.version>2.3</nuodb.jdbc.version>
+        <nuodb.hibernate.groupId>com.nuodb.hibernate</nuodb.hibernate.groupId>
+        <nuodb.hibernate.artifactId>nuodb-hibernate</nuodb.hibernate.artifactId>
+        <nuodb.hibernate.version>2.3</nuodb.hibernate.version>
     </properties>
 
     <dependencies>
@@ -41,7 +41,7 @@
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>1.2.17</version>
-        </dependency>    
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
@@ -109,7 +109,7 @@
             <artifactId>${nuodb.hibernate.artifactId}</artifactId>
             <version>${nuodb.hibernate.version}</version>
         </dependency>
-        
+
         <!-- DAO -->
         <dependency>
             <groupId>com.googlecode.genericdao</groupId>
@@ -149,7 +149,7 @@
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
                     <finalName>StorefrontDriver</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>  <!-- will be changed to "true" in next release -->
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>
@@ -173,5 +173,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
