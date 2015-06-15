@@ -85,9 +85,6 @@ public class StorefrontTenantManager {
 
             // Configure DB connection info
             DbConnInfo dbConnInfo = s_defaultTenant.getDbConnInfo();
-            if (tenantName.equals(dbConnInfo.getDbName())) {
-                // throw new DataValidationException("Existing tenant is using database name \"" + tenantName + "\".");
-            }
             Matcher dbNameMatcher = Pattern.compile("jdbc:com.nuodb://([^/]+)/(.+)$").matcher(dbConnInfo.getUrl());
             if (!dbNameMatcher.matches()) {
                 throw new DataValidationException("Unable to build database URL");
