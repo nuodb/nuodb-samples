@@ -24,8 +24,10 @@ Ext.define('App.view.Viewport', {
 
         if (window.NuoHeader) {
             me.padding = '50 0 0 0';
+            var title = 'NuoDB Storefront Demo' + ((App.app.tenant) ? ' [' + Ext.String.htmlEncode(App.app.tenant) + ']' : '');
+            document.title = title;
             NuoHeader.render({
-                appTitle: 'NuoDB Storefront Demo' + ((App.app.tenant) ? ' [' + Ext.String.htmlEncode(App.app.tenant) + ']' : ''),
+                appTitle: title,
                 homeUrl: './',
                 sidebarTip: 'Hide control panel'
             });

@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.exception.GenericJDBCException;
 import org.hibernate.exception.SQLGrammarException;
 
+import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.StorefrontTenantManager;
 import com.nuodb.storefront.model.dto.DbConnInfo;
 import com.nuodb.storefront.model.dto.Message;
@@ -33,6 +34,8 @@ import com.nuodb.storefront.service.IStorefrontTenant;
 public abstract class BaseServlet extends HttpServlet {
     public static final String ATTR_PAGE_CONFIG = "pageConfig";
     public static final String SESSION_PRODUCT_FILTER = "productFilter";
+    public static final String ATTR_TENANT = "tenant";
+    public static final String ATTR_BASE_HREF = "baseHref";
 
     private static final String ATTR_CUSTOMER = "customer";
     private static final String COOKIE_CUSTOMER_ID = "customerId";
@@ -150,14 +153,18 @@ public abstract class BaseServlet extends HttpServlet {
             Customer customer) throws ServletException, IOException {
 
         StorefrontWebApp.updateWebAppUrl(req);
-        AppInstance appInstance = getTenant(req).getAppInstance();
+        IStorefrontTenant tenant = getTenant(req);
+        AppInstance appInstance = tenant.getAppInstance();
 
         // Build full page title
-        String storeName = appInstance.getName() + " - NuoDB Storefront Demo";
+        String storeName = appInstance.getName() + " - " + StorefrontApp.APP_NAME;
         if (pageTitle == null || pageTitle.isEmpty()) {
             pageTitle = storeName;
         } else {
             pageTitle = pageTitle + " - " + storeName;
+        }
+        if (!StorefrontTenantManager.isDefaultTenant(tenant)) {
+            pageTitle += " [" + appInstance.getTenantName() + "]";
         }
 
         // Share data with JSP page

@@ -73,6 +73,8 @@ Ext.define('App.view.MessageBar', {
         var me = this;
         if (response.status == 0) {
             me.addMessage('Unable to connect to the Storefront API.  Verify Storefront is still running.  Retries will continue automatically.', instance);
+        } else if (response.status == 410) {
+            me.addMessage('Tenant has been shut down.', instance);
         } else {
             var msg = '';
             var ttl = null;

@@ -26,7 +26,7 @@
                 <tbody>
                     {{#result}}
 						<tr data-uid="{{name}}">
-							<td><a href="admin?tenant={{urlEncode name}}" target="_blank">{{name}}</a></td>
+							<td><a href="admin/?tenant={{urlEncode name}}" target="_blank">{{name}}</a></td>
 							<td>{{dbConnInfo.dbName}}</td>
 							<td><button class="btn btn-danger" {{#if default}}title="Cannot shut down default tenant" disabled="disabled"{{/if}}><i class="icon-off icon-white"></i> Shutdown</button></td>
 						</tr>

@@ -7,11 +7,12 @@ import java.util.List;
 
 import org.codehaus.jackson.map.ObjectMapper;
 
+import com.nuodb.storefront.StorefrontApp;
 import com.nuodb.storefront.model.entity.AppInstance;
 import com.nuodb.storefront.model.entity.Customer;
 
 public class PageConfig {
-    private String pageTitle;
+    private String pageTitle = StorefrontApp.APP_NAME;
     private String pageName;
     private Object pageData;
     private Customer customer;
@@ -69,11 +70,13 @@ public class PageConfig {
     public void setMessages(List<Message> messages) {
         this.messages = messages;
     }
-    
+
     public AppInstance getLocalInstance() {
-        for (AppInstance instance : appInstances) {
-            if (instance.getLocal()) {
-                return instance;
+        if (appInstances != null) {
+            for (AppInstance instance : appInstances) {
+                if (instance.getLocal()) {
+                    return instance;
+                }
             }
         }
         return null;
