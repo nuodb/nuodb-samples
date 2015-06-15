@@ -11,7 +11,7 @@
 <t:page showHeader="false">
     <t:messages />
 
-    <h1>Sorry, tenant ${tenantEsc} does not exist</h1>
+    <h1>Sorry, &ldquo;${tenantEsc}&rdquo; tenant does not exist</h1>
     <p>The tenant may have been shut down.</p>
     <p>&nbsp;</p>    
     <p>
