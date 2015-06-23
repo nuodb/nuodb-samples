@@ -22,11 +22,11 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jersey.version>1.12</jersey.version>
-        <nuodb.jdbc.groupId>com.nuodb.jdbc</nuodb.jdbc.groupId>
-        <nuodb.jdbc.artifactId>nuodb-jdbc</nuodb.jdbc.artifactId>
+        <nuodb.jdbc.gid>com.nuodb.jdbc</nuodb.jdbc.gid>
+        <nuodb.jdbc.aid>nuodb-jdbc</nuodb.jdbc.aid>
         <nuodb.jdbc.version>2.3</nuodb.jdbc.version>
-        <nuodb.hibernate.groupId>com.nuodb.hibernate</nuodb.hibernate.groupId>
-        <nuodb.hibernate.artifactId>nuodb-hibernate</nuodb.hibernate.artifactId>
+        <nuodb.hibernate.gid>com.nuodb.hibernate</nuodb.hibernate.gid>
+        <nuodb.hibernate.aid>nuodb-hibernate</nuodb.hibernate.aid>
         <nuodb.hibernate.version>2.3</nuodb.hibernate.version>
     </properties>
 
@@ -100,13 +100,13 @@
 
         <!-- NuoDB JDBC + Hibernate dialect -->
         <dependency>
-            <groupId>${nuodb.jdbc.groupId}</groupId>
-            <artifactId>${nuodb.jdbc.artifactId}</artifactId>
+            <groupId>${nuodb.jdbc.gid}</groupId>
+            <artifactId>${nuodb.jdbc.aid}</artifactId>
             <version>${nuodb.jdbc.version}</version>
         </dependency>
         <dependency>
-            <groupId>${nuodb.hibernate.groupId}</groupId>
-            <artifactId>${nuodb.hibernate.artifactId}</artifactId>
+            <groupId>${nuodb.hibernate.gid}</groupId>
+            <artifactId>${nuodb.hibernate.aid}</artifactId>
             <version>${nuodb.hibernate.version}</version>
         </dependency>
 
