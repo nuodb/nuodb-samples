@@ -23,6 +23,7 @@ import com.nuodb.storefront.service.IDataGeneratorService;
 import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
 import com.nuodb.storefront.service.IStorefrontTenant;
+import com.nuodb.storefront.util.DDLUtil;
 
 public class StorefrontApp {
     public static final int HEARTBEAT_INTERVAL_SEC = 10;
@@ -120,8 +121,7 @@ public class StorefrontApp {
     }
 
     public static void showDdl(SchemaExport export) {
-        export.drop(true, false);
-        export.create(true, false);
+        System.out.println(DDLUtil.generateAndFormat(export));
     }
 
     public static void generateData(IDataGeneratorService svc) throws IOException {

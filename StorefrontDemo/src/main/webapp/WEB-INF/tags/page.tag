@@ -25,7 +25,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet" />
     <link href="css/jquery.form.css" rel="stylesheet" />
     <link href="css/rateit.css" rel="stylesheet" />
-    <link href="css/Storefront.css?v=2.1.0" rel="stylesheet" />
+    <link href="css/Storefront.css?v=2.1.3" rel="stylesheet" />
     <link rel="icon" type="image/png" href="favicon.ico" />
 </head>
 <body>
@@ -79,11 +79,11 @@
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/handlebars.js"></script>
     <script type="text/javascript" src="js/date.format.js"></script>
-    <script type="text/javascript" src="js/Storefront.js?v=2.1.0"></script>
-    <script type="text/javascript" src="js/Storefront.ControlPanel.Users.js?v=2.1.0"></script>
-    <script type="text/javascript" src="js/Storefront.ControlPanel.List.js?v=2.1.0"></script>
-    <script type="text/javascript" src="js/Storefront.Helpers.js?v=2.1.0"></script>
-    <script type="text/javascript" src="js/Storefront.TemplateMgr.js?v=2.1.0"></script>
+    <script type="text/javascript" src="js/Storefront.js?v=2.1.3"></script>
+    <script type="text/javascript" src="js/Storefront.ControlPanel.Users.js?v=2.1.3"></script>
+    <script type="text/javascript" src="js/Storefront.ControlPanel.List.js?v=2.1.3"></script>
+    <script type="text/javascript" src="js/Storefront.Helpers.js?v=2.1.3"></script>
+    <script type="text/javascript" src="js/Storefront.TemplateMgr.js?v=2.1.3"></script>
     <% if (qs != null) { %>
         <script>
         	$(document).ready(function() {

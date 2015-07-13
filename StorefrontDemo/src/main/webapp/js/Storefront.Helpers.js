@@ -33,6 +33,24 @@ $.fn.serializeObject = function() {
     return o;
 };
 
+// Adapted from http://updates.html5rocks.com/2015/04/cut-and-copy-commands
+function copyToClipboard(el) {
+    try {
+        // Select the email link anchor text
+        window.getSelection().removeAllRanges();
+        var range = document.createRange();
+        range.selectNode(el);
+        window.getSelection().addRange(range);
+
+        // Now that we've selected the anchor text, execute the copy command  
+        var successful = document.execCommand('copy');
+
+        window.getSelection().removeAllRanges();
+    } catch (err) {
+        alert('Sorry, your browser does not support automatic copying to the clipboard.  You can still select the text yourself to copy manually.');
+    }
+}
+
 Handlebars.registerHelper({
     addOne: function(value) {
         return value + 1;
