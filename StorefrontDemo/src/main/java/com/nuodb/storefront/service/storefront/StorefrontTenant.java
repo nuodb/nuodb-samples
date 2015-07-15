@@ -344,7 +344,10 @@ public class StorefrontTenant implements IStorefrontTenant {
         if (!initializedApp) {
             synchronized (lock) {
                 if (sessionFactory == null) {
-                    ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().applySettings(hibernateCfg.getProperties()).build();
+                    ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+                            .applySettings(hibernateCfg.getProperties())
+                            .applySettings(Environment.getProperties())
+                            .build();
                     sessionFactory = hibernateCfg.buildSessionFactory(serviceRegistry);
                 }
                 try {
