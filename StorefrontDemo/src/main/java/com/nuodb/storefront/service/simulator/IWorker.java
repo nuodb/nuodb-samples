@@ -38,6 +38,9 @@ public interface IWorker {
      * @return The number of milliseconds that must pass until the next step can be taken, or {@link #COMPLETE} to indicate the actor has no more
      *         steps. Note that this is the <b>minimum</b> time that must transpire before the method is called again, not a guarantee. Note that any
      *         negative number is interpreted as {@link #COMPLETE}.
+     * @throws RetryWorkException Indicates doWork() should be called again after the delay prescribed by {@link RetryWorkException#getRetryDelayMs()}.
+     *         The difference between returning a wait time and throwing this exception is that the exception version does not reset the original 
+     *         dequeue time, thus the overall transaction time reported includes all delays and failed attempts.
      */
-    public long doWork();
+    public long doWork() throws RetryWorkException;
 }

@@ -79,7 +79,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     @Override
     public WorkloadStats adjustWorkers(Workload workload, int minActiveWorkers, Integer activeWorkerLimit) {
         logger.info("Adjusting " + workload.getName() + " to " + minActiveWorkers);
-        
+
         if (activeWorkerLimit != null) {
             if (minActiveWorkers < 0) {
                 throw new IllegalArgumentException("minActiveWorkers");
@@ -208,7 +208,9 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     }
 
     protected void addWorker(RunnableWorker worker, long startDelayMs) {
-        worker.expectedDequeueTimeMs = System.currentTimeMillis() + startDelayMs;
+        if (worker.expectedDequeueTimeMs == 0) {
+            worker.expectedDequeueTimeMs = System.currentTimeMillis() + startDelayMs;
+        }
         threadPool.schedule(worker, startDelayMs, TimeUnit.MILLISECONDS);
     }
 
@@ -263,6 +265,9 @@ public class SimulatorService implements ISimulator, ISimulatorService {
             boolean workerFailed = false;
             try {
                 delay = worker.doWork();
+                expectedDequeueTimeMs = 0;
+            } catch (RetryWorkException e) {
+                delay = e.getRetryDelayMs();
             } catch (Exception e) {
                 delay = IWorker.COMPLETE_NO_REPEAT;
                 workerFailed = true;

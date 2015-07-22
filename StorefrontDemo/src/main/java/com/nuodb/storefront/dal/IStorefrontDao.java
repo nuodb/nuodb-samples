@@ -3,6 +3,7 @@
 package com.nuodb.storefront.dal;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.Map;
 
 import com.googlecode.genericdao.search.SearchResult;
@@ -12,6 +13,7 @@ import com.nuodb.storefront.model.dto.ProductFilter;
 import com.nuodb.storefront.model.dto.StorefrontStats;
 import com.nuodb.storefront.model.entity.IEntity;
 import com.nuodb.storefront.model.entity.Product;
+import com.nuodb.storefront.model.entity.PurchaseSelection;
 import com.nuodb.storefront.model.type.Currency;
 import com.nuodb.storefront.service.IStorefrontService;
 
@@ -70,4 +72,9 @@ public interface IStorefrontDao extends IBaseDao {
     public Currency getRegionCurrency(String region);
 
     public int getActiveAppInstanceCount(Calendar idleThreshold);
+    
+    /**
+     * Incremenets the purchase counts of the products contained in the selection by the respective specified quantities.
+     */
+    public void incrementPurchaseCounts(List<PurchaseSelection> selections);
 }

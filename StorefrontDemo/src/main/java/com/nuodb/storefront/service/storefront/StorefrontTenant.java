@@ -57,7 +57,7 @@ public class StorefrontTenant implements IStorefrontTenant {
     private static final ClientConfig s_apiCfg = new DefaultClientConfig();
     private static final String[] TRANSACTION_NAMES = new String[] {
             "addProduct", "addProductReview", "addToCart", "checkout", "getAppInstances", "getCategories", "getCustomerCart", "getDbNodes",
-            "getOrCreateCustomer", "getProductDetails", "getProductReviews", "getProducts", "getStorefrontStats", "updateCart", "sendHeartbeat" };
+            "getProductDetails", "getProductReviews", "getProducts", "getStorefrontStats", "updateCart", "sendHeartbeat" };
 
     private Object lock = new Object();
     private boolean initializedApp = false;

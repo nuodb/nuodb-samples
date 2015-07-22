@@ -225,7 +225,7 @@ public class StorefrontService implements IStorefrontService {
 
     @Override
     public Customer getOrCreateCustomer(final long customerId, final Workload workload) {
-        return dao.runTransaction(TransactionType.READ_WRITE, "getOrCreateCustomer", new Callable<Customer>() {
+        return dao.runTransaction(TransactionType.READ_WRITE, null, new Callable<Customer>() {
             @Override
             public Customer call() throws Exception {
 
@@ -352,7 +352,7 @@ public class StorefrontService implements IStorefrontService {
 
     @Override
     public Purchase checkout(final long customerId) {
-        return dao.runTransaction(TransactionType.READ_WRITE, "checkout", new Callable<Purchase>() {
+        Purchase purchase = dao.runTransaction(TransactionType.READ_WRITE, "checkout", new Callable<Purchase>() {
             @Override
             public Purchase call() throws Exception {
                 Customer customer = dao.find(Customer.class, customerId);
@@ -378,15 +378,6 @@ public class StorefrontService implements IStorefrontService {
                     transaction.addTransactionSelection(selection);
                     selection.setRegion(appInstance.getRegion());
                     selection.setUnitPrice(selection.getProduct().getUnitPrice());
-
-                    // Increment purchase count. This is denormalized,
-                    // non-synchronized data so it may not be 100% accurate.
-                    // But that's ok -- it's just use to roughly gauge
-                    // popularity and can be reconstructed exactly later
-                    // by looking at the transaction table.
-                    Product product = selection.getProduct();
-                    product.setPurchaseCount(product.getPurchaseCount() + selection.getQuantity());
-                    dao.save(product);
                 }
                 customer.getCartSelections().clear();
 
@@ -395,6 +386,16 @@ public class StorefrontService implements IStorefrontService {
                 return transaction;
             }
         });
+
+        // Increment purchase count outside of transaction. This is denormalized, non-synchronized data so it may not be 100% accurate.
+        // But that's ok -- it's just use to roughly gauge popularity and can be reconstructed exactly later by looking at the transaction table.
+        try {
+            dao.incrementPurchaseCounts(purchase.getSelections());
+        } catch (Exception e) {
+            getLogger(getClass()).warn("Failed to increment purchase counts", e);
+        }
+        
+        return purchase;
     }
 
     @Override
