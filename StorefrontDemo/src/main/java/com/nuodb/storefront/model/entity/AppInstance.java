@@ -14,8 +14,10 @@ import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 import com.nuodb.storefront.model.type.Currency;
+import com.nuodb.storefront.util.LoggerToStringStyle;
 
 @Entity
 @Table(indexes = { @Index(name = "idx_app_instance_last_heartbeat", columnList = "lastHeartbeat") })
@@ -55,7 +57,7 @@ public class AppInstance extends UuidEntity {
 
     @Transient
     private String tenantName;
-    
+
     public AppInstance() {
     }
 
@@ -166,5 +168,10 @@ public class AppInstance extends UuidEntity {
 
     public String getTenantName() {
         return tenantName;
+    }
+
+    @Override
+    public String toString() {
+        return new ReflectionToStringBuilder(this, LoggerToStringStyle.INSTANCE).toString();
     }
 }

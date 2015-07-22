@@ -12,7 +12,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import com.nuodb.storefront.model.dto.WorkloadStats;
+import com.nuodb.storefront.model.entity.AppInstance;
 import com.nuodb.storefront.model.entity.Customer;
 import com.nuodb.storefront.model.type.MessageSeverity;
 
@@ -23,19 +26,20 @@ public class ControlPanelLogServlet extends BaseServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             String logData = getTenant(req).getLogWriter().getBuffer().toString();
+            String logWithHeader = generateLogHeader(req) + ((logData == null) ? "No log entries available." : logData);
 
             if (req.getParameter("download") != null) {
                 resp.addHeader("Content-Disposition", "attachment; filename=storefront.log");
                 resp.addHeader("Content-Type", "text/html");
                 Writer writer = resp.getWriter();
                 if (logData != null) {
-                    writer.write(logData);
+                    writer.write(logWithHeader);
                 }
                 writer.flush();
                 writer.close();
             } else {
                 Map<String, Object> pageData = new HashMap<String, Object>();
-                req.setAttribute("log", (logData == null || logData.isEmpty()) ? "Log is empty." : StringEscapeUtils.escapeHtml4(logData));
+                req.setAttribute("log", StringEscapeUtils.escapeHtml4(logWithHeader));
                 if (logData == null) {
                     addMessage(req, MessageSeverity.ERROR, "In-memory logging is not enabled.  Configure InMemoryAppender in log4j.xml.");
                 }
@@ -53,5 +57,55 @@ public class ControlPanelLogServlet extends BaseServlet {
         }
 
         doGet(req, resp);
+    }
+
+    protected String generateLogHeader(HttpServletRequest req) {
+        StringBuilder buff = new StringBuilder();
+
+        // Storefront instances
+        buff.append('\n');
+        buff.append("STOREFRONT INSTANCES:\n\n");
+        int appCount = 0;
+        try {
+            for (AppInstance instance : getStorefrontService(req).getAppInstances(true)) {
+                buff.append(++appCount);
+                buff.append(". ");
+                buff.append(instance);
+                buff.append("\n");
+            }
+        } catch (Exception e) {
+            buff.append(getStorefrontService(req).getAppInstance());
+            buff.append("\n\n");
+        }
+
+        // Connections
+        buff.append(StringUtils.repeat('-', 150));
+        buff.append("\n\n");
+        buff.append("CONNECTIONS:\n\n");
+        buff.append("1. Database: ");
+        buff.append(getTenant(req).getDbConnInfo());
+        buff.append("\n");
+        buff.append("2. API: ");
+        buff.append(getTenant(req).getApiConnInfo());
+        buff.append("\n");
+        
+        // Simulator status
+        buff.append(StringUtils.repeat('-', 150));
+        int workerCount = 0;
+        buff.append("\n\n");
+        buff.append("LOCAL SIMULATED WORKLOADS:\n\n");
+        for (Map.Entry<String, WorkloadStats> entry : getSimulator(req).getWorkloadStats().entrySet()) {
+            buff.append(++workerCount);
+            buff.append(". ");
+            buff.append(entry.getKey());
+            buff.append(": ");
+            buff.append(entry.getValue());
+            buff.append("\n");
+        }
+
+        buff.append(StringUtils.repeat('-', 150));
+        buff.append("\n\n");        
+        buff.append("LOG ENTRIES:\n\n");
+        return buff.toString();
     }
 }
