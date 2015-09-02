@@ -7,7 +7,7 @@
         <property name="dialect">com.nuodb.hibernate.NuoDBDialect</property>
 
         <!-- Configure the NuoDB DataSource connection pool -->
-        <property name="hibernate.connection.isolation">5</property> <!-- level 5 == TRANSACTION_WRITE_COMMITTED -->
+        <property name="hibernate.connection.isolation">2</property> <!-- 2 == TRANSACTION_READ_COMMITTED; see http://doc.nuodb.com/display/doc/Relationship+to+java.sql+Levels -->
         <property name="hibernate.connection.provider_class">com.nuodb.storefront.dal.DataSourceProvider</property>
         <property name="hibernate.connection.url">jdbc:com.nuodb://localhost:48004/Storefront</property>
         <property name="hibernate.connection.username">StorefrontUser</property>

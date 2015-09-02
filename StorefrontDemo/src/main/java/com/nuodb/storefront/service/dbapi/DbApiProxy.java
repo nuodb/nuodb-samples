@@ -61,10 +61,13 @@ public class DbApiProxy implements IDbApi {
     private static final String TEMPLATE_SINGLE_HOST = "Single Host";
 
     private static final String OPTIONS_PING_TIMEOUT = "ping-timeout";
+    private static final String OPTIONS_STORAGE_GROUP = "storage-group";
 
     private static final String PROCESS_TRANSACTION_ENGINE = "TE";
     private static final String PROCESS_STORAGE_MANAGER = "SM";
     private static final String PROCESS_SNAPSHOT_STORAGE_MANAGER = "SSM";
+    
+    private static final String STORAGE_GROUP_ALL = "ALL";
 
     private final IStorefrontTenant tenant;
     private final ConnInfo apiConnInfo;
@@ -383,6 +386,8 @@ public class DbApiProxy implements IDbApi {
         ssmProcess.initialize = true;
         ssmProcess.overwrite = true;
         ssmProcess.archive = archiveDir + ARCHIVE_DIR_SSM_SUFFIX;
+        ssmProcess.options = new HashMap<String, String>();
+        ssmProcess.options.put(OPTIONS_STORAGE_GROUP, STORAGE_GROUP_ALL);
         try {
             Process ssmProcessResult = buildClient("/processes").post(Process.class, ssmProcess);
             logger.info("Created SSM process " + ssmProcessResult.pid + " on " + ssmProcessResult.hostname + " (" + ssmProcessResult.nodeId + ")");

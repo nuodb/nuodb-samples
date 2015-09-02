@@ -57,7 +57,7 @@ public class StorefrontTenant implements IStorefrontTenant {
     private static final ClientConfig s_apiCfg = new DefaultClientConfig();
     private static final String[] TRANSACTION_NAMES = new String[] {
             "addProduct", "addProductReview", "addToCart", "checkout", "getAppInstances", "getCategories", "getCustomerCart", "getDbNodes",
-            "getOrCreateCustomer", "getProductDetails", "getProductReviews", "getProducts", "getStorefrontStats", "updateCart", "sendHeartbeat" };
+            "getProductDetails", "getProductReviews", "getProducts", "getStorefrontStats", "updateCart", "sendHeartbeat" };
 
     private Object lock = new Object();
     private boolean initializedApp = false;
@@ -344,7 +344,10 @@ public class StorefrontTenant implements IStorefrontTenant {
         if (!initializedApp) {
             synchronized (lock) {
                 if (sessionFactory == null) {
-                    ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().applySettings(hibernateCfg.getProperties()).build();
+                    ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+                            .applySettings(hibernateCfg.getProperties())
+                            .applySettings(Environment.getProperties())
+                            .build();
                     sessionFactory = hibernateCfg.buildSessionFactory(serviceRegistry);
                 }
                 try {

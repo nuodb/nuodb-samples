@@ -3,17 +3,22 @@
 package com.nuodb.storefront.dal;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
 import org.hibernate.Hibernate;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
+import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
 import org.hibernate.type.BigDecimalType;
 import org.hibernate.type.StringType;
 
@@ -26,6 +31,7 @@ import com.nuodb.storefront.model.dto.StorefrontStats;
 import com.nuodb.storefront.model.dto.TransactionStats;
 import com.nuodb.storefront.model.entity.IEntity;
 import com.nuodb.storefront.model.entity.Product;
+import com.nuodb.storefront.model.entity.PurchaseSelection;
 import com.nuodb.storefront.model.type.Currency;
 import com.nuodb.storefront.model.type.ProductSort;
 
@@ -38,7 +44,7 @@ public class StorefrontDao extends BaseDao implements IStorefrontDao {
 
     public StorefrontDao(Map<String, TransactionStats> transactionStatsMap) {
         this.transactionStatsMap = transactionStatsMap;
-    }    
+    }
 
     @Override
     public void initialize(IEntity entity) {
@@ -295,6 +301,44 @@ public class StorefrontDao extends BaseDao implements IStorefrontDao {
         return Currency.valueOf(currencies.get(0));
     }
 
+    @Override
+    public void incrementPurchaseCounts(final List<PurchaseSelection> selections) {
+        try {
+            ConnectionProvider connProvider = getSessionFactory().getSessionFactoryOptions().getServiceRegistry()
+                    .getService(ConnectionProvider.class);
+            Connection connection = connProvider.getConnection();
+            try {
+                connection.setAutoCommit(true);
+                Statement stmt = connection.createStatement();
+
+                // Batch updates for products with the same quantity increment
+                Set<Integer> seenQuantities = new HashSet<Integer>();
+                int numSelections = selections.size();
+                for (int i = 0; i < numSelections; i++) {
+                    PurchaseSelection selection = selections.get(i);
+                    int quantity = selection.getQuantity();
+                    if (seenQuantities.add(quantity)) {
+                        String productIdList = String.valueOf(selection.getProduct().getId());
+                        for (int j = i + 1; j < numSelections; j++) {
+                            PurchaseSelection selection2 = selections.get(j);
+                            if (selection2.getQuantity() == quantity) {
+                                productIdList += "," + selection2.getProduct().getId();
+                            }
+                        }
+                        
+                        stmt.executeUpdate("UPDATE PRODUCT SET PURCHASE_COUNT = PURCHASE_COUNT + " + quantity + " WHERE ID IN (" + productIdList + ")");
+                    }
+                }
+            } finally {
+                connProvider.closeConnection(connection);
+            }
+        } catch (RuntimeException re) {
+            throw re;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     protected void setStorefrontStatsParameters(SQLQuery query, Integer maxCustomerIdleTimeSec, Integer maxAgeSec) {
         Calendar now = Calendar.getInstance();
 
@@ -311,7 +355,7 @@ public class StorefrontDao extends BaseDao implements IStorefrontDao {
             minModifiedTime.add(Calendar.SECOND, -maxAgeSec);
             query.setParameter("MIN_MODIFIED_TIME", minModifiedTime);
         }
-        
+
         // MIN_HEARTBEAT_TIME
         Calendar minHeartbeatTime = (Calendar) now.clone();
         minHeartbeatTime.add(Calendar.SECOND, -StorefrontApp.MAX_HEARTBEAT_AGE_SEC);

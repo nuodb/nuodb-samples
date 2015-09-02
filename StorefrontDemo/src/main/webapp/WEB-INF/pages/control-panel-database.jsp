@@ -15,10 +15,14 @@
         <div id="db-info" class="tab-pane"></div>
         
         <h3>Database schema</h3>
-        <img src="img/schema.png" width="745" height="759" />
+        <div><img src="img/schema.png" width="745" height="759" /></div>
         
         <h3>DDL</h3>
-        <textarea id="ddl" class="no-resize-x" readonly="readonly"></textarea>
+        <div class="pull-right">
+            <a id="btn-copy-ddl" class="btn" target="_blank">Copy DDL to clipboard</a>
+        </div>                
+        <pre class="well" id="ddl">
+        </pre>
         
         <script id="tpl-db-info" type="text/template">
             {{#result}}

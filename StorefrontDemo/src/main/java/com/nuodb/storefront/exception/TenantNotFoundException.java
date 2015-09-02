@@ -6,8 +6,14 @@ import javax.ws.rs.core.Response.Status;
 
 public class TenantNotFoundException extends StorefrontException {
     private static final long serialVersionUID = -47812367347893329L;
+    private final String tenantName;
 
     public TenantNotFoundException(String tenantName) {
         super(Status.NOT_FOUND, "Tenant \"" + tenantName + "\" does not exist");
+        this.tenantName = tenantName;
+    }
+    
+    public String getTenantName() {
+        return tenantName;
     }
 }

@@ -666,9 +666,24 @@ pre.log {
 }
 
 #ddl {
-	.border-box();
-	cursor: default;
 	font-family: monospace;
-	height: 300px;
-	width: 100%;
+	white-space: pre-wrap;
+	background-color: #fff;
+  	box-shadow: none;
+  	
+  	.ddl-keyword {
+  		color: #708;
+  	}
+  	
+  	.ddl-comment {
+  		color: #a50;
+  	}
+  	
+  	.ddl-type {
+  		color: #30a;
+  	}
+  	
+  	.ddl-number {
+  		color: #164;
+  	}
 }

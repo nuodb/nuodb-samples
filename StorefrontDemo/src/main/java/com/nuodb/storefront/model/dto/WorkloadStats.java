@@ -2,7 +2,10 @@
 
 package com.nuodb.storefront.model.dto;
 
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+
 import com.nuodb.storefront.service.simulator.IWorker;
+import com.nuodb.storefront.util.LoggerToStringStyle;
 
 /**
  * Provides statistics about a {@link Workload} executing within a simulator.
@@ -157,5 +160,10 @@ public class WorkloadStats {
 
     public Float getAvgWorkCompletionTimeMs() {
         return (workCompletionCount == 0) ? null : totalWorkCompletionTimeMs / (float) workCompletionCount;
+    }
+    
+    @Override
+    public String toString() {
+        return new ReflectionToStringBuilder(this, LoggerToStringStyle.INSTANCE).toString();
     }
 }

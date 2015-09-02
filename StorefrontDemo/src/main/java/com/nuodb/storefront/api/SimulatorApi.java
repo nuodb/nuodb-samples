@@ -19,7 +19,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import com.nuodb.storefront.model.dto.Message;
@@ -52,16 +51,16 @@ public class SimulatorApi extends BaseApi {
     @PUT
     @Path("/workloads")
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, Object> setWorkloads(@Context HttpServletRequest req, MultivaluedMap<String, String> formParams) {
+    public Map<String, Object> setWorkloads(@Context HttpServletRequest req, Map<String, String> formParams) {
         Map<String, Object> respData = new HashMap<String, Object>();
         List<Message> messages = new ArrayList<Message>();
         ISimulatorService simulator = getSimulator(req);
         int updatedWorkloadCount = 0;
         int alertCount = 0;
-        for (Map.Entry<String, List<String>> param : formParams.entrySet()) {
+        for (Map.Entry<String, String> param : formParams.entrySet()) {
             if (param.getKey().startsWith("workload-")) {
                 String workloadName = param.getKey().substring(9);
-                int quantity = Integer.parseInt(param.getValue().get(0));
+                int quantity = Integer.parseInt(param.getValue());
                 Workload workload = simulator.getWorkload(workloadName);
                 if (workload != null) {
                     if (workload.getMaxWorkers() > 0 && quantity > workload.getMaxWorkers()) {

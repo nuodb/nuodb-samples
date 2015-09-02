@@ -25,7 +25,7 @@ public class DataSourceProvider implements ConnectionProvider, Configurable {
     private static final long serialVersionUID = 7906975777950509725L;
     private static final String PROP_LOGIN_TIMEOUT = "loginTimeout";
     private DataSource dataSource;
-    private int isolationLevel = 5;
+    private int isolationLevel = 2;  // this is the default, but it can be overridden by the "hibernate.connection.isolation" setting
 
     @Override
     public synchronized void configure(@SuppressWarnings("rawtypes") Map props) throws HibernateException {

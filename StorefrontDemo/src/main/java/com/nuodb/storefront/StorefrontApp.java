@@ -23,6 +23,7 @@ import com.nuodb.storefront.service.IDataGeneratorService;
 import com.nuodb.storefront.service.ISimulatorService;
 import com.nuodb.storefront.service.IStorefrontService;
 import com.nuodb.storefront.service.IStorefrontTenant;
+import com.nuodb.storefront.util.DDLUtil;
 
 public class StorefrontApp {
     public static final int HEARTBEAT_INTERVAL_SEC = 10;
@@ -39,6 +40,7 @@ public class StorefrontApp {
     public static final int API_READ_TIMEOUT_SEC = 10;
     public static final int DB_PING_TIMEOUT_SEC = 15;
 
+    public static final String APP_NAME = "NuoDB Storefront Demo";
     public static final String DEFAULT_REGION_NAME = "Unknown region";
     public static final String DEFAULT_DB_NAME = "Storefront";
     public static final String DEFAULT_DB_HOST = "localhost";
@@ -119,8 +121,7 @@ public class StorefrontApp {
     }
 
     public static void showDdl(SchemaExport export) {
-        export.drop(true, false);
-        export.create(true, false);
+        System.out.println(DDLUtil.generateAndFormat(export));
     }
 
     public static void generateData(IDataGeneratorService svc) throws IOException {

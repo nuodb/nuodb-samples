@@ -1,23 +1,31 @@
 <%-- Copyright (c) 2013-2015 NuoDB, Inc. --%>
-<%@tag description="Page template" pageEncoding="UTF-8" import="com.nuodb.storefront.StorefrontApp,com.nuodb.storefront.model.dto.PageConfig,com.nuodb.storefront.servlet.BaseServlet,com.sun.jersey.api.uri.UriComponent"%>
+<%@tag import="com.sun.jersey.api.uri.UriComponent"%>
+<%@tag import="com.nuodb.storefront.StorefrontApp"%>
+<%@tag import="com.nuodb.storefront.model.dto.PageConfig"%>
+<%@tag import="com.nuodb.storefront.servlet.BaseServlet"%>
+<%@tag description="Page template" pageEncoding="UTF-8"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 <%@attribute name="showHeader" required="false" type="java.lang.Boolean" %>
 <%
     PageConfig cfg = (PageConfig)request.getAttribute(BaseServlet.ATTR_PAGE_CONFIG);
-    String qs = "?tenant=" + UriComponent.encode(cfg.getLocalInstance().getTenantName(), UriComponent.Type.QUERY_PARAM);
+    String qs = (cfg.getLocalInstance() != null) ? "?" + StorefrontApp.TENANT_PARAM_NAME + "=" + UriComponent.encode(cfg.getLocalInstance().getTenantName(), UriComponent.Type.QUERY_PARAM) : null;
+    String baseHref = (String)request.getAttribute(BaseServlet.ATTR_BASE_HREF);
     request.setAttribute("qs", qs);
 %>
 <!DOCTYPE html>
 
 <html>
 <head>
+    <% if (baseHref != null) { %>
+        <base href="<%=baseHref%>" />
+    <% } %>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <title><%=cfg.getPageTitle()%></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="css/bootstrap.min.css" rel="stylesheet" />
     <link href="css/jquery.form.css" rel="stylesheet" />
     <link href="css/rateit.css" rel="stylesheet" />
-    <link href="css/Storefront.css?v=2.1.0" rel="stylesheet" />
+    <link href="css/Storefront.css?v=2.1.3" rel="stylesheet" />
     <link rel="icon" type="image/png" href="favicon.ico" />
 </head>
 <body>
@@ -71,15 +79,17 @@
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/handlebars.js"></script>
     <script type="text/javascript" src="js/date.format.js"></script>
-    <script type="text/javascript" src="js/Storefront.js?v=2.1.0"></script>
-    <script type="text/javascript" src="js/Storefront.ControlPanel.Users.js?v=2.1.0"></script>
-    <script type="text/javascript" src="js/Storefront.ControlPanel.List.js?v=2.1.0"></script>
-    <script type="text/javascript" src="js/Storefront.Helpers.js?v=2.1.0"></script>
-    <script type="text/javascript" src="js/Storefront.TemplateMgr.js?v=2.1.0"></script>
-    <script>
-    	$(document).ready(function() {
-			Storefront.init(<%=cfg.toJson()%>);
-    	});
-	</script>
+    <script type="text/javascript" src="js/Storefront.js?v=2.1.3"></script>
+    <script type="text/javascript" src="js/Storefront.ControlPanel.Users.js?v=2.1.3"></script>
+    <script type="text/javascript" src="js/Storefront.ControlPanel.List.js?v=2.1.3"></script>
+    <script type="text/javascript" src="js/Storefront.Helpers.js?v=2.1.3"></script>
+    <script type="text/javascript" src="js/Storefront.TemplateMgr.js?v=2.1.3"></script>
+    <% if (qs != null) { %>
+        <script>
+        	$(document).ready(function() {
+    			Storefront.init(<%=cfg.toJson()%>);
+        	});
+    	</script>
+    <% } %>
 </body>
 </html>

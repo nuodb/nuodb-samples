@@ -2,7 +2,10 @@
 
 package com.nuodb.storefront.model.dto;
 
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.hibernate.internal.util.compare.EqualsHelper;
+
+import com.nuodb.storefront.util.LoggerToStringStyle;
 
 public class ConnInfo {
     private String url;
@@ -51,5 +54,10 @@ public class ConnInfo {
         return EqualsHelper.equals(url, o.url) &&
                 EqualsHelper.equals(username, o.username) &&
                 EqualsHelper.equals(password, o.password);
+    }
+    
+    @Override
+    public String toString() {
+        return new ReflectionToStringBuilder(this, LoggerToStringStyle.INSTANCE).toString();
     }
 }
