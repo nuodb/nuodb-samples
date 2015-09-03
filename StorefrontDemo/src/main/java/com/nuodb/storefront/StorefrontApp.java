@@ -38,7 +38,7 @@ public class StorefrontApp {
     public static final int MAX_API_UNAVAILABLE_RETRY_TIME_SEC = 3;
     public static final int API_CONNECT_TIMEOUT_SEC = 10;
     public static final int API_READ_TIMEOUT_SEC = 10;
-    public static final int DB_PING_TIMEOUT_SEC = 15;
+    public static final int DB_PING_TIMEOUT_SEC = 0; // disabled
 
     public static final String APP_NAME = "NuoDB Storefront Demo";
     public static final String DEFAULT_REGION_NAME = "Unknown region";

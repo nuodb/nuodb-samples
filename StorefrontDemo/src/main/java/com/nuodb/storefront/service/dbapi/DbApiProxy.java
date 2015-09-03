@@ -547,7 +547,7 @@ public class DbApiProxy implements IDbApi {
                 .type(MediaType.APPLICATION_JSON);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "unused" })
     protected boolean fixDatabaseTemplate(Database database, int targetRegions, int targetHosts, HomeHostInfo homeHostInfo) {
         // Initialize DB tag constraint map (to specify host tags for SMs and TEs)
         Map<String, Map<String, String>> tagConstraints = new HashMap<String, Map<String, String>>();
