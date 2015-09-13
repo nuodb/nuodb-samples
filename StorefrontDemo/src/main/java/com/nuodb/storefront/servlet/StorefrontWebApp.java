@@ -15,8 +15,6 @@ import com.nuodb.storefront.service.IStorefrontTenant;
 import com.nuodb.storefront.util.NetworkUtil;
 
 public class StorefrontWebApp implements ServletContextListener {
-    private static final String ENV_PROP_URL = "storefront.url";
-    private static final String ENV_MAVEN_TOMCAT_PORT = "maven.tomcat.port";
     private static final String CONTEXT_INIT_PARAM_PUBLIC_URL = "storefront.publicUrl";
     private static final String CONTEXT_INIT_PARAM_LAZY_LOAD = "storefront.lazyLoad";
 
@@ -66,7 +64,7 @@ public class StorefrontWebApp implements ServletContextListener {
 
     public static void initWebAppUrl(ServletContext context) {
         // Get URL from command line argument
-        s_webAppUrlTemplate = System.getProperty(ENV_PROP_URL);
+        s_webAppUrlTemplate = StorefrontApp.DEFAULT_URL;
         if (StringUtils.isEmpty(s_webAppUrlTemplate)) {
             s_webAppUrlTemplate = context.getInitParameter(CONTEXT_INIT_PARAM_PUBLIC_URL);
             if (StringUtils.isEmpty(s_webAppUrlTemplate)) {
@@ -75,14 +73,7 @@ public class StorefrontWebApp implements ServletContextListener {
         }
 
         // Guess port
-        String portStr = System.getProperty(ENV_MAVEN_TOMCAT_PORT);
         int port = StorefrontApp.DEFAULT_PORT;
-        if (!StringUtils.isEmpty(portStr)) {
-            try {
-                port = Integer.valueOf(portStr).intValue();
-            } catch (Exception e) {
-            }
-        }
 
         // Get context path
         String contextPath = context.getContextPath();
