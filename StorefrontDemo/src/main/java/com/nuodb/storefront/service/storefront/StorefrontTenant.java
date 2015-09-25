@@ -2,19 +2,18 @@
 
 package com.nuodb.storefront.service.storefront;
 
-import java.io.FileInputStream;
 import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.codehaus.jackson.map.DeserializationConfig;
@@ -75,8 +74,8 @@ public class StorefrontTenant implements IStorefrontTenant {
     // Initialize API client config
     static {
         Map<String, Object> props = s_apiCfg.getProperties();
-        props.put(ClientConfig.PROPERTY_CONNECT_TIMEOUT, StorefrontApp.API_CONNECT_TIMEOUT_SEC * 1000);
-        props.put(ClientConfig.PROPERTY_READ_TIMEOUT, StorefrontApp.API_READ_TIMEOUT_SEC * 1000);
+        props.put(ClientConfig.PROPERTY_CONNECT_TIMEOUT, StorefrontApp.DBAPI_CONNECT_TIMEOUT_SEC * 1000);
+        props.put(ClientConfig.PROPERTY_READ_TIMEOUT, StorefrontApp.DBAPI_READ_TIMEOUT_SEC * 1000);
 
         s_apiCfg.getSingletons().add(new JacksonJaxbJsonProvider().configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false));
     }
@@ -89,23 +88,12 @@ public class StorefrontTenant implements IStorefrontTenant {
         hibernateCfg.setNamingStrategy(new UpperCaseNamingStrategy());
         hibernateCfg.configure();
 
-        try {
-            String propertyFile = System.getProperty("properties", null);
-            if (propertyFile != null) {
-                Properties overrides = new Properties();
-                overrides.load(new FileInputStream(propertyFile));
-                System.getProperties().putAll(overrides);
-            }
-        } catch (Exception e) {
-            getLogger(this.getClass()).warn("Failed to read properties file", e);
-        }
-
-        String dbName = System.getProperty("storefront.db.name");
-        String dbUser = System.getProperty("storefront.db.user");
-        String dbPassword = System.getProperty("storefront.db.password");
-        String dbOptions = System.getProperty("storefront.db.options");
+        String dbName = StorefrontApp.DB_NAME;
+        String dbUser = StorefrontApp.DB_USER;
+        String dbPassword = StorefrontApp.DB_PASSWORD;
+        String dbOptions = StorefrontApp.DB_OPTIONS;
         if (dbName != null) {
-            dbName = dbName.replace("{domain.broker}", System.getProperty("domain.broker", "localhost"));
+            dbName = dbName.replace("{domain.broker}", StorefrontApp.DB_DOMAIN_BROKER);
 
             Matcher dbNameMatcher = Pattern.compile("([^@]*)@([^@:]*(?::\\d+|$))").matcher(dbName);
             if (!dbNameMatcher.matches()) {
@@ -183,7 +171,7 @@ public class StorefrontTenant implements IStorefrontTenant {
         }
         info.setUsername(hibernateCfg.getProperty(Environment.USER));
         info.setPassword(hibernateCfg.getProperty(Environment.PASS));
-        info.setDbProcessTag(System.getProperty("storefront.db.processTag", StorefrontApp.DEFAULT_DB_PROCESS_TAG_PREFIX + info.getDbName()));
+        info.setDbProcessTag(StorefrontApp.DB_PROCESS_TAG.replace("${db.name}", info.getDbName()));
         return info;
     }
 
@@ -206,12 +194,11 @@ public class StorefrontTenant implements IStorefrontTenant {
     public ConnInfo getApiConnInfo() {
         synchronized (lock) {
             if (apiConnInfo == null) {
-                DbConnInfo connInfo = getDbConnInfo();
-                String host = System.getProperty("storefront.dbapi.host", connInfo.getHost());
-                String port = System.getProperty("storefront.dbapi.port", "8888");
+                String host = getDbApiHost();
+                int port = StorefrontApp.DBAPI_PORT;
                 ConnInfo info = new ConnInfo();
-                info.setUsername(System.getProperty("storefront.dbapi.user", "domain"));
-                info.setPassword(System.getProperty("storefront.dbapi.password", "bird"));
+                info.setUsername(StorefrontApp.DBAPI_USERNAME);
+                info.setPassword(StorefrontApp.DBAPI_PASSWORD);
                 info.setUrl("http://" + host + ":" + port + "/api/1");
                 apiConnInfo = info;
             }
@@ -229,17 +216,15 @@ public class StorefrontTenant implements IStorefrontTenant {
 
     @Override
     public String getAdminConsoleUrl() {
-        DbConnInfo connInfo = getDbConnInfo();
-        String host = System.getProperty("storefront.dbapi.host", connInfo.getHost());
-        String port = System.getProperty("storefront.dbapi.port", "8888");
+        String host = getDbApiHost();
+        int port = StorefrontApp.DBAPI_PORT;
         return "http://" + host + ":" + port + "/console";
     }
 
     @Override
     public String getSqlExplorerUrl() {
-        DbConnInfo connInfo = getDbConnInfo();
-        String host = System.getProperty("storefront.dbapi.host", connInfo.getHost());
-        String port = System.getProperty("storefront.sqlexplorer.port", "9001");
+        String host = getDbApiHost();
+        int port = StorefrontApp.SQLEXPLORER_PORT;
         return "http://" + host + ":" + port + "/explorer.jsp";
     }
 
@@ -366,4 +351,10 @@ public class StorefrontTenant implements IStorefrontTenant {
         dao.setSessionFactory(sf);
         return dao;
     }
+
+    protected String getDbApiHost() {
+        String apiHost = StorefrontApp.DBAPI_HOST;
+        return (!StringUtils.isEmpty(apiHost)) ? apiHost : getDbConnInfo().getHost();
+    }
+
 }
