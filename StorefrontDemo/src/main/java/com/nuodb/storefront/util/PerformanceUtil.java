@@ -1,5 +1,6 @@
 package com.nuodb.storefront.util;
 
+import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.reflect.Method;
@@ -11,6 +12,14 @@ public class PerformanceUtil {
     private static final int NUM_SAMPLES = 30;
 
     private PerformanceUtil() {
+    }
+    
+    public static long getGarbageCollectionTime() {
+        long collectionTime = 0;
+        for (GarbageCollectorMXBean garbageCollectorMXBean : ManagementFactory.getGarbageCollectorMXBeans()) {
+            collectionTime += garbageCollectorMXBean.getCollectionTime();
+        }
+        return collectionTime;
     }
 
     private static Method lookupNoArgMethod(Class<?> clazz, String methodName) {

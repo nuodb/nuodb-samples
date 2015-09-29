@@ -142,7 +142,7 @@ public class SimulatedUser implements IWorker {
 
     protected void doWork(WorkloadStep step) {
         customer = simulator.getService().getOrCreateCustomer((customer == null) ? 0 : customer.getId(), workloadType);
-
+        
         switch (step) {
             case BROWSE:
                 doBrowse();
