@@ -42,6 +42,7 @@ public class HeartbeatService implements IHeartbeatService, IStorefrontPeerServi
     private int successCount = 0;
     private Map<String, Set<URI>> wakeList = new HashMap<String, Set<URI>>();
     private Set<URI> warnList = new HashSet<URI>();
+    private long cumGcTime = 0;
 
     public HeartbeatService(IStorefrontTenant tenant) {
         this.tenant = tenant;
@@ -50,7 +51,7 @@ public class HeartbeatService implements IHeartbeatService, IStorefrontPeerServi
 
     @Override
     public void run() {
-        try {
+        try {            
             final IStorefrontDao dao = tenant.createStorefrontDao();
             dao.runTransaction(TransactionType.READ_WRITE, "sendHeartbeat", new Runnable() {
                 @Override
@@ -103,6 +104,12 @@ public class HeartbeatService implements IHeartbeatService, IStorefrontPeerServi
                     successCount++;
                 }
             });
+            
+            long gcTime = PerformanceUtil.getGarbageCollectionTime();
+            if (gcTime > cumGcTime + StorefrontApp.GC_CUMULATIVE_TIME_LOG_MS) {
+                logger.info("Cumulative GC time of " + gcTime + " ms");
+                cumGcTime = gcTime;
+            }
         } catch (Exception e) {
             if (successCount > 0 && ++consecutiveFailureCount == 1) {
                 logger.error(tenant.getAppInstance().getTenantName() + ": Unable to send heartbeat", e);
@@ -187,8 +194,8 @@ public class HeartbeatService implements IHeartbeatService, IStorefrontPeerServi
             for (URI peerHostUrl : entry.getValue()) {
                 URI peerStorefrontUrl;
                 try {
-                    peerStorefrontUrl = new URI(sfScheme, null, peerHostUrl.getHost(), sfPort, sfPath + "/api/app-instances/sync?tenant="
-                            + UriComponent.encode(tenantName, Type.QUERY_PARAM), null, null);
+                    peerStorefrontUrl = new URI(sfScheme, null, peerHostUrl.getHost(), sfPort, sfPath + "/api/app-instances/sync",
+                            "tenant=" + UriComponent.encode(tenantName, Type.QUERY_PARAM), null);
                 } catch (URISyntaxException e1) {
                     continue;
                 }
