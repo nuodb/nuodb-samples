@@ -37,8 +37,10 @@ import com.nuodb.storefront.model.dto.RegionStats;
 import com.nuodb.storefront.service.IDbApi;
 import com.nuodb.storefront.service.IStorefrontTenant;
 import com.nuodb.storefront.util.NetworkUtil;
+import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.filter.LoggingFilter;
 import com.sun.jersey.api.uri.UriComponent;
 import com.sun.jersey.api.uri.UriComponent.Type;
 import com.sun.jersey.core.util.Base64;
@@ -66,13 +68,14 @@ public class DbApiProxy implements IDbApi {
     private static final String PROCESS_TRANSACTION_ENGINE = "TE";
     private static final String PROCESS_STORAGE_MANAGER = "SM";
     private static final String PROCESS_SNAPSHOT_STORAGE_MANAGER = "SSM";
-    
+
     private static final String STORAGE_GROUP_ALL = "ALL";
 
     private final IStorefrontTenant tenant;
     private final ConnInfo apiConnInfo;
     private final DbConnInfo dbConnInfo;
     private final Logger logger;
+    private final RequestLogger requestLogger;
     private int ssmFailCount = 0;
 
     public DbApiProxy(IStorefrontTenant tenant) {
@@ -80,6 +83,7 @@ public class DbApiProxy implements IDbApi {
         this.apiConnInfo = tenant.getApiConnInfo();
         this.dbConnInfo = tenant.getDbConnInfo();
         this.logger = tenant.getLogger(getClass());
+        this.requestLogger = (logger.isDebugEnabled()) ? new RequestLogger(logger) : null;
     }
 
     @Override
@@ -341,10 +345,11 @@ public class DbApiProxy implements IDbApi {
                     database.password = dbConnInfo.getPassword();
 
                     logger.info("Creating DB '" + database.name + "' with template '" + database.template + "' and vars " + database.variables);
-                    database = buildClient("/databases").post(Database.class, database);
+                    database = buildClient("/databases").post(Database.class, database.toDefinition());
                 } else if (updateDb) {
                     logger.info("Updating DB '" + database.name + "' with template '" + database.template + "' and vars " + database.variables);
-                    database = buildClient("/databases/" + UriComponent.encode(database.name, Type.PATH_SEGMENT)).put(Database.class, database);
+                    database = buildClient("/databases/" + UriComponent.encode(database.name, Type.PATH_SEGMENT))
+                            .put(Database.class, database.toDefinition());
                 }
 
                 ensureRunningSsm(database, homeHostInfo);
@@ -409,10 +414,7 @@ public class DbApiProxy implements IDbApi {
 
         logger.info("Adding tag '" + tagName + "' to host " + host.address + " (id=" + host.id + ")");
 
-        Tag tag = new Tag();
-        tag.key = tagName;
-        tag.value = tagValue;
-
+        Tag tag = new Tag(tagName, tagValue);
         buildClient("/hosts/" + host.id + "/tags").post(tag);
 
         host.tags.put(tag.key, tag.value);
@@ -541,7 +543,11 @@ public class DbApiProxy implements IDbApi {
 
     protected WebResource.Builder buildClient(String path) {
         String authHeader = "Basic " + new String(Base64.encode(apiConnInfo.getUsername() + ":" + apiConnInfo.getPassword()));
-        return tenant.createApiClient()
+        Client client = tenant.createApiClient();
+        if (requestLogger != null) {
+            client.addFilter(new LoggingFilter(requestLogger));
+        }
+        return client
                 .resource(apiConnInfo.getUrl() + path)
                 .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .type(MediaType.APPLICATION_JSON);
