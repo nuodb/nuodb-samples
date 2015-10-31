@@ -64,7 +64,7 @@ public class ApiException extends StorefrontException {
     public static String readResponseMessage(ClientResponse resp)
     {
         try {
-            boolean isText = MediaType.APPLICATION_JSON_TYPE.equals(resp.getType());
+            boolean isText = MediaType.TEXT_PLAIN.equals(resp.getType());
             boolean isJson = MediaType.APPLICATION_JSON_TYPE.equals(resp.getType());
             if (isText || isJson) {
                 InputStream in = resp.getEntityInputStream();
@@ -84,6 +84,10 @@ public class ApiException extends StorefrontException {
                             Map<String, String> errorObj = new ObjectMapper().readValue(msg, HashMap.class);
                             String errorObjMsg = errorObj.get("message");
                             if (!StringUtils.isEmpty(errorObjMsg)) {
+                                String details = errorObj.get("details");
+                                if (details != null) {
+                                    errorObjMsg += ": " + details;                                     
+                                }
                                 return errorObjMsg;
                             }
                         } catch (Exception e) {
