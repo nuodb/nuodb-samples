@@ -23,11 +23,12 @@ public class ControlPanelUsersServlet extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            StorefrontStatsReport stats = getSimulator(req).getStorefrontStatsReport(null);
+            StorefrontStatsReport stats = getSimulator(req).getStorefrontStatsReport();
             Map<String, Object> pageData = new HashMap<String, Object>();
             pageData.put("stats", stats);
             pageData.put("maxIdleSec", StorefrontApp.STOP_USERS_AFTER_IDLE_UI_SEC);
             pageData.put("stopUsersWhenIdle", getTenant(req).getAppInstance().getStopUsersWhenIdle());
+            pageData.put("activeWebCustomerCount", getStorefrontService(req).getStorefrontStats(StorefrontApp.DEFAULT_SESSION_TIMEOUT_SEC, null).getActiveWebCustomerCount());
 
             showPage(req, resp, "Control Panel", "control-panel-users", pageData, new Customer());
         } catch (Exception ex) {

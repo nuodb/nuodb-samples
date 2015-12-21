@@ -7,11 +7,13 @@
 
     var g_app;
     var g_regionData = null;
+    var g_activeWebCustomerCount = 0;
 
     Storefront.initControlPanelUsersPage = function(cfg) {
         var pageData = cfg.pageData;
         g_app = this;
         g_regionData = initRegionData(g_app.regions, pageData.stats);
+        g_activeWebCustomerCount = pageData.activeWebCustomerCount;
 
         if (!jQuery.support.cors && g_regionData.instanceCount > 1) {
             cfg.messages
@@ -136,7 +138,6 @@
             var region = regions[i];
             region.workloads = [];
             region.instanceCountLabel = pluralize(region.instances.length, "instance");
-            region.webCustomerCount = 0;
             instanceCount += region.instances.length;
 
             // Initialize workload data
@@ -209,12 +210,6 @@
     function refreshInstanceStatsComplete(region, instance, stats) {
         // Update instance
         instance.isRefreshing = false;
-        if (stats.storefrontStats) {
-            var regStats = stats.storefrontStats[region.regionName];
-            if (regStats) {
-                region.webCustomerCount = regStats.activeWebCustomerCount;
-            }
-        }
         if (stats.appInstance) {
             instance.heavyLoad = stats.appInstance.cpuUtilization >= MIN_HEAVY_CPU_UTILIZATION_PCT;
         }
@@ -276,16 +271,12 @@
     function recalcCustomerStats() {
         var maxRegionUserCount = 0;
         var totalSimulatedUserCount = 0;
-        var totalWebCustomerCount = 0;
 
         for ( var i = 0; i < g_regionData.regions.length; i++) {
             var region = g_regionData.regions[i];
 
-            // Accumulate real users (reported at region level)
-            totalWebCustomerCount += region.webCustomerCount;
-
             // Accumulate simulated users (reported at instance level)
-            var regionUserCount = region.webCustomerCount;
+            var regionUserCount = 0;
             for ( var j = 0; j < region.workloads.length; j++) {
                 var workload = region.workloads[j];
                 workload.activeWorkerCount = 0;
@@ -341,10 +332,8 @@
                 // Input field
                 $(detailedBars$[j * 2]).closest('tr').find('input').val(workloadUserCount);
             }
-            $(bars$[j]).css('width', (region.webCustomerCount / maxRegionUserCount * 100) + '%').attr('title', formatTooltipWithCount('Web browser user', region.webCustomerCount));
 
             // Region label
-            regionUserCount += region.webCustomerCount;
             label$.html(regionUserCount.format(0));
         }
 
@@ -358,11 +347,11 @@
             $('.customer-summary [data-workload="' + workload.workload.name + '"]').html(count);
         }
         $('#summary-users-simulated').html(pluralize(totalSimulatedUserCount, 'simulated customer'));
-        $('#summary-users-real').html(pluralize(totalWebCustomerCount, 'real customer'));
-        $('#label-web-user-count .label').html(totalWebCustomerCount);
+        $('#summary-users-real').html(pluralize(g_activeWebCustomerCount, 'real customer'));
+        $('#label-web-user-count .label').html(g_activeWebCustomerCount);
 
         // Update tab label
-        $('#lbl-customers').text((totalSimulatedUserCount + totalWebCustomerCount).format(0));
+        $('#lbl-customers').text((totalSimulatedUserCount).format(0));
     }
 
     function syncStatusIndicator(status$, obj) {

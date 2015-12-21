@@ -31,8 +31,8 @@ public class StatsApi extends BaseApi {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public StorefrontStatsReport getAllStatsReport(@Context HttpServletRequest req, @QueryParam("sessionTimeoutSec") Integer sessionTimeoutSec) {
-        StorefrontStatsReport rpt = getSimulator(req).getStorefrontStatsReport(sessionTimeoutSec);
+    public StorefrontStatsReport getAllStatsReport(@Context HttpServletRequest req) {
+        StorefrontStatsReport rpt = getSimulator(req).getStorefrontStatsReport();
         DbFootprint footprint = getDbApi(req).getDbFootprint();
 
         rpt.setDbStats(footprint);

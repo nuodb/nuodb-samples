@@ -193,7 +193,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
     }
 
     @Override
-    public StorefrontStatsReport getStorefrontStatsReport(Integer sessionTimeoutSec) {
+    public StorefrontStatsReport getStorefrontStatsReport() {
         StorefrontStatsReport report = new StorefrontStatsReport();
 
         svc.getAppInstance().setCpuUtilization(PerformanceUtil.getAvgCpuUtilization());
@@ -203,7 +203,7 @@ public class SimulatorService implements ISimulator, ISimulatorService {
         report.setTransactionStats(svc.getTransactionStats());
         report.setWorkloadStats(getWorkloadStats());
         report.setWorkloadStepStats(getWorkloadStepStats());
-
+        
         return report;
     }
 
