@@ -1,7 +1,7 @@
 NuoDB Storefront Demo
 =====================
 
-This mock storefront web application showcases NuoDB's 5 value propositions:  scale-out performance, continuous availability, geo-distribution, multi-tenant, and no-knobs administration.  You can browse products, add items to you cart, write reviews, and checkout.  You can also simulate thousands of concurrent (simulated) shoppers with customizable workload characteristics. While the store itself is not really open for business, the queries being run under the hood are quite real!  
+This mock storefront web application showcases NuoDB's 5 value propositions:  scale-out performance, continuous availability, region distribution, multi-tenant, and no-knobs administration.  You can browse products, add items to you cart, write reviews, and checkout.  You can also simulate thousands of concurrent (simulated) shoppers with customizable workload characteristics. While the store itself is not really open for business, the queries being run under the hood are quite real!  
 
 ![ScreenShot](doc/home.png)
 
@@ -116,7 +116,7 @@ There are guided tour pages that demonstrate NuoDB's 5 value propositions using 
 
 1. Scale-out performance
 2. Continuous availability
-3. Geo-distribution
+3. Region distribution
 4. Multi-tenant
 5. No-knobs administration
 

@@ -20,13 +20,13 @@ public class TourGeoDistributionServlet extends BaseServlet {
         try {
             if (getDbApi(req).getDbFootprint().regionCount <= 1) {
                 addMessage(req, MessageSeverity.WARNING,
-                        "You cannot see Geo-Distribution in action because you have no additional regions available. "
+                        "You cannot see Region Distribution in action because you have no additional regions available. "
                                 + "An easy way to run NuoDB with multiple regions is to use the NuoDB AWS Quickstart kit with with your Amazon Web Services (AWS) account. "
                                 + "NuoDB automatically provisions everything you need in the cloud.")
                                 .setLink(new MessageLink("Get the kit", "https://github.com/nuodb/nuodbTools")); 
             }
                         
-            showPage(req, resp, "Geo-Distribution", "tour-geo-distribution", null, new Customer());
+            showPage(req, resp, "Region Distribution", "tour-region-distribution", null, new Customer());
         } catch (Exception ex) {
             showCriticalErrorPage(req, resp, ex);
         }

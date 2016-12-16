@@ -41,8 +41,8 @@ Ext.define('App.view.NavBar', {
         href: '/tour-multi-tenant',
         prefix: '2.'
     }, {
-        title: 'Geo-Distribution',
-        href: '/tour-geo-distribution',
+        title: 'Region Distribution',
+        href: '/tour-region-distribution',
         prefix: '3.'
     }, {
         title: 'No-Knobs Administration',

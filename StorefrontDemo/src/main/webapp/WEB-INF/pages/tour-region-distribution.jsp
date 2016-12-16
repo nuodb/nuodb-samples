@@ -3,7 +3,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <t:page showHeader="false">
-    <h1>Geo-Distribution</h1>
+    <h1>Region Distribution</h1>
     
     <div class="row-fluid tour-figure tall">
         <div class="span2">
@@ -22,7 +22,7 @@
         </div>
         <div class="span1"></div>
         <div class="span2">
-            <h3>...load is distributed geographically</h3>
+            <h3>...load is distributed regionally</h3>
             <div class="thumbnail">
                 <div class="caption">Throughput</div>
                 <img src="img/tour-step-up.png" height="100" />

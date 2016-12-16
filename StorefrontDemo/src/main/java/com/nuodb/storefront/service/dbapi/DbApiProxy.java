@@ -58,7 +58,7 @@ public class DbApiProxy implements IDbApi {
     private static final String ARCHIVEVAR_ARCHIVE_DIR = "archiveDir";
     private static final String ARCHIVE_DIR_SSM_SUFFIX = "_snapshot";
 
-    private static final String TEMPLATE_GEO_DISTRIBUTED = "Geo-distributed";
+    private static final String TEMPLATE_GEO_DISTRIBUTED = "Region Distribution";
     private static final String TEMPLATE_MULTI_HOST = "Multi Host";
     private static final String TEMPLATE_SINGLE_HOST = "Single Host";
 

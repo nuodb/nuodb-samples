@@ -173,7 +173,7 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>storefront-tour-geodistribution</servlet-name>
-        <url-pattern>/tour-geo-distribution</url-pattern>
+        <url-pattern>/tour-region-distribution</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>storefront-tour-scaleout</servlet-name>
