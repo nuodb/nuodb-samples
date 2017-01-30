@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 public class GettingStarted {
 
     private static final String DEFAULT_QUERY = "SELECT * from User.Teams WHERE year < ?";
-    private static final String DEFAULT_TIME = "1000";
+    private static final String DEFAULT_TIME = "1";
 
     private static Logger log = Logger.getLogger(GettingStarted.class.getName());
 
@@ -52,7 +52,7 @@ public class GettingStarted {
 
             query = props.getProperty("query", DEFAULT_QUERY);
 
-            long duration = Long.parseLong(props.getProperty("time", DEFAULT_TIME));
+            long duration = 1000 * Long.parseLong(props.getProperty("time", DEFAULT_TIME));
             timeout = System.currentTimeMillis() + duration;
         }
 
