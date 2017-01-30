@@ -3,8 +3,8 @@
 
 export NUODB_HOME=${NUODB_HOME:-/opt/nuodb}
 
-if [ $1 = "-time" ] && [ "x$2" != "x" ]; then
-	export runTime=$2
+if [ "$1" = "-time" ]; then
+	export runTime=${2:-1}
 else
 	export runTime=1
 fi
