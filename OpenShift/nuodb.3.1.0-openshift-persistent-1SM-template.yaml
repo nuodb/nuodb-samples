@@ -325,7 +325,7 @@ parameters:
     displayName: Database User Password
     description: "Database user password."
     required: true
-    value: 
+    value:
   - name: ADMIN_SVC_NAME
     displayName: NuoDB Admin Service Name
     description: "Service Name to Connect to NuoAdmin."
