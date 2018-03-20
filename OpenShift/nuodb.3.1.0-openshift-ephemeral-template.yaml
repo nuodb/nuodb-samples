@@ -60,7 +60,7 @@ objects:
   kind: DeploymentConfig
   metadata:
     annotations:
-      description: "Broker pod instance deployment configuration"
+      description: "Admin pod instance deployment configuration"
       template.alpha.openshift.io/wait-for-ready: "true"
     labels:
       app: admin
@@ -90,7 +90,7 @@ objects:
       spec:
         containers:
         - env:
-          - name: AGENT_PORT
+          - name: API_PORT
             value: "8888"
           - name: PEER_ADDRESS
             value: ${ADMIN_SVC_NAME}
@@ -172,7 +172,7 @@ objects:
       spec:
         containers:
         - env:
-          - name: AGENT_PORT
+          - name: API_PORT
             value: "8888"
           - name: PEER_ADDRESS
             value: ${ADMIN_SVC_NAME}
@@ -226,7 +226,7 @@ objects:
       app: te
     name: te
   spec:
-    replicas: 1
+    replicas: ${TE_COUNT}
     selector:
       app: te
       deploymentconfig: te
@@ -250,7 +250,7 @@ objects:
       spec:
         containers:
         - env:
-          - name: AGENT_PORT
+          - name: API_PORT
             value: "8888"
           - name: PEER_ADDRESS
             value: ${ADMIN_SVC_NAME}
@@ -319,8 +319,13 @@ parameters:
     description: "Service Name to Connect to NuoAdmin."
     required: true
     value: nuodb-admin-service
+  - name: TE_COUNT
+    displayName: Number of Transaction Engines to Launch
+    description: "Start NuoDB with a specific number of TEs"
+    required: true
+    value: "2"
   - name: CONTAINER
     displayName: Container Registry
     description: "Registry to pull NuoDB from."
     required: true
-    value: "docker.io/nuodb/nuodb-ee:3.1.0-53.2"
+    value: "docker.io/nuodb/nuodb-ee:3.1.0-53.10"
