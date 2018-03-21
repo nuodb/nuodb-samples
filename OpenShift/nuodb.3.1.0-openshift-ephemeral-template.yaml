@@ -64,12 +64,12 @@ objects:
       template.alpha.openshift.io/wait-for-ready: "true"
     labels:
       app: admin
-    name: admin
+    name: admin1
   spec:
     replicas: 1
     selector:
       app: admin
-      deploymentconfig: admin
+      deploymentconfig: admin1
     strategy:
       activeDeadlineSeconds: 21600
       resources: {}
@@ -86,8 +86,9 @@ objects:
           openshift.io/generated-by: OpenShiftNewApp
         labels:
           app: admin
-          deploymentconfig: admin
+          deploymentconfig: admin1
       spec:
+        hostname: nuoadmin1
         containers:
         - env:
           - name: API_PORT
@@ -113,8 +114,19 @@ objects:
             value: local
           - name: NODE_TYPE
             value: NUOADMIN
+          - name: ADMIN_TYPE
+            value: LEADER
           image: ${CONTAINER}
           imagePullPolicy: IfNotPresent
+          readinessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 2
+            failureThreshold: 30
+            successThreshold: 4
+            timeoutSeconds: 1
+            httpGet:
+              path: /api/1/peers
+              port: 8888
           name: admin
           ports:
           - containerPort: 8888
@@ -133,7 +145,195 @@ objects:
         restartPolicy: Always
         schedulerName: default-scheduler
         securityContext: {}
-        terminationGracePeriodSeconds: 30
+        terminationGracePeriodSeconds: 15
+        volumes:
+        - emptyDir: {}
+          name: admin-volume-1
+    test: false
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      description: "Admin pod instance deployment configuration"
+      template.alpha.openshift.io/wait-for-ready: "true"
+    labels:
+      app: admin
+    name: admin2
+  spec:
+    replicas: 1
+    selector:
+      app: admin
+      deploymentconfig: admin2
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        labels:
+          app: admin
+          deploymentconfig: admin2
+      spec:
+        hostname: nuoadmin2
+        containers:
+        - env:
+          - name: API_PORT
+            value: "8888"
+          - name: PEER_ADDRESS
+            value: ${ADMIN_SVC_NAME}
+          - name: DB_NAME
+            valueFrom:
+              secretKeyRef:
+                name: nuodb
+                key: database-name
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: nuodb
+                key: database-username
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: nuodb
+                key: database-password
+          - name: NODE_REGION
+            value: local
+          - name: NODE_TYPE
+            value: NUOADMIN
+          - name: ADMIN_TYPE
+            value: FOLLOWER
+          image: ${CONTAINER}
+          imagePullPolicy: IfNotPresent
+          readinessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 30
+            successThreshold: 2
+            timeoutSeconds: 1
+            httpGet:
+              path: /api/1/peers
+              port: 8888
+          name: admin2
+          ports:
+          - containerPort: 8888
+            protocol: TCP
+          - containerPort: 48004
+            protocol: TCP
+          - containerPort: 48005
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /archive
+            name: admin-volume-1
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 15
+        volumes:
+        - emptyDir: {}
+          name: admin-volume-1
+    test: false
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      description: "Admin pod instance deployment configuration"
+      template.alpha.openshift.io/wait-for-ready: "true"
+    labels:
+      app: admin
+    name: admin3
+  spec:
+    replicas: 1
+    selector:
+      app: admin
+      deploymentconfig: admin3
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        labels:
+          app: admin
+          deploymentconfig: admin3
+      spec:
+        hostname: nuoadmin3
+        containers:
+        - env:
+          - name: API_PORT
+            value: "8888"
+          - name: PEER_ADDRESS
+            value: ${ADMIN_SVC_NAME}
+          - name: DB_NAME
+            valueFrom:
+              secretKeyRef:
+                name: nuodb
+                key: database-name
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: nuodb
+                key: database-username
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: nuodb
+                key: database-password
+          - name: NODE_REGION
+            value: local
+          - name: NODE_TYPE
+            value: NUOADMIN
+          - name: ADMIN_TYPE
+            value: FOLLOWER
+          image: ${CONTAINER}
+          imagePullPolicy: IfNotPresent
+          readinessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 30
+            successThreshold: 2
+            timeoutSeconds: 1
+            httpGet:
+              path: /api/1/peers
+              port: 8888
+          name: admin3
+          ports:
+          - containerPort: 8888
+            protocol: TCP
+          - containerPort: 48004
+            protocol: TCP
+          - containerPort: 48005
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /archive
+            name: admin-volume-1
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 15
         volumes:
         - emptyDir: {}
           name: admin-volume-1
