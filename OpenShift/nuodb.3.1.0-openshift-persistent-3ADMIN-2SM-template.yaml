@@ -121,6 +121,8 @@ objects:
       app: admin
     name: admin1
   spec:
+    nodeSelector:
+      zone: ${NODE_REGION}
     replicas: 1
     selector:
       app: admin
@@ -166,11 +168,15 @@ objects:
                 name: nuodb
                 key: database-password
           - name: NODE_REGION
-            value: local
+            value: ${NODE_REGION}
           - name: NODE_TYPE
             value: NUOADMIN
           - name: ADMIN_TYPE
             value: LEADER
+          - name: CLUSTER
+            value: ${CLUSTER}
+          - name: FIRST_CLUSTER_API
+            value: ${FIRST_CLUSTER_API}
           image: ${CONTAINER}
           imagePullPolicy: IfNotPresent
           readinessProbe:
@@ -216,6 +222,8 @@ objects:
       app: admin
     name: admin2
   spec:
+    nodeSelector:
+      zone: ${NODE_REGION}
     replicas: 1
     selector:
       app: admin
@@ -261,7 +269,7 @@ objects:
                 name: nuodb
                 key: database-password
           - name: NODE_REGION
-            value: local
+            value: ${NODE_REGION}
           - name: NODE_TYPE
             value: NUOADMIN
           - name: ADMIN_TYPE
@@ -311,6 +319,8 @@ objects:
       app: admin
     name: admin3
   spec:
+    nodeSelector:
+      zone: ${NODE_REGION}
     replicas: 1
     selector:
       app: admin
@@ -356,7 +366,7 @@ objects:
                 name: nuodb
                 key: database-password
           - name: NODE_REGION
-            value: local
+            value: ${NODE_REGION}
           - name: NODE_TYPE
             value: NUOADMIN
           - name: ADMIN_TYPE
@@ -406,6 +416,8 @@ objects:
       app: sm
     name: sm1
   spec:
+    nodeSelector:
+      zone: ${NODE_REGION}
     replicas: 1
     minReplicas: 1
     maxReplicas: 1
@@ -428,6 +440,7 @@ objects:
           openshift.io/generated-by: OpenShiftNewApp
         labels:
           app: sm
+          affinity: first
           deploymentconfig: sm1
       spec:
         containers:
@@ -452,7 +465,7 @@ objects:
                 name: nuodb
                 key: database-password
           - name: NODE_REGION
-            value: local
+            value: ${NODE_REGION}
           - name: NODE_TYPE
             value: SM
           - name: SM_TYPE
@@ -489,11 +502,24 @@ objects:
       app: sm
     name: sm2
   spec:
+    affinity:
+      podAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+            - key: affinity
+              operator: In
+              values:
+              - first
+            topologyKey: kubernetes.io/hostname
+    nodeSelector:
+      zone: ${NODE_REGION}
     replicas: 1
     minReplicas: 1
     maxReplicas: 1
     selector:
       app: sm
+      affinity: second
       deploymentconfig: sm2
     strategy:
       activeDeadlineSeconds: 21600
@@ -535,7 +561,7 @@ objects:
                 name: nuodb
                 key: database-password
           - name: NODE_REGION
-            value: local
+            value: ${NODE_REGION}
           - name: NODE_TYPE
             value: SM
           - name: SM_TYPE
@@ -572,6 +598,8 @@ objects:
       app: te
     name: te
   spec:
+    nodeSelector:
+      zone: ${NODE_REGION}
     replicas: ${TE_COUNT}
     selector:
       app: te
@@ -616,7 +644,7 @@ objects:
                 name: nuodb
                 key: database-password
           - name: NODE_REGION
-            value: local
+            value: ${NODE_REGION}
           - name: NODE_TYPE
             value: TE
           image: ${CONTAINER}
@@ -645,6 +673,18 @@ parameters:
     displayName: Namespace
     description: "The OpenShift Namespace where the ImageStream resides"
     value: openshift
+  - name: NODE_REGION
+    displayName: Deployment Zone
+    description: "Deploy NuoDB to labeled OpenShift Nodes"
+    value:
+  - name: CLUSTER
+    displayName: Join Existing NuoDB Cluster
+    description: true/false join existing nuodb cluster
+    value:
+  - name: FIRST_CLUSTER_API
+    displayName: Existing NuoDB Admin Service Address
+    description: Existing NuoDB Admin Service Address
+    value:
   - name: DB_NAME
     displayName: Database Name
     description: "NuoDB database name to create"
@@ -709,4 +749,4 @@ parameters:
     displayName: Container Registry
     description: "Registry to pull NuoDB from"
     required: true
-    value: "docker.io/nuodb/nuodb-ee:3.1.0-53.10"
+    value: "docker.io/nuodb/nuodb-ee:3.1.1-10.1"
