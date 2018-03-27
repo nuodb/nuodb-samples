@@ -20,6 +20,8 @@ objects:
   kind: Secret
   metadata:
     name: nuodb
+    labels:
+      deployment: nuodb
     annotations:
       "template.openshift.io/expose-username": "{.data['database-username']}"
       "template.openshift.io/expose-password": "{.data['database-password']}"
@@ -34,6 +36,7 @@ objects:
     annotations:
       description: "Service for Admin pods."
     labels:
+      deployment: nuodb
       app: ${ADMIN_SVC_NAME}
     name: ${ADMIN_SVC_NAME}
   spec:
@@ -51,7 +54,7 @@ objects:
       protocol: TCP
       targetPort: 48005
     selector:
-      app: admin
+      app: admin${NODE_REGION}
     sessionAffinity: None
     type: LoadBalancer
   status:
@@ -59,7 +62,9 @@ objects:
 - apiVersion: v1
   kind: PersistentVolumeClaim
   metadata:
-    name: ${SM_PVC_1}
+    name: ${SM_PVC_1}${NODE_REGION}
+    labels:
+      deployment: nuodb
   spec:
     storageClassName: openebs-percona
     accessModes:
@@ -70,7 +75,9 @@ objects:
 - apiVersion: v1
   kind: PersistentVolumeClaim
   metadata:
-    name: ${SM_PVC_2}
+    name: ${SM_PVC_2}${NODE_REGION}
+    labels:
+      deployment: nuodb
   spec:
     storageClassName: openebs-percona
     accessModes:
@@ -81,7 +88,9 @@ objects:
 - apiVersion: v1
   kind: PersistentVolumeClaim
   metadata:
-    name: ${ADMIN_PVC_1}
+    name: ${ADMIN_PVC_1}${NODE_REGION}
+    labels:
+      deployment: nuodb
   spec:
     storageClassName: openebs-percona
     accessModes:
@@ -92,7 +101,9 @@ objects:
 - apiVersion: v1
   kind: PersistentVolumeClaim
   metadata:
-    name: ${ADMIN_PVC_2}
+    name: ${ADMIN_PVC_2}${NODE_REGION}
+    labels:
+      deployment: nuodb
   spec:
     storageClassName: openebs-percona
     accessModes:
@@ -103,7 +114,9 @@ objects:
 - apiVersion: v1
   kind: PersistentVolumeClaim
   metadata:
-    name: ${ADMIN_PVC_3}
+    name: ${ADMIN_PVC_3}${NODE_REGION}
+    labels:
+      deployment: nuodb
   spec:
     storageClassName: openebs-percona
     accessModes:
@@ -118,15 +131,16 @@ objects:
       description: "Admin pod instance deployment configuration"
       template.alpha.openshift.io/wait-for-ready: "true"
     labels:
-      app: admin
-    name: admin1
+      deployment: nuodb
+      app: admin${NODE_REGION}
+    name: admin1${NODE_REGION}
   spec:
     nodeSelector:
       zone: ${NODE_REGION}
     replicas: 1
     selector:
-      app: admin
-      deploymentconfig: admin1
+      app: admin${NODE_REGION}
+      deploymentconfig: admin1${NODE_REGION}
     strategy:
       activeDeadlineSeconds: 21600
       resources: {}
@@ -142,10 +156,10 @@ objects:
         annotations:
           openshift.io/generated-by: OpenShiftNewApp
         labels:
-          app: admin
-          deploymentconfig: admin1
+          app: admin${NODE_REGION}
+          deploymentconfig: admin1${NODE_REGION}
       spec:
-        hostname: nuoadmin1
+        hostname: nuoadmin1${NODE_REGION}
         containers:
         - env:
           - name: API_PORT
@@ -188,7 +202,7 @@ objects:
             httpGet:
               path: /api/1/peers
               port: 8888
-          name: admin
+          name: admin1${NODE_REGION}
           ports:
           - containerPort: 8888
             protocol: TCP
@@ -201,16 +215,16 @@ objects:
           terminationMessagePolicy: File
           volumeMounts:
           - mountPath: /opt/nuodb/var/opt
-            name: ${ADMIN_PVC_1}
+            name: ${ADMIN_PVC_1}${NODE_REGION}
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         schedulerName: default-scheduler
         securityContext: {}
         terminationGracePeriodSeconds: 15
         volumes:
-        - name: ${ADMIN_PVC_1}
+        - name: ${ADMIN_PVC_1}${NODE_REGION}
           persistentVolumeClaim:
-            claimName: ${ADMIN_PVC_1}
+            claimName: ${ADMIN_PVC_1}${NODE_REGION}
     test: false
 - apiVersion: v1
   kind: DeploymentConfig
@@ -219,15 +233,16 @@ objects:
       description: "Admin pod instance deployment configuration"
       template.alpha.openshift.io/wait-for-ready: "true"
     labels:
-      app: admin
-    name: admin2
+      deployment: nuodb
+      app: admin${NODE_REGION}
+    name: admin2${NODE_REGION}
   spec:
     nodeSelector:
       zone: ${NODE_REGION}
     replicas: 1
     selector:
-      app: admin
-      deploymentconfig: admin2
+      app: admin${NODE_REGION}
+      deploymentconfig: admin2${NODE_REGION}
     strategy:
       activeDeadlineSeconds: 21600
       resources: {}
@@ -243,10 +258,10 @@ objects:
         annotations:
           openshift.io/generated-by: OpenShiftNewApp
         labels:
-          app: admin
-          deploymentconfig: admin2
+          app: admin${NODE_REGION}
+          deploymentconfig: admin2${NODE_REGION}
       spec:
-        hostname: nuoadmin2
+        hostname: nuoadmin2${NODE_REGION}
         containers:
         - env:
           - name: API_PORT
@@ -285,7 +300,7 @@ objects:
             httpGet:
               path: /api/1/peers
               port: 8888
-          name: admin2
+          name: admin2${NODE_REGION}
           ports:
           - containerPort: 8888
             protocol: TCP
@@ -298,16 +313,16 @@ objects:
           terminationMessagePolicy: File
           volumeMounts:
           - mountPath: /opt/nuodb/var/opt
-            name: ${ADMIN_PVC_2}
+            name: ${ADMIN_PVC_2}${NODE_REGION}
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         schedulerName: default-scheduler
         securityContext: {}
         terminationGracePeriodSeconds: 15
         volumes:
-        - name: ${ADMIN_PVC_2}
+        - name: ${ADMIN_PVC_2}${NODE_REGION}
           persistentVolumeClaim:
-            claimName: ${ADMIN_PVC_2}
+            claimName: ${ADMIN_PVC_2}${NODE_REGION}
     test: false
 - apiVersion: v1
   kind: DeploymentConfig
@@ -316,15 +331,16 @@ objects:
       description: "Admin pod instance deployment configuration"
       template.alpha.openshift.io/wait-for-ready: "true"
     labels:
-      app: admin
-    name: admin3
+      deployment: nuodb
+      app: admin${NODE_REGION}
+    name: admin3${NODE_REGION}
   spec:
     nodeSelector:
       zone: ${NODE_REGION}
     replicas: 1
     selector:
-      app: admin
-      deploymentconfig: admin3
+      app: admin${NODE_REGION}
+      deploymentconfig: admin3${NODE_REGION}
     strategy:
       activeDeadlineSeconds: 21600
       resources: {}
@@ -340,10 +356,10 @@ objects:
         annotations:
           openshift.io/generated-by: OpenShiftNewApp
         labels:
-          app: admin
-          deploymentconfig: admin3
+          app: admin${NODE_REGION}
+          deploymentconfig: admin3${NODE_REGION}
       spec:
-        hostname: nuoadmin3
+        hostname: nuoadmin3${NODE_REGION}
         containers:
         - env:
           - name: API_PORT
@@ -382,7 +398,7 @@ objects:
             httpGet:
               path: /api/1/peers
               port: 8888
-          name: admin3
+          name: admin3${NODE_REGION}
           ports:
           - containerPort: 8888
             protocol: TCP
@@ -395,16 +411,16 @@ objects:
           terminationMessagePolicy: File
           volumeMounts:
           - mountPath: /opt/nuodb/var/opt
-            name: ${ADMIN_PVC_3}
+            name: ${ADMIN_PVC_3}${NODE_REGION}
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         schedulerName: default-scheduler
         securityContext: {}
         terminationGracePeriodSeconds: 15
         volumes:
-        - name: ${ADMIN_PVC_3}
+        - name: ${ADMIN_PVC_3}${NODE_REGION}
           persistentVolumeClaim:
-            claimName: ${ADMIN_PVC_3}
+            claimName: ${ADMIN_PVC_3}${NODE_REGION}
     test: false
 - apiVersion: v1
   kind: DeploymentConfig
@@ -413,8 +429,10 @@ objects:
       description: "Storage Manager(SM) pod instance deployment configuration"
       template.alpha.openshift.io/wait-for-ready: "true"
     labels:
-      app: sm
-    name: sm1
+      deployment: nuodb
+      app: sm${NODE_REGION}
+      affinity: first
+    name: sm1${NODE_REGION}
   spec:
     nodeSelector:
       zone: ${NODE_REGION}
@@ -422,8 +440,8 @@ objects:
     minReplicas: 1
     maxReplicas: 1
     selector:
-      app: sm
-      deploymentconfig: sm1
+      app: sm${NODE_REGION}
+      deploymentconfig: sm1${NODE_REGION}
     strategy:
       activeDeadlineSeconds: 21600
       resources: {}
@@ -439,10 +457,10 @@ objects:
         annotations:
           openshift.io/generated-by: OpenShiftNewApp
         labels:
-          app: sm
-          affinity: first
-          deploymentconfig: sm1
+          app: sm${NODE_REGION}
+          deploymentconfig: sm1${NODE_REGION}
       spec:
+        hostname: sm1${NODE_REGION}
         containers:
         - env:
           - name: API_PORT
@@ -472,7 +490,7 @@ objects:
             value: FIRST
           image: ${CONTAINER}
           imagePullPolicy: IfNotPresent
-          name: sm1
+          name: sm1${NODE_REGION}
           ports:
           - containerPort: 48004
             protocol: TCP
@@ -481,16 +499,16 @@ objects:
           terminationMessagePolicy: File
           volumeMounts:
           - mountPath: /archive
-            name: ${SM_PVC_1}
+            name: ${SM_PVC_1}${NODE_REGION}
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         schedulerName: default-scheduler
         securityContext: {}
         terminationGracePeriodSeconds: 15
         volumes:
-        - name: ${SM_PVC_1}
+        - name: ${SM_PVC_1}${NODE_REGION}
           persistentVolumeClaim:
-            claimName: ${SM_PVC_1}
+            claimName: ${SM_PVC_1}${NODE_REGION}
     test: false
 - apiVersion: v1
   kind: DeploymentConfig
@@ -499,8 +517,10 @@ objects:
       description: "Storage Manager(SM) pod instance deployment configuration"
       template.alpha.openshift.io/wait-for-ready: "true"
     labels:
-      app: sm
-    name: sm2
+      deployment: nuodb
+      app: sm${NODE_REGION}
+      affinity: second
+    name: sm2${NODE_REGION}
   spec:
     affinity:
       podAffinity:
@@ -518,9 +538,8 @@ objects:
     minReplicas: 1
     maxReplicas: 1
     selector:
-      app: sm
-      affinity: second
-      deploymentconfig: sm2
+      app: sm${NODE_REGION}
+      deploymentconfig: sm2${NODE_REGION}
     strategy:
       activeDeadlineSeconds: 21600
       resources: {}
@@ -536,9 +555,10 @@ objects:
         annotations:
           openshift.io/generated-by: OpenShiftNewApp
         labels:
-          app: sm
-          deploymentconfig: sm2
+          app: sm${NODE_REGION}
+          deploymentconfig: sm2${NODE_REGION}
       spec:
+        hostname: sm2${NODE_REGION}
         containers:
         - env:
           - name: API_PORT
@@ -568,7 +588,7 @@ objects:
             value: SECOND
           image: ${CONTAINER}
           imagePullPolicy: IfNotPresent
-          name: sm2
+          name: sm2${NODE_REGION}
           ports:
           - containerPort: 48004
             protocol: TCP
@@ -577,16 +597,16 @@ objects:
           terminationMessagePolicy: File
           volumeMounts:
           - mountPath: /archive
-            name: ${SM_PVC_2}
+            name: ${SM_PVC_2}${NODE_REGION}
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         schedulerName: default-scheduler
         securityContext: {}
         terminationGracePeriodSeconds: 15
         volumes:
-        - name: ${SM_PVC_2}
+        - name: ${SM_PVC_2}${NODE_REGION}
           persistentVolumeClaim:
-            claimName: ${SM_PVC_2}
+            claimName: ${SM_PVC_2}${NODE_REGION}
     test: false
 - apiVersion: v1
   kind: DeploymentConfig
@@ -595,15 +615,17 @@ objects:
       description: "Transaction Engine(TE) pod instance deployment configuration"
       template.alpha.openshift.io/wait-for-ready: "true"
     labels:
-      app: te
-    name: te
+      deployment: nuodb
+      app: te${NODE_REGION}
+      deploymentconfig: te${NODE_REGION}
+    name: te${NODE_REGION}
   spec:
     nodeSelector:
       zone: ${NODE_REGION}
     replicas: ${TE_COUNT}
     selector:
-      app: te
-      deploymentconfig: te
+      app: te${NODE_REGION}
+      deploymentconfig: te${NODE_REGION}
     strategy:
       activeDeadlineSeconds: 21600
       resources: {}
@@ -619,9 +641,10 @@ objects:
         annotations:
           openshift.io/generated-by: OpenShiftNewApp
         labels:
-          app: te
-          deploymentconfig: te
+          app: te${NODE_REGION}
+          deploymentconfig: te${NODE_REGION}
       spec:
+        hostname: te${NODE_REGION}
         containers:
         - env:
           - name: API_PORT
@@ -649,7 +672,7 @@ objects:
             value: TE
           image: ${CONTAINER}
           imagePullPolicy: IfNotPresent
-          name: te
+          name: te${NODE_REGION}
           ports:
           - containerPort: 48004
             protocol: TCP
@@ -677,13 +700,9 @@ parameters:
     displayName: Deployment Zone
     description: "Deploy NuoDB to labeled OpenShift Nodes"
     value:
-  - name: CLUSTER
-    displayName: Join Existing NuoDB Cluster
-    description: true/false join existing nuodb cluster
-    value:
   - name: FIRST_CLUSTER_API
     displayName: Existing NuoDB Admin Service Address
-    description: Existing NuoDB Admin Service Address
+    description: Join an existing NuoDB cluster
     value:
   - name: DB_NAME
     displayName: Database Name
@@ -749,4 +768,4 @@ parameters:
     displayName: Container Registry
     description: "Registry to pull NuoDB from"
     required: true
-    value: "docker.io/nuodb/nuodb-ee:3.1.1-10.1"
+    value: "docker.io/nuodb/nuodb-ee:3.1.1-10.3"
