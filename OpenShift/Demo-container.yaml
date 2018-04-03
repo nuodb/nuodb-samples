@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: nuodb-demo
+  labels:
+    template: nuodb-demo
+  annotations:
+    openshift.io/display-name: "NouDB Toolkit"
+    description: "Demo toolkit"
+    iconClass:
+    tags: "database,nuodb"
+    openshift.io/long-description: "toolkit"
+    openshift.io/provider-display-name: "NuoDB, Inc."
+    openshift.io/documentation-url: "http://doc.nuodb.com/Latest/Default.htm"
+    openshift.io/support-url: "https://support.nuodb.com/hc/en-us"
+    message: "The following service(s) have been created in your project: placeholder."
+objects:
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      description: "NuoDB demo toolkit container"
+      template.alpha.openshift.io/wait-for-ready: "true"
+    labels:
+      app: toolkit
+    name: toolkit
+  spec:
+    replicas: 1
+    selector:
+      app: toolkit
+      deploymentconfig: toolkit
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        labels:
+          app: toolkit
+          deploymentconfig: toolkit
+      spec:
+        containers:
+        - env:
+          - name: AGENT_PORT
+            value: "8888"
+          - name: AGENT
+            value: ${ADMIN_SVC_NAME}
+          - name: DB_NAME
+            valueFrom:
+              secretKeyRef:
+                name: nuodb
+                key: database-name
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: nuodb
+                key: database-username
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: nuodb
+                key: database-password
+          - name: NODE_REGION
+            value: local
+          - name: NODE_TYPE
+            value: toolkit
+          image: ${CONTAINER}
+          imagePullPolicy: IfNotPresent
+          name: toolkit
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /archive
+            name: toolkit-volume-1
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        volumes:
+        - emptyDir: {}
+          name: toolkit-volume-1
+    test: false
+parameters:
+  - name: NAMESPACE
+    displayName: Namespace
+    description: "The OpenShift Namespace where the ImageStream resides."
+    value: openshift
+  - name: ADMIN_SVC_NAME
+    displayName: NuoDB Admin Service Name
+    description: "Service Name to Connect to NuoAdmin."
+    required: true
+    value: nuodb-admin-service
+  - name: CONTAINER
+    displayName: Container Registry
+    description: "Registry to pull NuoDB from."
+    required: true
+    value: "docker.io/nuodb/nuodb-ee:toolkit-3.1.1-10.3"
+
