@@ -528,4 +528,4 @@ parameters:
     displayName: Container Registry
     description: "Registry to pull NuoDB from."
     required: true
-    value: "docker.io/nuodb/nuodb-ee:3.1.0-53.10"
+    value: "docker.io/nuodb/nuodb-ee:3.2.0-5245.5"
