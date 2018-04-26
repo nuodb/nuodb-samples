@@ -23,14 +23,14 @@ objects:
       template.alpha.openshift.io/wait-for-ready: "true"
     labels:
       app: toolkit
-    name: toolkit
+    name: ${DEPLOYMENTCONFIG}
   spec:
     nodeSelector:
       zone: ${NODE_REGION}
     replicas: 1
     selector:
       app: toolkit
-      deploymentconfig: toolkit
+      deploymentconfig: ${DEPLOYMENTCONFIG}
     strategy:
       activeDeadlineSeconds: 21600
       resources: {}
@@ -47,7 +47,7 @@ objects:
           openshift.io/generated-by: OpenShiftNewApp
         labels:
           app: toolkit
-          deploymentconfig: toolkit
+          deploymentconfig: ${DEPLOYMENTCONFIG}
       spec:
         containers:
         - env:
@@ -97,6 +97,11 @@ parameters:
     displayName: Namespace
     description: "The OpenShift Namespace where the ImageStream resides."
     value: openshift
+  - name: DEPLOYMENTCONFIG
+    displayName: Deployment Config Name
+    description: "Unique name for the Pod deployment"
+    required: true
+    value: toolkit
   - name: YCSB_WORKLOAD
     displayName: YCSB Workload
     description: "Run YCSB workload against your database. Valid workload options are [a|b|c|d|e|f|g]. Leave blank if using just the Toolkit"
