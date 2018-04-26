@@ -17,22 +17,6 @@ metadata:
     message: "The following service(s) have been created in your project: placeholder.\n\n"
 objects:
 - apiVersion: v1
-  kind: PersistentVolume
-  metadata:
-    name: gluster-default-volume
-    labels:
-      group: nuodb
-  spec:
-    capacity:
-      storage: 100Gi
-    accessModes:
-      - ReadWriteMany
-    glusterfs:
-      endpoints: glusterfs-cluster
-      path: myVol1
-      readOnly: false
-    persistentVolumeReclaimPolicy: Retain
-- apiVersion: v1
   kind: Secret
   metadata:
     name: ${SECRET_NAME}
@@ -99,18 +83,6 @@ objects:
     type: ClusterIP
   status:
     loadBalancer: {}
-- apiVersion: v1
-  kind: PersistentVolumeClaim
-  metadata:
-    name: gluster-claim
-    labels:
-      group: nuodb
-  spec:
-    accessModes:
-    - ReadWriteMany
-    resources:
-       requests:
-         storage: 10Gi
 - apiVersion: "apps/v1beta1"
   kind: StatefulSet
   metadata:
@@ -189,7 +161,7 @@ objects:
               value: "https://insights-qa.nuodb.com/api/1"
           volumeMounts:
           - mountPath: /opt/nuodb/var/opt
-            name: gluster-claim
+            name: nuoadmin-raft-${NODE_REGION}
           readinessProbe:
             initialDelaySeconds: 5
             periodSeconds: 2
@@ -199,10 +171,20 @@ objects:
             httpGet:
               path: /api/1/peers
               port: 8888
-        volumes:
-        - name: gluster-claim
-          persistentVolumeClaim:
-            claimName: gluster-claim
+    volumeClaimTemplates:
+    - metadata:
+        name: nuoadmin-raft-${NODE_REGION}
+      spec:
+        selector:
+          app: nuodb
+        labels:
+          app: nuodb
+        storageClassName: ${PVC_CLASS_NAME}
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: ${ADMIN_PVC_SIZE}
 - apiVersion: "apps/v1beta1"
   kind: StatefulSet
   metadata:
