@@ -185,6 +185,8 @@ objects:
               value: NUOADMIN
             - name: FIRST_CLUSTER_API
               value: ${FIRST_CLUSTER_API}
+            - name: INSIGHTS_URL
+              value: "https://insights-qa.nuodb.com/api/1"
           volumeMounts:
           - mountPath: /opt/nuodb/var/opt
             name: gluster-claim
@@ -447,4 +449,4 @@ parameters:
     displayName: Container Registry
     description: "Registry to pull NuoDB from"
     required: true
-    value: "docker.io/nuodb/nuodb-ee:3.2.0-5245.5"
+    value: "docker.io/nuodb/nuodb-ee:3.2.0-tgates.1"
