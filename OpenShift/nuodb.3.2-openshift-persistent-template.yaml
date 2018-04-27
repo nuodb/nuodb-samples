@@ -325,13 +325,15 @@ objects:
         affinity:
           podAntiAffinity:
             preferredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                - key: affinity
-                  operator: In
-                  values:
-                  - te
-              topologyKey: "kubernetes.io/hostname"
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: affinity
+                    operator: In
+                    values:
+                    - te
+                topologyKey: "kubernetes.io/hostname"
         containers:
         - env:
           - name: API_PORT
