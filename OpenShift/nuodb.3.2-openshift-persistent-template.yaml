@@ -296,6 +296,8 @@ objects:
     selector:
       matchLabels:
         affinity: sm
+        app: te-${NODE_REGION}
+        deploymentconfig: te-${NODE_REGION}
     replicas: ${TE_COUNT}
     selector:
       app: te-${NODE_REGION}
