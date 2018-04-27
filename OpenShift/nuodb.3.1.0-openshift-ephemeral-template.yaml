@@ -6,7 +6,7 @@ metadata:
   labels:
     template: nuodb.3.1.0-ce-ephemeral
   annotations:
-    openshift.io/display-name: "NouDB CE (Ephemeral)"
+    openshift.io/display-name: "NuoDB CE (Ephemeral)"
     description: "NuoDB database service, without persistent storage. For more information about using this template, including OpenShift considerations, see https://hub.docker.com/r/nuodb/nuodb-ce/ \n\nWARNING: Any data stored will be lost upon pod destruction. Only use this template for testing"
     iconClass: icon-mysql-database
     tags: "database,nuodb"
