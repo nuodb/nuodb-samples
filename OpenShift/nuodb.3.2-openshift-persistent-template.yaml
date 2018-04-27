@@ -250,6 +250,8 @@ objects:
               value: SM
             - name: ADMIN_NUM
               value: ${ADMIN_COUNT}
+            - name: INSIGHTS_URL
+              value: "https://insights-qa.nuodb.com/api/1"
           volumeMounts:
           - mountPath: /archive
             name: sm-archives-${NODE_REGION}
@@ -291,10 +293,14 @@ objects:
   spec:
     nodeSelector:
       zone: ${NODE_REGION}
+    selector:
+      matchLabels:
+        affinity: sm
     replicas: ${TE_COUNT}
     selector:
       app: te-${NODE_REGION}
       deploymentconfig: te-${NODE_REGION}
+      affinity: sm
     strategy:
       activeDeadlineSeconds: 21600
       resources: {}
@@ -312,7 +318,18 @@ objects:
         labels:
           app: te-${NODE_REGION}
           deploymentconfig: te-${NODE_REGION}
+          affinity: te
       spec:
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                - key: affinity
+                  operator: In
+                  values:
+                  - te
+              topologyKey: "kubernetes.io/hostname"
         containers:
         - env:
           - name: API_PORT
@@ -338,6 +355,8 @@ objects:
             value: ${NODE_REGION}
           - name: NODE_TYPE
             value: TE
+          - name: INSIGHTS_URL
+            value: "https://insights-qa.nuodb.com/api/1"
           image: ${CONTAINER}
           imagePullPolicy: IfNotPresent
           name: te-${NODE_REGION}
