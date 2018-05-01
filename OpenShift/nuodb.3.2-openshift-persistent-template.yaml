@@ -132,6 +132,8 @@ objects:
           env:
             - name: DNS_LOOKUP
               value: nuoadmin-dns
+            - name: SUB_ID
+              value: VNB2L0GZW1
             - name: API_PORT
               value: "8888"
             - name: PEER_ADDRESS
@@ -227,6 +229,8 @@ objects:
           env:
             - name: API_PORT
               value: "8888"
+            - name: SUB_ID
+              value: VNB2L0GZW1
             - name: PEER_ADDRESS
               value: ${ADMIN_SVC_NAME}-${NODE_REGION}
             - name: DB_NAME
@@ -338,6 +342,8 @@ objects:
         - env:
           - name: API_PORT
             value: "8888"
+          - name: SUB_ID
+            value: VNB2L0GZW1
           - name: PEER_ADDRESS
             value: ${ADMIN_SVC_NAME}-${NODE_REGION}
           - name: DB_NAME
@@ -454,4 +460,4 @@ parameters:
     displayName: Container Registry
     description: "Registry to pull NuoDB from"
     required: true
-    value: "docker.io/nuodb/nuodb-ee:3.2.0-tgates.2"
+    value: "docker.io/nuodb/nuodb-ee:3.2.0-tgates.3"
