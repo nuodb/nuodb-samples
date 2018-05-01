@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+AGENT=$1
+DBNAME=$2
+DBUSER=$3
+DBPASS=$4
+LB=$5
+FILE=$6
+I=$7
+
+
+if [ "$1" = "" ]; then
+   echo "usage: runsql <peer_address> <dbname> <dbuser> <dbpass> <LB> <filename> <iterations>"
+   exit 1
+fi
+
+if [ "$I" = "0" ]; then
+   I=999999
+fi
+
+for i in $(seq 1 $I); do
+        /opt/nuodb/bin/nuosql $DBNAME@$AGENT --user $DBUSER --password $DBPASS --connection-property "LBQuery=round_robin(region($LB))" < $FILE
+        sleep 1
+done

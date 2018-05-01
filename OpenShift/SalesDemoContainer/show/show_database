@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+    echo "Database Name is required"
+    echo "usage: show_database <db-name>"
+    exit 1
+fi
+
+/opt/nuodb/bin/nuocmd --api-server ${PEER_ADDRESS}:8888 show database --db-name $1

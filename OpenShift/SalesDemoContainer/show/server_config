@@ -1,0 +1,3 @@
+#!/bin/bash
+
+/opt/nuodb/bin/nuocmd get server-config --this-server

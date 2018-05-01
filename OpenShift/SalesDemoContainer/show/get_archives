@@ -1,0 +1,3 @@
+#!/bin/bash
+
+/opt/nuodb/bin/nuocmd --api-server ${PEER_ADDRESS}:8888 get archives
