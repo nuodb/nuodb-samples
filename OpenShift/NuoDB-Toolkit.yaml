@@ -25,8 +25,6 @@ objects:
       app: toolkit
     name: ${DEPLOYMENTCONFIG}
   spec:
-    nodeSelector:
-      zone: ${NODE_REGION}
     replicas: 1
     selector:
       app: toolkit
@@ -49,6 +47,8 @@ objects:
           app: toolkit
           deploymentconfig: ${DEPLOYMENTCONFIG}
       spec:
+        nodeSelector:
+          zone: ${NODE_REGION}
         containers:
         - env:
           - name: YCSB_WORKLOAD
@@ -124,5 +124,5 @@ parameters:
     displayName: Container Registry
     description: "Registry to pull NuoDB from."
     required: true
-    value: "docker.io/nuodb/nuodb-ee:toolkit-3.1.1-10.6"
+    value: "docker.io/nuodb/nuodb-ee:toolkit-3.1.1-10.7"
 

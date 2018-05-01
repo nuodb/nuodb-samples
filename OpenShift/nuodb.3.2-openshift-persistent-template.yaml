@@ -93,8 +93,6 @@ objects:
   spec:
     serviceName: nuoadmin-dns
     replicas: ${ADMIN_COUNT}
-    nodeSelector:
-      zone: ${NODE_REGION}
     selector:
       matchLabels:
         affinity: admin
@@ -107,6 +105,8 @@ objects:
           app: admin-${NODE_REGION}
           affinity: admin
       spec:
+        nodeSelector:
+          zone: ${NODE_REGION}
         affinity:
           podAntiAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
@@ -195,8 +195,6 @@ objects:
   spec:
     serviceName: sm
     replicas: ${SM_COUNT}
-    nodeSelector:
-      zone: ${NODE_REGION}
     selector:
       matchLabels:
         affinity: sm
@@ -209,6 +207,8 @@ objects:
           app: sm-${NODE_REGION}
           affinity: sm
       spec:
+        nodeSelector:
+          zone: ${NODE_REGION}
         affinity:
           podAntiAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
@@ -291,8 +291,6 @@ objects:
       deploymentconfig: te-${NODE_REGION}
     name: te-${NODE_REGION}
   spec:
-    nodeSelector:
-      zone: ${NODE_REGION}
     selector:
       matchLabels:
         affinity: te
@@ -322,6 +320,8 @@ objects:
           deploymentconfig: te-${NODE_REGION}
           affinity: te
       spec:
+        nodeSelector:
+          zone: ${NODE_REGION}
         affinity:
           podAntiAffinity:
             preferredDuringSchedulingIgnoredDuringExecution:
