@@ -343,7 +343,7 @@ objects:
           - name: API_PORT
             value: "8888"
           - name: SUB_ID
-            value: VNB2L0GZW1
+            value: ${SUB_ID}
           - name: PEER_ADDRESS
             value: ${ADMIN_SVC_NAME}-${NODE_REGION}
           - name: DB_NAME
@@ -469,3 +469,7 @@ parameters:
     displayName: YCSB Thread Count
     description: "YCSB load thread count"
     value: "10000"
+  - name: SUB_ID
+    displayName: Insights Subscriber ID
+    description: "Insights Subscriber ID"
+    value: VNB2L0GZW1
