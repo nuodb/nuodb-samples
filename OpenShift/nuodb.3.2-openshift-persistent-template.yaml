@@ -370,7 +370,7 @@ objects:
           - name: YCSB_WORKLOAD
             value: ${YCSB_WORKLOAD}
           - name: NO_OF_THREADS
-            value: "10000"
+            value: ${NO_OF_THREADS}
           image: ${CONTAINER}
           imagePullPolicy: IfNotPresent
           name: te-${NODE_REGION}
@@ -465,3 +465,7 @@ parameters:
     description: "Registry to pull NuoDB from"
     required: true
     value: "docker.io/nuodb/nuodb-ee:3.2.0-ycsb.1"
+  - name: NO_OF_THREADS
+    displayName: YCSB Thread Count
+    description: "YCSB load thread count"
+    value: "10000"
