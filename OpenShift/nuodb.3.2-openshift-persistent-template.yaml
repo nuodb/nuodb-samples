@@ -464,7 +464,7 @@ parameters:
     displayName: Container Registry
     description: "Registry to pull NuoDB from"
     required: true
-    value: "docker.io/nuodb/nuodb-ee:3.2.0-ycsb.1"
+    value: "docker.io/nuodb/nuodb-ee:3.2.0-ycsb.3"
   - name: NO_OF_THREADS
     displayName: YCSB Thread Count
     description: "YCSB load thread count"
