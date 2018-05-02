@@ -133,7 +133,7 @@ objects:
             - name: DNS_LOOKUP
               value: nuoadmin-dns
             - name: SUB_ID
-              value: VNB2L0GZW1
+              value: ${SUB_ID}
             - name: API_PORT
               value: "8888"
             - name: PEER_ADDRESS
@@ -230,7 +230,7 @@ objects:
             - name: API_PORT
               value: "8888"
             - name: SUB_ID
-              value: VNB2L0GZW1
+              value: ${SUB_ID}
             - name: PEER_ADDRESS
               value: ${ADMIN_SVC_NAME}-${NODE_REGION}
             - name: DB_NAME
