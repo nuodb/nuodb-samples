@@ -473,3 +473,6 @@ parameters:
     displayName: Insights Subscriber ID
     description: "Insights Subscriber ID"
     value: VNB2L0GZW1
+  - name: YCSB_WORKLOAD
+    displayName: "YCSB Workload type"
+    value: b
