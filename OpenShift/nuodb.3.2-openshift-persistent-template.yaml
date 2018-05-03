@@ -371,6 +371,8 @@ objects:
             value: ${YCSB_WORKLOAD}
           - name: NO_OF_THREADS
             value: ${NO_OF_THREADS}
+          - name: YCSB_THREADS
+            value: ${YCSB_THREADS}
           image: ${CONTAINER}
           imagePullPolicy: IfNotPresent
           name: te-${NODE_REGION}
@@ -476,3 +478,6 @@ parameters:
   - name: YCSB_WORKLOAD
     displayName: "YCSB Workload type"
     value: b
+  - name: YCSB_THREADS
+    displayName: YCSB Loop thread count
+    value: "10"
