@@ -1,0 +1,2 @@
+
+SELECT count(*) from usertable;

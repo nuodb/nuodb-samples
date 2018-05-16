@@ -1,0 +1,12 @@
+#!/bin/bash
+
+echo ""
+
+nuocmd --api-server ${PEER_ADDRESS}:8888 show domain \
+  --server-format '[{id}] {address} ({role}, Leader={leader}) {raft_state}:{connected_state}' \
+  --db-format '{name} [{state}]' \
+  --process-format \
+    '[{engine_type}] {address::<UNKNOWN ADDRESS>} ({region_name}) [sid = {start_id}] [server = {server_id}] {durable_state}:{engine_state}' \
+    | sed "s/, client token: [a-z0-9]\+//"
+
+echo ""
