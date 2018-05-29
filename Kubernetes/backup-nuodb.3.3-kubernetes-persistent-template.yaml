@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nuodb-secret
+type: Opaque
+data:
+  database-username: Z29hbGll
+  database-password: Z29hbCE=
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    description: "Service for Admin pods."
+  labels:
+    group: nuodb
+    app: nuodb
+  name: nuodb-svc
+spec:
+  ports:
+  - name: 8888-tcp
+    port: 8888
+    protocol: TCP
+    targetPort: 8888
+  - name: 48004-tcp
+    port: 48004
+    protocol: TCP
+    targetPort: 48004
+  - name: 48005-tcp
+    port: 48005
+    protocol: TCP
+    targetPort: 48005
+  selector:
+    app: admin
+  sessionAffinity: None
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nuoadmin
+spec:
+  serviceName: "nuodb-svc"
+  replicas: 3
+  selector:
+    matchLabels:
+      app: admin
+  template:
+    metadata:
+      labels:
+        app: admin
+    spec:
+      volumes:
+        - name: nuoadmin-pvc-storage
+          persistentVolumeClaim:
+            claimName: nuoadmin-pvc
+      containers:
+      - name: nuoadmin
+        image: nuodb/nuodb-ce:3.3.0-master.1548
+        ports:
+        - containerPort: 8888
+          name: api
+          protocol: TCP
+        - containerPort: 48004
+          protocol: TCP
+        - containerPort: 48005
+          protocol: TCP
+        env:
+        - name: DNS_LOOKUP
+          value: nuoadmin-dns
+        - name: SUB_ID
+          value: VNB2L0GZW1
+        - name: API_PORT
+          value: "8888"
+        - name: PEER_ADDRESS
+          value: "nuodb-svc"
+        - name: DB_NAME
+          value: hockey
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: nuodb-secret
+              key: database-username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: nuodb-secret
+              key: database-password
+        - name: NODE_REGION
+          value: us-east-2a
+        - name: NODE_TYPE
+          value: NUOADMIN
+        - name: FIRST_CLUSTER_API
+          value:
+        - name: INSIGHTS_URL
+          value: "https://insights-qa.nuodb.com/api/1"
+        volumeMounts:
+        - name: nuoadmin-pvc-storage
+          mountPath: /opt/nuodb/var/opt
+        readinessProbe:
+          initialDelaySeconds: 5
+          periodSeconds: 2
+          failureThreshold: 30
+          successThreshold: 2
+          timeoutSeconds: 1
+          httpGet:
+            path: /api/1/peers
+            port: 8888
