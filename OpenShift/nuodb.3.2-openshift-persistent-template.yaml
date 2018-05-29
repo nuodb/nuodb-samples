@@ -2,15 +2,15 @@ apiVersion: v1
 kind: Template
 metadata:
   creationTimestamp: null
-  name: nuodb-persisten-storage
+  name: nuodb-persistent-storage
   labels:
-    template: nuodb-persisten-storage
+    template: nuodb-persistent-storage
   annotations:
-    openshift.io/display-name: "NuoDB CE (Persistent)"
-    description: "NuoDB database service, with persistent storage. For more information about using this template, including OpenShift considerations, see https://hub.docker.com/r/nuodb/nuodb-ce/ \n\nWARNING: Any data stored will be lost upon pod destruction. Only use this template for testing"
+    openshift.io/display-name: "NuoDB EE (Persistent)"
+    description: "NuoDB database service, with persistent storage. For more information about using this template, including OpenShift considerations, see https://hub.docker.com/r/nuodb/nuodb-ee/ \n\nWARNING: Only use this template for testing."
     iconClass: https://www.nuodb.com/sites/all/themes/nuodb/logo.svg
     tags: "database,nuodb"
-    openshift.io/long-description: "This template provides a Clustered NuoDB server with a database created.  The database is not stored on persistent storage, so any restart of the service will result in all data being lost.  The database name, username, and password are chosen via parameters when provisioning this service."
+    openshift.io/long-description: "This template provides a Clustered NuoDB server with a database created.  The database name, username, and password are chosen via parameters when provisioning this service."
     openshift.io/provider-display-name: "NuoDB, Inc."
     openshift.io/documentation-url: "http://doc.nuodb.com/Latest/Default.htm"
     openshift.io/support-url: "https://support.nuodb.com/hc/en-us"
@@ -365,8 +365,6 @@ objects:
                 key: database-password
           - name: NODE_REGION
             value: ${NODE_REGION}
-          - name: TE_MEM_MAX
-            value: ${TE_MEM_MAX}
           - name: NODE_TYPE
             value: TE
           - name: INSIGHTS_URL
@@ -463,7 +461,7 @@ parameters:
     value: "2"
   - name: TE_MEM_MAX
     displayName: Default options for Transaction Engine
-    description: "Set default optional parameters for Transaction Engine. For eg. database-commit-level local  mem 5g"
+    description: "Set default optional parameters for Transaction Engine. For eg. database-commit-level safe  mem 5g"
     required: false
     value: "database-commit-level safe  mem 3g"
   - name: PVC_CLASS_NAME
@@ -475,7 +473,7 @@ parameters:
     displayName: Container Registry
     description: "Registry to pull NuoDB from"
     required: true
-    value: "docker.io/nuodb/devops:adi-demobuild"
+    value: "docker.io/nuodb/nuodb-ee:3.2.0-ycsb.12"
   - name: NO_OF_THREADS
     displayName: YCSB Thread Count
     description: "YCSB load thread count"
