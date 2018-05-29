@@ -133,7 +133,7 @@ objects:
             - name: DNS_LOOKUP
               value: nuoadmin-dns
             - name: SUB_ID
-              value: VNB2L0GZW1
+              value: ${SUB_ID}
             - name: API_PORT
               value: "8888"
             - name: PEER_ADDRESS
@@ -230,7 +230,7 @@ objects:
             - name: API_PORT
               value: "8888"
             - name: SUB_ID
-              value: VNB2L0GZW1
+              value: ${SUB_ID}
             - name: PEER_ADDRESS
               value: ${ADMIN_SVC_NAME}-${NODE_REGION}
             - name: DB_NAME
@@ -248,6 +248,8 @@ objects:
                 secretKeyRef:
                   name: ${SECRET_NAME}
                   key: database-password
+            - name: TE_MEM_MAX
+              value: ${TE_MEM_MAX}
             - name: NODE_REGION
               value: ${NODE_REGION}
             - name: NODE_TYPE
@@ -343,7 +345,7 @@ objects:
           - name: API_PORT
             value: "8888"
           - name: SUB_ID
-            value: VNB2L0GZW1
+            value: ${SUB_ID}
           - name: PEER_ADDRESS
             value: ${ADMIN_SVC_NAME}-${NODE_REGION}
           - name: DB_NAME
@@ -363,10 +365,18 @@ objects:
                 key: database-password
           - name: NODE_REGION
             value: ${NODE_REGION}
+          - name: TE_MEM_MAX
+            value: ${TE_MEM_MAX}
           - name: NODE_TYPE
             value: TE
           - name: INSIGHTS_URL
             value: "https://insights-qa.nuodb.com/api/1"
+          - name: YCSB_WORKLOAD
+            value: ${YCSB_WORKLOAD}
+          - name: NO_OF_THREADS
+            value: ${NO_OF_THREADS}
+          - name: YCSB_THREADS
+            value: ${YCSB_THREADS}
           image: ${CONTAINER}
           imagePullPolicy: IfNotPresent
           name: te-${NODE_REGION}
@@ -451,6 +461,11 @@ parameters:
     description: "Start NuoDB with a specific number of TEs"
     required: true
     value: "2"
+  - name: TE_MEM_MAX
+    displayName: Default options for Transaction Engine
+    description: "Set default optional parameters for Transaction Engine. For eg. database-commit-level local  mem 5g"
+    required: false
+    value: "database-commit-level safe  mem 3g"
   - name: PVC_CLASS_NAME
     displayName: Persistent Storage Class Name
     desicrption: "Name of Storage Class for persistent storage"
@@ -460,4 +475,18 @@ parameters:
     displayName: Container Registry
     description: "Registry to pull NuoDB from"
     required: true
-    value: "docker.io/nuodb/nuodb-ee:3.3.0-5245.1"
+    value: "docker.io/nuodb/devops:adi-demobuild"
+  - name: NO_OF_THREADS
+    displayName: YCSB Thread Count
+    description: "YCSB load thread count"
+    value: "10000"
+  - name: SUB_ID
+    displayName: Insights Subscriber ID
+    description: "Insights Subscriber ID"
+    value: VNB2L0GZW1
+  - name: YCSB_WORKLOAD
+    displayName: "YCSB Workload type"
+    value: b
+  - name: YCSB_THREADS
+    displayName: YCSB Loop thread count
+    value: "10"
