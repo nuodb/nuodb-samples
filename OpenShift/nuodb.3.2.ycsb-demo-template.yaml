@@ -109,7 +109,7 @@ objects:
           zone: ${NODE_REGION}
         affinity:
           podAntiAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
+            preferredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchExpressions:
                 - key: affinity
@@ -213,7 +213,7 @@ objects:
           zone: ${NODE_REGION}
         affinity:
           podAntiAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
+            preferredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchExpressions:
                 - key: affinity
