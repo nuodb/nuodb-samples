@@ -153,6 +153,8 @@ objects:
                 secretKeyRef:
                   name: ${SECRET_NAME}
                   key: database-password
+            - name: DEFAULT_OPTIONS
+              value: ${DEFAULT_OPTIONS}
             - name: NODE_REGION
               value: ${NODE_REGION}
             - name: NODE_TYPE
@@ -451,6 +453,11 @@ parameters:
     description: "Start NuoDB with a specific number of TEs"
     required: true
     value: "2"
+  - name: DEFAULT_OPTIONS
+    displayName: Default options for Memory and other parameters
+    description: "Set default optional parameters. For eg. database-commit-level safe  mem 5g"
+    required: false
+    value: "database-commit-level safe  mem 3g"
   - name: PVC_CLASS_NAME
     displayName: Persistent Storage Class Name
     desicrption: "Name of Storage Class for persistent storage"

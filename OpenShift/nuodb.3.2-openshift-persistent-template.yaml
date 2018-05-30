@@ -248,8 +248,8 @@ objects:
                 secretKeyRef:
                   name: ${SECRET_NAME}
                   key: database-password
-            - name: TE_MEM_MAX
-              value: ${TE_MEM_MAX}
+            - name: DEFAULT_OPTIONS
+              value: ${DEFAULT_OPTIONS}
             - name: NODE_REGION
               value: ${NODE_REGION}
             - name: NODE_TYPE
@@ -459,9 +459,9 @@ parameters:
     description: "Start NuoDB with a specific number of TEs"
     required: true
     value: "2"
-  - name: TE_MEM_MAX
-    displayName: Default options for Transaction Engine
-    description: "Set default optional parameters for Transaction Engine. For eg. database-commit-level safe  mem 5g"
+  - name: DEFAULT_OPTIONS
+    displayName: Default options for Memory and other parameters
+    description: "Set default optional parameters. For eg. database-commit-level safe  mem 5g"
     required: false
     value: "database-commit-level safe  mem 3g"
   - name: PVC_CLASS_NAME
@@ -473,7 +473,7 @@ parameters:
     displayName: Container Registry
     description: "Registry to pull NuoDB from"
     required: true
-    value: "docker.io/nuodb/nuodb-ee:3.2.0-ycsb.12"
+    value: "docker.io/nuodb/nuodb-ce:rel-3.2.0-2"
   - name: NO_OF_THREADS
     displayName: YCSB Thread Count
     description: "YCSB load thread count"
