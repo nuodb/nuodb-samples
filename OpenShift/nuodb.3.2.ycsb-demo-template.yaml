@@ -110,7 +110,8 @@ objects:
         affinity:
           podAntiAffinity:
             preferredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
+            - weight: 50
+              labelSelector:
                 matchExpressions:
                 - key: affinity
                   operator: In
@@ -214,7 +215,8 @@ objects:
         affinity:
           podAntiAffinity:
             preferredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
+            - weight: 50
+              labelSelector:
                 matchExpressions:
                 - key: affinity
                   operator: In
