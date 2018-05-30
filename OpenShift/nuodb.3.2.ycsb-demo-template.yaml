@@ -111,13 +111,14 @@ objects:
           podAntiAffinity:
             preferredDuringSchedulingIgnoredDuringExecution:
             - weight: 50
-              labelSelector:
-                matchExpressions:
-                - key: affinity
-                  operator: In
-                  values:
-                  - admin
-              topologyKey: "kubernetes.io/hostname"
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: affinity
+                    operator: In
+                    values:
+                    - admin
+                topologyKey: "kubernetes.io/hostname"
         terminationGracePeriodSeconds: 15
         containers:
         - name: nuoadmin-${NODE_REGION}
@@ -216,13 +217,14 @@ objects:
           podAntiAffinity:
             preferredDuringSchedulingIgnoredDuringExecution:
             - weight: 50
-              labelSelector:
-                matchExpressions:
-                - key: affinity
-                  operator: In
-                  values:
-                  - sm
-              topologyKey: "kubernetes.io/hostname"
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: affinity
+                    operator: In
+                    values:
+                    - sm
+                topologyKey: "kubernetes.io/hostname"
         terminationGracePeriodSeconds: 15
         containers:
         - name: sm-${NODE_REGION}
