@@ -2,15 +2,15 @@ apiVersion: v1
 kind: Template
 metadata:
   creationTimestamp: null
-  name: nuodb-persistent-storage
+  name: nuodb-persisten-storage
   labels:
-    template: nuodb-persistent-storage
+    template: nuodb-persisten-storage
   annotations:
-    openshift.io/display-name: "NuoDB EE (Persistent)"
-    description: "NuoDB database service, with persistent storage. For more information about using this template, including OpenShift considerations, see https://hub.docker.com/r/nuodb/nuodb-ee/ \n\nWARNING: Only use this template for testing."
+    openshift.io/display-name: "NuoDB CE (Persistent)"
+    description: "NuoDB database service, with persistent storage. For more information about using this template, including OpenShift considerations, see https://hub.docker.com/r/nuodb/nuodb-ce/ \n\nWARNING: Any data stored will be lost upon pod destruction. Only use this template for testing"
     iconClass: https://www.nuodb.com/sites/all/themes/nuodb/logo.svg
     tags: "database,nuodb"
-    openshift.io/long-description: "This template provides a Clustered NuoDB server with a database created.  The database name, username, and password are chosen via parameters when provisioning this service."
+    openshift.io/long-description: "This template provides a Clustered NuoDB server with a database created.  The database is not stored on persistent storage, so any restart of the service will result in all data being lost.  The database name, username, and password are chosen via parameters when provisioning this service."
     openshift.io/provider-display-name: "NuoDB, Inc."
     openshift.io/documentation-url: "http://doc.nuodb.com/Latest/Default.htm"
     openshift.io/support-url: "https://support.nuodb.com/hc/en-us"
@@ -109,7 +109,7 @@ objects:
           zone: ${NODE_REGION}
         affinity:
           podAntiAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
+            preferredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchExpressions:
                 - key: affinity
@@ -133,7 +133,7 @@ objects:
             - name: DNS_LOOKUP
               value: nuoadmin-dns
             - name: SUB_ID
-              value: ${SUB_ID}
+              value: VNB2L0GZW1
             - name: API_PORT
               value: "8888"
             - name: PEER_ADDRESS
@@ -153,6 +153,8 @@ objects:
                 secretKeyRef:
                   name: ${SECRET_NAME}
                   key: database-password
+            - name: DEFAULT_OPTIONS
+              value: ${DEFAULT_OPTIONS}
             - name: NODE_REGION
               value: ${NODE_REGION}
             - name: NODE_TYPE
@@ -213,7 +215,7 @@ objects:
           zone: ${NODE_REGION}
         affinity:
           podAntiAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
+            preferredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchExpressions:
                 - key: affinity
@@ -230,7 +232,7 @@ objects:
             - name: API_PORT
               value: "8888"
             - name: SUB_ID
-              value: ${SUB_ID}
+              value: VNB2L0GZW1
             - name: PEER_ADDRESS
               value: ${ADMIN_SVC_NAME}-${NODE_REGION}
             - name: DB_NAME
@@ -248,8 +250,6 @@ objects:
                 secretKeyRef:
                   name: ${SECRET_NAME}
                   key: database-password
-            - name: DEFAULT_OPTIONS
-              value: ${DEFAULT_OPTIONS}
             - name: NODE_REGION
               value: ${NODE_REGION}
             - name: NODE_TYPE
@@ -345,7 +345,7 @@ objects:
           - name: API_PORT
             value: "8888"
           - name: SUB_ID
-            value: ${SUB_ID}
+            value: VNB2L0GZW1
           - name: PEER_ADDRESS
             value: ${ADMIN_SVC_NAME}-${NODE_REGION}
           - name: DB_NAME
@@ -369,12 +369,6 @@ objects:
             value: TE
           - name: INSIGHTS_URL
             value: "https://insights-qa.nuodb.com/api/1"
-          - name: YCSB_WORKLOAD
-            value: ${YCSB_WORKLOAD}
-          - name: NO_OF_THREADS
-            value: ${NO_OF_THREADS}
-          - name: YCSB_THREADS
-            value: ${YCSB_THREADS}
           image: ${CONTAINER}
           imagePullPolicy: IfNotPresent
           name: te-${NODE_REGION}
@@ -473,18 +467,4 @@ parameters:
     displayName: Container Registry
     description: "Registry to pull NuoDB from"
     required: true
-    value: "docker.io/nuodb/nuodb-ce:rel-3.2.0-2"
-  - name: NO_OF_THREADS
-    displayName: YCSB Thread Count
-    description: "YCSB load thread count"
-    value: "10000"
-  - name: SUB_ID
-    displayName: Insights Subscriber ID
-    description: "Insights Subscriber ID"
-    value: VNB2L0GZW1
-  - name: YCSB_WORKLOAD
-    displayName: "YCSB Workload type"
-    value: b
-  - name: YCSB_THREADS
-    displayName: YCSB Loop thread count
-    value: "10"
+    value: "docker.io/nuodb/nuodb-ee:3.3.0-5245.1"
