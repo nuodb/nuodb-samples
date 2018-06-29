@@ -71,6 +71,7 @@ objects:
       spec:
         nodeSelector:
           zone: ${NODE_REGION}
+          nodeType: storage
         affinity:
           podAntiAffinity:
             preferredDuringSchedulingIgnoredDuringExecution:
