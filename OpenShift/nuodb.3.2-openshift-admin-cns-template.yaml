@@ -125,21 +125,6 @@ objects:
               value: "8888"
             - name: PEER_ADDRESS
               value: ${ADMIN_SVC_NAME}-${NODE_REGION}
-            - name: DB_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: ${SECRET_NAME}
-                  key: database-name
-            - name: DB_USER
-              valueFrom:
-                secretKeyRef:
-                  name: ${SECRET_NAME}
-                  key: database-username
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: ${SECRET_NAME}
-                  key: database-password
             - name: NODE_REGION
               value: ${NODE_REGION}
             - name: NODE_TYPE
