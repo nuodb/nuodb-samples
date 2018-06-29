@@ -86,7 +86,7 @@ objects:
 - apiVersion: "apps/v1beta1"
   kind: StatefulSet
   metadata:
-    name: nuoadmin-${NODE_REGION}
+    name: nuoadmin-${NODE_REGION}-${UID}
     labels:
       group: nuodb
       app: nuodb
@@ -196,7 +196,7 @@ objects:
       group: nuodb
       app: nuodb
       deploymentconfig: sm-${NODE_REGION}
-    name: sm-${NODE_REGION}
+    name: sm-${NODE_REGION}-${UID}
   spec:
     selector:
       matchLabels:
@@ -229,6 +229,7 @@ objects:
       spec:
         nodeSelector:
           zone: ${NODE_REGION}
+          nodeType: storage
         affinity:
           podAntiAffinity:
             preferredDuringSchedulingIgnoredDuringExecution:
@@ -303,7 +304,7 @@ objects:
       group: nuodb
       app: nuodb
       deploymentconfig: te-${NODE_REGION}
-    name: te-${NODE_REGION}
+    name: te-${NODE_REGION}-${UID}
   spec:
     selector:
       matchLabels:
@@ -336,6 +337,7 @@ objects:
       spec:
         nodeSelector:
           zone: ${NODE_REGION}
+          nodeType: compute
         affinity:
           podAntiAffinity:
             preferredDuringSchedulingIgnoredDuringExecution:
@@ -476,3 +478,7 @@ parameters:
     description: "Registry to pull NuoDB from"
     required: true
     value: "docker.io/nuodb/nuodb-ee:3.3.0-1548"
+  - name: UID
+    description: "Generate UID for deployment names"
+    generate: expression
+    from: "[a-z]{5}"
