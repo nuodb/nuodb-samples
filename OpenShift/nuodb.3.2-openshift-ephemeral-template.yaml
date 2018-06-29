@@ -285,12 +285,12 @@ objects:
           - mountPath: /journal
             name: sm-journal-${NODE_REGION}
         volumes:
-        - hostPath:
-          name: sm-archives-${NODE_REGION}
-          path: /local-storage
-        - hostPath:
-          name: sm-journal-${NODE_REGION}
-          path: /local-storage
+        - name: sm-archives-${NODE_REGION}
+          hostPath:
+            path: /local-storage/archive
+        - name: sm-journal-${NODE_REGION}
+          hostPath:
+            path: /local-storage/journal
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         schedulerName: default-scheduler
