@@ -119,10 +119,6 @@ objects:
         - emptyDir: {}
           name: te-volume-1
 parameters:
-  - name: NAMESPACE
-    displayName: Namespace
-    description: "The OpenShift Namespace where the ImageStream resides"
-    value: openshift
   - name: SECRET_NAME
     displayName: Secret Name
     description: "Name of Secret to store database username and password"
