@@ -258,6 +258,8 @@ objects:
               value: SM
             - name: ADMIN_NUM
               value: ${ADMIN_COUNT}
+            - name: DEFAULT_OPTIONS
+              value: ${DEFAULT_OPTIONS}
             - name: INSIGHTS_URL
               value: "https://insights-qa.nuodb.com/api/1"
           volumeMounts:
@@ -435,6 +437,11 @@ parameters:
     description: "PVC Size for Storage Manager in GB"
     required: true
     value: 20G
+  - name: DEFAULT_OPTIONS
+    displayName: Default options for Memory and other parameters
+    description: "Set default optional parameters. For eg. database-commit-level safe  mem 8g"
+    required: false
+    value: "mem 8g"
   - name: ADMIN_PVC_SIZE
     diplayName: Admin Raft Log Volume Size (GB)
     description: "PVC Size for Admin in GB"
