@@ -120,7 +120,7 @@ objects:
             - name: DNS_LOOKUP
               value: nuoadmin-dns
             - name: SUB_ID
-              value: VNB2L0GZW1
+              value: ${SUB_ID}
             - name: API_PORT
               value: "8888"
             - name: PEER_ADDRESS
@@ -179,6 +179,10 @@ parameters:
     description: "PVC Size for Admin in GB"
     required: true
     value: 5G
+  - name: SUB_ID
+    displayName: Insights Subscriber ID
+    description: "Insights Subscriber ID"
+    value: VNB2L0GZW1
   - name: ADMIN_COUNT
     displayName: Number of NuoADMIN nodes to Launch
     description: "Start NuoDB with a specific number of NuoADMINs"

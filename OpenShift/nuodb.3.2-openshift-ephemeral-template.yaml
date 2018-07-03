@@ -135,7 +135,7 @@ objects:
             - name: DNS_LOOKUP
               value: nuoadmin-dns
             - name: SUB_ID
-              value: VNB2L0GZW1
+              value: ${SUB_ID}
             - name: API_PORT
               value: "8888"
             - name: PEER_ADDRESS
@@ -247,7 +247,7 @@ objects:
           - name: API_PORT
             value: "8888"
           - name: SUB_ID
-            value: VNB2L0GZW1
+            value: ${SUB_ID}
           - name: PEER_ADDRESS
             value: ${ADMIN_SVC_NAME}-${NODE_REGION}
           - name: DB_NAME
@@ -471,6 +471,10 @@ parameters:
     description: "Set default optional parameters. For eg. database-commit-level safe  mem 8g"
     required: false
     value: "mem 8g"
+  - name: SUB_ID
+    displayName: Insights Subscriber ID
+    description: "Insights Subscriber ID"
+    value: VNB2L0GZW1
   - name: PVC_CLASS_NAME
     displayName: Persistent Storage Class Name
     desicrption: "Name of Storage Class for persistent storage"
