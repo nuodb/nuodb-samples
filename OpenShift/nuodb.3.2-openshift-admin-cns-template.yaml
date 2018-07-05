@@ -2,11 +2,11 @@ apiVersion: v1
 kind: Template
 metadata:
   creationTimestamp: null
-  name: nuodb-persisten-storage
+  name: nuodb-admin
   labels:
-    template: nuodb-persisten-storage
+    template: nuodb-admin
   annotations:
-    openshift.io/display-name: "NuoDB CE (Persistent)"
+    openshift.io/display-name: "NuoDB Admin"
     description: "NuoDB database service, with persistent storage. For more information about using this template, including OpenShift considerations, see https://hub.docker.com/r/nuodb/nuodb-ce/ \n\nWARNING: Any data stored will be lost upon pod destruction. Only use this template for testing"
     iconClass: https://www.nuodb.com/sites/all/themes/nuodb/logo.svg
     tags: "database,nuodb"
@@ -133,6 +133,8 @@ objects:
               value: ${FIRST_CLUSTER_API}
             - name: INSIGHTS_URL
               value: "https://insights-qa.nuodb.com/api/1"
+            - name: DEFAULT_OPTIONS
+              value: ${DEFAULT_OPTIONS}
           volumeMounts:
           - mountPath: /opt/nuodb/var/opt
             name: nuoadmin-raft-${NODE_REGION}
@@ -179,6 +181,11 @@ parameters:
     description: "PVC Size for Admin in GB"
     required: true
     value: 5G
+  - name: DEFAULT_OPTIONS
+    displayName: Default options for Memory and other parameters
+    description: "Set default optional parameters. For eg. database-commit-level safe  mem 8g"
+    required: false
+    value: "mem 8g"
   - name: SUB_ID
     displayName: Insights Subscriber ID
     description: "Insights Subscriber ID"
