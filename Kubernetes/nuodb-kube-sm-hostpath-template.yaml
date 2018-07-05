@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  namespace: demo
+  name: nuodb-secret
+type: Opaque
+data:
+  database-username: Z29hbGll
+  database-password: Z29hbCE=
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: demo
+  name: sm-us-east-2a
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+     app: sm
+  template:
+    metadata:
+      labels:
+        app: sm
+    spec:
+      containers:
+      - name: sm-us-east-2a
+        image: docker.io/nuodb/nuodb-ee:3.3.0-1548
+        env:
+        - name: API_PORT
+          value: "8888"
+        - name: PEER_ADDRESS
+          value: "nuodb-svc"
+        - name: DB_NAME
+          value: hockey
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: nuodb-secret
+              key: database-username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: nuodb-secret
+              key: database-password
+        - name: NODE_REGION
+          value: us-east-2a
+        - name: NODE_TYPE
+          value: SM
+      imagePullSecrets:
+      - name: regcred

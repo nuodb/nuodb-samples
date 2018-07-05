@@ -1,0 +1,41 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: demo
+  name: te-us-east-2a
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+     app: te
+  template:
+    metadata:
+      labels:
+        app: te
+    spec:
+      containers:
+      - name: te-us-east-2a
+        image: docker.io/nuodb/nuodb-ee:3.3.0-1548
+        env:
+        - name: API_PORT
+          value: "8888"
+        - name: PEER_ADDRESS
+          value: "nuodb-svc"
+        - name: DB_NAME
+          value: hockey
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: nuodb-secret
+              key: database-username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: nuodb-secret
+              key: database-password
+        - name: NODE_REGION
+          value: us-east-2a
+        - name: NODE_TYPE
+          value: TE
+      imagePullSecrets:
+      - name: regcred

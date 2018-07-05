@@ -1,15 +1,30 @@
 apiVersion: v1
-kind: Secret
+kind: Service
 metadata:
-  name: nuodb-secret
-type: Opaque
-data:
-  database-username: Z29hbGll
-  database-password: Z29hbCE=
+  annotations:
+    "service.alpha.kubernetes.io/tolerate-unready-endpoints": "true"
+  labels:
+    group: nuodb
+    app: nuodb
+  name: nuoadmin-dns
+spec:
+  clusterIP: None
+  ports:
+  - name: none
+    port: 5000
+    protocol: TCP
+    targetPort: 5000
+  selector:
+    dns: nuoadmin
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}
 ---
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: demo
   annotations:
     description: "Service for Admin pods."
   labels:
@@ -35,28 +50,27 @@ spec:
   sessionAffinity: None
   type: LoadBalancer
 ---
-apiVersion: apps/v1
+apiVersion: "apps/v1beta1"
 kind: StatefulSet
 metadata:
-  name: nuoadmin
+  namespace: demo
+  name: nuoadmin-us-east-2a
 spec:
-  serviceName: "nuodb-svc"
+  serviceName: "nuoadmin-dns"
   replicas: 3
   selector:
     matchLabels:
-      app: admin
+     dns: nuoadmin
+     app: admin
   template:
     metadata:
       labels:
+        dns: nuoadmin
         app: admin
     spec:
-      volumes:
-        - name: nuoadmin-pvc-storage
-          persistentVolumeClaim:
-            claimName: nuoadmin-pvc
       containers:
-      - name: nuoadmin
-        image: nuodb/nuodb-ce:3.3.0-master.1548
+      - name: nuoadmin-us-east-2a
+        image: docker.io/nuodb/nuodb-ee:3.3.0-1548
         ports:
         - containerPort: 8888
           name: api
@@ -68,35 +82,16 @@ spec:
         env:
         - name: DNS_LOOKUP
           value: nuoadmin-dns
-        - name: SUB_ID
-          value: VNB2L0GZW1
         - name: API_PORT
           value: "8888"
         - name: PEER_ADDRESS
           value: "nuodb-svc"
-        - name: DB_NAME
-          value: hockey
-        - name: DB_USER
-          valueFrom:
-            secretKeyRef:
-              name: nuodb-secret
-              key: database-username
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: nuodb-secret
-              key: database-password
         - name: NODE_REGION
           value: us-east-2a
         - name: NODE_TYPE
           value: NUOADMIN
         - name: FIRST_CLUSTER_API
           value:
-        - name: INSIGHTS_URL
-          value: "https://insights-qa.nuodb.com/api/1"
-        volumeMounts:
-        - name: nuoadmin-pvc-storage
-          mountPath: /opt/nuodb/var/opt
         readinessProbe:
           initialDelaySeconds: 5
           periodSeconds: 2
@@ -106,3 +101,5 @@ spec:
           httpGet:
             path: /api/1/peers
             port: 8888
+      imagePullSecrets:
+      - name: regcred
