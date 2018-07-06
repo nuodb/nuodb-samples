@@ -135,7 +135,7 @@ objects:
             - name: DNS_LOOKUP
               value: nuoadmin-dns
             - name: SUB_ID
-              value: VNB2L0GZW1
+              value: ${SUB_ID}
             - name: API_PORT
               value: "8888"
             - name: PEER_ADDRESS
@@ -233,8 +233,6 @@ objects:
           env:
             - name: API_PORT
               value: "8888"
-            - name: SUB_ID
-              value: VNB2L0GZW1
             - name: PEER_ADDRESS
               value: ${ADMIN_SVC_NAME}-${NODE_REGION}
             - name: DB_NAME
@@ -348,8 +346,6 @@ objects:
         - env:
           - name: API_PORT
             value: "8888"
-          - name: SUB_ID
-            value: VNB2L0GZW1
           - name: PEER_ADDRESS
             value: ${ADMIN_SVC_NAME}-${NODE_REGION}
           - name: DB_NAME
@@ -458,6 +454,10 @@ parameters:
     description: "Start NuoDB with a specific number of TEs"
     required: true
     value: "2"
+  - name: SUB_ID
+    displayName: Insights Subscriber ID
+    description: "Insights Subscriber ID"
+    value: VNB2L0GZW1
   - name: PVC_CLASS_NAME
     displayName: Persistent Storage Class Name
     desicrption: "Name of Storage Class for persistent storage"
@@ -467,4 +467,4 @@ parameters:
     displayName: Container Registry
     description: "Registry to pull NuoDB from"
     required: true
-    value: "docker.io/nuodb/nuodb-ee:3.3.0-5245.1"
+    value: "docker.io/nuodb/nuodb-ee:3.3.0-master-5609"

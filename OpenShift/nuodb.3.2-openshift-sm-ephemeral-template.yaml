@@ -201,11 +201,15 @@ parameters:
     description: "Set default optional parameters. For eg. database-commit-level safe  mem 8g"
     required: false
     value: "mem 8g"
+  - name: SUB_ID
+    displayName: Insights Subscriber ID
+    description: "Insights Subscriber ID"
+    value: VNB2L0GZW1
   - name: CONTAINER
     displayName: Container Registry
     description: "Registry to pull NuoDB from"
     required: true
-    value: "docker.io/nuodb/nuodb-ee:3.3.0-1548"
+    value: "docker.io/nuodb/nuodb-ee:3.3.0-master-5609"
   - name: UID
     description: "Generate UID for deployment names"
     generate: expression
