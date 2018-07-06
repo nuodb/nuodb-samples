@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
       - name: sm-us-east-2a
-        image: docker.io/nuodb/nuodb-ee:3.3.0-1548
+        image: docker.io/nuodb/nuodb-ee:3.3.0-master-5609
         ports:
         - containerPort: 8888
           name: api
