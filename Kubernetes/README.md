@@ -1,4 +1,4 @@
-###Overview
+**Overview**
 
 * nuodb-kube-admin-ephemeral-template.yaml
 * nuodb-kube-sm-hostpath-template.yaml
@@ -22,35 +22,22 @@ kubectl create secret docker-registry regcred \
   --namespace=<namespace>
 ```
 
-##Deploy NuoDB on Kubernetes
+**Deploy NuoDB on Kubernetes**
 
-###NuoAdmin
+**NuoAdmin**
+
+```bash
+kubectl create -f https://raw.githubusercontent.com/nuodb/nuodb-samples/feature/kubernetes-template/Kubernetes/nuodb-kube-admin-ephemeral-template.yaml
+```
 
 Parameter | Description | Default
 --------- | ----------- | -------
-`cluster.join` | The cluster join string.  See [cluster discovery](https://docs.storageos.com/docs/install/prerequisites/clusterdiscovery) documentation for details.
-`image.repository` | StorageOS container image repository | `storageos/node`
-`image.tag` | StorageOS container image tag | `1.0.0-rc2`
-`image.pullPolicy` | StorageOS container image pull policy | `IfNotPresent`
-`initContainer.repository` | StorageOS init container image repository | `storageos/init`
-`initContainer.tag` | StorageOS init container image tag | `0.1`
-`initContainer.pullPolicy` | StorageOS init container image pull policy | `IfNotPresent`
-`rbacEnabled` | Use of k8s RBAC features | `true`
-`storageclass.name` | StorageOS storage class name | `fast`
-`storageclass.pool` | Default storage pool for storage class | `default`
-`storageclass.fsType` | Default filesystem type for storage class | `ext4`
-`api.secretName` | Name of the secret used for storing api location and credentials | `storageos-api`
-`api.secretNamespace` | Namespace of the secret used for storing api location and credentials. Needed in every namespace to use StorageOS. | `default`
-`api.address` | Hostname or IP address of the external StorageOS api endpoint.  This must be accessible from the Kubernetes master. | `http://storageosapi:5705`
-`api.username` | Username to authenticate to the StorageOS api with | `storageos`
-`api.password` | Password to authenticate to the StorageOS api with | `storageos`
-`service.name` | Name of the StorageOS service | `storageos`
-`service.externalPort` | External service port | `5705`
-`service.internalPort` | Internal service port | `5705`
-`resources` | Pod resource requests & limits | `{}`
-###Storage Manager
+`namespace` | Which kubernetes namespace to deploy resource to | default
 
-###Transaction Engine
+
+**Storage Manager**
+
+**Transaction Engine**
 
 
 
