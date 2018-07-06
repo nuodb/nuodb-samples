@@ -55,6 +55,8 @@ kind: StatefulSet
 metadata:
   namespace: demo
   name: nuoadmin-us-east-2a
+  labels:
+    group: nuodb
 spec:
   serviceName: "nuoadmin-dns"
   replicas: 3

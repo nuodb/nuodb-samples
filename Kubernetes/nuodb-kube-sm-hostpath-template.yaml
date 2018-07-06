@@ -3,6 +3,7 @@ kind: Secret
 metadata:
   namespace: demo
   name: nuodb-secret
+  labels: group: nuodb
 type: Opaque
 data:
   database-username: Z29hbGll
@@ -13,8 +14,10 @@ kind: Deployment
 metadata:
   namespace: demo
   name: sm-us-east-2a
+  labels:
+    group: nuodb
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
      app: sm
@@ -26,6 +29,14 @@ spec:
       containers:
       - name: sm-us-east-2a
         image: docker.io/nuodb/nuodb-ee:3.3.0-1548
+        ports:
+        - containerPort: 8888
+          name: api
+          protocol: TCP
+        - containerPort: 48004
+          protocol: TCP
+        - containerPort: 48005
+          protocol: TCP
         env:
         - name: API_PORT
           value: "8888"
@@ -47,5 +58,17 @@ spec:
           value: us-east-2a
         - name: NODE_TYPE
           value: SM
+        volumeMounts:
+        - mountPath: /archive
+          name: sm-archives-us-east-2a
+        - mountPath: /journal
+          name: sm-journal-us-east-2a
+      volumes:
+      - name: sm-archives-us-east-2a
+        hostPath:
+          path: /local-storage/archive
+      - name: sm-journal-us-east-2a
+        hostPath:
+          path: /local-storage/journal
       imagePullSecrets:
       - name: regcred
