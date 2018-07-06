@@ -111,8 +111,8 @@ objects:
             value: ${NODE_REGION}
           - name: NODE_TYPE
             value: SM
-          - name: DEFAULT_OPTIONS
-            value: ${DEFAULT_OPTIONS}
+          - name: SM_MEMORY
+            value: ${SM_MEMORY}
           - name: INSIGHTS_URL
             value: "https://insights-qa.nuodb.com/api/1"
           image: ${CONTAINER}
@@ -196,11 +196,11 @@ parameters:
     discription: Local storage path for journal
     required: true
     value: /local-storage/journal
-  - name: DEFAULT_OPTIONS
-    displayName: Default options for Memory and other parameters
-    description: "Set default optional parameters. For eg. database-commit-level safe  mem 8g"
+  - name: SM_MEMORY
+    displayName: SM Memory Allocation
+    description: "Enter a value for memory to be allocated for the SM"
     required: false
-    value: "mem 8g"
+    value: "4g"
   - name: CONTAINER
     displayName: Container Registry
     description: "Registry to pull NuoDB from"

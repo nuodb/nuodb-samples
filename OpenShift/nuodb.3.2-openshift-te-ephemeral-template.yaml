@@ -94,6 +94,10 @@ objects:
                 key: database-password
           - name: NODE_REGION
             value: ${NODE_REGION}
+          - name: TE_MEMORY
+            value: ${TE_MEMORY}
+          - name: TE_TAG_KEY_VALUE
+            value: ${TE_TAG_KEY_VALUE}
           - name: NODE_TYPE
             value: TE
           - name: INSIGHTS_URL
@@ -143,6 +147,16 @@ parameters:
     description: "Start NuoDB with a specific number of TEs"
     required: true
     value: "2"
+  - name: TE_MEMORY
+    displayName: TE Memory Allocation
+    description: "Enter a value for memory to be allocated for the TE"
+    required: false
+    value: "4g"
+  - name: TE_TAG_KEY_VALUE
+    displayName: Name and Pattern for the label
+    description: "Label, e.g. 'tx oltp'"
+    required: false
+    value: "tx oltp"
   - name: CONTAINER
     displayName: Container Registry
     description: "Registry to pull NuoDB from"
