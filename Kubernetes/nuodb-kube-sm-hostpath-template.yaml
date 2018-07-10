@@ -3,7 +3,8 @@ kind: Secret
 metadata:
   namespace: demo
   name: nuodb-secret
-  labels: group: nuodb
+  labels:
+    group: nuodb
 type: Opaque
 data:
   database-username: Z29hbGll
