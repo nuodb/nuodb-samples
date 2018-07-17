@@ -94,12 +94,12 @@ objects:
                 key: database-password
           - name: NODE_REGION
             value: ${NODE_REGION}
-          - name: TE_MEMORY
-            value: ${TE_MEMORY}
           - name: TE_TAG_KEY_VALUE
             value: ${TE_TAG_KEY_VALUE}
           - name: NODE_TYPE
             value: TE
+          - name: MEM_OPTION
+            value: ${TE_MEMORY}
           - name: INSIGHTS_URL
             value: "https://insights-qa.nuodb.com/api/1"
           image: ${CONTAINER}
@@ -151,7 +151,7 @@ parameters:
     displayName: TE Memory Allocation
     description: "Enter a value for memory to be allocated for the TE"
     required: false
-    value: "4g"
+    value: "8g"
   - name: TE_TAG_KEY_VALUE
     displayName: Name and Pattern for the label
     description: "Label, e.g. 'tx oltp'"

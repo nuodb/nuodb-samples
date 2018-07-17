@@ -181,11 +181,6 @@ parameters:
     description: "PVC Size for Admin in GB"
     required: true
     value: 5G
-  - name: DEFAULT_OPTIONS
-    displayName: Default options for Memory and other parameters
-    description: "Set default optional parameters. For eg. database-commit-level safe  mem 8g"
-    required: false
-    value: "mem 8g"
   - name: SUB_ID
     displayName: Insights Subscriber ID
     description: "Insights Subscriber ID"
