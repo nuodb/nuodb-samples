@@ -2,9 +2,9 @@ apiVersion: v1
 kind: Template
 metadata:
   creationTimestamp: null
-  name: nuodb-admin
+  name: nuodb-admin-openebs
   labels:
-    template: nuodb-admin
+    template: nuodb-admin-openebs
   annotations:
     openshift.io/display-name: "NuoDB Admin"
     description: "NuoDB database service, with persistent storage. For more information about using this template, including OpenShift considerations, see https://hub.docker.com/r/nuodb/nuodb-ce/ \n\nWARNING: Any data stored will be lost upon pod destruction. Only use this template for testing"

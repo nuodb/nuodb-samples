@@ -2,9 +2,9 @@ apiVersion: v1
 kind: Template
 metadata:
   creationTimestamp: null
-  name: nuodb-te-ephemeral
+  name: nuodb-te
   labels:
-    template: nuodb-te-ephemeral
+    template: nuodb-te
   annotations:
     openshift.io/display-name: "NuoDB TE (Ephemeral)"
     description: "NuoDB database service, with persistent storage. For more information about using this template, including OpenShift considerations, see https://hub.docker.com/r/nuodb/nuodb-ce/ \n\nWARNING: Any data stored will be lost upon pod destruction. Only use this template for testing"
