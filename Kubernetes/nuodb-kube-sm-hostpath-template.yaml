@@ -27,6 +27,17 @@ spec:
       labels:
         app: sm
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - sm
+      nodeSelector:
+        nodeType: storage
       containers:
       - name: sm-us-east-2a
         image: docker.io/nuodb/nuodb-ee:3.3.0-master-5609
