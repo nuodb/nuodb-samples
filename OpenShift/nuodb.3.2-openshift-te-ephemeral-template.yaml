@@ -94,8 +94,8 @@ objects:
                 key: database-password
           - name: NODE_REGION
             value: ${NODE_REGION}
-          - name: TE_MEMORY
-            value: ${TE_MEMORY}
+          - name: TE_STARTUP_OPTIONS
+            value: ${TE_STARTUP_OPTIONS}
           - name: TE_TAG_KEY_VALUE
             value: ${TE_TAG_KEY_VALUE}
           - name: NODE_TYPE
@@ -147,11 +147,11 @@ parameters:
     description: "Start NuoDB with a specific number of TEs"
     required: true
     value: "2"
-  - name: TE_MEMORY
-    displayName: TE Memory Allocation
-    description: "Enter a value for memory to be allocated for the TE"
+  - name: TE_STARTUP_OPTIONS
+    displayName: TE Startup options
+    description: "Default startup options for all TEs"
     required: false
-    value: "4g"
+    value: "mem 4g"
   - name: TE_TAG_KEY_VALUE
     displayName: Name and Pattern for the label
     description: "Label, e.g. 'tx oltp'"
