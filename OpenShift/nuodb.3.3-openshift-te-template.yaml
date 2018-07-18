@@ -148,10 +148,10 @@ parameters:
     required: true
     value: "2"
   - name: TE_MEMORY
-    displayName: TE Memory Allocation
-    description: "Enter a value for memory to be allocated for the TE"
+    displayName: TE Startup Options
+    description: "Enter default startup options for all TEs"
     required: false
-    value: "8g"
+    value: "mem 8g"
   - name: TE_TAG_KEY_VALUE
     displayName: Name and Pattern for the label
     description: "Label, e.g. 'tx oltp'"

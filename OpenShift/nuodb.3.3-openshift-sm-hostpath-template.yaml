@@ -197,10 +197,10 @@ parameters:
     required: true
     value: /local-storage/journal
   - name: SM_MEMORY
-    displayName: SM Memory Allocation
-    description: "Enter a value for memory to be allocated for the SM"
+    displayName: SM Startup Options
+    description: "Enter default startup options for all SMs"
     required: false
-    value: "8g"
+    value: "mem 8g"
   - name: CONTAINER
     displayName: Container Registry
     description: "Registry to pull NuoDB from"
