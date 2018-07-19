@@ -19,6 +19,6 @@ if [ "$I" = "0" ]; then
 fi
 
 for i in $(seq 1 $I); do
-        /opt/nuodb/bin/nuosql $DBNAME@$AGENT --user $DBUSER --password $DBPASS --connection-property "LBQuery=round_robin(region($LB))" < $FILE
+        /opt/nuodb/bin/nuosql $DBNAME@$AGENT --user $DBUSER --password $DBPASS --connection-property "LBQuery=round_robin($LB)" < $FILE
         sleep 1
 done

@@ -6,4 +6,4 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-runsql $PEER_ADDRESS $DB_NAME $DB_USER $DB_PASSWORD "$1" ./getnodeid.sql 0
+/scripts/demo/runsql $PEER_ADDRESS $DB_NAME $DB_USER $DB_PASSWORD "$1" ./getnodeid.sql 0
