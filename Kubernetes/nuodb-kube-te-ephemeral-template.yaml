@@ -1,8 +1,8 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  namespace: demo
-  name: te-us-east-2a
+  namespace: <namespace_name>
+  name: te-<node_zone_name>
   labels:
     group: nuodb
 spec:
@@ -16,13 +16,13 @@ spec:
         app: te
     spec:
       containers:
-      - name: te-us-east-2a
-        image: docker.io/nuodb/nuodb-ee:3.3.0-master-5609
+      - name: te-<node_zone_name>
+        image: docker.io/nuodb/nuodb-ee:3.3.0-master-5611
         env:
         - name: API_PORT
           value: "8888"
         - name: PEER_ADDRESS
-          value: "nuodb-svc"
+          value: <admin_service_name>
         - name: DB_NAME
           value: hockey
         - name: DB_USER
@@ -36,7 +36,7 @@ spec:
               name: nuodb-secret
               key: database-password
         - name: NODE_REGION
-          value: us-east-2a
+          value: <node_zone_name>
         - name: NODE_TYPE
           value: TE
       imagePullSecrets:

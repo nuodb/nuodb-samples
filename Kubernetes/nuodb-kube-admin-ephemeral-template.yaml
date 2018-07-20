@@ -1,6 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: <namespace_name>
   annotations:
     "service.alpha.kubernetes.io/tolerate-unready-endpoints": "true"
   labels:
@@ -24,13 +25,13 @@ status:
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: demo
+  namespace: <namespace_name>
   annotations:
     description: "Service for Admin pods."
   labels:
     group: nuodb
     app: nuodb
-  name: nuodb-svc
+  name: <admin_service_name>
 spec:
   ports:
   - name: 8888-tcp
@@ -53,8 +54,8 @@ spec:
 apiVersion: "apps/v1beta1"
 kind: StatefulSet
 metadata:
-  namespace: demo
-  name: nuoadmin-us-east-2a
+  namespace: <namespace_name>
+  name: nuoadmin-<node_zone_name>
   labels:
     group: nuodb
 spec:
@@ -70,8 +71,19 @@ spec:
         dns: nuoadmin
         app: admin
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - admin
+              topologyKey: kubernetes.io/hostname
       containers:
-      - name: nuoadmin-us-east-2a
+      - name: nuoadmin-<node_zone_name>
         image: docker.io/nuodb/nuodb-ee:3.3.0-master-5609
         ports:
         - containerPort: 8888
@@ -87,9 +99,9 @@ spec:
         - name: API_PORT
           value: "8888"
         - name: PEER_ADDRESS
-          value: "nuodb-svc"
+          value: <admin_service_name>
         - name: NODE_REGION
-          value: us-east-2a
+          value: <node_zone_name>
         - name: NODE_TYPE
           value: NUOADMIN
         - name: FIRST_CLUSTER_API

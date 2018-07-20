@@ -1,20 +1,20 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  namespace: demo
+  namespace: <namespace_name>
   name: nuodb-secret
   labels:
     group: nuodb
 type: Opaque
 data:
-  database-username: Z29hbGll
-  database-password: Z29hbCE=
+  database-username: <DB_USER>
+  database-password: <DB_PASS>
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  namespace: demo
-  name: sm-us-east-2a
+  namespace: <namespace_name>
+  name: sm0-<node_zone_name>
   labels:
     group: nuodb
 spec:
@@ -28,19 +28,20 @@ spec:
         app: sm
     spec:
       affinity:
-        nodeAffinity:
+        podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
+          - labelSelector:
+              matchExpressions:
               - key: app
                 operator: In
                 values:
                 - sm
+            topologyKey: kubernetes.io/hostname
       nodeSelector:
-        nodeType: storage
+        smStorage: sm0
       containers:
-      - name: sm-us-east-2a
-        image: docker.io/nuodb/nuodb-ee:3.3.0-master-5609
+      - name: sm0-<node_zone_name>
+        image: docker.io/nuodb/nuodb-ee:3.3.0-master-5611
         ports:
         - containerPort: 8888
           name: api
@@ -53,7 +54,7 @@ spec:
         - name: API_PORT
           value: "8888"
         - name: PEER_ADDRESS
-          value: "nuodb-svc"
+          value: <admin_service_name>
         - name: DB_NAME
           value: hockey
         - name: DB_USER
@@ -67,7 +68,7 @@ spec:
               name: nuodb-secret
               key: database-password
         - name: NODE_REGION
-          value: us-east-2a
+          value: <node_zone_name>
         - name: NODE_TYPE
           value: SM
         volumeMounts:
