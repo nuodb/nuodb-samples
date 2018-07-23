@@ -199,7 +199,7 @@ parameters:
     displayName: Container Registry
     description: "Registry to pull NuoDB from"
     required: true
-    value: "docker.io/nuodb/nuodb-ee:3.3.0-master-5610"
+    value: "docker.io/nuodb/nuodb-ee:3.3.0-master-5611"
   - name: UID
     description: "Generate UID for deployment names"
     generate: expression

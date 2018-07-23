@@ -467,4 +467,4 @@ parameters:
     displayName: Container Registry
     description: "Registry to pull NuoDB from"
     required: true
-    value: "docker.io/nuodb/nuodb-ee:3.3.0-master-5609"
+    value: "docker.io/nuodb/nuodb-ee:3.3.0-master-5611"

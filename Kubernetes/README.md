@@ -39,7 +39,7 @@ The NuoDB deployment has been broken into 3 yaml files to allow for more flexibi
 
 You will need to deploy the NuoDB domain before deploying the storage manager and transaction engines. Download the yaml template to where you can run kubectl and manage your Kubernetes cluster.
 ```bash
-curl -sl https://raw.githubusercontent.com/nuodb/nuodb-samples/feature/kubernetes-template/Kubernetes/nuodb-kube-admin-ephemeral-template.yaml -o ./sm.yaml
+curl -sl https://raw.githubusercontent.com/nuodb/nuodb-samples/master/Kubernetes/nuodb-kube-admin-ephemeral-template.yaml -o ./admin.yaml
 ```
 
 This template does not have any dynamic parameters and is not wrapped with Helm Charts so you will need to manually edit the parameters to match your environment directly within the yaml template. The following chart lists the parameters that need to be updated:
@@ -93,7 +93,7 @@ You are now ready to deploy the SM and TE containers
 
  Download the yaml template to where you can run kubectl and manage your Kubernetes cluster.
 ```bash
-curl -sl https://raw.githubusercontent.com/nuodb/nuodb-samples/feature/kubernetes-template/Kubernetes/nuodb-kube-admin-ephemeral-template.yaml -o ./admin.yaml
+curl -sl https://raw.githubusercontent.com/nuodb/nuodb-samples/master/Kubernetes/nuodb-kube-sm-hostpath-template.yaml -o ./sm.yaml
 ```
 
 In this template, a kubernetes secret is created to store the username and password for the database. The username and password must be converted to base64 in order to be processed by kubernetes. You can do this from a terminal with the following command:
@@ -130,7 +130,7 @@ kubectl create -f ./sm.yaml
 
  Download the yaml template to where you can run kubectl and manage your Kubernetes cluster.
 ```bash
-curl -sl https://raw.githubusercontent.com/nuodb/nuodb-samples/feature/kubernetes-template/Kubernetes/nuodb-kube-admin-ephemeral-template.yaml -o ./te.yaml
+curl -sl https://raw.githubusercontent.com/nuodb/nuodb-samples/master/Kubernetes/nuodb-kube-te-ephemeral-template.yaml -o ./te.yaml
 ```
 
 Manually edit the parameters to match your environment directly within the yaml template. The following chart lists the parameters that need to be updated:
