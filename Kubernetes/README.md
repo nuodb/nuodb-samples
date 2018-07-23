@@ -6,7 +6,7 @@ The following instructions will guide you through deploying NuoDB on Kubernetes 
 * nuodb-kube-sm-hostpath-template.yaml
 * nuodb-kube-te-ephemeral-template.yaml
 
-**Prerequesits**
+**Prerequisites**
 
 * Storage HostPath - The NuoDB Storage Manager can optionally run as ephemeral storage but the Storage Manager sample template assumes you have allowed host volume read/write access to containers. To enable pod access to the host edit the SCC Restricted template:
 
@@ -33,7 +33,7 @@ kubectl create secret docker-registry regcred \
 
 **Deploy NuoDB on Kubernetes**
 
-The NuoDB deployment has been broken into 3 yaml files to allow for more flexibility. As long as you have at least one cluster of NuoAdmins deployed, you can added as many SM or TEs to the existing NuoDB domain as needed.
+The NuoDB deployment has been broken into 3 yaml files to allow for more flexibility. As long as you have at least one cluster of NuoAdmins deployed, you can add as many SM or TEs to the existing NuoDB domain as needed.
 
 **NuoAdmin**
 
