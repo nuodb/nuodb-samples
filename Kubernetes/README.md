@@ -1,5 +1,7 @@
 **Overview**
 
+The following instructions will guide you through deploying NuoDB on Kubernetes with the following templates.
+
 * nuodb-kube-admin-ephemeral-template.yaml
 * nuodb-kube-sm-hostpath-template.yaml
 * nuodb-kube-te-ephemeral-template.yaml
@@ -45,8 +47,8 @@ This template does not have any dynamic parameters and is not wrapped with Helm 
 
 Key | Parameter | Description 
 --------- | ----------- | -------
-`namespace` | namespace_name | Designate which kubernetes namespace for resource 
-`service name` | admin_service_name | PEER_ADDRESS and service name for Admin load balancing and application connection connection string 
+`namespace` | <namespace_name> | Designate which kubernetes namespace for resource 
+`service name` | <admin_service_name> | PEER_ADDRESS and service name for Admin load balancing and application connection connection string 
 `statefulset name` | nuoadmin-<node_zone_name> | The statefulset deployment group's name. It's best to associate the name with the zone you are deploying NuoDB to. Append the node_zone_name to 'nouadmin-' 
 `container name` | nuoadmin-<node_zone_name> | Name used for deploying pods. It's best to associate the name with deployment zone. Append the node_zone_name to 'nuoadmin-'
 `container env node region` | <node_zone_name> | Node zone location for regional deployments of NuoDB 
@@ -105,14 +107,16 @@ Manually edit the parameters to match your environment directly within the yaml 
 
 Key | Parameter | Description 
 --------- | ----------- | -------
-`namespace` | namespace_name | Designate which kubernetes namespace for resource. Should match namespace used for NuoAdmin 
-`container env node region` | node_zone_name | Node zone location for regional deployments of NuoDB 
-`peer_address` | admin_service_name | Service name for Admin load balancing. SM will use service to register on domain 
+`namespace` | <namespace_name> | Designate which kubernetes namespace for resource. Should match namespace used for NuoAdmin 
+`container env node region` | <node_zone_name> | Node zone location for regional deployments of NuoDB 
+`peer_address` | <admin_service_name> | Service name for Admin load balancing. SM will use service to register on domain 
 `replicaset name` | sm0-<node_zone_name> | The replicaset deployment group's name. It's best to associate the name with the zone you are deploying NuoDB to. Append the node_zone_name to 'sm0-' 
 `container name` | sm0-<node_zone_name> | Name used for deploying pods. It's best to associate the name with deployment zone. Append the node_zone_name to 'sm0-'
 `DB_NAME` | <DB_NAME> | Database name that will be created on start of the SM
 `DB_USER` | <DB_USER> | Base64 value for database user
 `DB_PASS` | <DB_PASS> | Base64 value for database user password
+`archive hostpath` | <archive_storage_path> | Host directory path. example: /local-storage/archive
+`journal hostpath` | <journal_storage_path> | Host directory path. example: /local-storage/journal
 
 
 Deploy the NuoDB Storage Manager
@@ -133,9 +137,9 @@ Manually edit the parameters to match your environment directly within the yaml 
 
 Key | Parameter | Description 
 --------- | ----------- | -------
-`namespace` | namespace_name | Designate which kubernetes namespace for resource. Should match namespace used for NuoAdmin 
-`container env node region` | node_zone_name | Node zone location for regional deployments of NuoDB 
-`peer_address` | admin_service_name | Service name for Admin load balancing. SM will use service to register on domain 
+`namespace` | <namespace_name> | Designate which kubernetes namespace for resource. Should match namespace used for NuoAdmin 
+`container env node region` | <node_zone_name> | Node zone location for regional deployments of NuoDB 
+`peer_address` | <admin_service_name> | Service name for Admin load balancing. SM will use service to register on domain 
 `replicaset name` | te-<node_zone_name> | The replicaset deployment group's name. It's best to associate the name with the zone you are deploying NuoDB to. Append the node_zone_name to 'te-' 
 `container name` | te-<node_zone_name> | Name used for deploying pods. It's best to associate the name with deployment zone. Append the node_zone_name to 'te-'
 

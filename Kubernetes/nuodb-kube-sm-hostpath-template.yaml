@@ -79,9 +79,9 @@ spec:
       volumes:
       - name: sm-archives-us-east-2a
         hostPath:
-          path: /local-storage/archive
+          path: <archive_storage_path>
       - name: sm-journal-us-east-2a
         hostPath:
-          path: /local-storage/journal
+          path: <journal_storage_path>
       imagePullSecrets:
       - name: regcred
