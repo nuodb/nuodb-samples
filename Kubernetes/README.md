@@ -33,7 +33,7 @@ kubectl create secret docker-registry regcred \
 
 **Deploy NuoDB on Kubernetes**
 
-The NuoDB deployment has been broken into 3 yaml files to allow for more flexibility. As long as you have at least one cluster of NuoAdmins deployed, you can add as many SM or TEs to the existing NuoDB domain as needed.
+The NuoDB deployment has been split into 3 yaml files to allow for more flexibility. As long as you have at least one cluster of NuoAdmins deployed, you can add as many SM or TEs to the existing NuoDB domain as needed.
 
 **NuoAdmin**
 
