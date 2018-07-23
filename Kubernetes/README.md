@@ -37,7 +37,7 @@ The NuoDB deployment has been split into 3 yaml files to allow for more flexibil
 
 **NuoAdmin**
 
-You will need to deploy the NuoDB domain before deploying the storage manager and transaction engines. Download the yaml template to where you can run kubectl and manage your Kubernetes cluster.
+You will need to deploy the NuoDB domain before deploying the database storage manager and transaction engines. Download the yaml template to where you can run kubectl and manage your Kubernetes cluster.
 ```bash
 curl -sl https://raw.githubusercontent.com/nuodb/nuodb-samples/master/Kubernetes/nuodb-kube-admin-ephemeral-template.yaml -o ./admin.yaml
 ```
