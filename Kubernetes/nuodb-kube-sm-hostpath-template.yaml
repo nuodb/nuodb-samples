@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  namespace: <namespace_name>
+  name: nuodb-secret
+  labels:
+    group: nuodb
+type: Opaque
+data:
+  database-username: <DB_USER>
+  database-password: <DB_PASS>
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: <namespace_name>
+  name: sm0-<node_zone_name>
+  labels:
+    group: nuodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     app: sm
+  template:
+    metadata:
+      labels:
+        app: sm
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - sm
+            topologyKey: kubernetes.io/hostname
+      nodeSelector:
+        smStorage: sm0
+      containers:
+      - name: sm0-<node_zone_name>
+        image: docker.io/nuodb/nuodb-ee:3.3.0-master-5611
+        ports:
+        - containerPort: 8888
+          name: api
+          protocol: TCP
+        - containerPort: 48004
+          protocol: TCP
+        - containerPort: 48005
+          protocol: TCP
+        env:
+        - name: API_PORT
+          value: "8888"
+        - name: PEER_ADDRESS
+          value: <admin_service_name>
+        - name: DB_NAME
+          value: hockey
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: nuodb-secret
+              key: database-username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: nuodb-secret
+              key: database-password
+        - name: NODE_REGION
+          value: <node_zone_name>
+        - name: NODE_TYPE
+          value: SM
+        volumeMounts:
+        - mountPath: /archive
+          name: sm-archives-us-east-2a
+        - mountPath: /journal
+          name: sm-journal-us-east-2a
+      volumes:
+      - name: sm-archives-us-east-2a
+        hostPath:
+          path: <archive_storage_path>
+      - name: sm-journal-us-east-2a
+        hostPath:
+          path: <journal_storage_path>
+      imagePullSecrets:
+      - name: regcred

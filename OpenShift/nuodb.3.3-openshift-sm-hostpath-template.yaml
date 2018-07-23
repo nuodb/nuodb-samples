@@ -201,6 +201,10 @@ parameters:
     description: "Enter default startup options for all SMs"
     required: false
     value: "mem 8g"
+  - name: SUB_ID
+    displayName: Insights Subscriber ID
+    description: "Insights Subscriber ID"
+    value: VNB2L0GZW1
   - name: CONTAINER
     displayName: Container Registry
     description: "Registry to pull NuoDB from"

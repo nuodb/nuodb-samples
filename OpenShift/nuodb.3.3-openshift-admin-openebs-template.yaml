@@ -184,7 +184,7 @@ parameters:
   - name: SUB_ID
     displayName: Insights Subscriber ID
     description: "Insights Subscriber ID"
-    value: VNB2L0GZW1
+    value:
   - name: ADMIN_COUNT
     displayName: Number of NuoADMIN nodes to Launch
     description: "Start NuoDB with a specific number of NuoADMINs"
