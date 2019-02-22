@@ -6,6 +6,7 @@ export NUODB_HOME=${NUODB_HOME:-/opt/nuodb}
 
 echo Using NuoDB in %NUODB_HOME%
 echo Building JAR using Maven
-mvnw.cmd package
 
+chmod a+x mvnw
+./mvnw package
 
