@@ -1,3 +1,4 @@
+
 /* GettingStarted.java */
 
 import javax.sql.DataSource;
@@ -14,142 +15,167 @@ import java.util.logging.Logger;
  */
 public class GettingStarted {
 
-    private static final String DEFAULT_QUERY = "SELECT * from User.Teams WHERE year < ?";
-    private static final String DEFAULT_TIME = "1";
+	private static final String DEFAULT_QUERY = "SELECT * from User.Teams WHERE year < ?";
+	private static final String DEFAULT_TIME = "1";
 
-    private static Logger log = Logger.getLogger(GettingStarted.class.getName());
+	private static Logger log = Logger.getLogger(GettingStarted.class.getName());
 
-    public static void main(String[] args) {
-        Properties props = parseCommandLine(args);
+	public static void main(String[] args) {
+		Properties props = parseCommandLine(args);
 
-        if (props.getProperty("url") == null || props.getProperty("user") == null || props.get("password") == null) {
-            throw new IllegalArgumentException("Missing command-line option. You must specify -url URL -user USER -password password");
-        }
+		if (props.getProperty("url") == null || props.getProperty("user") == null || props.get("password") == null) {
+			System.out.println("Usage: The following options are recognized:");
+			System.out.println("    -url DATABASE_URL     (mandatory)");
+			System.out.println("    -user USER            (mandatory)");
+			System.out.println("    -password PASSWORD    (mandatory)");
+			System.out.println("    -time TIME_IN_SECONDS (optional)");
+			System.out.println("    -query SQL            (optional)");
+			System.exit(0);
+		}
 
-        DataSource dataSource = new com.nuodb.jdbc.DataSource(props);
-        ExecutorService executor = Executors.newCachedThreadPool();
+		DataSource dataSource = new com.nuodb.jdbc.DataSource(props);
+		ExecutorService executor = Executors.newCachedThreadPool();
 
-        int threadCount = Integer.parseInt(props.getProperty("threads", "10"));
-        for (int index = 0; index < threadCount; index++) {
-            executor.submit(new Task(index, dataSource, props));
-        }
+		int threadCount = Integer.parseInt(props.getProperty("threads", "10"));
+		for (int index = 0; index < threadCount; index++) {
+			executor.submit(new Task(index, dataSource, props));
+		}
 
-	executor.shutdown();
-    }
+		executor.shutdown();
+	}
 
-    private static class Task implements Runnable {
+	/**
+	 * This task runs the specified query as many times as it can in the time
+	 * allowed. The default query is {@link GettingStarted#DEFAULT_QUERY}, the
+	 * default time is {@link GettingStarted#DEFAULT_TIME}.
+	 */
+	private static class Task implements Runnable {
 
-	private final int id;
-        private final String query;
-        private final DataSource dataSource;
-        private final long timeout;
+		private final int id;
+		private final String query;
+		private final DataSource dataSource;
+		private final long timeout;
 
-	private static AtomicLong counter = new AtomicLong(0);
+		private static AtomicLong counter = new AtomicLong(0);
 
-        public Task(int id, DataSource dataSource, Properties props) {
-	    this.id = id;
-            this.dataSource = dataSource;
+		public Task(int id, DataSource dataSource, Properties props) {
+			this.id = id;
+			this.dataSource = dataSource;
 
-            query = props.getProperty("query", DEFAULT_QUERY);
+			query = props.getProperty("query", DEFAULT_QUERY);
 
-            long duration = 1000 * Long.parseLong(props.getProperty("time", DEFAULT_TIME));
-            timeout = System.currentTimeMillis() + duration;
-        }
+			long duration = 1000 * Long.parseLong(props.getProperty("time", DEFAULT_TIME));
+			timeout = System.currentTimeMillis() + duration;
+		}
 
-        @Override
-        public void run() {
+		@Override
+		public void run() {
 
-	    // count the parameters in the query
-	    int paramCount = 0;
-	    for (int cx = 0, max = query.length(); cx < max; cx++) {
-		if (query.charAt(cx) == '?')
-		    paramCount++;
-	    }
-
-	    int retry = 0;
-
-            // loop until timeout expires
-            while (System.currentTimeMillis() < timeout) {
-
-		int teId = -1;
-                try (Connection conn = dataSource.getConnection();
-                     PreparedStatement sql = conn.prepareStatement(query)) {
-
-		    teId = com.nuodb.jdbc.Connection.class.cast(conn).getConnectedNodeId();
-
-                    for (int cycle = 0; cycle < 100; cycle++) {
-
-			for (int paramNo = 1; paramNo <= paramCount; paramNo++) {
-			    sql.setInt(paramNo, new Random().nextInt(100) + 1900);
+			// count the parameters in the query
+			int paramCount = 0;
+			for (int cx = 0, max = query.length(); cx < max; cx++) {
+				if (query.charAt(cx) == '?')
+					paramCount++;
 			}
 
-                        ResultSet rs = sql.executeQuery();
+			int retry = 0;
 
-                        int count = 0;
-                        while (rs.next()) {
-                            count++;
-                        }
-                    }
+			// loop until timeout expires
+			while (System.currentTimeMillis() < timeout) {
 
-		    long current = counter.addAndGet(100);
-		    log.info(String.format("Ran 100 queries in task %d on TE %d; total=%d", id, teId, current));
+				int teId = -1;
+				try (Connection conn = dataSource.getConnection();
+						PreparedStatement sql = conn.prepareStatement(query)) {
 
-                } catch (SQLTransientConnectionException transientFailure) {
-                    log.info(String.format("Transient error encountered - retrying: %s", transientFailure.toString()));
-                } catch (SQLNonTransientConnectionException nonTransientFailuer) {
-                    log.info(String.format("Error making initial connection - retrying: %s", nonTransientFailuer.toString()));
+					teId = com.nuodb.jdbc.Connection.class.cast(conn).getConnectedNodeId();
 
-		    retry++;
-	  	    if (retry > 3) {
-			log.warning("Too many retries - exiting");
-			break;
-		    }
+					for (int cycle = 0; cycle < 100; cycle++) {
 
-		    try { Thread.sleep(100); }
-		    catch (InterruptedException interrupted) {}
-                } catch (SQLException queryFailure) {
-                    log.info(String.format("Error executing query %s\n\t%s", query, queryFailure.toString()));
-		    break;
-                } catch (Exception nonSqlError) {
-		    log.info(String.format("Processing error\n\t%s", nonSqlError.toString()));
-		    break;
+						for (int paramNo = 1; paramNo <= paramCount; paramNo++) {
+							sql.setInt(paramNo, new Random().nextInt(111) + 1900);
+						}
+
+						ResultSet rs = sql.executeQuery();
+
+						int count = 0;
+						while (rs.next()) {
+							count++;
+						}
+					}
+
+					long current = counter.addAndGet(100);
+					log.info(String.format("Ran 100 queries in task %d on TE %d; total=%d", id, teId, current));
+
+				} catch (SQLTransientConnectionException transientFailure) {
+					log.info(String.format("Transient error encountered - retrying: %s", transientFailure.toString()));
+				} catch (SQLNonTransientConnectionException nonTransientFailuer) {
+					log.info(String.format("Error making initial connection - retrying: %s",
+							nonTransientFailuer.toString()));
+
+					retry++;
+					if (retry > 3) {
+						log.warning("Too many retries - exiting");
+						break;
+					}
+
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException interrupted) {
+					}
+				} catch (SQLException queryFailure) {
+					log.info(String.format("Error executing query %s\n\t%s", query, queryFailure.toString()));
+					break;
+				} catch (Exception nonSqlError) {
+					log.info(String.format("Processing error\n\t%s", nonSqlError.toString()));
+					break;
+				}
+			}
 		}
-            }
-        }
-    }
+	}
 
-    public static Properties parseCommandLine(String[] args) {
+	/**
+	 * Parses command line arguments of form [value]</code> where <code>value</code>
+	 * is optional. Once parsed:
+	 * <ul>
+	 * <li><code>-arg</code> sets property <code>arg=true</code>
+	 * <li><code>-arg value</code> sets property <code>arg=value</code>
+	 * </ul>
+	 *
+	 * @param args Command line arguments from main.
+	 * @return Corresponding properties.
+	 */
+	public static Properties parseCommandLine(String[] args) {
 
-        // create an empty Properties object
-        Properties props = new Properties();
+		// create an empty Properties object
+		Properties props = new Properties();
 
-        // iterate the command arguments
-        String name = null;
-        for (String arg : args) {
+		// iterate the command arguments
+		String name = null;
+		for (String arg : args) {
 
-            // arg begins with '-', so it's an option name
-            if (arg.charAt(0) == '-') {
-                if (name != null) {
-		    log.info(String.format("setting %s=true", name));
-                    props.setProperty(name, "true");
-                }
+			// arg begins with '-', so it's an option name
+			if (arg.charAt(0) == '-') {
+				if (name != null) {
+					log.info(String.format("setting %s=true", name));
+					props.setProperty(name, "true");
+				}
 
-                name = arg.substring(1);
-            }
+				name = arg.substring(1);
+			}
 
-            // arg comes immediately after an option name
-            else if (name != null) {
-		log.info(String.format("setting %s=%s", name, arg));
-                props.setProperty(name, arg);
-		name = null;
-            }
+			// arg comes immediately after an option name
+			else if (name != null) {
+				log.info(String.format("setting %s=%s", name, arg));
+				props.setProperty(name, arg);
+				name = null;
+			}
 
-            // no preceding name - error
-            else {
-                throw new IllegalArgumentException(String.format("Option value with no name: ", arg));
-            }
-        }
+			// no preceding name - error
+			else {
+				throw new IllegalArgumentException(String.format("Option value with no name: ", arg));
+			}
+		}
 
-        return props;
-    }
+		return props;
+	}
 }

@@ -9,5 +9,5 @@ else
 	export runTime=1
 fi
 
-java -cp .:$NUODB_HOME/jar/nuodbjdbc.jar GettingStarted -url jdbc:com.nuodb://localhost/testdb -user dba -password dba -threads 10 -time $runTime
+java -jar target/getting-started-1.1.0-RELEASE.jar -url jdbc:com.nuodb://localhost/testdb -user dba -password dba -threads 10 -time $runTime
 

@@ -4,5 +4,8 @@
 
 export NUODB_HOME=${NUODB_HOME:-/opt/nuodb}
 
-javac -cp .:$NUODB_HOME/jar/nuodbjdbc.jar src/main/java/GettingStarted.java -d .
+echo Using NuoDB in %NUODB_HOME%
+echo Building JAR using Maven
+mvnw.cmd package
+
 
