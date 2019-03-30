@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 public class GettingStarted {
 
 	private static final String DEFAULT_QUERY = "SELECT * from User.Teams WHERE year < ?";
+	private static final String DEFAULT_SCHEMA = "User";
 	private static final String DEFAULT_TIME = "1";
 
 	private static Logger log = Logger.getLogger(GettingStarted.class.getName());
@@ -24,10 +25,13 @@ public class GettingStarted {
 		Properties props = parseCommandLine(args);
 
 		if (props.getProperty("url") == null || props.getProperty("user") == null || props.get("password") == null) {
+			System.out.println("Missing mandatory argument.");
+			System.out.println();
 			System.out.println("Usage: The following options are recognized:");
 			System.out.println("    -url DATABASE_URL     (mandatory)");
 			System.out.println("    -user USER            (mandatory)");
 			System.out.println("    -password PASSWORD    (mandatory)");
+			System.out.println("    -schema SCHEMA-NAME   (optional)");
 			System.out.println("    -time TIME_IN_SECONDS (optional)");
 			System.out.println("    -query SQL            (optional)");
 			System.exit(0);
@@ -62,7 +66,13 @@ public class GettingStarted {
 			this.id = id;
 			this.dataSource = dataSource;
 
-			query = props.getProperty("query", DEFAULT_QUERY);
+			String query = props.getProperty("query", DEFAULT_QUERY);
+			String schema = props.getProperty("schema", "");
+
+			if (schema.length() > 0 && !schema.equals(DEFAULT_SCHEMA))
+				query = query.replace(DEFAULT_SCHEMA, schema);
+			
+			this.query = query;
 
 			long duration = 1000 * Long.parseLong(props.getProperty("time", DEFAULT_TIME));
 			timeout = System.currentTimeMillis() + duration;
