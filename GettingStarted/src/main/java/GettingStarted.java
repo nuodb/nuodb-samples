@@ -33,10 +33,18 @@ public class GettingStarted {
 			System.out.println("    -password PASSWORD    (mandatory)");
 			System.out.println("    -schema SCHEMA-NAME   (optional)");
 			System.out.println("    -time TIME_IN_SECONDS (optional)");
+			System.out.println("    -threads THREAD_COUNT (optional)");
 			System.out.println("    -query SQL            (optional)");
 			System.exit(0);
 		}
 
+		// Show properties being used.
+		System.out.println("Using properties: ");
+		props.entrySet().forEach(e -> System.out
+				.println("    " + e.getKey() + " = " + (e.getKey().equals("password") ? "***" : e.getValue())));
+		System.out.println();
+
+		// Create the data source and thread-pool
 		DataSource dataSource = new com.nuodb.jdbc.DataSource(props);
 		ExecutorService executor = Executors.newCachedThreadPool();
 
@@ -71,7 +79,7 @@ public class GettingStarted {
 
 			if (schema.length() > 0 && !schema.equals(DEFAULT_SCHEMA))
 				query = query.replace(DEFAULT_SCHEMA, schema);
-			
+
 			this.query = query;
 
 			long duration = 1000 * Long.parseLong(props.getProperty("time", DEFAULT_TIME));
@@ -107,6 +115,7 @@ public class GettingStarted {
 
 						ResultSet rs = sql.executeQuery();
 
+						// Iterate over the result set
 						int count = 0;
 						while (rs.next()) {
 							count++;
