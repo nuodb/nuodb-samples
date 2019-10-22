@@ -3,11 +3,13 @@ REM compile the GettingStarted app
 
 if defined NUODB_HOME (
     echo Using NuoDB in %NUODB_HOME%
-    echo Building JAR using Maven
-    mvnw.cmd package
 ) else (
-    echo NUODB_HOME must be set in your environment
+    echo Warning: NUODB_HOME is not set in your environment
 )
+
+echo Building JAR using Maven
+mvnw.cmd package
+
 
 
 
