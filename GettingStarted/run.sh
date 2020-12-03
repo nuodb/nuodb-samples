@@ -9,5 +9,6 @@ else
 	export runTime=1
 fi
 
-java -jar target/getting-started-1.1.0-RELEASE.jar -url jdbc:com.nuodb://localhost/testdb -schema User -user dba -password dba -threads 10 -time $runTime
+# Note use of "clientInfo" to identify queries from this process - see System.Connections table
+java -jar target/getting-started-1.1.0-RELEASE.jar -url "jdbc:com.nuodb://localhost/testdb?clientInfo=GettingStarted" -schema User -user dba -password dba -threads 10 -time $runTime
 

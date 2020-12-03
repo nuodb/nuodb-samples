@@ -1,15 +1,11 @@
 REM compile the GettingStarted app
 @echo off
 
-if defined NUODB_HOME (
-    echo Using NuoDB in %NUODB_HOME%
-) else (
-    echo Warning: NUODB_HOME is not set in your environment
-)
+echo [INFO] Building JAR using Maven
+call mvnw.cmd package
+echo:
 
-echo Building JAR using Maven
-mvnw.cmd package
-
-
-
+for %%# in (target\getting-started*.jar) do set "JARNAME=%%~nx#"
+echo [INFO] To run and get help: java -jar target\%JARNAME%
+echo [INFO] Or use run.bat script - you may need to edit run.bat to change parameters such as host or schema name
 
