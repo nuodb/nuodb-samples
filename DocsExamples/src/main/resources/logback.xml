@@ -1,0 +1,20 @@
+<configuration>
+	<!-- Based on example in https://stackify.com/logging-logback/ -->
+	<appender name="STDOUT"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<encoder
+			class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>%magenta(%d{HH:mm:ss.SSS}) %highlight(%p) %green(%-30logger{30}) %blue(%msg) %n</pattern>
+		</encoder>
+	</appender>
+
+	<root level="trace">
+		<appender-ref ref="STDOUT" />
+	</root>
+	
+	<logger name="org.hibernate" level="WARN" />
+	<logger name="org.springframework" level="WARN" />
+	<logger name="com.zaxxer" level="WARN" />
+	<logger name="com.nuodb" level="DEBUG" />
+	
+</configuration>

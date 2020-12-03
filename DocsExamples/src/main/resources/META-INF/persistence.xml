@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- The configuration file for JPA -->
+<persistence
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+	version="2.0" xmlns="http://java.sun.com/xml/ns/persistence">
+
+	<!-- Each persistence unit correspond to a database -->
+	<persistence-unit name="Hockey"
+		transaction-type="RESOURCE_LOCAL">
+		<class>com.nuodb.docs.java.Player</class>
+		<properties>
+			<!-- JPA Properties -->
+			<property name="javax.persistence.jdbc.driver"
+				value="com.nuodb.hibernate.NuoHibernateDriver" />
+			<property name="javax.persistence.jdbc.url"
+				value="jdbc:com.nuodb.hib://localhost/test" />
+			<property name="javax.persistence.jdbc.user" value="dba" />
+			<property name="javax.persistence.jdbc.password"
+				value="goalie" />
+
+			<!-- HIBERNATE Properties -->
+			<property name="hibernate.connection.schema" value="Hockey" />
+			<property name="hibernate.dialect"
+				value="com.nuodb.hibernate.NuoDBDialect" />
+
+			<!-- Print SQL to stdout, format it nicely -->
+			<property name="hibernate.show_sql" value="true" />
+			<property name="hibernate.format_sql" value="true" />
+			<property name="hibernate.use_sql_comments" value="true" />
+
+			<!-- Check schema matches our classes -->
+			<property name="hibernate.hbm2ddl.auto" value="validate" />
+		</properties>
+
+	</persistence-unit>
+</persistence>
